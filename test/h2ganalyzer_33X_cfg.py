@@ -20,7 +20,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200)
 )
 
-process.load("HiggsAnalysis.HiggsTo2photons.CMSSW_3_1_2_RelValHGG_cfi")
+process.load("HiggsAnalysis.HiggsTo2photons.CMSSW_3_3_6_RelValHGG_cfi")
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
@@ -42,6 +42,6 @@ process.h2ganalyzer.doL1 = False
 process.h2ganalyzer.doHLT = True
 process.h2ganalyzer.Debug_Level = 0
 
-process.GlobalTag.globaltag = 'STARTUP31X_V2::All'
+process.GlobalTag.globaltag = 'STARTUP3X_V8H::All'
 
  
