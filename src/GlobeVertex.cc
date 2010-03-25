@@ -116,7 +116,7 @@ bool GlobeVertex::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     ((TVector3 *)vtx_vectorp3->At(vtx_n))->SetXYZ(vecsumP3.x(), vecsumP3.y(), vecsumP3.z());
     
     
-    if (strcmp(nome, "std") == 1) { 
+    if (strcmp(nome, "std") == 0) { 
       if (vtx->tracksSize() < MAX_VERTEX_TRACKS) {
         vtx_ntks[vtx_n] = vtx->tracksSize();
         

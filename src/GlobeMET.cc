@@ -18,10 +18,10 @@
 GlobeMET::GlobeMET(const edm::ParameterSet& iConfig, const char* n): nome(n) {
   
   caloMETColl =  iConfig.getParameter<edm::InputTag>("CaloMETColl");
-  if(strcmp(nome, "tcmet") == 1 ) 
+  if(strcmp(nome, "tcmet") == 0) 
     tcMETColl =  iConfig.getParameter<edm::InputTag>("TcMETColl");
   
-  if(strcmp(nome, "pfmet") == 1)
+  if(strcmp(nome, "pfmet") == 0)
     pfMETColl =  iConfig.getParameter<edm::InputTag>("PFMETColl");
 
   muonGlobalColl =  iConfig.getParameter<edm::InputTag>("MuonColl");
@@ -33,7 +33,7 @@ GlobeMET::GlobeMET(const edm::ParameterSet& iConfig, const char* n): nome(n) {
 
 void GlobeMET::defineBranch(TTree* tree) {
    
-  if(strcmp(nome, "tcmet") == 0 && strcmp(nome, "pfmet") == 0){
+  if(strcmp(nome, "tcmet") != 0 && strcmp(nome, "pfmet") != 0){
     tree->Branch("met_met", &met_met, "met_met/F");
     tree->Branch("met_phi", &met_phi, "met_phi/F");
     tree->Branch("met_met_nocalo", &met_met_nocalo, "met_met_nocalo/F");
@@ -48,19 +48,19 @@ void GlobeMET::defineBranch(TTree* tree) {
     tree->Branch("met_phi_jet", &met_phi_jet, "met_phi_jet/F");
   }
 
-  if(strcmp(nome, "tcmet") == 1) {
+  if(strcmp(nome, "tcmet") == 0) {
     tree->Branch("met_tcmet", &met_tcmet, "met_tcmet/F");
     tree->Branch("met_phi_tcmet", &met_phi_tcmet, "met_phi_tcmet");
   }
 
-  if(strcmp(nome, "pfmet") == 1) {
+  if(strcmp(nome, "pfmet") == 0) {
     tree->Branch("met_pfmet", &met_pfmet, "met_pfmet/F");
     tree->Branch("met_phi_pfmet", &met_phi_pfmet, "met_phi_pfmet");
   }
 }
 
 bool GlobeMET::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  if(strcmp(nome, "tcmet") == 0 && strcmp(nome, "pfmet") == 0){
+  if(strcmp(nome, "tcmet") != 0 && strcmp(nome, "pfmet") != 0){
     if(debug_level > 99 ) 
       std::cout << "GlobeMET: Start " << std::endl;
     
@@ -99,7 +99,7 @@ bool GlobeMET::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     return true;
   }
 
-  if(strcmp(nome, "tcmet") == 1) {
+  if(strcmp(nome, "tcmet") == 0) {
     
     edm::Handle<reco::METCollection> tcmet_h;
     iEvent.getByLabel(tcMETColl, tcmet_h);
@@ -110,7 +110,7 @@ bool GlobeMET::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     return true;
   }
 
-  if(strcmp(nome, "pfmet") == 1) {
+  if(strcmp(nome, "pfmet") == 0) {
     
     edm::Handle<reco::PFMETCollection> pfmet_h;
     iEvent.getByLabel(pfMETColl, pfmet_h);
