@@ -1,6 +1,7 @@
 #ifndef LIMITS_H
 #define LIMITS_H
 
+// 1 33X, 2 35X and 36X, differences for Electrons
 #define H2G_VERSION 1
 
 #define MAX_PARAMETERS 500
