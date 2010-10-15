@@ -599,13 +599,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
     el_mva[el_n] = egsf.mva();
 
-    #if H2G_VERSION < 2
-    el_ecaldrv[el_n] = egsf.isEcalDriven();
-    el_tkdrv[el_n] = egsf.isTrackerDriven();
-    #else
     el_ecaldrv[el_n] = egsf.ecalDrivenSeed();
     el_tkdrv[el_n] = egsf.trackerDrivenSeed();
-    #endif
 
     el_tkiso04[el_n] = egsf.dr04TkSumPt();
     el_ecaliso04[el_n] = egsf.dr04EcalRecHitSumEt();

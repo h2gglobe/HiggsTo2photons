@@ -376,7 +376,9 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     hlt1_bit_2 = 0;
     hlt1_bit_3 = 0;
     hlt1_bit_4 = 0;
-    configProvider.init(hlt1Tag_.process());
+    bool changed = false;
+    configProvider.init(iEvent.getRun(),iSetup,hlt1Tag_.process(),changed);
+
     edm::Handle<edm::TriggerResults> h_triggerResults_HLT1;
     iEvent.getByLabel(hlt1Tag_, h_triggerResults_HLT1);
     if (h_triggerResults_HLT1.isValid()) {
@@ -439,61 +441,62 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
       hlt2_bit_2 = 0;
       hlt2_bit_3 = 0;
       hlt2_bit_4 = 0;
-      configProvider.init(hlt2Tag_.process());
+      bool changed = false;
+      configProvider.init(iEvent.getRun(),iSetup,hlt2Tag_.process(),changed);
       edm::Handle<edm::TriggerResults> h_triggerResults_HLT2;
       iEvent.getByLabel(hlt2Tag_, h_triggerResults_HLT2);
       if (h_triggerResults_HLT2.isValid()) {
-	hlt_path_names_HLT2_1->clear();
-	hlt_path_names_HLT2_2->clear();
-	hlt_path_names_HLT2_3->clear();
-	hlt_path_names_HLT2_4->clear();
-	if(debug_level > 9) std::cout << "Fill names HLT2" << std::endl;
-	for (size_t i = 0; i < configProvider.size(); ++i) {
-	  int j=(int)(i/32);
-	  if(j<1) {     
-	    hlt_path_names_HLT2_1->push_back(configProvider.triggerName(i));
-	  } else if(j<2){
-	    hlt_path_names_HLT2_2->push_back(configProvider.triggerName(i));
-	  } else if(j<3){
-	      hlt_path_names_HLT2_3->push_back(configProvider.triggerName(i));
-	  } else if(j<4){
-	    hlt_path_names_HLT2_4->push_back(configProvider.triggerName(i));
-	  }
-	}
-	// Trigger Results
-	if(debug_level > 99) std::cout << "### Trigger Results 2: " << hlt2Tag_.process() << std::endl;
-	for (size_t i = 0; i < configProvider.size(); ++i) {
-	  if(debug_level > 99) std::cout << i << "\t" << configProvider.triggerName(i) << " " << (h_triggerResults_HLT2->accept(i) ? "passed" : "failed") << std::endl;
-	  int j=(int)(i/32);
-	  if(j<1) {     
-	    if(h_triggerResults_HLT2->accept(i))
-	      set(hlt2_bit_1,i-32*j);
-	  } else if(j<2){
-	    if(h_triggerResults_HLT2->accept(i))
-	      set(hlt2_bit_2,i-32*j);
-	  } else if(j<3){
-	    if(h_triggerResults_HLT2->accept(i))
-	      set(hlt2_bit_3,i-32*j);
-	  } else if(j<4){
-	    if(h_triggerResults_HLT2->accept(i))
-	      set(hlt2_bit_4,i-32*j);
-	  }
-	//
-	if(debug_level > 999) {
-	  std::bitset<32> binary_hlt1(hlt2_bit_1);
-	  std::bitset<32> binary_hlt2(hlt2_bit_2);
-	  std::bitset<32> binary_hlt3(hlt2_bit_3);
-	  std::bitset<32> binary_hlt4(hlt2_bit_4);
-	  std::cout << "HLT Path 1: " << binary_hlt1  << " ? "<< check(hlt2_bit_1,i-32*j) << std::endl;
-	  std::cout << "HLT Path 2: " << binary_hlt2  << " ? "<< check(hlt2_bit_2,i-32*j) << std::endl;
-	  std::cout << "HLT Path 3: " << binary_hlt3  << " ? "<< check(hlt2_bit_3,i-32*j) << std::endl;
-	  std::cout << "HLT Path 4: " << binary_hlt4  << " ? "<< check(hlt2_bit_4,i-32*j) << std::endl;
-	}
-	//
-	}
-	if(debug_level > 99) std::cout << "\t Final result = " << hlt2_bit_1 << " " << hlt2_bit_2 << " " << hlt2_bit_3 << " " << hlt2_bit_4 << std::endl;
+        hlt_path_names_HLT2_1->clear();
+        hlt_path_names_HLT2_2->clear();
+        hlt_path_names_HLT2_3->clear();
+        hlt_path_names_HLT2_4->clear();
+        if(debug_level > 9) std::cout << "Fill names HLT2" << std::endl;
+        for (size_t i = 0; i < configProvider.size(); ++i) {
+          int j=(int)(i/32);
+          if(j<1) {     
+            hlt_path_names_HLT2_1->push_back(configProvider.triggerName(i));
+          } else if(j<2){
+            hlt_path_names_HLT2_2->push_back(configProvider.triggerName(i));
+          } else if(j<3){
+            hlt_path_names_HLT2_3->push_back(configProvider.triggerName(i));
+          } else if(j<4){
+            hlt_path_names_HLT2_4->push_back(configProvider.triggerName(i));
+          }
+        }
+        // Trigger Results
+        if(debug_level > 99) std::cout << "### Trigger Results 2: " << hlt2Tag_.process() << std::endl;
+        for (size_t i = 0; i < configProvider.size(); ++i) {
+          if(debug_level > 99) std::cout << i << "\t" << configProvider.triggerName(i) << " " << (h_triggerResults_HLT2->accept(i) ? "passed" : "failed") << std::endl;
+          int j=(int)(i/32);
+          if(j<1) {     
+            if(h_triggerResults_HLT2->accept(i))
+              set(hlt2_bit_1,i-32*j);
+          } else if(j<2){
+            if(h_triggerResults_HLT2->accept(i))
+              set(hlt2_bit_2,i-32*j);
+          } else if(j<3){
+            if(h_triggerResults_HLT2->accept(i))
+              set(hlt2_bit_3,i-32*j);
+          } else if(j<4){
+            if(h_triggerResults_HLT2->accept(i))
+              set(hlt2_bit_4,i-32*j);
+          }
+          //
+          if(debug_level > 999) {
+            std::bitset<32> binary_hlt1(hlt2_bit_1);
+            std::bitset<32> binary_hlt2(hlt2_bit_2);
+            std::bitset<32> binary_hlt3(hlt2_bit_3);
+            std::bitset<32> binary_hlt4(hlt2_bit_4);
+            std::cout << "HLT Path 1: " << binary_hlt1  << " ? "<< check(hlt2_bit_1,i-32*j) << std::endl;
+            std::cout << "HLT Path 2: " << binary_hlt2  << " ? "<< check(hlt2_bit_2,i-32*j) << std::endl;
+            std::cout << "HLT Path 3: " << binary_hlt3  << " ? "<< check(hlt2_bit_3,i-32*j) << std::endl;
+            std::cout << "HLT Path 4: " << binary_hlt4  << " ? "<< check(hlt2_bit_4,i-32*j) << std::endl;
+          }
+          //
+        }
+        if(debug_level > 99) std::cout << "\t Final result = " << hlt2_bit_1 << " " << hlt2_bit_2 << " " << hlt2_bit_3 << " " << hlt2_bit_4 << std::endl;
       } else {
-	if(debug_level > 9) std::cout << "TriggerResults not valid " << hlt2Tag_ << std::endl;
+        if(debug_level > 9) std::cout << "TriggerResults not valid " << hlt2Tag_ << std::endl;
       }
     }
     
