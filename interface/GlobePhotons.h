@@ -40,6 +40,10 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+#include "DataFormats/Math/interface/Point3D.h"
+#include "DataFormats/Candidate/interface/Particle.h"
+
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "Math/VectorUtil.h"
 #include <iostream>
@@ -127,13 +131,17 @@ class GlobePhotons {
   Int_t pho_conv_tk2_nh[MAX_PHOTONS];
   Int_t pho_conv_ch1ch2[MAX_PHOTONS];
   Float_t pho_conv_chi2[MAX_PHOTONS];
+  Float_t pho_conv_chi2_probability[MAX_PHOTONS];
   Int_t pho_conv_validvtx[MAX_PHOTONS];
-
+  Float_t pho_conv_MVALikelihood[MAX_PHOTONS];
   
   TClonesArray *pho_p4;
   TClonesArray *pho_calopos;
 
   TClonesArray *pho_conv_vtx;
+  TClonesArray *pho_conv_pair_momentum;
+  TClonesArray *pho_conv_refitted_momentum;
+  TClonesArray *pho_conv_vertexcorrected_p4;
 
  private:
   const char* nome;

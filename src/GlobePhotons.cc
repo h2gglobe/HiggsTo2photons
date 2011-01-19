@@ -105,11 +105,19 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_conv_tk1_nh",&pho_conv_tk1_nh,"pho_conv_tk1_nh[pho_n]/I");
   tree->Branch("pho_conv_tk2_nh",&pho_conv_tk2_nh,"pho_conv_tk2_nh[pho_n]/I");
   tree->Branch("pho_conv_chi2",&pho_conv_chi2,"pho_conv_chi2[pho_n]/F");
+  tree->Branch("pho_conv_chi2_probability",&pho_conv_chi2_probability,"pho_conv_chi2_probability[pho_n]/F");
   tree->Branch("pho_conv_ch1ch2",&pho_conv_ch1ch2,"pho_conv_ch1ch2[pho_n]/I");
   tree->Branch("pho_conv_validvtx",&pho_conv_validvtx,"pho_conv_validvtx[pho_n]/I");
+  tree->Branch("pho_conv_MVALikelihood",&pho_conv_MVALikelihood,"pho_conv_MVALikelihood[pho_n]/I");
   
   pho_conv_vtx = new TClonesArray("TVector3", MAX_PHOTONS);
   tree->Branch("pho_conv_vtx", "TClonesArray", &pho_conv_vtx, 32000, 0);
+  pho_conv_pair_momentum = new TClonesArray("TVector3", MAX_PHOTONS);
+  tree->Branch("pho_conv_pair_momentum", "TClonesArray", &pho_conv_pair_momentum, 32000, 0);
+  pho_conv_refitted_momentum = new TClonesArray("TVector3", MAX_PHOTONS);
+  tree->Branch("pho_conv_refitted_momentum", "TClonesArray", &pho_conv_refitted_momentum, 32000, 0);
+  pho_conv_vertexcorrected_p4 = new TClonesArray("TLorentzVector", MAX_PHOTONS);
+  tree->Branch("pho_conv_vertexcorrected_p4", "TClonesArray", &pho_conv_vertexcorrected_p4, 32000, 0);
 }
 
 bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -153,7 +161,10 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   pho_p4->Clear();
   pho_calopos->Clear();
   pho_conv_vtx->Clear();
-
+  pho_conv_pair_momentum->Clear();
+  pho_conv_refitted_momentum->Clear();
+  pho_conv_vertexcorrected_p4->Clear();
+  
   pho_n = 0;
 
   if(debug_level>9)std::cout << "GlobePhotons: photons" << std::endl;
@@ -170,6 +181,9 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     new ((*pho_p4)[pho_n]) TLorentzVector();
     new ((*pho_calopos)[pho_n]) TVector3();
     new ((*pho_conv_vtx)[pho_n]) TVector3();
+    new ((*pho_conv_pair_momentum)[pho_n]) TVector3();
+    new ((*pho_conv_refitted_momentum)[pho_n]) TVector3();
+    new ((*pho_conv_vertexcorrected_p4)[pho_n]) TLorentzVector();
 
     if(debug_level>9)std::cout << "GlobePhotons: -21 "<< std::endl;
 
@@ -290,7 +304,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_hasconvtks[pho_n] = localPho.hasConversionTracks();
     pho_nconv[pho_n] = localPho.conversions().size();
 
-
     pho_conv_ntracks[pho_n]=0;
     pho_conv_pairinvmass[pho_n]=-999.;
     pho_conv_paircotthetasep[pho_n]=-999.;
@@ -303,53 +316,77 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_conv_tk1_d0[pho_n]=-999.;
     pho_conv_tk1_pout[pho_n]=-999.;
     pho_conv_tk1_pin[pho_n]=-999.;
+    pho_conv_validvtx[pho_n]=0;
 
-    if(localPho.hasConversionTracks()) {
+    ((TVector3 *)pho_conv_vtx->At(pho_n))->SetXYZ(-999, -999, -999);
+    ((TVector3 *)pho_conv_pair_momentum->At(pho_n))->SetXYZ(-999, -999, -999);
+    ((TVector3 *)pho_conv_refitted_momentum->At(pho_n))->SetXYZ(-999, -999, -999);
+
+    if (debug_level>9) std::cout << "Looking For Valid Conversion" << std::endl;
+    if (localPho.hasConversionTracks()) {
+      if (debug_level>9) std::cout << "Has Conversion Tracks" << std::endl;
 
       //reco::ConversionRef conv(localPho.conversions(),0);
 
       reco::ConversionRefVector conversions = localPho.conversions();
 
-      reco::ConversionRef conv;
+      reco::ConversionRef conv = conversions[0];
+
+      if (debug_level>9) std::cout << "Checking Vertex Validity" << std::endl;
+      pho_conv_validvtx[pho_n]=conv->conversionVertex().isValid();
+
+      if (!pho_conv_validvtx[pho_n]) {
+        if (debug_level>9) std::cout << "Invalid Conversion" << std::endl;
+        ((TLorentzVector *)pho_conv_vertexcorrected_p4->At(pho_n))->SetXYZT(localPho.px(), localPho.py(), localPho.pz(), localPho.energy());
+        continue;
+      }
+      
+      if (debug_level>9) std::cout << "Starting Conversion Loop" << std::endl;
 
       for (unsigned int i=0; i<conversions.size(); i++) {
 	
-	//	reco::ConversionRef 
-	conv=conversions[i];
+        //	reco::ConversionRef 
+        conv=conversions[i];
 
-	reco::Vertex vtx=conv->conversionVertex();
-	//std::cout<<"Marco Conv vtx: R, x, y, z "<<vtx.position().R()<<" "<<vtx.x()<<" "<<vtx.y()<<" "<<vtx.z()<<" "<<vtx.chi2()<<std::endl;
-	((TVector3 *)pho_conv_vtx->At(pho_n))->SetXYZ(vtx.x(), vtx.y(), vtx.z());
-	pho_conv_chi2[pho_n]=vtx.chi2();
+        reco::Vertex vtx=conv->conversionVertex();
 
-	pho_conv_validvtx[pho_n]=0;
-	if(vtx.isValid()) {
-	  pho_conv_validvtx[pho_n]=1;
-	}
+        //std::cout<<"Marco Conv vtx: R, x, y, z "<<vtx.position().R()<<" "<<vtx.x()<<" "<<vtx.y()<<" "<<vtx.z()<<" "<<vtx.chi2()<<std::endl;
+        ((TVector3 *)pho_conv_vtx->At(pho_n))->SetXYZ(vtx.x(), vtx.y(), vtx.z());
+        ((TVector3 *)pho_conv_pair_momentum->At(pho_n))->SetXYZ(conv->pairMomentum().x(), conv->pairMomentum().y(), conv->pairMomentum().z());
 
-	pho_conv_ntracks[pho_n]=conv->nTracks();
-      
-	if(pho_conv_ntracks[pho_n]) {
-	  std::vector<reco::TrackRef> tracks = conv->tracks();
-	  for (unsigned int i=0; i<tracks.size(); i++) {
-	    if(i==0) {
-	      pho_conv_tk1_dz[pho_n]=tracks[i]->dz();
-	      pho_conv_tk1_dzerr[pho_n]=tracks[i]->dzError();
-	      if(!doEgammaSummer09Skim) pho_conv_tk1_nh[pho_n]=tracks[i]->recHitsSize();
-	      else pho_conv_tk1_nh[pho_n]= -1;
-	      pho_conv_ch1ch2[pho_n]=tracks[i]->charge();
-	    }
-	    else if(i==1) {
-	      pho_conv_tk2_dz[pho_n]=tracks[i]->dz();
-	      pho_conv_tk2_dzerr[pho_n]=tracks[i]->dzError();
-	      if(!doEgammaSummer09Skim) pho_conv_tk2_nh[pho_n]=tracks[i]->recHitsSize();
-	      else pho_conv_tk2_nh[pho_n]= -1;
-	      pho_conv_ch1ch2[pho_n]*=tracks[i]->charge();
-	    }
-	  }
-	}
+        if (debug_level>9) std::cout << "Geting Refitted Tracks" << std::endl;
+        reco::Track tk1= vtx.refittedTracks().front();
+        reco::Track tk2= vtx.refittedTracks().back();
+
+        if (debug_level>9) std::cout << "Intialyzing Refitted Vertex" << std::endl;
+        ((TVector3 *)pho_conv_refitted_momentum->At(pho_n))->SetXYZ(tk1.momentum().x()+tk2.momentum().x(), tk1.momentum().y()+tk2.momentum().y(), tk1.momentum().z()+tk2.momentum().z());
+        
+        pho_conv_chi2[pho_n]=vtx.chi2();
+        pho_conv_chi2_probability[pho_n]=ChiSquaredProbability(vtx.chi2(), vtx.ndof());
+        pho_conv_ntracks[pho_n]=conv->nTracks();
+        pho_conv_MVALikelihood[pho_n]=conv->MVAout();
+
+        if(pho_conv_ntracks[pho_n]) {
+          std::vector<reco::TrackRef> tracks = conv->tracks();
+          for (unsigned int i=0; i<tracks.size(); i++) {
+            if(i==0) {
+              pho_conv_tk1_dz[pho_n]=tracks[i]->dz();
+              pho_conv_tk1_dzerr[pho_n]=tracks[i]->dzError();
+              if(!doEgammaSummer09Skim) pho_conv_tk1_nh[pho_n]=tracks[i]->recHitsSize();
+              else pho_conv_tk1_nh[pho_n]= -1;
+              pho_conv_ch1ch2[pho_n]=tracks[i]->charge();
+            }
+            else if(i==1) {
+              pho_conv_tk2_dz[pho_n]=tracks[i]->dz();
+              pho_conv_tk2_dzerr[pho_n]=tracks[i]->dzError();
+              if(!doEgammaSummer09Skim) pho_conv_tk2_nh[pho_n]=tracks[i]->recHitsSize();
+              else pho_conv_tk2_nh[pho_n]= -1;
+              pho_conv_ch1ch2[pho_n]*=tracks[i]->charge();
+            }
+          }
+        }
       }
-      
+
       pho_conv_pairinvmass[pho_n]=conv->pairInvariantMass();
       pho_conv_paircotthetasep[pho_n]=conv->pairCotThetaSeparation();
       pho_conv_eoverp[pho_n]=conv->EoverP();
@@ -371,6 +408,8 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         pho_conv_tk2_pin[pho_n]=sqrt(conv->tracksPin()[1].Mag2());
       }
 
+      localPho.setVertex(math::XYZPoint(0.0,0.0,pho_conv_zofprimvtxfromtrks[pho_n]));
+      ((TLorentzVector *)pho_conv_vertexcorrected_p4->At(pho_n))->SetXYZT(localPho.px(), localPho.py(), localPho.pz(), localPho.energy());
     }
 
     pho_n++;
