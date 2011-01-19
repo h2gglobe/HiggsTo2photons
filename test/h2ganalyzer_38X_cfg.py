@@ -10,7 +10,17 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(200)
 )
 
-process.load("HiggsAnalysis.HiggsTo2photons.CMSSW_3_8_3_RelValHGG_cfi")
+#process.load("HiggsAnalysis.HiggsTo2photons.CMSSW_3_8_3_RelValHGG_cfi")
+process.source = cms.Source("PoolSource",
+    skipEvents = cms.untracked.uint32(0),
+    fileNames = cms.untracked.vstring(
+      '/store/mc/Fall10/GluGluToHToGG_M-120_7TeV-powheg-pythia6/GEN-SIM-RECO/START38_V12-v2/0000/1C8E4A38-D8EB-DF11-924C-001F29079F98.root'
+    )
+)
+
+process.maxEvents = cms.untracked.PSet(
+    input = cms.untracked.int32(100)
+)
 
 process.options = cms.untracked.PSet(
     wantSummary = cms.untracked.bool(True)
