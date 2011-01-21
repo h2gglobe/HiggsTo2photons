@@ -353,7 +353,13 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         //std::cout<<"Marco Conv vtx: R, x, y, z "<<vtx.position().R()<<" "<<vtx.x()<<" "<<vtx.y()<<" "<<vtx.z()<<" "<<vtx.chi2()<<std::endl;
         ((TVector3 *)pho_conv_vtx->At(pho_n))->SetXYZ(vtx.x(), vtx.y(), vtx.z());
         ((TVector3 *)pho_conv_pair_momentum->At(pho_n))->SetXYZ(conv->pairMomentum().x(), conv->pairMomentum().y(), conv->pairMomentum().z());
-        ((TVector3 *)pho_conv_refitted_momentum->At(pho_n))->SetXYZ(conv->refittedPairMomentum().x(), conv->refittedPairMomentum().y(), conv->refittedPairMomentum().z());
+
+        if (debug_level>9) std::cout << "Geting Refitted Tracks" << std::endl;
+        reco::Track tk1= vtx.refittedTracks().front();
+        reco::Track tk2= vtx.refittedTracks().back();
+
+        if (debug_level>9) std::cout << "Intialyzing Refitted Vertex" << std::endl;
+        ((TVector3 *)pho_conv_refitted_momentum->At(pho_n))->SetXYZ(tk1.momentum().x()+tk2.momentum().x(), tk1.momentum().y()+tk2.momentum().y(), tk1.momentum().z()+tk2.momentum().z());
         
         pho_conv_chi2[pho_n]=vtx.chi2();
         pho_conv_chi2_probability[pho_n]=ChiSquaredProbability(vtx.chi2(), vtx.ndof());
@@ -361,8 +367,8 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
         pho_conv_MVALikelihood[pho_n]=conv->MVAout();
 
         if(pho_conv_ntracks[pho_n]) {
-	  const std::vector<edm::RefToBase<reco::Track> > tracks = conv->tracks();
-	  for (unsigned int i=0; i<tracks.size(); i++) {
+          std::vector<reco::TrackRef> tracks = conv->tracks();
+          for (unsigned int i=0; i<tracks.size(); i++) {
             if(i==0) {
               pho_conv_tk1_dz[pho_n]=tracks[i]->dz();
               pho_conv_tk1_dzerr[pho_n]=tracks[i]->dzError();
