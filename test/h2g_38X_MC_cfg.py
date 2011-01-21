@@ -23,7 +23,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 flagData = 'OFF'
 flagMC = 'ON'
 flagFastSim = 'OFF'
-flagNoSkim == 'OFF'
+flagNoSkim = 'OFF'
 
 #check flags
 flags = [flagData, flagMC, flagFastSim]
