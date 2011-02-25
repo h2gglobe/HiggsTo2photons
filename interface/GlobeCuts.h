@@ -13,7 +13,7 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -57,6 +57,7 @@ class GlobeCuts {
 //  bool cut(const reco::ConvertedPhoton&);
 //  #endif
 
+  bool cut(const reco::PFCandidate&);
   bool cut(const reco::GsfElectron&);
   bool cut(const reco::SuperCluster&);
   bool cut(const reco::BasicCluster&);

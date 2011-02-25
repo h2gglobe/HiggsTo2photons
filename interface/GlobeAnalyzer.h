@@ -1,6 +1,20 @@
+// -*- C++ -*-
 //
-// Original Author:  Matteosan SANI UCSD
-// Created:  Thu Feb  7 10:14:43 CET 2008
+// Package:    GlobeAnalyzer
+// Class:      GlobeAnalyzer
+// 
+/**\class GlobeAnalyzer GlobeAnalyzer.cc HiggsAnalysis/HiggsTo2photons/src/GlobeAnalyzer.cc
+
+Description: <one line class summary>
+
+Implementation:
+<Notes on implementation>
+*/
+//
+// Original Author:  Matteosan SANI
+//         Created:  Thu Feb  7 10:14:43 CET 2008
+// $Id: GlobeAnalyzer.h,v 1.30 2010/10/06 02:39:02 edusinberre Exp $
+//
 //
 
 #ifndef GLOBEANALYZER_H
@@ -25,6 +39,7 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeVertex.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeVtxCompat.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeMET.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/GlobePFCandidates.h"
 
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeSimHits.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeSimTracks.h"
@@ -42,12 +57,14 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeLeptons.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeHT.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeReducedGen.h"
+//#include "HiggsAnalysis/HiggsTo2photons/interface/GlobePAT.h"
 
 #include "TFile.h"
+//#include "TRFIOFile.h"
 #include "TTree.h"
 
+// system include files
 #include <memory>
-
 #include <vector>
 #include <string>
 
@@ -60,6 +77,7 @@ public:
   void fillTree();
   GlobeCommon* common;
   GlobePhotons* photons;
+  GlobePFCandidates* pfCandidates;
   GlobeEcalClusters* ecalclusters;
   GlobeMET* met, *tcmet, *pfmet; 
   GlobeCaloTowers* calotowers;
@@ -75,28 +93,31 @@ public:
   GlobeTrackingParticles* trackingParticles;
   GlobeElectrons* std_electrons; //, *gge_electrons;
   GlobeMuons* global_muons, *tk_muons, *sta_muons, *muons;
-  GlobeJets* it5_jets, *it7_jets, *mid_jets, *it5pf_jets, *sis5pf_jets, *kt4pf_jets ;
+  GlobeJets* algo1_jets, *algo2_jets, *algo3_jets, *algoPF1_jets, *algoPF2_jets, *algoPF3_jets ;
   GlobeGenerator* gen;
   GlobeGenParticles* genP;
-  GlobeGenJets* it5_genJets, *it7_genJets, *mid_genJets;
+  GlobeGenJets* algo1_genJets, *algo2_genJets, *algo3_genJets;
   GlobeEcalHits* ecalrechits;
   GlobeHLT* hlt;
   GlobeSelector* selector;
   GlobeLeptons* leptons;
   GlobeHT* ht;
+  //GlobePAT* pat;
   GlobeReducedGen* reducedgen;
 
 private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  void beginJob();
+  void analyze(const edm::Event&, const edm::EventSetup&);
+  void endJob();
 
   std::string fileName;
       
   TFile *file;
   TTree *tree, *tree2;
 
-  std::vector<std::string>*parameters, *hlt_path_names, *reduced_path;
+  //std::vector<std::string> a, b;
+  std::vector<std::string> *parameters;
+  std::vector<std::string> *hlt_path_names, *reduced_path;
   std::vector<int>* reduced_index;
 
   int version, type, sel_events, tot_events; 
@@ -105,19 +126,20 @@ private:
   int debug_level;
 
   bool doElectronStd;
+  bool doPFCandidates;
   bool doMuon;
   bool doMuonGlobal;
   bool doMuonTk;
   bool doMuonSta;
-  bool doJetIt5;
-  bool doJetIt7;
-  bool doJetMid;
-  bool doJetIt5PF;
-  bool doJetSis5PF;
-  bool doJetKt4PF;
-  bool doGenJetIt5;
-  bool doGenJetIt7;
-  bool doGenJetMid;
+  bool doJetAlgo1;
+  bool doJetAlgo2;
+  bool doJetAlgo3;
+  bool doJetAlgoPF1;
+  bool doJetAlgoPF2;
+  bool doJetAlgoPF3;
+  bool doGenJetAlgo1;
+  bool doGenJetAlgo2;
+  bool doGenJetAlgo3;
   bool doGenerator;
   bool doGenParticles;
   bool doCaloTower;
@@ -137,11 +159,13 @@ private:
   bool doGsfTracks;
   bool doTrackingParticles;
   bool doEcalRecHits;
+  bool doTkRecHits;
   bool doHLT;
   bool doReducedGen;
   bool doLeptons;
   bool doHt;
-  
+  bool doPAT;
+
   bool fullHLT;
   std::vector<edm::InputTag> theElHLTLabels;
   std::vector<edm::InputTag> theMuHLTLabels;

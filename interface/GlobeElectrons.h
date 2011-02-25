@@ -17,6 +17,8 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+//#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
+
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -33,6 +35,7 @@ class GlobeElectrons {
 
   void defineBranch(TTree* tree);
   bool analyze(const edm::Event&, const edm::EventSetup&);
+  bool analyze_pf(const edm::Event&, const edm::EventSetup&);
   void initialize_branches(int electron_number);
 
   bool inCrack(float eta);
@@ -53,6 +56,8 @@ class GlobeElectrons {
   Float_t el_pin[MAX_ELECTRONS];
   Float_t el_fbrem[MAX_ELECTRONS];
   Int_t el_nbrem[MAX_ELECTRONS];
+  Int_t el_1pxb[MAX_ELECTRONS];
+  Int_t el_1pxf[MAX_ELECTRONS];
 
   Float_t el_hoe[MAX_ELECTRONS];
   Float_t el_hoed1[MAX_ELECTRONS];
@@ -93,6 +98,7 @@ class GlobeElectrons {
   Int_t el_losthits[MAX_ELECTRONS];
   Int_t el_validhits[MAX_ELECTRONS];
   Int_t el_hp_expin[MAX_ELECTRONS];
+  Int_t el_hp_expin2[MAX_ELECTRONS];
   Int_t el_hp_expout[MAX_ELECTRONS];
 
   //Int_t el_sc[MAX_ELECTRONS];
@@ -114,18 +120,29 @@ class GlobeElectrons {
   Float_t el_tkiso04[MAX_ELECTRONS];
   Float_t el_ecaliso04[MAX_ELECTRONS];
   Float_t el_hcaliso04[MAX_ELECTRONS];
-  Bool_t el_3dip_valid[MAX_ELECTRONS];
+  //Bool_t el_3dip_valid[MAX_ELECTRONS];
+  //Float_t el_3dip_x[MAX_ELECTRONS];
+  //Float_t el_3dip_y[MAX_ELECTRONS];
+  //Float_t el_3dip_z[MAX_ELECTRONS];
+  //Float_t el_3dip_xerr[MAX_ELECTRONS];
+  //Float_t el_3dip_yerr[MAX_ELECTRONS];
+  //Float_t el_3dip_zerr[MAX_ELECTRONS];
   Float_t el_mva[MAX_ELECTRONS];
   Bool_t el_ecaldrv[MAX_ELECTRONS];
   Bool_t el_tkdrv[MAX_ELECTRONS];
   Float_t el_ip_ctf[MAX_ELECTRONS];
   Float_t el_ip_gsf[MAX_ELECTRONS];
+  Float_t el_dist[MAX_ELECTRONS];
+  Float_t el_dcot[MAX_ELECTRONS];
+
+  std::vector<std::vector<int> >* el_catbased;
 
   TClonesArray *el_sc;
   TClonesArray *el_p4;
   TClonesArray *el_momvtx;
   TClonesArray *el_momvtxconst;
   TClonesArray *el_momcalo;
+  TClonesArray *el_momout;
   TClonesArray *el_posvtx;
   TClonesArray *el_poscalo;
 
@@ -135,7 +152,8 @@ class GlobeElectrons {
   bool doAodSim;
   GlobeCuts *gCUT;
   edm::InputTag electronColl, trackColl, trackColl2, vertexColl;
-    //barrelHybridClusterShapeColl, endcapBasicClusterShapeColl
+  std::vector<edm::InputTag> eIDLabels;
+
   int debug_level;
 
   // SUPER CLUSTERS
@@ -143,9 +161,7 @@ class GlobeElectrons {
   edm::InputTag endcapSuperClusterColl;  
   edm::InputTag ecalHitEBColl;
   edm::InputTag ecalHitEEColl;
-
-
+  edm::InputTag dcsTag_;
 };
 
 #endif
-//#endif

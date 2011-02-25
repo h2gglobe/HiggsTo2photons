@@ -63,6 +63,7 @@ protected:
   /** handles to basic clusters */
   edm::Handle<reco::BasicClusterCollection> hybridClustersBarrelH; 
   edm::Handle<reco::BasicClusterCollection> basicClustersEndcapH; 
+  edm::Handle<reco::BasicClusterCollection> basicClustersBarrelH;
 
 
   /** rechits of the current event (initialized in analyze(..)) */
@@ -132,6 +133,7 @@ public:
   Float_t bc_spp[MAX_BASICCLUSTERS];
   Float_t bc_see[MAX_BASICCLUSTERS];
   Float_t bc_sep[MAX_BASICCLUSTERS];
+  Float_t bc_chx[MAX_BASICCLUSTERS];
   
   Float_t bc_s1x5_0[MAX_BASICCLUSTERS];
   Float_t bc_s1x5_1[MAX_BASICCLUSTERS];
@@ -148,6 +150,7 @@ public:
   Float_t bc_sieie[MAX_BASICCLUSTERS];
   Float_t bc_2x5_max[MAX_BASICCLUSTERS];
   Float_t bc_5x1_sam[MAX_BASICCLUSTERS];
+  Int_t bc_seed[MAX_BASICCLUSTERS];
   
  private:
   const char* nome;
