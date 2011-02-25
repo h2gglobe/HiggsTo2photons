@@ -26,7 +26,7 @@ GlobeMET::GlobeMET(const edm::ParameterSet& iConfig, const char* n): nome(n) {
 
   muonGlobalColl =  iConfig.getParameter<edm::InputTag>("MuonColl");
 
-  jetColl =  iConfig.getParameter<edm::InputTag>("JetColl_it5");
+  jetColl =  iConfig.getParameter<edm::InputTag>("JetColl_algo1");
 
   debug_level = iConfig.getParameter<int>("Debug_Level");
 }

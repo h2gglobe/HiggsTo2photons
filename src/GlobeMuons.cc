@@ -14,7 +14,6 @@ GlobeMuons::GlobeMuons(const edm::ParameterSet& iConfig, const char* n): nome(n)
   trackColl =  iConfig.getParameter<edm::InputTag>("TrackColl");
   debug_level = iConfig.getParameter<int>("Debug_Level");
   doAodSim = iConfig.getParameter<bool>("doAodSim");
-  doEgammaSummer09Skim = iConfig.getParameter<bool>("doEgammaSummer09Skim");
 
   vertexColl = iConfig.getParameter<edm::InputTag>("VertexColl_std");
   psetTAP = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
@@ -68,7 +67,6 @@ void GlobeMuons::defineBranch(TTree* tree) {
   tree->Branch("mu_glo_type", &mu_type, "mu_glo_type[mu_glo_n]/I"); 
 
   tree->Branch("mu_glo_iso", &mu_iso, "mu_glo_iso[mu_glo_n]/F");
-  tree->Branch("mu_glo_3dip_valid", &mu_3dip_valid, "mu_glo_3dip_valid[mu_glo_n]/O");
 }
 
 bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -229,7 +227,7 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
         reco::TrackRef tk(tkH, j);
         
         //Doesn't pass the track quality cuts
-        if (!(doAodSim || doEgammaSummer09Skim)) {
+        if (!(doAodSim)) {
           if(vtxH->size())
             {
               reco::VertexRef vtx(vtxH, 0);
@@ -254,13 +252,72 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       
       reco::TrackRef tk(tkH, mu_tkind[mu_n]);
 
-      mu_3dip_valid[mu_n] = false;
-      mu_3dip_x[mu_n]     = -9999;
-      mu_3dip_y[mu_n]     = -9999;
-      mu_3dip_z[mu_n]     = -9999;
-      mu_3dip_xerr[mu_n]  = -9999;
-      mu_3dip_yerr[mu_n]  = -9999;
-      mu_3dip_zerr[mu_n]  = -9999;
+      float eta=m->eta();
+      float phi=m->phi();
+      float the=2*atan(exp(-eta));
+      the=m->theta();
+      
+      float ecal_r2d0 = 130.;
+      float ecal_z0 = 321.;
+      float ecal_eta0 = 1.6;
+      
+      float hcal_r2d0 = 195.;
+      float hcal_z0 = 393.;
+      float hcal_eta0 = 1.45;
+      
+      float ecal_x = 0.;
+      float ecal_y = 0.;
+      float ecal_z = 0.;
+      float hcal_x = 0.;
+      float hcal_y = 0.;
+      float hcal_z = 0.;
+      
+      if(fabs(eta)<ecal_eta0) {
+        ecal_x=ecal_r2d0*cos(phi);
+        ecal_y=ecal_r2d0*sin(phi);
+        if(fabs(eta)<0.00000001) 
+          ecal_z=0.;
+        else 
+          ecal_z=ecal_r2d0/tan(the);
+      }
+      else {
+        if(eta>0) 
+          ecal_z=ecal_z0;
+        else 
+          ecal_z=-ecal_z0;
+        ecal_x=ecal_z*tan(the)*cos(phi);
+        ecal_y=ecal_z*tan(the)*sin(phi);
+      }
+      
+      if(fabs(eta)<hcal_eta0) {
+        hcal_x=hcal_r2d0*cos(phi);
+        hcal_y=hcal_r2d0*sin(phi);
+        if(fabs(eta)<0.00000001) 
+          hcal_z=0.;
+        else 
+          hcal_z=hcal_r2d0/tan(the);
+      }
+      else {
+        if(eta>0) 
+          hcal_z=hcal_z0;
+        else 
+          hcal_z=-hcal_z0;
+        hcal_x=hcal_z*tan(the)*cos(phi);
+        hcal_y=hcal_z*tan(the)*sin(phi);
+      }
+      
+      new ((*mu_poshcal)[mu_n]) TVector3();
+      ((TVector3 *)mu_poshcal->At(mu_n))->SetXYZ(hcal_x,
+                                                 hcal_y,
+                                                 hcal_z);
+      
+      if (debug_level > 99)
+        std::cout << "GlobeMuons: Start 20"<< std::endl;
+      new ((*mu_posecal)[mu_n]) TVector3();
+      ((TVector3 *)mu_posecal->At(mu_n))->SetXYZ(ecal_x,
+                                                 ecal_y,
+                                                 ecal_z);
+    
     } //end if isTrackerMuon
     else {
       

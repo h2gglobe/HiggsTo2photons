@@ -12,6 +12,12 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/CaloTopologyRecord.h"
+
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -19,8 +25,14 @@
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
+#include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 
+#include "DataFormats/Scalers/interface/DcsStatus.h"
 #include <iostream>
+
+
+
 
 GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
   
@@ -39,6 +51,8 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
   ecalHitEBColl = iConfig.getParameter<edm::InputTag>("EcalHitEBColl");
   ecalHitEEColl = iConfig.getParameter<edm::InputTag>("EcalHitEEColl");
 
+  eIDLabels = iConfig.getParameter<std::vector<edm::InputTag> >("eIDLabels");
+
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
 }
@@ -50,8 +64,11 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   el_momvtx = new TClonesArray("TVector3", MAX_ELECTRONS);  
   el_momvtxconst = new TClonesArray("TVector3", MAX_ELECTRONS);
   el_momcalo = new TClonesArray("TVector3", MAX_ELECTRONS);
+  el_momout = new TClonesArray("TVector3", MAX_ELECTRONS);
   el_posvtx = new TClonesArray("TVector3", MAX_ELECTRONS);
   el_poscalo = new TClonesArray("TVector3", MAX_ELECTRONS);
+
+  el_catbased = new std::vector<std::vector<int> >;
 
   char a1[50], a2[50];
   
@@ -73,16 +90,15 @@ void GlobeElectrons::defineBranch(TTree* tree) {
 
   sprintf(a1, "el_%s_momcalo", nome);
   tree->Branch(a1, "TClonesArray", &el_momcalo, 32000, 0);
+
+  sprintf(a1, "el_%s_momout", nome);
+  tree->Branch(a1, "TClonesArray", &el_momout, 32000, 0);
   
   sprintf(a1, "el_%s_posvtx", nome);
   tree->Branch(a1, "TClonesArray", &el_posvtx, 32000, 0);
 
   sprintf(a1, "el_%s_poscalo", nome);
   tree->Branch(a1, "TClonesArray", &el_poscalo, 32000, 0);
-
-  sprintf(a1, "el_%s_crack", nome);
-  sprintf(a2, "el_%s_crack[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_crack, a2);
   
   sprintf(a1, "el_%s_eopin", nome);
   sprintf(a2, "el_%s_eopin[el_%s_n]/F", nome, nome);
@@ -175,11 +191,15 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_dphiout", nome);
   sprintf(a2, "el_%s_dphiout[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_dphiout, a2);
-  
+   
   sprintf(a1, "el_%s_class", nome);
   sprintf(a2, "el_%s_class[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_class, a2);
-  
+ 
+  sprintf(a1, "el_%s_crack", nome);
+  sprintf(a2, "el_%s_crack[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_crack, a2);
+   
   sprintf(a1, "el_%s_nambtk", nome);
   sprintf(a2, "el_%s_nambtk[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_nambtk, a2);
@@ -280,6 +300,9 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a2, "el_%s_tight[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_tight, a2);
 
+  sprintf(a1, "el_%s_catbased", nome);
+  tree->Branch(a1, "std::vector<std::vector<int> >", &el_catbased);
+
   sprintf(a1, "el_%s_tkind", nome);
   sprintf(a2, "el_%s_tkind[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_tkind, a2); 
@@ -308,10 +331,6 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a2, "el_%s_tkiso04[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_tkiso04, a2);
   
-  sprintf(a1, "el_%s_3dip_valid", nome);
-  sprintf(a2, "el_%s_3dip_valid[el_%s_n]/O", nome, nome);
-  tree->Branch(a1, &el_3dip_valid, a2); 
-
   sprintf(a1, "el_%s_tkdrv", nome);
   sprintf(a2, "el_%s_tkdrv[el_%s_n]/O", nome, nome);
   tree->Branch(a1, &el_tkdrv, a2);
@@ -327,10 +346,27 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_ip_gsf", nome);
   sprintf(a2, "el_%s_ip_gsf[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_ip_gsf, a2);
+
+  sprintf(a1, "el_%s_dist", nome);
+  sprintf(a2, "el_%s_dist[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_dist, a2);
+
+  sprintf(a1, "el_%s_dcot", nome);
+  sprintf(a2, "el_%s_dcot[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_dcot, a2);
+
+  sprintf(a1, "el_%s_hp_1pxb", nome);
+  sprintf(a2, "el_%s_hp_1pxb[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_1pxb, a2);
+
+  sprintf(a1, "el_%s_hp_1pxf", nome);
+  sprintf(a2, "el_%s_hp_1pxf[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_1pxf, a2);
 }
 
+
 bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  
+
   // take collections
   edm::Handle<reco::GsfElectronCollection> elH;
   iEvent.getByLabel(electronColl, elH);
@@ -388,12 +424,13 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   el_momvtxconst->Clear();
   el_momcalo->Clear();
   el_posvtx->Clear();
-  el_poscalo->Clear();
+  el_poscalo->Clear(); 
+  el_catbased ->clear();
   el_n = 0;
   
   if (debug_level > 9)
     std::cout << "GlobeElectrons: Electron collection size: "<< elH->size() << std::endl;
-
+  
   for(reco::GsfElectronCollection::const_iterator igsf = elH->begin(); igsf != elH->end(); igsf++) {
 
     if (el_n >= MAX_ELECTRONS) {
@@ -428,7 +465,11 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
                                               egsf.trackMomentumAtVtx().y(), egsf.trackMomentumAtVtx().z());
     
     new ((*el_momcalo)[el_n]) TVector3();
-    ((TVector3 *)el_momcalo->At(el_n))->SetXYZ(egsf.trackMomentumOut().x(), 
+    ((TVector3 *)el_momcalo->At(el_n))->SetXYZ(egsf.trackMomentumAtCalo().x(), 
+                                               egsf.trackMomentumAtCalo().y(), egsf.trackMomentumAtCalo().z());
+
+    new ((*el_momout)[el_n]) TVector3();
+    ((TVector3 *)el_momout->At(el_n))->SetXYZ(egsf.trackMomentumOut().x(), 
                                                egsf.trackMomentumOut().y(), egsf.trackMomentumOut().z());
     
     new ((*el_posvtx)[el_n]) TVector3();
@@ -441,6 +482,16 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
     el_pout[el_n] = egsf.trackMomentumOut().R();
     el_pin[el_n] = egsf.trackMomentumAtVtx().R();
+    
+    el_1pxb[el_n] = 0;
+    el_1pxf[el_n] = 0;
+
+    if (egsf.gsfTrack()->hitPattern().hasValidHitInFirstPixelBarrel())
+      el_1pxb[el_n] = 1;
+
+    if (egsf.gsfTrack()->hitPattern().hasValidHitInFirstPixelEndcap())
+      el_1pxf[el_n] = 1;
+
     el_fbrem[el_n] = egsf.fbrem();
 
     el_eseed[el_n] = egsf.superCluster()->seed()->energy();
@@ -505,7 +556,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       el_hp_expin[el_n] = egsf.gsfTrack()->trackerExpectedHitsInner().numberOfHits();
       el_hp_expout[el_n] = egsf.gsfTrack()->trackerExpectedHitsOuter().numberOfHits();
     }
-    
+ 
     el_charge[el_n] = egsf.charge();
     
     el_ch_scpix[el_n] = egsf.scPixCharge();
@@ -528,8 +579,9 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     int cmsTkind = -1;
 
-    initialize_branches(el_n);
-
+    el_tkind[el_n] = -1;
+    el_scind[el_n] = -1;
+  
     if(egsf.closestCtfTrackRef().isNonnull()) {
       for(unsigned int j=0; j<tkH->size(); ++j) {
         reco::TrackRef tk(tkH, j);
@@ -560,7 +612,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           if (&(*egsf.superCluster()) == &(*cluster)) {
             el_scind[el_n] = index; 
             el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(cluster), &(*barrelRecHits), &(*topology))[0]);
-            //std::cout << el_sieiesc[el_n] << std::endl;
             std::vector<float> vCov = EcalClusterTools::covariances( *(cluster->seed()), &(*barrelRecHits), &(*topology), &geometry);
             el_spp[el_n] = sqrt(vCov[2]);
             break;
@@ -588,6 +639,14 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         }
       }
     }
+
+    if (el_scind[el_n] == -1) {
+      if(fabs(egsf.superCluster()->eta()) < 1.479) {
+        el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(egsf.superCluster()), &(*barrelRecHits), &(*topology))[0]);
+      } else {
+        el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(egsf.superCluster()), &(*endcapRecHits), &(*topology))[0]);
+      }
+    }
     
     //electronID
     reco::GsfElectronRef electronRef(elH, std::distance(elH->begin(), igsf));
@@ -601,7 +660,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     el_ecaldrv[el_n] = egsf.ecalDrivenSeed();
     el_tkdrv[el_n] = egsf.trackerDrivenSeed();
-
+    
     el_tkiso04[el_n] = egsf.dr04TkSumPt();
     el_ecaliso04[el_n] = egsf.dr04EcalRecHitSumEt();
     el_hcaliso04[el_n] = egsf.dr04HcalTowerSumEt();
@@ -610,12 +669,31 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_ecaliso03[el_n] = egsf.dr03EcalRecHitSumEt();
     el_hcaliso03[el_n] = egsf.dr03HcalTowerSumEt();
 
-    el_n++;
+    // Fill out electron identification
+    std::vector<edm::Handle<edm::ValueMap<float> > > eIDVM(9); 
+    std::vector<int> results;
     
+    for(unsigned int j=0; j<eIDLabels.size(); j++) {
+      if (iEvent.getByLabel(eIDLabels[j], eIDVM[j])) {  
+        const edm::ValueMap<float>& eIDmapTemp = *eIDVM[j];
+        reco::GsfElectronRef electronRef(elH, std::distance(elH->begin(), igsf));
+        results.push_back((Int_t)eIDmapTemp[electronRef]);
+      } else {
+        results.push_back(-1);
+      }
+    }
+    
+    el_catbased->push_back(results);
+
+    el_dist[el_n] = (egsf.convDist() == -9999.? 9999:egsf.convDist());
+    el_dcot[el_n] = (egsf.convDcot() == -9999.? 9999:egsf.convDcot());
+    
+    el_n++;
   }
   
   return true;
 }
+
 
 bool GlobeElectrons::inCrack(float etain) {
 
@@ -645,11 +723,112 @@ std::pair<unsigned int, float> GlobeElectrons::sharedHits(const reco::Track& tra
   return std::make_pair(shared,fraction);
 }
 
-void GlobeElectrons::initialize_branches(int electron_number) {
+/*
+bool GlobeElectrons::analyze_pf(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  el_tkind[el_n] = -1;
-  el_scind[el_n] = -1;
+  // Candidate info
+  edm::Handle<reco::PFCandidateCollection> collection;
+  edm::InputTag label("particleFlow","");
+  iEvent.getByLabel(label, collection);
+  std::vector<reco::PFCandidate> candidates = (*collection.product());
+  std::vector<reco::PFCandidate>::iterator it;
+  
+  el_p4->Clear(); 
+  el_momvtx->Clear();
+  el_momcalo->Clear();
+  el_posvtx->Clear();
+  el_n = 0;
+
+  for (it = candidates.begin(); it != candidates.end(); ++it )   {
+    reco::PFCandidate::ParticleType type = (*it).particleId();
+    if (type == reco::PFCandidate::e)    {
+      // in PFCandidates the chosen cut is mva > -0.1
+
+      if (el_n >= MAX_ELECTRONS) {
+        std::cout << "GlobeElectrons: WARNING TOO MANY ELECTRONS: " << candidates.size() << " (allowed " << MAX_ELECTRONS << ")" << std::endl;
+        break;
+      }
+    
+      reco::PFCandidate egsf = reco::PFCandidate(*it);
+      new ((*el_p4)[el_n]) TLorentzVector();
+      ((TLorentzVector *)el_p4->At(el_n))->SetXYZT(egsf.px(), egsf.py(), egsf.pz(), egsf.energy());
+      
+      new ((*el_momvtx)[el_n]) TVector3();
+      ((TVector3 *)el_momvtx->At(el_n))->SetXYZ(0,0,0);
+      
+      new ((*el_momcalo)[el_n]) TVector3();
+      ((TVector3 *)el_momcalo->At(el_n))->SetXYZ(0,0,0);      
+      new ((*el_posvtx)[el_n]) TVector3();
+      ((TVector3 *)el_momcalo->At(el_n))->SetXYZ(0,0,0);
+      
+      el_pout[el_n] = 0;
+      el_pin[el_n] = 0;
+      el_eseedopout[el_n] = 0;
+      el_eopin[el_n] = 0;
+      el_fbrem[el_n] = 0;
+      
+      el_sieie[el_n] = 0;
+      el_see[el_n] = 0;
+      
+      el_eseed[el_n] = 0;
+      el_eseedopin[el_n] = 0;
+      el_hoe[el_n] = 0;
+      el_detain[el_n] = 0;
+      el_dphiin[el_n] = 0;
+      el_detaout[el_n] = 0;
+      el_dphiout[el_n] = 0;
+      el_class[el_n] = 0;
+      el_d0[el_n] = 0;
+      el_z0[el_n] = 0;
+      el_qoverperr[el_n] = 0;
+      el_pterr[el_n] = 0;
+      el_etaerr[el_n] = 0;
+      el_phierr[el_n] = 0;
+      el_d0err[el_n] = 0;
+      el_z0err[el_n] = 0;
+      el_chi2[el_n] = 0;
+      el_dof[el_n] = 0;
+      el_validhits[el_n] = 0;
+      el_losthits[el_n] = 0;
+      el_charge[el_n] = 0;
+      el_crack[el_n] = 0;
+      
+
+      el_tkind[el_n] = -1;
+      el_scind[el_n] = -1;
+      
+      el_roloose[el_n] = -1;
+      el_rotight[el_n] = -1;
+      el_rohighe[el_n] = -1;
+      el_loose[el_n] = -1;
+      el_tight[el_n] = -1;
+      
+      el_mva[el_n] = egsf.mva_e_pi();
+      
+      el_tkdrv[el_n] = 0;
+      el_ecaldrv[el_n] = 0;
+    
+      el_tkiso03[el_n] = 0;
+      el_ecaliso03[el_n] = 0;
+      el_hcaliso03[el_n] = 0;
+
+      el_tkiso04[el_n] = 0;
+      el_ecaliso04[el_n] = 0;
+      el_hcaliso04[el_n] = 0;
+
+
+      //el_3dip_valid[el_n] = false;
+      //el_3dip_x[el_n]     = -9999;
+      //el_3dip_y[el_n]     = -9999;
+      //el_3dip_z[el_n]     = -9999;
+      //el_3dip_xerr[el_n]  = -9999;
+      //el_3dip_yerr[el_n]  = -9999;
+      //el_3dip_zerr[el_n]  = -9999;
+      el_n++;
+    }
+  }
+  
+  return true;
 }
-
-
+*/
 

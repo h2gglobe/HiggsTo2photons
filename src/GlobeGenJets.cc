@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-GlobeGenJets::GlobeGenJets(const edm::ParameterSet& iConfig, const char* n = "it5"): nome(n) {
+GlobeGenJets::GlobeGenJets(const edm::ParameterSet& iConfig, const char* n = "algo1"): nome(n) {
   
   char a[100];
   sprintf (a,"GenJetColl_%s", nome);

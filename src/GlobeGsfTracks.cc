@@ -27,7 +27,9 @@ void GlobeGsfTracks::defineBranch(TTree* tree) {
   
   gsf_tk_p4 = new TClonesArray("TLorentzVector", MAX_TRACKS);
   gsf_tk_vtx_pos = new TClonesArray("TVector3", MAX_TRACKS);
-  
+  gsf_tk_pinmode = new TClonesArray("TLorentzVector", MAX_TRACKS);
+  gsf_tk_poutmode = new TClonesArray("TLorentzVector", MAX_TRACKS);
+
   tree->Branch("gsf_tk_n", &gsf_tk_n, "gsf_tk_n/I");
   tree->Branch("gsf_tk_p4", "TClonesArray", &gsf_tk_p4, 32000, 0);
   tree->Branch("gsf_tk_vtx_pos", "TClonesArray", &gsf_tk_vtx_pos, 32000, 0);
@@ -54,11 +56,11 @@ void GlobeGsfTracks::defineBranch(TTree* tree) {
   tree->Branch("gsf_tk_pin", &gsf_tk_pin, "gsf_tk_pin[gsf_tk_n]/F");    
   tree->Branch("gsf_tk_pout", &gsf_tk_pout, "gsf_tk_pout[gsf_tk_n]/F");    
   tree->Branch("gsf_tk_fbrem", &gsf_tk_fbrem, "gsf_tk_fbrem[gsf_tk_n]/F");  
-
-  tree->Branch("gsf_tk_quality", &gsf_tk_quality, "gsf_tk_quality[gsf_tk_n]/I");
-  tree->Branch("gsf_tk_algo", &gsf_tk_algo, "gsf_tk_algo[gsf_tk_n]/I"); 
+  tree->Branch("gsf_tk_pinmode", "TClonesArray", &gsf_tk_pinmode, 32000, 0);
+  tree->Branch("gsf_tk_poutmode", "TClonesArray", &gsf_tk_poutmode, 32000, 0);
 
   tree->Branch("gsf_tk_tkind", &gsf_tk_tkind, "gsf_tk_tkind[gsf_tk_n]/I");
+  tree->Branch("gsf_tk_shared", &gsf_tk_shared, "gsf_tk_shared[gsf_tk_n]/F");
 }
 
 bool GlobeGsfTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) { 
@@ -72,7 +74,9 @@ bool GlobeGsfTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   gsf_tk_p4->Clear();
   gsf_tk_vtx_pos->Clear();
-  
+  gsf_tk_pinmode->Clear();
+  gsf_tk_poutmode->Clear();
+
   gsf_tk_n = 0;
   
   if (storeGsfTracksOnlyIfElectrons && el->size() < 1)
@@ -85,8 +89,6 @@ bool GlobeGsfTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   if (debug_level > 9)
     std::cout << "GlobeGsfTracks: Track collection size: "<< tkH->size() << std::endl;
-  //if (debug_level > 9)
-  //  std::cout << "GlobeGsfTracks: Track collection2 size: "<< tkH2->size() << std::endl;
  
   for(unsigned int i=0; i<tkH->size(); i++) {
     if (gsf_tk_n >= MAX_TRACKS) {
@@ -95,9 +97,6 @@ bool GlobeGsfTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
 
     reco::GsfTrackRef tk(tkH, i);
-	 // make the cuts
-	 //commented for now, store all if(gCUT->cut(*tk))continue; 
-	 // passed cuts
       
     new ((*gsf_tk_p4)[gsf_tk_n]) TLorentzVector();
     ((TLorentzVector *)gsf_tk_p4->At(gsf_tk_n))->SetXYZT(tk->px(), tk->py(), tk->pz(), tk->p());
@@ -112,15 +111,6 @@ bool GlobeGsfTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
     gsf_tk_d0[gsf_tk_n] = tk->d0();
     gsf_tk_dz[gsf_tk_n] = tk->dz();
-
-    //std::cout << "Algo " << (int)tk->algo() << std::endl;
-    gsf_tk_algo[gsf_tk_n] = (int)tk->algo();
-    //std::cout << "quality " << tk->qualityMask() << std::endl;
-    gsf_tk_quality[gsf_tk_n] = tk->qualityMask();
-
-    //std::cout << "nhits" << tk->numberOfValidHits() << std::endl;
-    //std::cout << "inner cov: " << tk->gsfExtra()->innerStateCovariances().size() << std::endl;
-    //std::cout << "outer cov: " << tk->gsfExtra()->outerStateCovariances().size() << std::endl;
 
     gsf_tk_pterr[gsf_tk_n] = tk->ptError();
     gsf_tk_etaerr[gsf_tk_n] = tk->etaError();
@@ -144,83 +134,57 @@ bool GlobeGsfTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
     }
 
-    const MultiTrajectoryStateTransform *mtsTransform_ = new MultiTrajectoryStateTransform(trackerHandle_.product(),theMagField.product());
-    const MultiTrajectoryStateMode *mtsMode_ = new MultiTrajectoryStateMode();
-    TrajectoryStateOnSurface innTSOS_;
-    TrajectoryStateOnSurface outTSOS_;
-
-    innTSOS_ = mtsTransform_->innerStateOnSurface(*tk);
-    //if (!innTSOS_.isValid()) return false;     
-    outTSOS_ = mtsTransform_->outerStateOnSurface(*tk);
-    //if (!outTSOS_.isValid()) return false;     
-    GlobalVector innMom, outMom;
-    mtsMode_->momentumFromModeCartesian(innTSOS_, innMom);
-    mtsMode_->momentumFromModeCartesian(outTSOS_,outMom);
-    //std::cout << "Hand made" << innMom.mag() << " " << outMom.mag() << std::endl;
-
-    //gsf_tk_pin[gsf_tk_n] = tk->innerMomentum().R();
-    //gsf_tk_pout[gsf_tk_n] = tk->outerMomentum().R();
-    //gsf_tk_fbrem[gsf_tk_n] = (tk->innerMomentum().R() - tk->outerMomentum().R())/tk->innerMomentum().R();
-    //std::cout << "Gsf: " << gsf_tk_pin[gsf_tk_n] << "  " << gsf_tk_pout[gsf_tk_n] << std::endl;
-    gsf_tk_pin[gsf_tk_n] = innMom.mag();
-    gsf_tk_pout[gsf_tk_n] = outMom.mag();
-    gsf_tk_fbrem[gsf_tk_n] = (innMom.mag() - outMom.mag())/innMom.mag();
-
-    MultiGaussianState1D qpstate = MultiGaussianStateTransform::innerMultiState1D(*tk, 0);
-    GaussianSumUtilities1D qputils(qpstate);
-    double qpvar_in = qputils.mode().variance();
-
-    MultiGaussianState1D qpstate_out = MultiGaussianStateTransform::outerMultiState1D(*tk, 0);
-    GaussianSumUtilities1D qputils_out(qpstate_out);
-    double qpvar_out = qputils_out.mode().variance();
-
-    //std::cout << "pin " << qpvar_in << " " << gsf_tk_pin[gsf_tk_n] << std::endl;
-    //std::cout << "pout" << qpvar_out << " " << gsf_tk_pout[gsf_tk_n] << std::endl;
-    gsf_tk_qoverpinerr[gsf_tk_n] =  qpvar_in; 
-    gsf_tk_qoverpouterr[gsf_tk_n] = qpvar_out;
-
     if (!doAodSim) {
-
-      //this is the same and it does not take forever
-      gsf_tk_hp_expin[gsf_tk_n] = tk->trackerExpectedHitsInner().numberOfHits();
-      gsf_tk_hp_expout[gsf_tk_n] = tk->trackerExpectedHitsOuter().numberOfHits();
+      const MultiTrajectoryStateTransform *mtsTransform_ = new MultiTrajectoryStateTransform(trackerHandle_.product(),theMagField.product());
+      const MultiTrajectoryStateMode *mtsMode_ = new MultiTrajectoryStateMode();
+      TrajectoryStateOnSurface innTSOS_;
+      TrajectoryStateOnSurface outTSOS_;
+      
+      innTSOS_ = mtsTransform_->innerStateOnSurface(*tk);
+      outTSOS_ = mtsTransform_->outerStateOnSurface(*tk);
+      GlobalVector innMom, outMom;
+      mtsMode_->momentumFromModeCartesian(innTSOS_, innMom);
+      mtsMode_->momentumFromModeCartesian(outTSOS_,outMom);
+      gsf_tk_pin[gsf_tk_n] = innMom.mag();
+      gsf_tk_pout[gsf_tk_n] = outMom.mag();
+      gsf_tk_fbrem[gsf_tk_n] = (innMom.mag() - outMom.mag())/innMom.mag();
+      
+      MultiGaussianState1D qpstate = MultiGaussianStateTransform::innerMultiState1D(*tk, 0);
+      GaussianSumUtilities1D qputils(qpstate);
+      double qpvar_in = qputils.mode().variance();
+      
+      MultiGaussianState1D qpstate_out = MultiGaussianStateTransform::outerMultiState1D(*tk, 0);
+      GaussianSumUtilities1D qputils_out(qpstate_out);
+      double qpvar_out = qputils_out.mode().variance();
+      gsf_tk_qoverpinerr[gsf_tk_n] =  qpvar_in; 
+      gsf_tk_qoverpouterr[gsf_tk_n] = qpvar_out;
     }
 
-    std::pair<reco::TrackRef,float> ctfRef = getCtfTrackRef(tk, tkH2);
-    if (ctfRef.second > 0.) 
-      gsf_tk_tkind[gsf_tk_n] = ctfRef.first.index();
-    else
-      gsf_tk_tkind[gsf_tk_n] = -1;
+    gsf_tk_hp_expin[gsf_tk_n] = tk->trackerExpectedHitsInner().numberOfHits();
+    gsf_tk_hp_expout[gsf_tk_n] = tk->trackerExpectedHitsOuter().numberOfHits();
     
-    //for(unsigned int j=0; j<tkH2->size(); j++) { 
-    //  reco::TrackRef tk2(tkH2, j);
-    //  std::pair<unsigned int, float> result = sharedHits(*tk, *tk2);
-    //}
+    if (!doAodSim) {
+      std::pair<reco::TrackRef,float> ctfRef = getCtfTrackRef(tk, tkH2);
+      if (ctfRef.second > 0.) {
+	gsf_tk_tkind[gsf_tk_n] = ctfRef.first.index();
+	gsf_tk_shared[gsf_tk_n] = ctfRef.second;
+      } else {
+	gsf_tk_tkind[gsf_tk_n] = -1;
+	gsf_tk_shared[gsf_tk_n] = -1;
+      }
+    }      
     
     gsf_tk_n++;
   }
 
-  //if (gsf_tk_n == 0)
-  //  return false;
-  
   return true;
 }
 
 //perform the match by associator (default is hits)
 void GlobeGsfTracks::GetAssociatedTrackingParticleIndex(const edm::Event& iEvent, const edm::EventSetup& iSetup, GlobeTrackingParticles* tp) {
 
-//#ifdef CMSSW_VERSION_168
-//  edm::Handle<reco::TrackCollection> tkH;
-//  iEvent.getByLabel(trackColl, tkH);
-//#endif
-//#ifdef CMSSW_VERSION_180
-//  edm::Handle<reco::TrackCollection> tkH;
-//  iEvent.getByLabel(trackColl, tkH);
-//#endif
-//#ifdef CMSSW_VERSION_209_AND_210
   edm::Handle<edm::View<reco::Track> > tkH;
   iEvent.getByLabel(trackColl, tkH);
-//#endif
   
   // get the TrackingParticles
   edm::Handle<TrackingParticleCollection> tpH;
@@ -236,15 +200,7 @@ void GlobeGsfTracks::GetAssociatedTrackingParticleIndex(const edm::Event& iEvent
   TrackingParticleRef associatedTrackingParticle;
   
   if(tp) for(int j=0;j<gsf_tk_n;j++) {
-//#ifdef CMSSW_VERSION_209_AND_210
     edm::RefToBase<reco::Track> tk(tkH, (int)gsf_tk_cmsind[j]);
-//#endif 
-//#ifdef CMSSW_VERSION_180
-//    reco::TrackRef tk(tkH, (int)gsf_tk_cmsind[j]);
-//#endif 
-//#ifdef CMSSW_VERSION_168
-//    reco::TrackRef tk(tkH, (int)gsf_tk_cmsind[j]);
-//#endif 
 
     if(recSimColl.find(tk) != recSimColl.end()) {
 
@@ -253,7 +209,6 @@ void GlobeGsfTracks::GetAssociatedTrackingParticleIndex(const edm::Event& iEvent
       associatedTrackingParticle = simTracks.begin()->first;
             
       // get the index of the associated recoTrack
-      //for(TrackingParticleCollection::size_type i = 0; i < tpH->size(); ++i)
       for(int i = 0; i < tp->tp_n; ++i) {
         TrackingParticleRef trackingParticle(tpH, tp->tp_cmsind[i]);
         if( gCUT->cut(*trackingParticle) ) continue;

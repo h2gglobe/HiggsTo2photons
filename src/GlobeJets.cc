@@ -16,7 +16,7 @@
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include <iostream>
 
-GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "it5"): nome(n) {
+GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "algo1"): nome(n) {
   
   char a[100];
   sprintf (a,"JetColl_%s", nome);
@@ -24,12 +24,8 @@ GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "it5"): n
   calotowerColl =  iConfig.getParameter<edm::InputTag>("CaloTowerColl");
   trackColl =  iConfig.getParameter<edm::InputTag>("TrackColl");
   
-  doEgammaSummer09Skim = iConfig.getParameter<bool>("doEgammaSummer09Skim");
-  
   std::string strnome = nome;
-  if (strnome.find("pf",0) != std::string::npos){
-  }
-  
+
   if (strnome.find("pf",0) == std::string::npos){
     sprintf (a,"JetTrackAssociationColl_%s", nome);
     jetTkAssColl =  iConfig.getParameter<edm::InputTag>(a);
@@ -82,104 +78,103 @@ void GlobeJets::defineBranch(TTree* tree) {
 bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   std::string strnome = nome;
-  // if( nome != "pf")
-  if (strnome.find("pf",0) == std::string::npos)
-    {
-      edm::Handle<reco::CaloJetCollection> jetH;
-      iEvent.getByLabel(jetColl, jetH);  
+
+  if (strnome.find("pf",0) == std::string::npos) {
+    edm::Handle<reco::CaloJetCollection> jetH;
+    iEvent.getByLabel(jetColl, jetH);  
+    
+    // take collections
+        
+    edm::Handle<CaloTowerCollection> ctH; 
+    iEvent.getByLabel(calotowerColl, ctH);
+    
+    edm::Handle<reco::TrackCollection> tkH;
+    iEvent.getByLabel(trackColl, tkH);
+    
+    jet_p4->Clear();
+    
+    jet_n = 0;
+    
+    if (debug_level > 9)
+      std::cout << "GlobeJets: Jet collection size: "<< jetH->size() << std::endl;
       
-      // take collections
-      
-      
-      edm::Handle<CaloTowerCollection> ctH; 
-      iEvent.getByLabel(calotowerColl, ctH);
-      
-      edm::Handle<reco::TrackCollection> tkH;
-      iEvent.getByLabel(trackColl, tkH);
-      
-      jet_p4->Clear();
-      
-      jet_n = 0;
-      
-      if (debug_level > 9)
-	std::cout << "GlobeJets: Jet collection size: "<< jetH->size() << std::endl;
-      
-      // check if collection is present
-      for(unsigned int i=0; i<jetH->size(); i++) {
-	if (jet_n >= MAX_JETS) {
-	  std::cout << "GlobeJets: WARNING TOO MANY JETS: " << jetH->size() << " (allowed " << MAX_JETS << ")" << std::endl;
-	  break;
-	}
-	
-	reco::CaloJetRef j(jetH, i);
-	
-	// apply the cuts
-	if (gCUT->cut(*j)) continue;
-	// passed cuts
-	
-	new ((*jet_p4)[jet_n]) TLorentzVector();
-	((TLorentzVector *)jet_p4->At(jet_n))->SetXYZT(j->px(), j->py(), j->pz(), j->energy()); 
-	jet_emfrac[jet_n] = j->emEnergyFraction();
-	jet_hadfrac[jet_n] = j->energyFractionHadronic();
-	
-	// Tracks and CaloTowers
-	if(!doEgammaSummer09Skim) {
-	  std::vector<CaloTowerPtr> towers = j->getCaloConstituents();
-	  std::vector<CaloTowerPtr>::const_iterator it;
-	  
-	  int limit = 0;
-	  if (towers.size() >= MAX_JET_TOWERS) {
-	    std::cout << "GlobeJets: WARNING TOO MANY TOWERS IN JET: " << towers.size() << " (allowed " << MAX_JET_TOWERS << ")" << std::endl;
-	    limit = MAX_JET_TOWERS;
-	  } else {
-	    limit = towers.size();
-	  }
-	  
-	  jet_ncalotw[jet_n] = limit;
-	  
-	  int index = 0;
-	  for(it = towers.begin(); it != towers.end(); ++it) {
-	    if (index >= limit)
-	      break;
-	    for(unsigned int k = 0; k<ctH->size(); k++) {
-	      CaloTowerRef t(ctH, k);
-	      if (&(**it) == &(*t)) {
-		jet_calotwind[jet_n][index] = k;
-		break;
-	      }
-	    }
-	    index++;
-	  }
-	  
-	  edm::Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
-	  iEvent.getByLabel(jetTkAssColl, jetTracksAssociation);
-	  
-	  for(reco::JetTracksAssociationCollection::const_iterator itass = jetTracksAssociation->begin(); itass != jetTracksAssociation->end(); ++itass) {
-	    if (&(*(itass->first)) != &(*j)) 
-	      continue;
-	    limit = 0;
-	    reco::TrackRefVector tracks = itass->second;
-	    if (tracks.size() >= MAX_JET_TRACKS)
-	      limit = MAX_JET_TRACKS;
-	    else 
-	      limit = tracks.size();
-	    
-	    jet_ntk[jet_n] = limit;
-	    
-	    for (int ii = 0; ii < limit; ++ii) {
-	      for(unsigned int k = 0; k<tkH->size(); k++) {
-		reco::TrackRef t(tkH, k);
-		if (&(*(tracks[ii])) == &(*t) ) {
-		  jet_tkind[jet_n][ii] = k;
-		  break;
-		}
-	      }
-	    }
-	  }
-	}
-	jet_n++;
+    // check if collection is present
+    for(unsigned int i=0; i<jetH->size(); i++) {
+      if (jet_n >= MAX_JETS) {
+        std::cout << "GlobeJets: WARNING TOO MANY JETS: " << jetH->size() << " (allowed " << MAX_JETS << ")" << std::endl;
+        break;
       }
+      
+      reco::CaloJetRef j(jetH, i);
+	
+      // apply the cuts
+      if (gCUT->cut(*j)) continue;
+      // passed cuts
+      
+      new ((*jet_p4)[jet_n]) TLorentzVector();
+      ((TLorentzVector *)jet_p4->At(jet_n))->SetXYZT(j->px(), j->py(), j->pz(), j->energy()); 
+      jet_emfrac[jet_n] = j->emEnergyFraction();
+      jet_hadfrac[jet_n] = j->energyFractionHadronic();
+      
+      // Tracks and CaloTowers
+      std::vector<CaloTowerPtr> towers = j->getCaloConstituents();
+      std::vector<CaloTowerPtr>::const_iterator it;
+      
+      int limit = 0;
+      if (towers.size() >= MAX_JET_TOWERS) {
+        std::cout << "GlobeJets: WARNING TOO MANY TOWERS IN JET: " << towers.size() << " (allowed " << MAX_JET_TOWERS << ")" << std::endl;
+        limit = MAX_JET_TOWERS;
+      } else {
+        limit = towers.size();
+      }
+      
+      jet_ncalotw[jet_n] = limit;
+      
+      int index = 0;
+      for(it = towers.begin(); it != towers.end(); ++it) {
+        if (index >= limit)
+          break;
+        for(unsigned int k = 0; k<ctH->size(); k++) {
+          CaloTowerRef t(ctH, k);
+          if (&(**it) == &(*t)) {
+            jet_calotwind[jet_n][index] = k;
+            break;
+          }
+        }
+        index++;
+      }
+      
+      if (jetTkAssColl.encode() != "") {
+        edm::Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
+        iEvent.getByLabel(jetTkAssColl, jetTracksAssociation);
+        
+        for(reco::JetTracksAssociationCollection::const_iterator itass = jetTracksAssociation->begin(); itass != jetTracksAssociation->end(); ++itass) {
+          if (&(*(itass->first)) != &(*j)) 
+            continue;
+          limit = 0;
+          reco::TrackRefVector tracks = itass->second;
+          if (tracks.size() >= MAX_JET_TRACKS)
+            limit = MAX_JET_TRACKS;
+          else 
+            limit = tracks.size();
+          
+          jet_ntk[jet_n] = limit;
+          
+          for (int ii = 0; ii < limit; ++ii) {
+            for(unsigned int k = 0; k<tkH->size(); k++) {
+              reco::TrackRef t(tkH, k);
+              if (&(*(tracks[ii])) == &(*t) ) {
+                jet_tkind[jet_n][ii] = k;
+                break;
+              }
+            }
+          }
+        }
+      }
+      
+      jet_n++;
     }
+  }
   
   
   if (strnome.find("pf",0) != std::string::npos){
@@ -204,8 +199,8 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     // check if collection is present
     for(unsigned int i=0; i<pfjetH->size(); i++) {
       if (jet_n >= MAX_JETS) {
-	std::cout << "GlobeJets: WARNING TOO MANY JETS: " << pfjetH->size() << " (allowed " << MAX_JETS << ")" << std::endl;
-	break;
+        std::cout << "GlobeJets: WARNING TOO MANY JETS: " << pfjetH->size() << " (allowed " << MAX_JETS << ")" << std::endl;
+        break;
       }
       
       reco::PFJetRef j(pfjetH, i);
@@ -224,6 +219,8 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     
   }
-
+  //if (jet_n == 0)
+  //  return false;
+  
   return true;
 }
