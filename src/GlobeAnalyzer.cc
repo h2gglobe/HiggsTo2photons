@@ -10,16 +10,16 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
 
   doMuon = iConfig.getParameter<bool>("doMuon");
 
-  doJetIt5 = iConfig.getParameter<bool>("doJet_it5");
-  doJetIt7 = iConfig.getParameter<bool>("doJet_it7");
-  doJetMid = iConfig.getParameter<bool>("doJet_mid");
-  doJetIt5PF = iConfig.getParameter<bool>("doJet_it5pf");
-  doJetSis5PF = iConfig.getParameter<bool>("doJet_sis5pf");
-  doJetKt4PF = iConfig.getParameter<bool>("doJet_kt4pf");
+  doJetAlgo1 = iConfig.getParameter<bool>("doJet_algo1");
+  doJetAlgo2 = iConfig.getParameter<bool>("doJet_algo2");
+  doJetAlgo3 = iConfig.getParameter<bool>("doJet_algo3");
+  doJetAlgoPF1 = iConfig.getParameter<bool>("doJet_algoPF1");
+  doJetAlgoPF2 = iConfig.getParameter<bool>("doJet_algoPF2");
+  doJetAlgoPF3 = iConfig.getParameter<bool>("doJet_algoPF3");
 
-  doGenJetIt5 = iConfig.getParameter<bool>("doGenJet_it5");
-  doGenJetIt7 = iConfig.getParameter<bool>("doGenJet_it7");
-  doGenJetMid = iConfig.getParameter<bool>("doGenJet_mid");
+  doGenJetAlgo1 = iConfig.getParameter<bool>("doGenJet_algo1");
+  doGenJetAlgo2 = iConfig.getParameter<bool>("doGenJet_algo2");
+  doGenJetAlgo3 = iConfig.getParameter<bool>("doGenJet_algo3");
 
   doGenerator = iConfig.getParameter<bool>("doGenerator");
   doGenParticles = iConfig.getParameter<bool>("doGenParticles");
@@ -34,7 +34,6 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
 
   doVertices_std = iConfig.getParameter<bool>("doVertices_std"); 
   doVertices_pix = iConfig.getParameter<bool>("doVertices_pix"); 
-  doVtxCompat = iConfig.getParameter<bool>("doVtxCompat"); 
   doMet = iConfig.getParameter<bool>("doMet"); 
   dotcMet = iConfig.getParameter<bool>("dotcMet");
   doPFMet = iConfig.getParameter<bool>("doPFMet");
@@ -50,15 +49,12 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   doLeptons = iConfig.getParameter<bool>("doLeptons");
   doHt = iConfig.getParameter<bool>("doHt");
 
+  doPFCandidates = iConfig.getParameter<bool>("doPFCandidates");
+  //doPAT = iConfig.getParameter<bool>("doPAT");
+
   debug_level = iConfig.getParameter<int>("Debug_Level");
   
-  fullHLT = iConfig.getParameter<edm::ParameterSet>("HLTParameters").getParameter<bool>("FullHLT");
-  if(fullHLT){
-    theElHLTLabels  = iConfig.getParameter<std::vector<edm::InputTag> >("ElectronHLTLabels");
-    theMuHLTLabels  = iConfig.getParameter<std::vector<edm::InputTag> >("MuonHLTLabels");
-    thePhHLTLabels  = iConfig.getParameter<std::vector<edm::InputTag> >("PhotonHLTLabels");
-  }
-  
+
   common = new GlobeCommon(iConfig);
 
   if(doGenerator && doGenParticles) {
@@ -114,11 +110,9 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
 
   if (doVertices_std) 
     vertex_std   = new GlobeVertex(iConfig, "std");
+
   if (doVertices_pix) 
     vertex_pix   = new GlobeVertex(iConfig, "pix");
-
-  if (doVtxCompat) 
-    vtxcompat   = new GlobeVtxCompat(iConfig);
 
   //PHOTONS
   if (doPhoton)
@@ -148,28 +142,28 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
     pfmet = new GlobeMET(iConfig, "pfmet");
 
   //GENJETS
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeGenJets"<<std::endl;
-  if (doGenJetIt5)
-    it5_genJets = new GlobeGenJets(iConfig, "it5");
-  if (doGenJetIt7)
-    it7_genJets = new GlobeGenJets(iConfig, "it7");
-  if (doGenJetMid)
-    mid_genJets = new GlobeGenJets(iConfig, "mid");
+  if(debug_level > 9) std::cout<<"GlobeAnalyzer: coutall GlobeGenJets"<<std::endl;
+  if (doGenJetAlgo1)
+    algo1_genJets = new GlobeGenJets(iConfig, "algo1");
+  if (doGenJetAlgo2)
+    algo2_genJets = new GlobeGenJets(iConfig, "algo2");
+  if (doGenJetAlgo3)
+    algo3_genJets = new GlobeGenJets(iConfig, "algo3");
 
   //JETS
   if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeJets"<<std::endl;
-  if (doJetIt5)
-    it5_jets = new GlobeJets(iConfig, "it5");
-  if (doJetIt7)
-    it7_jets = new GlobeJets(iConfig, "it7");
-  if (doJetMid)
-    mid_jets = new GlobeJets(iConfig, "mid");
-  if (doJetIt5PF)
-    it5pf_jets = new GlobeJets(iConfig, "it5pf");
-  if (doJetSis5PF)
-    sis5pf_jets = new GlobeJets(iConfig, "sis5pf");
-  if (doJetKt4PF)
-    kt4pf_jets = new GlobeJets(iConfig, "kt4pf");
+  if (doJetAlgo1)
+    algo1_jets = new GlobeJets(iConfig, "algo1");
+  if (doJetAlgo2)
+    algo2_jets = new GlobeJets(iConfig, "algo2");
+  if (doJetAlgo3)
+    algo3_jets = new GlobeJets(iConfig, "algo3");
+  if (doJetAlgoPF1)
+    algoPF1_jets = new GlobeJets(iConfig, "algo1");
+  if (doJetAlgoPF2)
+    algoPF2_jets = new GlobeJets(iConfig, "algo2");
+  if (doJetAlgoPF3)
+    algoPF3_jets = new GlobeJets(iConfig, "algo3");
   
   if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeSelector"<<std::endl;
   selector = new GlobeSelector(iConfig);
@@ -185,6 +179,12 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeReducedGen"<<std::endl;
   if (doReducedGen)
     reducedgen = new GlobeReducedGen(iConfig);
+
+  if (doPFCandidates)
+    pfCandidates = new GlobePFCandidates(iConfig);
+
+  //if (doPAT)
+  //  pat = new GlobePAT(iConfig);
 
   if(debug_level > 9) std::cout<<"GlobeAnalyzer: readConfiguration"<<std::endl;
   readConfiguration(iConfig);
@@ -318,13 +318,6 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doVertices_pix) 
     vertex_pix->analyze(iEvent, iSetup);
 
-  if(debug_level > 2) std::cout << "GlobeAnalyzer: vtxcompat" << std::endl;
-  if (doVtxCompat) { 
-    if (doElectronStd && doMuon && doPhoton && doTracks && doLeptons) 
-      vtxcompat->analyze(iEvent, iSetup, leptons, std_electrons, muons, tracks);
-    else
-      std::cout << "VtxCompat needs Electrons, Muons, Photons, Leptons and Tracks." << std::endl;
-  }  
 
   //MET
   if(debug_level > 2) std::cout << "GlobeAnalyzer: met" << std::endl;
@@ -336,49 +329,49 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     pfmet->analyze(iEvent, iSetup);
 
   //GENJETS
-  if(debug_level > 2) std::cout << "GlobeAnalyzer: it5genjet" << std::endl;
-  if (doGenJetIt5)
-    it5_genJets->analyze(iEvent, iSetup);
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: algo1genjet" << std::endl;
+  if (doGenJetAlgo1)
+    algo1_genJets->analyze(iEvent, iSetup);
 
-  if(debug_level > 2) std::cout << "GlobeAnalyzer: it7genjet" << std::endl;
-  if (doGenJetIt7)
-    it7_genJets->analyze(iEvent, iSetup);
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: algo2genjet" << std::endl;
+  if (doGenJetAlgo2)
+    algo2_genJets->analyze(iEvent, iSetup);
 
-  if(debug_level > 2) std::cout << "GlobeAnalyzer: midgenJets" << std::endl;
-  if (doGenJetMid)
-    mid_genJets->analyze(iEvent, iSetup);
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: algo3genjet" << std::endl;
+  if (doGenJetAlgo3)
+    algo3_genJets->analyze(iEvent, iSetup);
 
   //JETS
-  if(debug_level > 2) std::cout << "GlobeAnalyzer: t5_jets" << std::endl;
-  if (doJetIt5)
-    it5_jets->analyze(iEvent, iSetup);
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: algo1_jets" << std::endl;
+  if (doJetAlgo1)
+    algo1_jets->analyze(iEvent, iSetup);
 
-  if(debug_level > 2) std::cout << "GlobeAnalyzer: t7_jets" << std::endl;
-  if (doJetIt7)
-    it7_jets->analyze(iEvent, iSetup);
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: algo2_jets" << std::endl;
+  if (doJetAlgo2)
+    algo2_jets->analyze(iEvent, iSetup);
 
-  if(debug_level > 2) std::cout << "GlobeAnalyzer: mid_jets" << std::endl;
-  if (doJetMid)
-    mid_jets->analyze(iEvent, iSetup);
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: algo3_jets" << std::endl;
+  if (doJetAlgo3)
+    algo3_jets->analyze(iEvent, iSetup);
 
-  if(debug_level > 2) std::cout << "GlobeAnalyzer: pfit5_jets" << std::endl;
-  if (doJetIt5PF)
-    it5pf_jets->analyze(iEvent, iSetup);
-  if(debug_level > 2) std::cout << "GlobeAnalyzer: pfsis5_jets" << std::endl;
-  if (doJetSis5PF)
-    sis5pf_jets->analyze(iEvent, iSetup);
-  if(debug_level > 2) std::cout << "GlobeAnalyzer: pfkt4_jets" << std::endl;
-  if (doJetKt4PF)
-    kt4pf_jets->analyze(iEvent, iSetup);
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: algopf1_jets" << std::endl;
+  if (doJetAlgoPF1)
+    algoPF1_jets->analyze(iEvent, iSetup);
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: algopf2_jets" << std::endl;
+  if (doJetAlgoPF2)
+    algoPF2_jets->analyze(iEvent, iSetup);
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: algopf3_jets" << std::endl;
+  if (doJetAlgoPF3)
+    algoPF3_jets->analyze(iEvent, iSetup);
 
   //HT
   if (doHt) {
-    bool doLeptonHT=doJetIt5 && doMet && doPhoton && doLeptons;
+    bool doLeptonHT=doJetAlgo1 && doMet && doPhoton && doLeptons;
     if(debug_level > 2) std::cout << "GlobeAnalyzer: leptonHT" << std::endl;
     if(doLeptonHT)
-      ht->fillLeptonHT(it5_jets, met, leptons);
+      ht->fillLeptonHT(algo1_jets, met, leptons);
     
-    bool doCaloTowerHT=doJetIt5 && doMet && doPhoton && doLeptons;
+    bool doCaloTowerHT=doJetAlgo1 && doMet && doPhoton && doLeptons;
     if(debug_level > 2) std::cout << "GlobeAnalyzer: caloHT" << std::endl;
     if(doCaloTowerHT)
       ht->fillCaloTowerHT(met, calotowers);
@@ -400,6 +393,17 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     reducedgen->fillRedGenList(genP, leptons);
   }
   
+  // PF CANDIDATES
+  if (doPFCandidates)
+    pfCandidates->analyze(iEvent, iSetup, tracks, muons);
+
+  //PAT
+  //if (doPAT) {
+  //  if(debug_level > 2) std::cout << "GlobeAnalyzer: PAT" << std::endl;
+  //  pat->analyze(iEvent, iSetup, std_electrons, photons, algo1_jets);
+  //}
+  
+
   if(debug_level > 2) 
     std::cout << "GlobeAnalyzer: selectorbits" << std::endl;
 
@@ -450,9 +454,6 @@ void GlobeAnalyzer::beginJob() {
   if (doVertices_pix)
     vertex_pix->defineBranch(tree);
 
-  if (doVtxCompat)
-    vtxcompat->defineBranch(tree);
-
   if (doMet)
     met->defineBranch(tree);
   if(dotcMet)
@@ -483,18 +484,18 @@ void GlobeAnalyzer::beginJob() {
     muons->defineBranch(tree);
 
   // JETS
-  if (doJetIt5)
-    it5_jets->defineBranch(tree);
-  if (doJetIt7)
-    it7_jets->defineBranch(tree);
-  if (doJetMid)
-    mid_jets->defineBranch(tree);
-  if (doJetIt5PF)
-    it5pf_jets->defineBranch(tree);
-  if (doJetSis5PF)
-    sis5pf_jets->defineBranch(tree);
-  if (doJetKt4PF)
-    kt4pf_jets->defineBranch(tree);
+  if (doJetAlgo1)
+    algo1_jets->defineBranch(tree);
+  if (doJetAlgo2)
+    algo2_jets->defineBranch(tree);
+  if (doJetAlgo3)
+    algo3_jets->defineBranch(tree);
+  if (doJetAlgoPF1)
+    algoPF1_jets->defineBranch(tree);
+  if (doJetAlgoPF2)
+    algoPF2_jets->defineBranch(tree);
+  if (doJetAlgoPF3)
+    algoPF3_jets->defineBranch(tree);
 
   // GEN
   if (doGenerator)
@@ -505,12 +506,12 @@ void GlobeAnalyzer::beginJob() {
 
   
   // GEN JETS
-  if (doGenJetIt5)
-    it5_genJets->defineBranch(tree);
-  if (doGenJetIt7)
-    it7_genJets->defineBranch(tree);
-  if (doGenJetMid)
-    mid_genJets->defineBranch(tree);
+  if (doGenJetAlgo1)
+    algo1_genJets->defineBranch(tree);
+  if (doGenJetAlgo2)
+    algo2_genJets->defineBranch(tree);
+  if (doGenJetAlgo3)
+    algo3_genJets->defineBranch(tree);
 
   if (doLeptons)
     leptons->defineBranch(tree);
@@ -521,6 +522,12 @@ void GlobeAnalyzer::beginJob() {
   // REDUCED GEN LIST
   if (doReducedGen) 
     reducedgen->defineBranch(tree);
+
+  if (doPFCandidates)
+     pfCandidates->defineBranch(tree);
+  
+  //if (doPAT)
+  //  pat->defineBranch(tree);
   
   defineBranch();
   
@@ -551,10 +558,10 @@ void GlobeAnalyzer::defineBranch() {
   tree2->Branch("sel_events", &sel_events, "sel_events/I");
 
   tree2->Branch("parameters", "std::vector<std::string>", &parameters); 
-  if(fullHLT){
-    hlt_path_names = new std::vector<std::string>;
-    tree2->Branch("hlt_path_names", "std::vector<std::string>", &hlt_path_names);
-  }
+  //if(fullHLT){
+  //  hlt_path_names = new std::vector<std::string>;
+  //  tree2->Branch("hlt_path_names", "std::vector<std::string>", &hlt_path_names);
+  //}
 }
 
 void GlobeAnalyzer::fillTree() {
@@ -562,6 +569,7 @@ void GlobeAnalyzer::fillTree() {
   version = H2G_VERSION;
   type = 0;
   
+  /*
   if(fullHLT){
     for(unsigned int i=0; i<theElHLTLabels.size(); i++) 
       hlt_path_names->push_back(theElHLTLabels[i].label());
@@ -570,7 +578,7 @@ void GlobeAnalyzer::fillTree() {
     for(unsigned int i=0; i<thePhHLTLabels.size(); i++) 
       hlt_path_names->push_back(thePhHLTLabels[i].label());
   }
-  
+  */
   tree2->Fill();
 }
 

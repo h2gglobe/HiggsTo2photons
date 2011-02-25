@@ -6,7 +6,7 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 
   debug_level = iConfig.getParameter<int>("Debug_Level");
   doFastSim = iConfig.getParameter<bool>("doFastSim");
-  doEgammaSummer09Skim = iConfig.getParameter<bool>("doEgammaSummer09Skim");
+  doAodSim = iConfig.getParameter<bool>("doAodSim");
 
   // PHOTONS 
   photonCollStd =  iConfig.getParameter<edm::InputTag>("PhotonCollStd");
@@ -366,15 +366,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
             if(i==0) {
               pho_conv_tk1_dz[pho_n]=tracks[i]->dz();
               pho_conv_tk1_dzerr[pho_n]=tracks[i]->dzError();
-              if(!doEgammaSummer09Skim) pho_conv_tk1_nh[pho_n]=tracks[i]->recHitsSize();
-              else pho_conv_tk1_nh[pho_n]= -1;
               pho_conv_ch1ch2[pho_n]=tracks[i]->charge();
             }
             else if(i==1) {
               pho_conv_tk2_dz[pho_n]=tracks[i]->dz();
               pho_conv_tk2_dzerr[pho_n]=tracks[i]->dzError();
-              if(!doEgammaSummer09Skim) pho_conv_tk2_nh[pho_n]=tracks[i]->recHitsSize();
-              else pho_conv_tk2_nh[pho_n]= -1;
               pho_conv_ch1ch2[pho_n]*=tracks[i]->charge();
             }
           }

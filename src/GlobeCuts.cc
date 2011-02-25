@@ -57,9 +57,14 @@ GlobeCuts::GlobeCuts(const edm::ParameterSet& iConfig) {
 
 // The Functions return "true" if the object should be cut
 
+//PFCands
+bool GlobeCuts::cut(const reco::PFCandidate &pf) {
+  return 0;
+}
+
 // Photons
 bool GlobeCuts::cut(const reco::Photon &photon) { 
-          return (photon.et() < photonEtCut_); 
+  return (photon.et() < photonEtCut_); 
 }
 
 //#ifdef CMSSW_VERSION_168

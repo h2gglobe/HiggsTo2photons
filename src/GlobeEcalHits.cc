@@ -38,7 +38,8 @@ void GlobeEcalHits::defineBranch(TTree* tree) {
   tree->Branch("ecalhit_type", &ecalhit_type, "ecalhit_type[ecalhit_n]/I");
   tree->Branch("ecalhit_flag", &ecalhit_flag, "ecalhit_flag[ecalhit_n]/I");
   tree->Branch("ecalhit_time", &ecalhit_time, "ecalhit_time[ecalhit_n]/F");
-  
+  tree->Branch("ecalhit_detid", &ecalhit_detid, "ecalhit_detid[ecalhit_n]/I");
+
   ecalhit_p4 = new TClonesArray("TLorentzVector", MAX_ECALRECHITS);
   tree->Branch("ecalhit_p4", "TClonesArray", &ecalhit_p4, 32000, 0);
 }
@@ -56,11 +57,8 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   // geometry initialization
   edm::ESHandle<CaloGeometry> geometry;
-//#ifdef CMSSW_VERSION_210
   iSetup.get<CaloGeometryRecord>().get(geometry);
-//#else
-//  iSetup.get<IdealGeometryRecord>().get(geometry);
-//#endif
+
   const CaloSubdetectorGeometry* EB = geometry->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
   const CaloSubdetectorGeometry* EE = geometry->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   const CaloSubdetectorGeometry* ES = 0;
@@ -117,14 +115,7 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       
       for(int j=0;j<lep->lpt_n;++j) { //Begin Lepton Loop List 
 	
-        //if(j == lep->lpt_emu_n) 
-	//j=lep->lpt_el_n+lep->lpt_mu_n; //Skip bad electrons
-        //if (j >= lep->lpt_n)
-	//continue;
-        //if( ((TLorentzVector*)lep->lpt_p4->At(j))->Pt() < 5 ) 
-	//continue; //Skip Low Pt Leptons
-              
-        if(abs(lep->lpt_pdgid[j]) == 11) {  //accessing the electron collection
+	if(abs(lep->lpt_pdgid[j]) == 11) {  //accessing the electron collection
           vtxPos = *((TVector3*)( el->el_posvtx->At(lep->lpt_ind[j]) ));
           vtxMom = *((TVector3*)( el->el_momvtx->At(lep->lpt_ind[j]) ));
         } else if(abs(lep->lpt_pdgid[j]) == 13) {
@@ -138,9 +129,9 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           continue;                
         }
                  
-        if(debug_level == -17) {
-          //std::cout << "Vtx Pos: (" << vtxPos.X() << "," << vtxPos.Y() << "," << vtxPos.Z() << ")" << std::endl;
-          //std::cout << "Vtx Mom: (" << vtxMom.X() << "," << vtxMom.Y() << "," << vtxMom.Z() << ")" << std::endl;
+        if(debug_level > 9) {
+          std::cout << "Vtx Pos: (" << vtxPos.X() << "," << vtxPos.Y() << "," << vtxPos.Z() << ")" << std::endl;
+          std::cout << "Vtx Mom: (" << vtxMom.X() << "," << vtxMom.Y() << "," << vtxMom.Z() << ")" << std::endl;
         }
 	
 	
@@ -149,13 +140,12 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         else {                                             //Passes all cuts
 	  
           new ((*ecalhit_p4)[ecalhit_n]) TLorentzVector(); 
-          ((TLorentzVector *)ecalhit_p4->At(ecalhit_n))
-            ->SetXYZT(posi.x(),posi.y(),posi.z(),rh->energy());
-          //->SetPtEtaPhiE(rh->energy()*sin(posi.theta()),posi.eta(),posi.phi(),rh->energy());
+          ((TLorentzVector *)ecalhit_p4->At(ecalhit_n))->SetXYZT(posi.x(),posi.y(),posi.z(),rh->energy());
 	  
           ecalhit_type[ecalhit_n] = 0; 
           ecalhit_time[ecalhit_n] = rh->time();
           ecalhit_flag[ecalhit_n] = rh->recoFlag();
+	  ecalhit_detid[ecalhit_n] = rh->detid();
           ecalhit_n++;
           break; //break out of lepton loop, already passed 
         } //End Passes All Cuts
@@ -164,9 +154,8 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       if(lep->lpt_n==0) {
         if( !gCUT->cut(*rh,0,100.) ) {
           new ((*ecalhit_p4)[ecalhit_n]) TLorentzVector(); 
-          ((TLorentzVector *)ecalhit_p4->At(ecalhit_n))
-            ->SetXYZT(posi.x(),posi.y(),posi.z(),rh->energy());
-          //->SetPtEtaPhiE(rh->energy()*sin(posi.theta()),posi.eta(),posi.phi(),rh->energy());
+          ((TLorentzVector *)ecalhit_p4->At(ecalhit_n))->SetXYZT(posi.x(),posi.y(),posi.z(),rh->energy());
+
           ecalhit_type[ecalhit_n] = 0;
           ecalhit_n++;  
 	}
@@ -185,7 +174,7 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       
     EcalRecHitRef rh(pEERecHitH, i);
     if(i<10) {
-      if(debug_level == -17) {
+      if(debug_level > 0) {
 	std::cout << "Ecal Endc "<<i<<" "<<rh->energy()<<std::endl;
       }
     }
@@ -197,13 +186,6 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       calPos.SetXYZ(posi.x(),posi.y(),posi.z());
         
       for(int j=0;j<lep->lpt_n;++j) { //Begin Lepton Loop List 
-        //if(j == lep->lpt_emu_n) 
-	//j=lep->lpt_el_n+lep->lpt_mu_n; //Skip bad electrons
-        //if (j >= lep->lpt_n)
-	//continue;
-        //if( ((TLorentzVector*)lep->lpt_p4->At(j))->Pt() < 5 ) 
-	//continue; //Skip Low Pt Leptons
-          
         if(abs(lep->lpt_pdgid[j]) == 11) {  //accessing the electron collection
           vtxPos = *((TVector3*)( el->el_posvtx->At(lep->lpt_ind[j]) ));
           vtxMom = *((TVector3*)( el->el_momvtx->At(lep->lpt_ind[j]) ));
@@ -234,6 +216,7 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           ecalhit_type[ecalhit_n] = 1;
           ecalhit_time[ecalhit_n] = rh->time();
           ecalhit_flag[ecalhit_n] = (int)rh->recoFlag();
+	  ecalhit_detid[ecalhit_n] = rh->detid();
           ecalhit_n++;
           break; //break out of lepton loop, already passed 
             
@@ -288,6 +271,7 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           ecalhit_type[ecalhit_n] = 2; 
           ecalhit_time[ecalhit_n] = rh->time();
           ecalhit_flag[ecalhit_n] = rh->recoFlag();
+	  ecalhit_detid[ecalhit_n] = rh->detid();
           ecalhit_n++;
             
         } //End Passes All Cuts
