@@ -54,13 +54,6 @@ class GlobeMuons {
   Int_t mu_type[MAX_MUONS];
 
   Float_t mu_iso[MAX_MUONS];
-  Bool_t mu_3dip_valid[MAX_ELECTRONS];
-  Float_t mu_3dip_x[MAX_ELECTRONS];
-  Float_t mu_3dip_y[MAX_ELECTRONS];
-  Float_t mu_3dip_z[MAX_ELECTRONS];
-  Float_t mu_3dip_xerr[MAX_ELECTRONS];
-  Float_t mu_3dip_yerr[MAX_ELECTRONS];
-  Float_t mu_3dip_zerr[MAX_ELECTRONS];
 
   TClonesArray *mu_p4;
   TClonesArray *mu_momvtx;

@@ -69,11 +69,12 @@ class GlobeGsfTracks {
   Float_t gsf_tk_pin[MAX_TRACKS];
   Float_t gsf_tk_pout[MAX_TRACKS];
   Float_t gsf_tk_fbrem[MAX_TRACKS];
-  Int_t gsf_tk_algo[MAX_TRACKS];
-  Int_t gsf_tk_quality[MAX_TRACKS];
   Int_t gsf_tk_tkind[MAX_TRACKS];
+  Float_t gsf_tk_shared[MAX_TRACKS];
   TClonesArray *gsf_tk_p4;
   TClonesArray *gsf_tk_vtx_pos;
+  TClonesArray *gsf_tk_poutmode;
+  TClonesArray *gsf_tk_pinmode;
 
  private:
   const char* nome; 

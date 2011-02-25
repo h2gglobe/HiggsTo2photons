@@ -167,7 +167,7 @@ class GlobePhotons {
   int debug_level;
   bool doConvertedPhoton;
   bool doFastSim;
-  bool doEgammaSummer09Skim;
+  bool doAodSim;
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   const HBHERecHitCollection* hithbhe_;
