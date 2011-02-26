@@ -30,6 +30,7 @@
 #define MAX_JET_TOWERS 100
 #define MAX_JET_TRACKS 100 
 
+#define MAX_PFCANDS 1500
 #define MAX_GENJETS 150
 
 #define MAX_VERTICES 100
