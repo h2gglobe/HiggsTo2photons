@@ -432,12 +432,12 @@ foreach $filename (@files) {
       
       if(($line =~/std::map/ || $line =~/std::vector/) && $line =~/tree/) {
 		    if ($line=~/tree.+a1.+"(.+).+,.+&(.+)_(.+).+;/){
-          print "$1 $2 $3\n";
+          #print "$1 $2 $3\n";
           $var2 = $1;
           $var3 = "$2$names[$i]$3";
         }
 	      elsif ($line=~/tree.+Branch+."(.+)_(.+)".+"(.+).+,(.+)/){
-          print "$1 $2 $3\n";
+          #print "$1 $2 $3\n";
           $var3 = "$1$names[$i]$2";
           $var2 = $3;
         }
@@ -446,10 +446,10 @@ foreach $filename (@files) {
 		    system "echo '   fChain->SetBranchAddress(\"$var3\", \&$var3, \&b_$var3); ' >> $output2";		    
 		    system "echo '   b_$var3 = fChain->GetBranch(\"$var3\"); ' >> $output3";
 		    system "echo '   b_$var3->GetEntry(jentry); ' >> $output4";
-        print "var1 = $var1\n";
-        print "var2 = $var2\n";
-        print "var3 = $var3\n";
-        print "var4 = $var4\n\n";
+        #print "var1 = $var1\n";
+        #print "var2 = $var2\n";
+        #print "var3 = $var3\n";
+        #print "var4 = $var4\n\n";
       }
 	    elsif($line=~/tree.+Branch.+TClonesArray.+,(.+),.+,.+\)/) {
 		#print "HERE1 $1 $line";
@@ -602,9 +602,6 @@ foreach $filename (@files) {
 		    
 		}
 	
-    if( $var1=~/int>/ ||  $var2=~/int>/ || $var3=~/int>/ || $var4=~/int>/ ) {
-      print "line is $line\n";
-    }
 
 		$var1="EMPTY";
 		$var2="EMPTY";
