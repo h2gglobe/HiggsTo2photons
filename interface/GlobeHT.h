@@ -30,7 +30,7 @@ class GlobeHT {
   void fillLeptonHT(GlobeJets * theJets, GlobeMET * theMET, GlobeLeptons * theLeptons);
 
   //variables
-  Float_t ht_nomet25
+  Float_t ht_nomet25;
   Float_t ht_nomet35;
   Float_t ht_nomet50;
   Float_t ht_trk;
