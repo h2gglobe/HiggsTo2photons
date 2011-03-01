@@ -33,7 +33,7 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   doHLT = iConfig.getParameter<bool>("doHLT");
 
   doVertices_std = iConfig.getParameter<bool>("doVertices_std"); 
-  doVertices_pix = iConfig.getParameter<bool>("doVertices_pix"); 
+  doVertices_nobs = iConfig.getParameter<bool>("doVertices_nobs"); 
   doMet = iConfig.getParameter<bool>("doMet"); 
   dotcMet = iConfig.getParameter<bool>("dotcMet");
   doPFMet = iConfig.getParameter<bool>("doPFMet");
@@ -111,8 +111,8 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if (doVertices_std) 
     vertex_std   = new GlobeVertex(iConfig, "std");
 
-  if (doVertices_pix) 
-    vertex_pix   = new GlobeVertex(iConfig, "pix");
+  if (doVertices_nobs) 
+    vertex_nobs   = new GlobeVertex(iConfig, "nobs");
 
   //PHOTONS
   if (doPhoton)
@@ -314,9 +314,9 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doVertices_std) 
     vertex_std->analyze(iEvent, iSetup);
     
-  if(debug_level > 2) std::cout << "GlobeAnalyzer: vertex_pix" << std::endl;
-  if (doVertices_pix) 
-    vertex_pix->analyze(iEvent, iSetup);
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: vertex_nobs" << std::endl;
+  if (doVertices_nobs) 
+    vertex_nobs->analyze(iEvent, iSetup);
 
 
   //MET
@@ -451,8 +451,8 @@ void GlobeAnalyzer::beginJob() {
 
   if (doVertices_std)
     vertex_std->defineBranch(tree);
-  if (doVertices_pix)
-    vertex_pix->defineBranch(tree);
+  if (doVertices_nobs)
+    vertex_nobs->defineBranch(tree);
 
   if (doMet)
     met->defineBranch(tree);

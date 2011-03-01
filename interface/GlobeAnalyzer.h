@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Matteosan SANI
 //         Created:  Thu Feb  7 10:14:43 CET 2008
-// $Id: GlobeAnalyzer.h,v 1.30 2010/10/06 02:39:02 edusinberre Exp $
+// $Id: GlobeAnalyzer.h,v 1.2 2011/02/25 13:51:22 capalmer Exp $
 //
 //
 
@@ -84,7 +84,7 @@ public:
   GlobeHcal* hcalhits;
   GlobeL1* level1;
   GlobeVertex* vertex_std;
-  GlobeVertex* vertex_pix;
+  GlobeVertex* vertex_nobs;
   GlobeVtxCompat* vtxcompat;
   GlobeSimHits* simhits;
   GlobeSimTracks* simtracks;
@@ -148,7 +148,7 @@ private:
   bool doPhoton;
   bool doL1;
   bool doVertices_std;
-  bool doVertices_pix;
+  bool doVertices_nobs;
   bool doVtxCompat;
   bool doMet;
   bool dotcMet;
