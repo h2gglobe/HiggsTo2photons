@@ -1,8 +1,7 @@
 #ifndef LIMITS_H
 #define LIMITS_H
 
-// 1 38X
-#define H2G_VERSION 2
+#define H2G_VERSION 3
 
 #define MAX_PARAMETERS 500
 #define MAX_GENERATOR 10000
