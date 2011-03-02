@@ -6,11 +6,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
 
-#ifdef CMSSW_VERSION_210
-#include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#else
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#endif
 
 #include "TTree.h"
 #include "TClonesArray.h"

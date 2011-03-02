@@ -17,10 +17,6 @@
 #include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 
-#ifdef PIZERODISCRIMINATOR 
-#include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
-#endif
-
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"

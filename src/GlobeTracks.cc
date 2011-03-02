@@ -156,18 +156,8 @@ bool GlobeTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //perform the match by associator (default is hits)
 void GlobeTracks::GetAssociatedTrackingParticleIndex(const edm::Event& iEvent, const edm::EventSetup& iSetup, GlobeTrackingParticles* tp) {
 
-//#ifdef CMSSW_VERSION_168
-//  edm::Handle<reco::TrackCollection> tkH;
-//  iEvent.getByLabel(trackColl, tkH);
-//#endif
-//#ifdef CMSSW_VERSION_180
-//  edm::Handle<reco::TrackCollection> tkH;
-//  iEvent.getByLabel(trackColl, tkH);
-//#endif
-//#ifdef CMSSW_VERSION_209_AND_210
   edm::Handle<edm::View<reco::Track> > tkH;
   iEvent.getByLabel(trackColl, tkH);
-//#endif
   
   // get the TrackingParticles
   edm::Handle<TrackingParticleCollection> tpH;
@@ -183,15 +173,7 @@ void GlobeTracks::GetAssociatedTrackingParticleIndex(const edm::Event& iEvent, c
   TrackingParticleRef associatedTrackingParticle;
   
   if(tp) for(int j=0;j<tk_n;j++) {
-//#ifdef CMSSW_VERSION_209_AND_210
     edm::RefToBase<reco::Track> tk(tkH, (int)tk_cmsind[j]);
-//#endif 
-//#ifdef CMSSW_VERSION_180
-//    reco::TrackRef tk(tkH, (int)tk_cmsind[j]);
-//#endif 
-//#ifdef CMSSW_VERSION_168
-//    reco::TrackRef tk(tkH, (int)tk_cmsind[j]);
-//#endif 
 
     if(recSimColl.find(tk) != recSimColl.end()) {
 

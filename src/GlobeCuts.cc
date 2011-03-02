@@ -67,12 +67,6 @@ bool GlobeCuts::cut(const reco::Photon &photon) {
   return (photon.et() < photonEtCut_); 
 }
 
-//#ifdef CMSSW_VERSION_168
-//// Converted Photons
-//bool GlobeCuts::cut(const reco::ConvertedPhoton &convphoton) { 
-//          return (convphoton.et() < convertedPhotonEtCut_);
-//}
-//#endif
 
 // Electrons
 bool GlobeCuts::cut(const reco::GsfElectron& electron) { 
@@ -137,21 +131,11 @@ bool GlobeCuts::cut(const TrackingParticle &tp) {
 
 // Sim Hits
 bool GlobeCuts::cut(const PSimHit &simhit) { 
-//#ifdef CMSSW_VERSION_168
-//          return (simhit.energyLoss() < simHitEnergyCut_);
-//#endif
-//#ifdef CMSSW_VERSION_180_AND_209
           return (simhit.energyLoss() < simHitEnergyCut_); 
-//#endif
 }
 // Sim Tracks
 bool GlobeCuts::cut(const SimTrack &simtrack) { 
-//#ifdef CMSSW_VERSION_168
-//          return (simtrack.momentum().e() < simTrackEnergyCut_ || simtrack.noVertex()); 
-//#endif
-//#ifdef CMSSW_VERSION_180_AND_209
           return (simtrack.momentum().E() < simTrackEnergyCut_ || simtrack.noVertex());
-//#endif
 }
 // Jets
 bool GlobeCuts::cut(const reco::CaloJet &jet) { 

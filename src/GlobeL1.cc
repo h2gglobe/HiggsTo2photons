@@ -90,11 +90,7 @@ bool GlobeL1::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<l1extra::L1JetParticleCollection> l1cenjet;
   edm::Handle<l1extra::L1JetParticleCollection> l1forjet;
   edm::Handle<l1extra::L1JetParticleCollection> l1taujet;
-//#ifdef CMSSW_VERSION_209_AND_210 
   edm::Handle<l1extra::L1EtMissParticleCollection> l1met;
-//#else
-//  edm::Handle<l1extra::L1EtMissParticle> l1met;
-//#endif
   edm::Handle<l1extra::L1MuonParticleCollection> l1mu;
   
   iEvent.getByLabel(l1EMIso, l1emiso);
@@ -105,17 +101,6 @@ bool GlobeL1::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByLabel(l1EtMiss, l1met);
   iEvent.getByLabel(l1Mu, l1mu);
 
-  /*
-  std::vector<L1GlobalTriggerObjectMap>::const_iterator it;
-  std::map<std::string, int>::const_iterator itMap;
-  for (it = h_gtObjectMapRecord->gtObjectMap().begin(); it != h_gtObjectMapRecord->gtObjectMap().end(); ++it) {
-    //std::cout << it->algoBitNumber() << "  " << it->algoName() << std::endl;
-    itMap = l1_labels->find(it->algoName());
-    if (itMap == l1_labels->end()) {
-      (*l1_labels)[it->algoName()] = it->algoBitNumber();
-    }
-  }
-  */
   
   const std::vector<bool> & physics = h_gtReadoutRecord->decisionWord(0);
   for (unsigned int i = 0; i < 128; ++i) {
@@ -225,7 +210,6 @@ bool GlobeL1::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     l1mu_n++;
   }
 
-//#ifdef CMSSW_VERSION_209_AND_210 
   if (l1met->size() > 0) {
     l1met_et = l1met->begin()->et();
     l1met_phi = l1met->begin()->phi();
@@ -233,11 +217,6 @@ bool GlobeL1::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     l1met_et = 0;
     l1met_phi = 0;
   }
-//#else
-//  l1met_et = l1met->et();
-//  l1met_phi = l1met->phi();
-//#endif
-  //l1met_n++;
  
   return true;
 }
