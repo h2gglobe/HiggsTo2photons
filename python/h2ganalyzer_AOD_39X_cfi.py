@@ -95,7 +95,7 @@ h2ganalyzer = cms.EDAnalyzer(
     JetColl_algo2 = cms.InputTag("ak7CaloJets"),
     JetColl_algo3 = cms.InputTag("kt4CaloJets"),
     JetColl_algoPF1 = cms.InputTag("ak5PFJets"),
-    JetColl_algoPF2 = cms.InputTag("ak5PFJets"),
+    JetColl_algoPF2 = cms.InputTag("ak7PFJets"),
     JetColl_algoPF3 = cms.InputTag("kt4PFJets"),
 
     bcBColl = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
