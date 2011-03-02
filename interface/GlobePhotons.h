@@ -161,7 +161,6 @@ class GlobePhotons {
   edm::InputTag hcalHoColl; 
 
   int debug_level;
-  bool doConvertedPhoton;
   bool doFastSim;
   bool doAodSim;
 
