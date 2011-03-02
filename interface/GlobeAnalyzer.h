@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Matteosan SANI
 //         Created:  Thu Feb  7 10:14:43 CET 2008
-// $Id: GlobeAnalyzer.h,v 1.2 2011/02/25 13:51:22 capalmer Exp $
+// $Id: GlobeAnalyzer.h,v 1.3 2011/03/01 15:58:46 capalmer Exp $
 //
 //
 
@@ -37,7 +37,6 @@ Implementation:
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeHcal.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeL1.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeVertex.h"
-#include "HiggsAnalysis/HiggsTo2photons/interface/GlobeVtxCompat.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeMET.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePFCandidates.h"
 
@@ -85,7 +84,6 @@ public:
   GlobeL1* level1;
   GlobeVertex* vertex_std;
   GlobeVertex* vertex_nobs;
-  GlobeVtxCompat* vtxcompat;
   GlobeSimHits* simhits;
   GlobeSimTracks* simtracks;
   GlobeTracks* tracks;
@@ -149,7 +147,6 @@ private:
   bool doL1;
   bool doVertices_std;
   bool doVertices_nobs;
-  bool doVtxCompat;
   bool doMet;
   bool dotcMet;
   bool doPFMet;
