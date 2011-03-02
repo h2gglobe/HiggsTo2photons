@@ -131,7 +131,6 @@ process.h2ganalyzer.doSimTrackPlusSimVertex     = False
 process.h2ganalyzer.doPreshowerHits             = False
 process.h2ganalyzer.doHcal                      = False
 process.h2ganalyzer.doHFHcal                    = False
-process.h2ganalyzer.doVertices_pix              = False
 process.h2ganalyzer.doConvertedPhoton           = False
 process.h2ganalyzer.doTrackingParticles = False
 process.h2ganalyzer.doSimHits = False
