@@ -9,7 +9,7 @@ flagSkimDiphoton = 'OFF'
 flagNoSkim = 'OFF'
 
 #ADDITIONAL OPTIONS
-flagAOD           = 'ON'
+flagAOD = 'ON'
 
 if (flagNoSkim is 'ON' and flagSkimDiphoton is 'ON') or (flagNoSkim is 'OFF' and flagSkimDiphoton is 'OFF'):
   print "You must skim or not skim... these are your options"
@@ -124,19 +124,25 @@ process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 process.p11 = cms.Path(process.eventFilter1*process.h2ganalyzerPath)
 
 
-process.h2ganalyzer.doAodSim                    = True
-process.h2ganalyzer.doSimHits                   = False
-process.h2ganalyzer.doSimTracks                 = False
-process.h2ganalyzer.doSimTrackPlusSimVertex     = False
-process.h2ganalyzer.doPreshowerHits             = False
-process.h2ganalyzer.doHcal                      = False
-process.h2ganalyzer.doHFHcal                    = False
-process.h2ganalyzer.doConvertedPhoton           = False
-process.h2ganalyzer.doTrackingParticles = False
-process.h2ganalyzer.doSimHits = False
+if flagMC is 'ON':
+  process.h2ganalyzer.doGenJet_algo1 = True
+  process.h2ganalyzer.doGenJet_algo2 = True
+  process.h2ganalyzer.doGenJet_algo3 = True
+  process.h2ganalyzer.doGenParticles = True
+  process.h2ganalyzer.doReducedGen = True
+elif flagData is 'ON':
+  process.h2ganalyzer.doGenJet_algo1 = False
+  process.h2ganalyzer.doGenJet_algo2 = False
+  process.h2ganalyzer.doGenJet_algo3 = False
+  process.h2ganalyzer.doGenParticles = False
+  process.h2ganalyzer.doReducedGen = False
+
+if flagMC is 'ON' and flagAOD is 'OFF':
+  process.h2ganalyzer.doSimTrackPlusSimVertex = True
+
 process.h2ganalyzer.doL1 = True
 process.h2ganalyzer.doHLT = True
-process.h2ganalyzer.doPAT = False
+
 process.GlobalTag.globaltag = "START39_v8::All"
 process.h2ganalyzer.HLTParameters.PrimaryTriggerResultsTag = cms.InputTag("TriggerResults","", hltLabel)
 process.h2ganalyzer.HLTParameters.useSecondaryTrigger = cms.bool(False)
