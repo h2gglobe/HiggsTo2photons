@@ -44,7 +44,8 @@ flagData = False
 flagMC = False
 flagSkimDiphoton = False
 flagNoSkim = False
-flagAOD = True
+flagAOD = False
+flagRECO = False
 
 name = "NoNameGiven"
 datasetpath=""
@@ -74,7 +75,7 @@ for opt,argm in opts:
     elif (opt == "--AOD"):
         flagAOD = True
     elif (opt == "--RECO"):
-        flagAOD = False
+        flagRECO = True
     elif (opt == "--caf"):
         useCAF = True
     elif (opt == "--skim2pho"):
@@ -109,12 +110,17 @@ for opt,argm in opts:
         print 'Wrong options: %s' % (opt)
         sys.exit(3)
 
-if (flagNoSkim is 'ON' and flagSkimDiphoton is 'ON') or (flagNoSkim is 'OFF' and flagSkimDiphoton is 'OFF'):
+if (flagNoSkim and flagSkimDiphoton) or (not flagNoSkim and not flagSkimDiphoton):
     print "You must have one and only one of these:"
     print "flagNoSkim is "+str(flagNoSkim)+"\tflagSkimdiphoton is "+str(flagSkimDiphoton)
     print "Try again when you have chosen one:  --skim2pho or --noskim."
     sys.exit(1)
 
+if (flagRECO and flagAOD) or (not flagRECO and not flagAOD):
+    print "You must have one and only one of these:"
+    print "flagRECO is "+str(flagRECO)+"\tflagAOD is "+str(flagAOD)
+    print "Try again when you have chosen one:  --RECO or --AOD."
+    sys.exit(1)
 
 for run in runselection:
     job_name = name
