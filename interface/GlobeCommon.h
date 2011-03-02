@@ -5,6 +5,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
