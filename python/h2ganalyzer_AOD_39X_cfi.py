@@ -214,32 +214,30 @@ h2ganalyzer = cms.EDAnalyzer(
     doGenJet_algo2 = cms.bool(True),
     doGenJet_algo3 = cms.bool(True),
     
-    doSimHits   = cms.bool(True),
-    doSimTracks = cms.bool(True),
-    doSimTrackPlusSimVertex = cms.bool(True),
+    doSimHits   = cms.bool(False),
+    doSimTracks = cms.bool(False),
+    doSimTrackPlusSimVertex = cms.bool(False),
     
-    doTrackingParticles = cms.bool(True),
+    doTrackingParticles = cms.bool(False),
     
     doTkRecHits = cms.bool(False),
     doEcalRecHits = cms.bool(True),
     
-    doPreshowerHits = cms.bool(True),
+    doPreshowerHits = cms.bool(False),
     doEcal = cms.bool(True),
-    doHcal = cms.bool(True),
-    doHFHcal = cms.bool(True),
+    doHcal = cms.bool(False),
+    doHFHcal = cms.bool(False),
     
     doCaloTower = cms.bool(True),
     
     doL1 = cms.bool(True),
     doHLT = cms.bool(True),
-    doPAT = cms.bool(True),
     
     doTracks = cms.bool(True),
     doGsfTracks = cms.bool(True),
 
     doVertices_std = cms.bool(True),
     doVertices_nobs = cms.bool(True),
-    doVtxCompat = cms.bool(True),
     
     doElectron_std = cms.bool(True),
     doMuon = cms.bool(True),
@@ -262,7 +260,7 @@ h2ganalyzer = cms.EDAnalyzer(
     doHt = cms.bool(True),
     
     doFastSim = cms.bool(False),
-    doAodSim  = cms.bool(False),
+    doAodSim  = cms.bool(True),
 
     storeGsfTracksOnlyIfElectrons = cms.bool(True),
 
