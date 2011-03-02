@@ -58,18 +58,8 @@ bool GlobeTrackingParticles::analyze(const edm::Event& iEvent, const edm::EventS
     iEvent.getByLabel(generatorColl, genEventHandle); 
    
     // get the reco::tracks
-//#ifdef CMSSW_VERSION_168
-//    edm::Handle<reco::TrackCollection> recoTrackHandle;
-//    iEvent.getByLabel(trackColl, recoTrackHandle);
-//#endif
-//#ifdef CMSSW_VERSION_180
-//    edm::Handle<reco::TrackCollection> recoTrackHandle;
-//    iEvent.getByLabel(trackColl, recoTrackHandle);
-//#endif
-//#ifdef CMSSW_VERSION_209_AND_210
     edm::Handle<edm::View<reco::Track> > recoTrackHandle;
     iEvent.getByLabel(trackColl, recoTrackHandle);
-//#endif
 
     // get associator (by hits) for the track
     edm::ESHandle<TrackAssociatorBase> theAssociator;

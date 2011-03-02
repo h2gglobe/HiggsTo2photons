@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Globe") 
 process.load("Configuration.StandardSequences.GeometryDB_cff") 
-process.load("HiggsAnalysis.HiggsTo2photons.globeanalyzer_AOD_39X_cfi")
+process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_AOD_39X_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("PhysicsTools/PatAlgos/patSequences_cff")
 process.load('Configuration.StandardSequences.Services_cff')
@@ -31,36 +31,25 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 500
 #process.pathToCheck = cms.Sequence(process.L10and34 *process.noScraping*process.primaryVertexFilter*process.HFCoincidence*process.L140or41)
 #process.pathToCheck2 = cms.Sequence(process.L10and34 *process.noScraping*process.primaryVertexFilter*process.L140or41*process.HFCoincidence)
 
-process.globe.RootFileName = 'aod_mc_test.root'
-process.globe.Debug_Level = 0
+process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
+process.h2ganalyzer.Debug_Level = 0
 
-process.globePath = cms.Sequence(process.globe)
+process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 
-process.p11 = cms.Path(process.globePath)
+process.p11 = cms.Path(process.h2ganalyzerPath)
 
 
-process.globe.doGenJet_algo1 = False
-process.globe.doGenJet_algo2 = False
-process.globe.doGenJet_algo3 = False
-process.globe.doGenerator = False
-process.globe.doGenParticles = False
-process.globe.doAodSim                    = True
-process.globe.doSimHits                   = False
-process.globe.doSimTracks                 = False
-process.globe.doSimTrackPlusSimVertex     = False
-process.globe.doPreshowerHits             = False
-process.globe.doHcal                      = False
-process.globe.doHFHcal                    = False
-process.globe.doVertices_pix              = False
-process.globe.doConvertedPhoton           = False
-process.globe.doTrackingParticles = False
-process.globe.doSimHits = False
-process.globe.doL1 = True
-process.globe.doHLT = True
-process.globe.doPAT = False
-#process.globe.barrelCuts = cms.PSet(heepBarrelCuts)
-#process.globe.endcapCuts = cms.PSet(heepEndcapCuts)
+process.h2ganalyzer.doGenJet_algo1 = True
+process.h2ganalyzer.doGenJet_algo2 = True
+process.h2ganalyzer.doGenJet_algo3 = True
+process.h2ganalyzer.doGenParticles = True
+process.h2ganalyzer.doReducedGen = True
+
+process.h2ganalyzer.doSimTrackPlusSimVertex = False
+
+process.h2ganalyzer.doL1 = True
+process.h2ganalyzer.doHLT = True
 process.GlobalTag.globaltag = "START39_v8::All"
-process.globe.HLTParameters.PrimaryTriggerResultsTag = cms.InputTag("TriggerResults","", "REDIGI39X")
-process.globe.HLTParameters.useSecondaryTrigger = cms.bool(False)
-process.globe.HLTParameters.TriggerResultsTag = cms.InputTag("hltTriggerSummaryAOD","", "REDIGI39X")
+process.h2ganalyzer.HLTParameters.PrimaryTriggerResultsTag = cms.InputTag("TriggerResults","", "REDIGI39X")
+process.h2ganalyzer.HLTParameters.useSecondaryTrigger = cms.bool(False)
+process.h2ganalyzer.HLTParameters.TriggerResultsTag = cms.InputTag("hltTriggerSummaryAOD","", "REDIGI39X")

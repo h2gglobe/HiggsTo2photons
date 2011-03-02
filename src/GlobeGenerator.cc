@@ -82,13 +82,9 @@ bool GlobeGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     gen_n++;
   }
   
-  //if (gen_n == 0)
-  //  return false;
-  
   return true;
 }
 
-//#ifdef CMSSW_VERSION_180_AND_209
 int GlobeGenerator::mother(const HepMC::GenEvent* g, HepMC::GenParticle *p) {
   
   if (!(p->production_vertex())) 
@@ -108,50 +104,3 @@ int GlobeGenerator::mother(const HepMC::GenEvent* g, HepMC::GenParticle *p) {
   
   return -1;
 }
-//#endif
-
-//#ifdef CMSSW_VERSION_168
-//int GlobeGenerator::mother(const HepMC::GenEvent* g, HepMC::GenParticle *p) {
-//  
-//  if (!(p->production_vertex())) 
-//    return 0;
-//
-//  HepMC::GenVertex* inVertex = p->production_vertex();
-//  for(std::set<HepMC::GenParticle*>::const_iterator iter = inVertex->particles_in_const_begin();
-//      iter != inVertex->particles_in_const_end();iter++) {
-//    
-//    int index = 0;
-//    for (HepMC::GenEvent::particle_const_iterator it = g->particles_begin(); it != g->particles_end(); ++it) {
-//      if (*it == *iter)
-//        return index;
-//      index++;
-//    }
-//  }
-//  
-////Marco's part commented
-//
-////HepMC::GenParticle *mother = 0;
-////if((*p)->production_vertex()) {
-////if((*((*p)->production_vertex()->particles_in_const_begin()))) {
-////mother=(*((*p)->production_vertex()->particles_in_const_begin()));
-////}
-////}
-////gen_mother[gen_n]=-1;
-////int inext=0;
-////for ( HepMC::GenEvent::particle_const_iterator pp = myGenEvent->particles_begin(); pp != myGenEvent->particles_end(); ++pp ) {
-////      
-////HepMC::GenParticle *mothertemp =(*pp);
-////if(mother) {
-////if(mothertemp) {
-////if(mother==mothertemp) {
-////gen_mother[gen_n]=inext;
-////}
-////}
-////}
-////inext++;
-////}
-//
-////set it to -1 if it has no mother
-//  return -1;
-//}
-//#endif

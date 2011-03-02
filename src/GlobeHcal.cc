@@ -42,12 +42,7 @@ bool GlobeHcal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
   edm::ESHandle<CaloGeometry> pG;
   const CaloGeometry* caloGeom;
 
-  //#ifdef CMSSW_VERSION_210
   iSetup.get<CaloGeometryRecord>().get(pG);
-  //#else
-  //    iSetup.get<IdealGeometryRecord>().get(pG);
-  //#endif
-
 
   caloGeom = pG.product();
 

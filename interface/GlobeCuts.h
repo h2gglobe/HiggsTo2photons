@@ -52,11 +52,6 @@ class GlobeCuts {
   virtual ~GlobeCuts() {};
 
   bool cut(const reco::Photon&);
-
-//  #ifdef CMSSW_VERSION_168
-//  bool cut(const reco::ConvertedPhoton&);
-//  #endif
-
   bool cut(const reco::PFCandidate&);
   bool cut(const reco::GsfElectron&);
   bool cut(const reco::SuperCluster&);

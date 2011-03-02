@@ -1,14 +1,4 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeSelector.h"
-
-//#ifdef CMSSW_VERSION_168
-//#include "HiggsAnalysis/HiggsTo2photons/interface/GlobeElectrons.h"
-//#include "HiggsAnalysis/HiggsTo2photons/interface/GlobeMuons.h"
-//#endif
-//#ifdef CMSSW_VERSION_180_AND_209
-//#include "HiggsAnalysis/HiggsTo2photons/interface/GlobeElectrons_180.h"
-//#include "HiggsAnalysis/HiggsTo2photons/interface/GlobeMuons_180.h"
-//#endif
-
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeElectrons.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeMuons.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePhotons.h"

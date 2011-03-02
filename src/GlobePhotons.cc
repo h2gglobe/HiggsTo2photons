@@ -122,12 +122,6 @@ void GlobePhotons::defineBranch(TTree* tree) {
 
 bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-#ifdef PIZERODISCRIMINATOR
-  edm::Handle<reco::PhotonPi0DiscriminatorAssociationMap>  pi0map;
-  reco::PhotonPi0DiscriminatorAssociationMap::const_iterator pi0mapIter;
-  if(doConvertedPhoton) //CHECK, should be pizero	
-    iEvent.getByLabel("piZeroDiscriminators","PhotonPi0DiscriminatorAssociationMap",  pi0map);
-#endif
   if (debug_level > 9) 
     {
     std::cout << "GlobePhotons: Start analyze" << std::endl;
