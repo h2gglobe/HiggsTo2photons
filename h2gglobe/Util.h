@@ -30,17 +30,22 @@ class Util {
   void WriteHist();  
   void SetTypeRun(int, const char* n);
   void SetOutputNames(const char* n, const char* n2="");
-  void AddFile(char*,int);
+  void AddFile(std::string,int);
+ 
+  std::vector<std::string> files;
+  std::vector<int> datatype;
 
-  char * files[MAXFILES];
-  int datatype[MAXFILES];
   int nfiles;
   int ntypes;
 
-  TFile *Files[MAXFILES];
-  TTree *Trees[MAXFILES];
+  std::vector<TTree*> Trees;
+  std::vector<TFile*> Files;
+  std::vector<TTree*> TreesPar;
 
-  TTree *TreesPar[MAXFILES];
+  //TFile *Files[MAXFILES];
+  //TTree *Trees[MAXFILES];
+
+  //TTree *TreesPar[MAXFILES];
 
   LoopAll * loops;
 

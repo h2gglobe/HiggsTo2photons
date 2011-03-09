@@ -37,6 +37,7 @@
 class Util;
 
 #include "HistoContainer.h"
+#include "RooContainer.h"
 #include "../interface/Limits.h"
 
 class LoopAll {
@@ -49,7 +50,7 @@ class LoopAll {
 #include "branchdef/treedef.h"
 
   std::vector<HistoContainer*> histoContainer;
-  
+  RooContainer *rooContainer;
 
   LoopAll(TTree *tree=0);
   virtual ~LoopAll();
@@ -92,6 +93,7 @@ class LoopAll {
 #ifdef LoopAll_cxx
 LoopAll::LoopAll(TTree *tree) {
   //histoContainer = new HistoContainer();
+    rooContainer   = new RooContainer();
 }
 
 LoopAll::~LoopAll() {

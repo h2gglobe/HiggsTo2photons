@@ -26,7 +26,8 @@ LOOPALLO = LoopAll.$(ObjSuf) \
            Util.$(ObjSuf) \
 	   LoopAllDict.$(ObjSuf) \
 	   dict.$(ObjSuf) \
-	   HistoContainer.o
+	   HistoContainer.o \
+	   RooContainer.o
 
 all: $(LOOPALL)
 
@@ -43,9 +44,10 @@ $(LOOPALL):  $(LOOPALLO)
 LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Util.h Tools.h LoopAll_cc.h \
 	../interface/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
 	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
-	PhotonAnalysis/PhotonAnalysisFunctions_h.h PhotonAnalysis/PhotonAnalysisFunctions_cc.h \
+	PhotonAnalysis/PhotonAnalysisFunctions_h.h PhotonAnalysis/PhotonAnalysisFunctions_cc.h PhotonAnalysis/PhotonAnalysisStats_cc.h \
 	GeneralFunctions_cc.h GeneralFunctions_h.h \
-	HistoContainer.cc HistoContainer.h 
+	HistoContainer.cc HistoContainer.h \
+	RooContainer.cc RooContainer.h 
 
 
 mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h Util.h \
@@ -53,13 +55,15 @@ mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h Util.h \
 	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h \
 	GeneralFunctions_h.h \
-	HistoContainer.h 
+	HistoContainer.h  \
+	RooContainer.h 
 
 LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h Util.h \
 	../interface/Limits.h branchdef/treedef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h \
 	GeneralFunctions_h.h \
-	HistoContainer.h 
+	HistoContainer.h \
+	RooContainer.h 
 
 	@echo "Generating dictionary $@..."
 	@rootcint -f $@ -c LoopAll.h Util.h 

@@ -237,6 +237,13 @@ int LoopAll::FillAndReduce(Util * ut, int jentry) {
     myFillHistPhotonAnalysisRed(ut, jentry);
     if(DEBUG) 
       cout<<"called myFillHistRed"<<endl;
+  } else if (ut->typerun == 3){
+     hasoutputfile = 0;
+     if (DEBUG)
+       cout<<"call myStatRed"<<endl;
+     myStatPhotonAnalysisRed(ut, jentry);
+     if (DEBUG)
+       cout<<"called myStatRed"<<endl;
   }
   
   return hasoutputfile;

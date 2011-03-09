@@ -15,6 +15,7 @@ class HistoContainer {
   ~HistoContainer();
     
   void Add(char*, int, float, float);
+  void Add(char*, char *, int, float, float);
   void Add(char*, int, float, float, int, float, float);
   void Add(char*, int, float, float, float, float);
 

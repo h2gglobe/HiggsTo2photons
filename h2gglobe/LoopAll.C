@@ -8,6 +8,7 @@
 #include "GeneralFunctions_cc.h"
 
 #include "PhotonAnalysis/PhotonAnalysisFunctions_cc.h"
+#include "PhotonAnalysis/PhotonAnalysisStats_cc.h"
 
 
 void LoopAll::Loop() {
