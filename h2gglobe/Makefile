@@ -42,7 +42,7 @@ $(LOOPALL):  $(LOOPALLO)
 	@echo "$(LOOPALLSO) done"
 
 LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Util.h Tools.h LoopAll_cc.h \
-	../interface/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
+	Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
 	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h PhotonAnalysis/PhotonAnalysisFunctions_cc.h PhotonAnalysis/PhotonAnalysisStats_cc.h \
 	GeneralFunctions_cc.h GeneralFunctions_h.h \
@@ -51,7 +51,7 @@ LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Util.h Tools.h LoopAll_cc.h \
 
 
 mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h Util.h \
-	../interface/Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
+	Limits.h branchdef/treedef.h branchdef/newclonesarray.h \
 	branchdef/treebranch.h branchdef/setbranchaddress.h branchdef/getentry.h branchdef/getbranch.h branchdef/branchdef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h \
 	GeneralFunctions_h.h \
@@ -59,7 +59,7 @@ mpUtil.$(ObjSuf): CommonParameters.h LoopAll.h Util.h \
 	RooContainer.h 
 
 LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h Util.h \
-	../interface/Limits.h branchdef/treedef.h \
+	Limits.h branchdef/treedef.h \
 	PhotonAnalysis/PhotonAnalysisFunctions_h.h \
 	GeneralFunctions_h.h \
 	HistoContainer.h \
