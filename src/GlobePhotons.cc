@@ -373,7 +373,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
       pho_conv_pairinvmass[pho_n]=conv->pairInvariantMass();
       pho_conv_paircotthetasep[pho_n]=conv->pairCotThetaSeparation();
-      pho_conv_eoverp[pho_n]=conv->EoverP();
+      pho_conv_eoverp[pho_n]=conv->EoverPrefittedTracks();
       pho_conv_zofprimvtxfromtrks[pho_n]=conv->zOfPrimaryVertexFromTracks();
       pho_conv_distofminapproach[pho_n]=conv->distOfMinimumApproach();
       pho_conv_dphitrksatvtx[pho_n]=conv->dPhiTracksAtVtx();
