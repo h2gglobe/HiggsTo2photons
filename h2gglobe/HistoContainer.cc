@@ -27,21 +27,21 @@ int HistoContainer::getHistVal() {
 }
 
 
-std::string HistoContainer::ModifiedName(char* name) {
+std::string HistoContainer::ModifiedName(const char* name) {
   char* modName= new char[500];
   sprintf(modName, "%s_%d", name, histVal);
   std::string output(modName);
   return output;
 }
 
-void HistoContainer::Add(char* name, int bins, float xmin, float xmax) {
+void HistoContainer::Add(const char* name, int bins, float xmin, float xmax) {
   std::string modName = ModifiedName(name);
   std::pair<std::string, TH1F*> it(modName, new TH1F(modName.c_str(), modName.c_str(), bins, xmin, xmax));
 
   (*h1)[it.first] = it.second;
 }
 
-void HistoContainer::Add(char* name,char * title, int bins, float xmin, float xmax) {
+void HistoContainer::Add(const char* name,const char * title, int bins, float xmin, float xmax) {
   std::string modName  = ModifiedName(name);
   std::string modTitle = ModifiedName(title);
   std::pair<std::string, TH1F*> it(modName, new TH1F(modName.c_str(), modTitle.c_str(), bins, xmin, xmax));
@@ -49,7 +49,7 @@ void HistoContainer::Add(char* name,char * title, int bins, float xmin, float xm
   (*h1)[it.first] = it.second;
 }
 
-void HistoContainer::Add( char* name, int binsx, float xmin, float xmax,
+void HistoContainer::Add(const char* name, int binsx, float xmin, float xmax,
 			 int binsy, float ymin, float ymax) {
 		       
   std::string modName = ModifiedName(name);
@@ -57,7 +57,7 @@ void HistoContainer::Add( char* name, int binsx, float xmin, float xmax,
   h2.insert(std::pair< std::string, TH2F>(modName, temp));
 }
 
-void HistoContainer::Add( char* name, int binsx, float xmin, float xmax,
+void HistoContainer::Add(const char* name, int binsx, float xmin, float xmax,
 			 float ymin, float ymax) {
 		       
   std::string modName = ModifiedName(name);
@@ -65,7 +65,7 @@ void HistoContainer::Add( char* name, int binsx, float xmin, float xmax,
   hp.insert(std::pair< std::string, TProfile>(modName, temp));
 } 
 
-void HistoContainer::Fill(char* name, float value) {
+void HistoContainer::Fill(const char* name, float value) {
 
   std::string modName = ModifiedName(name);
   std::map<std::string, TH1F*>::iterator it = h1->find(modName);
@@ -78,7 +78,7 @@ void HistoContainer::Fill(char* name, float value) {
   if(HCDEBUG)std::cerr << "ERROR !: histogram " << modName << " is not a TH1F." << std::endl;
 }
 
-void HistoContainer::Fill( char* name, float valuex, float valuey) { 
+void HistoContainer::Fill(const char* name, float valuex, float valuey) { 
 
   std::string modName = ModifiedName(name);
   std::map< std::string, TProfile>::const_iterator itp = hp.find(modName);

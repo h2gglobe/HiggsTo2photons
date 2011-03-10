@@ -14,13 +14,13 @@ class HistoContainer {
   HistoContainer(int);
   ~HistoContainer();
     
-  void Add(char*, int, float, float);
-  void Add(char*, char *, int, float, float);
-  void Add(char*, int, float, float, int, float, float);
-  void Add(char*, int, float, float, float, float);
+  void Add(const char*, int, float, float);
+  void Add(const char*,const char *, int, float, float);
+  void Add(const char*, int, float, float, int, float, float);
+  void Add(const char*, int, float, float, float, float);
 
-  void Fill(char*, float);
-  void Fill(char*, float, float);
+  void Fill(const char*, float);
+  void Fill(const char*, float, float);
   
   std::map<std::string, TH1F*>* getMap() { return h1; };
   
@@ -28,7 +28,7 @@ class HistoContainer {
  
   int getHistVal();
   void setHistVal(int);
-  std::string ModifiedName(char*);
+  std::string ModifiedName(const char*);
 
 
  private:
