@@ -38,7 +38,7 @@ class Util;
 
 #include "HistoContainer.h"
 #include "RooContainer.h"
-#include "../interface/Limits.h"
+#include "Limits.h"
 
 class LoopAll {
  public :
