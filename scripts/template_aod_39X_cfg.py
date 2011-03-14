@@ -138,7 +138,8 @@ elif flagData is 'ON':
   process.h2ganalyzer.doReducedGen = False
 
 if flagMC is 'ON' and flagAOD is 'OFF':
-  process.h2ganalyzer.doSimTrackPlusSimVertex = True
+  process.h2ganalyzer.doSimTracks = True
+  process.h2ganalyzer.doSimTrackPlusSimVertex = False
 
 process.h2ganalyzer.doL1 = True
 process.h2ganalyzer.doHLT = True
