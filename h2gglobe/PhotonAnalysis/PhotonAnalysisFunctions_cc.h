@@ -142,11 +142,10 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
      && pho_trksumpthollowconedr04[i] < (1.5 + 0.001*pt)
      && pho_ecalsumetconedr04[i] < (2.0 + 0.006*pt)
      && pho_hcalsumetconedr04[i] < (2.0 + 0.0025*pt)
-     && (   ((pho_sieie[i] < 0.01) && (eta < 1.44)) 
-	 || ((pho_sieie[i] <0.028) && ((eta < 2.5) && (eta > 1.57))) 
+     && (   ((pho_sieie[i] < 0.01) && (eta < 1.4442)) 
+	 || ((pho_sieie[i] <0.028) && ((eta < 2.5) && (eta > 1.566))) 
 	)
-     && (eta < 1.44) || ((eta > 1.57) && (eta < 2.5)) 
- 
+     &&((eta < 1.4442) || ((eta > 1.566) && (eta < 2.5))) 
 	){
 		selected_photons.push_back(p4);
      }
