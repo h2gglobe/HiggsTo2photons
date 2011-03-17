@@ -15,3 +15,12 @@ void TermRealPhotonAnalysis(int typerun);
 //ADDED MJ
 Float_t pho_Et[MAX_PHOTONS];
 
+struct Elec{
+    TLorentzVector *p4;
+    bool pixSeed;
+    double trkIso;
+    double ecalIso;
+    double hcalIso;
+    double sieie;
+    double hoe;
+};

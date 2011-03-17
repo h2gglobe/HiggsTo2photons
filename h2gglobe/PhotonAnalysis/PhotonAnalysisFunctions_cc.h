@@ -6,18 +6,20 @@ void LoopAll::InitRealPhotonAnalysis(Util *ut, int typerun) {
   // Book histos only if not reduce step
   if (typerun != 1) {    
    for (int ind=0;ind<ut->ntypes;ind++){
-    histoContainer[ind]->Add("pho_pt", 100, 0, 100);
-    histoContainer[ind]->Add("invmass_barrel", 200, 0, 200);
-    histoContainer[ind]->Add("invmass_endcap", 200, 0, 200);
-    histoContainer[ind]->Add("h_mass","M #gamma #gamma - GeV/c^{2}", 120, 80, 200);
-    histoContainer[ind]->Add("h_pho_hoe", 100, 0, 0.1);
-    histoContainer[ind]->Add("h_pho_sieie", 100, 0, 0.07);
-    histoContainer[ind]->Add("h_pho_ecalsumetconedr03", 100, 0, 20);
-    histoContainer[ind]->Add("h_pho_ecalsumetconedr04", 100, 0, 20);
-    histoContainer[ind]->Add("h_pho_hcalsumetconedr03", 100, 0, 20);
-    histoContainer[ind]->Add("h_pho_hcalsumetconedr04", 100, 0, 20);
-    histoContainer[ind]->Add("h_pho_trksumptsolidconedr03", 100, 0, 20);
-    histoContainer[ind]->Add("h_pho_trksumptsolidconedr04", 100, 0, 20);
+//    histoContainer[ind]->Add("pho_pt", 100, 0, 100);
+//    histoContainer[ind]->Add("invmass_barrel", 200, 0, 200);
+//    histoContainer[ind]->Add("invmass_endcap", 200, 0, 200);
+    histoContainer[ind]->Add("h_mass","M #gamma #gamma - GeV/c^{2}", 10, 100, 150);
+//    histoContainer[ind]->Add("h_pho_hoe", 100, 0, 0.1);
+//    histoContainer[ind]->Add("h_pho_sieie", 100, 0, 0.07);
+//    histoContainer[ind]->Add("h_pho_ecalsumetconedr03", 100, 0, 20);
+//    histoContainer[ind]->Add("h_pho_ecalsumetconedr04", 100, 0, 20);
+//    histoContainer[ind]->Add("h_pho_hcalsumetconedr03", 100, 0, 20);
+//    histoContainer[ind]->Add("h_pho_hcalsumetconedr04", 100, 0, 20);
+//    histoContainer[ind]->Add("h_pho_trksumptsolidconedr03", 100, 0, 20);
+//    histoContainer[ind]->Add("h_pho_trksumpthollowconedr04", 100, 0, 20);
+    histoContainer[ind]->Add("h_sideband_leading",  2, -0.5, 1.5, 2, -0.5, 1.5);
+    histoContainer[ind]->Add("h_sideband_nleading", 2, -0.5, 1.5, 2, -0.5, 1.5);
    }
   }
 
@@ -67,7 +69,7 @@ void LoopAll::myFillHistPhotonAnalysis(Util *ut, int jentry) {
   
   for (int i=0; i<pho_n; i++) {
     TLorentzVector *p4 = (TLorentzVector *) pho_p4->At(i);
-    histoContainer[histVal]->Fill("pho_pt", p4->Pt());
+ //   histoContainer[histVal]->Fill("pho_pt", p4->Pt());
   }
   
   Int_t in_endcap = 0;
@@ -113,62 +115,113 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
   b_pho_hcalsumetconedr03->GetEntry(jentry); 
   b_pho_hcalsumetconedr04->GetEntry(jentry); 
   b_pho_trksumptsolidconedr03->GetEntry(jentry); 
-  b_pho_trksumptsolidconedr04->GetEntry(jentry);  
-  b_pho_trksumpthollowconedr03->GetEntry(jentry); 
+//  b_pho_trksumptsolidconedr04->GetEntry(jentry);  
+ // b_pho_trksumpthollowconedr03->GetEntry(jentry); 
   b_pho_trksumpthollowconedr04->GetEntry(jentry); 
   b_pho_haspixseed->GetEntry(jentry); 
 
-  std::vector<TLorentzVector *> selected_photons;  
+//  struct Elec{
+//    TLorentzVector *p4;
+//    bool pixSeed;
+//    double trkIso;
+//    double ecalIso;
+//    double hcalIso;
+//    double sieie;
+//    double hoe;
+//  };
 
+  std::vector<Elec> preselected_photons;  
+  std::vector<Elec> selected_photons; 
+ 
   for (int i=0; i<pho_n; i++) {
     TLorentzVector *p4 = (TLorentzVector *) pho_p4->At(i);
-    histoContainer[histVal]->Fill("pho_pt", p4->Pt());
-    histoContainer[histVal]->Fill("h_pho_hoe", pho_hoe[i]);
-    histoContainer[histVal]->Fill("h_pho_sieie", pho_sieie[i]);
-    histoContainer[histVal]->Fill("h_pho_ecalsumetconedr03", pho_ecalsumetconedr03[i]);
-    histoContainer[histVal]->Fill("h_pho_ecalsumetconedr04", pho_ecalsumetconedr04[i]);
-    histoContainer[histVal]->Fill("h_pho_hcalsumetconedr03", pho_hcalsumetconedr03[i]);
-    histoContainer[histVal]->Fill("h_pho_hcalsumetconedr04", pho_hcalsumetconedr04[i]);
-    histoContainer[histVal]->Fill("h_pho_trksumptsolidconedr03", pho_trksumptsolidconedr03[i]);
-    histoContainer[histVal]->Fill("h_pho_trksumptsolidconedr04", pho_trksumptsolidconedr04[i]);
-  
+//    histoContainer[histVal]->Fill("pho_pt", p4->Pt());
+//    histoContainer[histVal]->Fill("h_pho_hoe", pho_hoe[i]);
+//    histoContainer[histVal]->Fill("h_pho_sieie", pho_sieie[i]);
+//    histoContainer[histVal]->Fill("h_pho_ecalsumetconedr03", pho_ecalsumetconedr03[i]);
+//    histoContainer[histVal]->Fill("h_pho_ecalsumetconedr04", pho_ecalsumetconedr04[i]);
+//    histoContainer[histVal]->Fill("h_pho_hcalsumetconedr03", pho_hcalsumetconedr03[i]);
+//    histoContainer[histVal]->Fill("h_pho_hcalsumetconedr04", pho_hcalsumetconedr04[i]);
+//    histoContainer[histVal]->Fill("h_pho_trksumptsolidconedr03", pho_trksumptsolidconedr03[i]);
+//    histoContainer[histVal]->Fill("h_pho_trksumpthollowconedr04", pho_trksumpthollowconedr04[i]);
     float pt  = p4->Pt();
     float eta = fabs(p4->Eta());
-
-    if(
-	(! pho_haspixseed[i])
-     && pt > 30. 
-     && pho_hoe[i] < 0.02
-     && pho_trksumpthollowconedr04[i] < (1.5 + 0.001*pt)
-     && pho_ecalsumetconedr04[i] < (2.0 + 0.006*pt)
-     && pho_hcalsumetconedr04[i] < (2.0 + 0.0025*pt)
-     && (   ((pho_sieie[i] < 0.01) && (eta < 1.4442)) 
-	 || ((pho_sieie[i] <0.028) && ((eta < 2.5) && (eta > 1.566))) 
-	)
-     &&((eta < 1.4442) || ((eta > 1.566) && (eta < 2.5))) 
-	){
-		selected_photons.push_back(p4);
-     }
+    //PreSelection
+     if ( 
+       (! pho_haspixseed[i])
+       && pt > 30. 
+       && pho_hoe[i] <  0.10
+       //&& pho_trksumpthollowconedr04[i] < (7.0 + 0.002*pt)
+       && pho_ecalsumetconedr04[i] < (8.4 + 0.012*pt)
+       && pho_hcalsumetconedr04[i] < (4.4 + 0.005*pt)
+       &&((eta < 1.4442) || ((eta > 1.566) && (eta < 2.5))) 
+       ) {
+         Elec candidate;
+         candidate.p4 = p4;
+         candidate.pixSeed = pho_haspixseed[i];
+         candidate.trkIso = pho_trksumpthollowconedr04[i];
+         candidate.ecalIso = pho_ecalsumetconedr04[i];
+         candidate.hcalIso = pho_hcalsumetconedr04[i];
+         candidate.sieie = pho_sieie[i];
+         candidate.hoe = pho_hoe[i];
+         preselected_photons.push_back(candidate);
+       }
   }
 
-  int n_selected_pho = selected_photons.size();
-
-  // now make sure there is one photon with Pt > 40 in the candidates
   float best_mass = 0.;
-  if (n_selected_pho > 1) {
-	
-	for (int i=0; i< n_selected_pho-1; i++)
-	  for (int j=i+1;j<n_selected_pho;j++){
-		
-		if (selected_photons[i]->Pt() > 40. 
-		 || selected_photons[j]->Pt() > 40.){
-				
-		  TLorentzVector Higgs = (*selected_photons[i])+(*selected_photons[j]);
-		  float mass = Higgs.M();
-		  if (mass > best_mass) best_mass = mass;
-		}
-	  }	
-  }
+  //Event Selection
+  int n_preselected_pho = preselected_photons.size();
+  if (n_preselected_pho > 1 ){
+    for (int i=0; i< n_preselected_pho-1; i++){
+      for (int j=i+1;j<n_preselected_pho;j++){
+        if (preselected_photons[i].p4->Pt() > 40. 
+	   || preselected_photons[j].p4->Pt() > 40.){
+          
+           TLorentzVector Higgs = (*(preselected_photons[i].p4))
+                                 +(*(preselected_photons[j].p4));
+           float mass = Higgs.M();
+             if (mass > 100. && mass < 150.){
+             //Good event, passes preselection and acceptance cuts
+             Elec leading  = preselected_photons[i];
+             Elec nleading = preselected_photons[j];
+
+             int pass_selection[2];
+             int pass_isolation[2];
+    
+            //Now do selection on leading photon
+             pass_selection[0] = (!leading.pixSeed)
+                && leading.hoe < 0.02
+                && leading.ecalIso < (2.0 + 0.006*leading.p4->Pt())
+                && leading.hcalIso < (2.0 + 0.0025*leading.p4->Pt())
+                && (((leading.sieie < 0.01)  && (leading.p4->Eta() < 1.4442)) 
+                || (( leading.sieie < 0.028)
+                   && ((leading.p4->Eta() < 2.5) && (leading.p4->Eta() > 1.566))) );
+             pass_isolation[0] =  leading.trkIso < (1.5 + 0.001*leading.p4->Pt());
+             //Selection on next to leading photon
+             pass_selection[1] = (!nleading.pixSeed)
+                && nleading.hoe < 0.02
+                && nleading.ecalIso < (2.0 + 0.006*nleading.p4->Pt())
+                && nleading.hcalIso < (2.0 + 0.0025*nleading.p4->Pt())
+                && (((nleading.sieie < 0.01)  && (nleading.p4->Eta() < 1.4442)) 
+                || (( nleading.sieie < 0.028)
+                  && ((nleading.p4->Eta() < 2.5) && (nleading.p4->Eta() > 1.566))) );
+             pass_isolation[1] =  nleading.trkIso < (1.5 + 0.001*nleading.p4->Pt());
+             //Double Sideband Method
+             histoContainer[histVal]->Fill("h_sideband_leading",
+                                         pass_isolation[0],pass_selection[0]);
+             if (pass_selection[0] && pass_isolation[0]){
+               histoContainer[histVal]->Fill("h_sideband_nleading",
+                                         pass_isolation[1],pass_selection[1]);
+               if (pass_selection[1] && pass_isolation[1]){
+                 best_mass = mass;
+               }
+             }
+           }
+         } 
+       }
+     }
+   }
+
      
   histoContainer[histVal]->Fill("h_mass", best_mass);
   if(PADEBUG) 
@@ -258,7 +311,7 @@ void LoopAll::mySetBranchAddressRedPhotonAnalysis() {
   fChain->SetBranchAddress("pho_hcalsumetconedr03", &pho_hcalsumetconedr03, &b_pho_hcalsumetconedr03);
   fChain->SetBranchAddress("pho_hcalsumetconedr04", &pho_hcalsumetconedr04, &b_pho_hcalsumetconedr04);
   fChain->SetBranchAddress("pho_trksumptsolidconedr03", &pho_trksumptsolidconedr03, &b_pho_trksumptsolidconedr03);
-  fChain->SetBranchAddress("pho_trksumptsolidconedr04", &pho_trksumptsolidconedr04, &b_pho_trksumptsolidconedr04);
+  fChain->SetBranchAddress("pho_trksumpthollowconedr04", &pho_trksumpthollowconedr04, &b_pho_trksumpthollowconedr04);
   //fChain->SetBranchAddress("pho_trksumpthollowconedr03", &pho_trksumpthollowconedr03, &b_pho_trksumpthollowconedr03);
   //fChain->SetBranchAddress("pho_trksumpthollowconedr04", &pho_trksumpthollowconedr04, &b_pho_trksumpthollowconedr04);
   fChain->SetBranchAddress("pho_isEB", &pho_isEB, &b_pho_isEB);
