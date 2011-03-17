@@ -108,6 +108,7 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 
   b_pho_n->GetEntry(jentry); 
   b_pho_p4->GetEntry(jentry); 
+  b_pho_calopos->GetEntry(jentry); 
   b_pho_hoe->GetEntry(jentry); 
   b_pho_sieie->GetEntry(jentry); 
   b_pho_ecalsumetconedr03->GetEntry(jentry); 
@@ -119,6 +120,11 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
  // b_pho_trksumpthollowconedr03->GetEntry(jentry); 
   b_pho_trksumpthollowconedr04->GetEntry(jentry); 
   b_pho_haspixseed->GetEntry(jentry); 
+
+  b_gp_n->GetEntry();
+  b_gp_p4->GetEntry();
+  b_gp_status->GetEntry();
+  b_gp_pdgid->GetEntry();
 
 //  struct Elec{
 //    TLorentzVector *p4;
@@ -135,6 +141,7 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
  
   for (int i=0; i<pho_n; i++) {
     TLorentzVector *p4 = (TLorentzVector *) pho_p4->At(i);
+    TLorentzVector *calopos = (TLorentzVector *) pho_calopos->At(i);
 //    histoContainer[histVal]->Fill("pho_pt", p4->Pt());
 //    histoContainer[histVal]->Fill("h_pho_hoe", pho_hoe[i]);
 //    histoContainer[histVal]->Fill("h_pho_sieie", pho_sieie[i]);
@@ -158,6 +165,7 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
        ) {
          Elec candidate;
          candidate.p4 = p4;
+	 candidate.calopos = calopos;
          candidate.pixSeed = pho_haspixseed[i];
          candidate.trkIso = pho_trksumpthollowconedr04[i];
          candidate.ecalIso = pho_ecalsumetconedr04[i];
@@ -195,7 +203,7 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
                 && leading.hcalIso < (2.0 + 0.0025*leading.p4->Pt())
                 && (((leading.sieie < 0.01)  && (leading.p4->Eta() < 1.4442)) 
                 || (( leading.sieie < 0.028)
-                   && ((leading.p4->Eta() < 2.5) && (leading.p4->Eta() > 1.566))) );
+                   && ((leading.calopos->Eta() < 2.5) && (leading.calopos->Eta() > 1.566))) );
              pass_isolation[0] =  leading.trkIso < (1.5 + 0.001*leading.p4->Pt());
              //Selection on next to leading photon
              pass_selection[1] = (!nleading.pixSeed)
@@ -204,7 +212,7 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
                 && nleading.hcalIso < (2.0 + 0.0025*nleading.p4->Pt())
                 && (((nleading.sieie < 0.01)  && (nleading.p4->Eta() < 1.4442)) 
                 || (( nleading.sieie < 0.028)
-                  && ((nleading.p4->Eta() < 2.5) && (nleading.p4->Eta() > 1.566))) );
+                  && ((nleading.calopos->Eta() < 2.5) && (nleading.calopos->Eta() > 1.566))) );
              pass_isolation[1] =  nleading.trkIso < (1.5 + 0.001*nleading.p4->Pt());
              //Double Sideband Method
              histoContainer[histVal]->Fill("h_sideband_leading",
@@ -271,6 +279,7 @@ void LoopAll::myReducePhotonAnalysis(Util * ut, int jentry) {
 void LoopAll::myGetBranchPhotonAnalysis() {
   b_pho_n = fChain->GetBranch("pho_n");
   b_pho_p4 = fChain->GetBranch("pho_p4");
+  b_pho_calopos = fChain->GetBranch("pho_p4");
   b_pho_hoe = fChain->GetBranch("pho_hoe");
   b_pho_sieie = fChain->GetBranch("pho_sieie");
   b_pho_ecalsumetconedr03 = fChain->GetBranch("pho_ecalsumetconedr03");
@@ -279,11 +288,16 @@ void LoopAll::myGetBranchPhotonAnalysis() {
   b_pho_hcalsumetconedr04 = fChain->GetBranch("pho_hcalsumetconedr04");
   b_pho_trksumptsolidconedr03 = fChain->GetBranch("pho_trksumptsolidconedr03");
   b_pho_trksumptsolidconedr03 = fChain->GetBranch("pho_trksumptsolidconedr03");
-  //b_pho_trksumpthollowconedr04 = fChain->GetBranch("pho_trksumpthollowconedr04");
-  //b_pho_trksumpthollowconedr04 = fChain->GetBranch("pho_trksumpthollowconedr04");
+  b_pho_trksumpthollowconedr04 = fChain->GetBranch("pho_trksumpthollowconedr04");
   b_pho_isEB = fChain->GetBranch("pho_isEB");
   b_pho_isEE = fChain->GetBranch("pho_isEE");
   b_pho_haspixseed = fChain->GetBranch("pho_haspixseed");
+
+  b_gp_n = fChain->GetBranch("gp_n");
+  b_gp_p4 = fChain->GetBranch("gp_p4");
+  b_gp_status = fChain->GetBranch("gp_status");
+  b_gp_pdgid = fChain->GetBranch("gp_pdgid");
+
 }
 
 int LoopAll::myFillReducedVarPhotonAnalysis(Util * ut, int jentry) {
@@ -304,6 +318,7 @@ int LoopAll::myFillReducedVarPhotonAnalysis(Util * ut, int jentry) {
 void LoopAll::mySetBranchAddressRedPhotonAnalysis() {
   fChain->SetBranchAddress("pho_n", &pho_n, &b_pho_n);
   fChain->SetBranchAddress("pho_p4", &pho_p4, &b_pho_p4);
+  fChain->SetBranchAddress("pho_calopos", &pho_calopos, &b_pho_calopos);
   fChain->SetBranchAddress("pho_hoe", &pho_hoe, &b_pho_hoe);
   fChain->SetBranchAddress("pho_sieie", &pho_sieie, &b_pho_sieie);
   fChain->SetBranchAddress("pho_ecalsumetconedr03", &pho_ecalsumetconedr03, &b_pho_ecalsumetconedr03);
@@ -317,6 +332,11 @@ void LoopAll::mySetBranchAddressRedPhotonAnalysis() {
   fChain->SetBranchAddress("pho_isEB", &pho_isEB, &b_pho_isEB);
   fChain->SetBranchAddress("pho_isEE", &pho_isEE, &b_pho_isEE);
   fChain->SetBranchAddress("pho_haspixseed", &pho_haspixseed, &b_pho_haspixseed);
+
+  fChain->SetBranchAddress("gp_n", &gp_n, &b_gp_n);
+  fChain->SetBranchAddress("gp_p4", &gp_p4, &b_gp_p4);
+  fChain->SetBranchAddress("gp_status", &gp_status, &b_gp_status);
+  fChain->SetBranchAddress("gp_pdgid", &gp_pdgid, &b_gp_pdgid);
 }
 
 
@@ -335,4 +355,3 @@ int LoopAll::mySelectEventRedPhotonAnalysis(Util * ut, int jentry) {
 
   return selectevent;
 }
-
