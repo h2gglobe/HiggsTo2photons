@@ -3,50 +3,81 @@ ROOT.gROOT.SetStyle('Plain')
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
 #ROOT.gStyle.SetLineWidth(2)
-import sys,os
+import sys,os,getopt
 
-r = ROOT.TRandom3()
+# -- User Imput Options -------------------------------------------
+optlist  = ['-signal','-norm','-logy']
+tmp,opts = getopt.getopt(sys.argv[0:],'', \
+			 longopts=optlist)
+args = sys.argv[1:]
+
+include_signal 		= False
+scale_montecarlo	= False
+set_logy		= False
+
+for o in opts[1:]:
+  if   o=='-sig':
+    include_signal = True
+    args.remove(o)
+  elif o=='-norm':
+    scale_montecarlo = True
+    args.remove(o)
+  elif o=='-logy':
+    set_logy = True
+    args.remove(o)
+  else : sys.exit('No Option Available: %s'%o)
+
+# -- Parameters ---------------------------------------------------
+random		 = ROOT.TRandom3()
 current_lumi    = 36.1
 data_name 	= 'hist/Data.root'
+# ----------------------------------------------------------------
 
 print "Higgs Analysis - Standard Plotter"
 print "Plotting all histograms available in ./hist"
 
-file_names	= {'hist/DYEEM20_hist.root'	:[0,1636.621	   	]
-		  ,'hist/DYEEM1020_hist.root'	:[0,726.965	   	]
-		  ,'hist/QCD40_hist.root'	:[1,544.862	   	]
+file_names	= {
+		  'hist/QCD40_hist.root'	:[0,544.862	   	]
 		  ,'hist/GJet20_hist.root'	:[1,2395.580	   	]
 		  ,'hist/Born_10_hist.root'	:[2,2211.781	   	]
 		  ,'hist/Born_25_hist.root'	:[2,24025.257	   	]
-		  ,'hist/Born_250_hist.root'	:[2,67685208.127   	]
+		  #,'hist/Born_250_hist.root'	:[2,67685208.127   	]
 		  ,'hist/Box_10_hist.root'	:[3,2227.736	   	]
 		  ,'hist/Box_25_hist.root'	:[3,62871.867	   	]
-		  ,'hist/Box_250_hist.root'	:[3,3795528846.154 	]
-		  ,'hist/WZTTH115_hist.root'	:[4,0.001*40475893.478   ]
-		  ,'hist/VBF115_hist.root'	:[4,0.001*38717590.830   ]
-		  ,'hist/GGH115_hist.root'	:[4,0.001*2848260.736    ]
-		  ,'hist/WZTTH120_hist.root'	:[5,0.001*43907180.221   ]
-		  ,'hist/VBF120_hist.root'	:[5,0.001*38470186.499   ]
-		  ,'hist/GGH120_hist.root'	:[5,0.001*2939587.092    ]
-		  ,'hist/WZTTH130_hist.root'	:[6,0.001*56914996.108   ]
-		  ,'hist/VBF130_hist.root'	:[6,0.001*41722136.164   ]
-		  ,'hist/GGH130_hist.root'	:[6,0.001*3427365.075    ]
+		  #,'hist/Box_250_hist.root'	:[3,3795528846.154 	]
+		  ,'hist/DYEEM20_hist.root'	:[4,1636.621	   	]
+		  ,'hist/DYEEM1020_hist.root'	:[4,726.965	   	]
+		  ,'hist/WZTTH115_hist.root'	:[5,0.1*40475893.478    ]
+		  ,'hist/VBF115_hist.root'	:[5,0.1*38717590.830    ]
+		  ,'hist/GGH115_hist.root'	:[5,0.1*2848260.736     ]
+		  ,'hist/WZTTH120_hist.root'	:[6,0.1*43907180.221    ]
+		  ,'hist/VBF120_hist.root'	:[6,0.1*38470186.499    ]
+		  ,'hist/GGH120_hist.root'	:[6,0.1*2939587.092     ]
+		  ,'hist/WZTTH130_hist.root'	:[7,0.1*56914996.108    ]
+		  ,'hist/VBF130_hist.root'	:[7,0.1*41722136.164    ]
+		  ,'hist/GGH130_hist.root'	:[7,0.1*3427365.075     ]
 		  }
 
 print "Using files/type/weight :"
 for k in file_names.keys(): print k, file_names[k] 
 
 # should have one color and title per Channel
-titles_colors = {'0':['Z/#gamma* #rightarrow ee',ROOT.kRed+1	]
-		,'1':['QCD & #gamma + Jet',ROOT.kOrange-3	]
+titles_colors = {
+		'0':['QCD',ROOT.kRed+1				]
+		,'1':['#gamma + Jet',ROOT.kOrange-3		]
 	 	,'2':['Born',ROOT.kGreen+3			]
 		,'3':['Box',ROOT.kMagenta+3			]
-		,'4':['Higgs M-115',ROOT.kBlue-2		]
-		,'5':['Higgs M-120',ROOT.kTeal-2		]
-		,'6':['Higgs M-130',ROOT.kCyan-2		]
+		,'4':['Z/#gamma* #rightarrow ee',ROOT.kOrange+2	]
+		,'5':['Higgs M-115',ROOT.kBlue-2		]
+		,'6':['Higgs M-120',ROOT.kTeal-2		]
+		,'7':['Higgs M-130',ROOT.kCyan-2		]
 	 	}
 
-signal_index = [4,5,6]
+# -- Singal Index indicates which components are signal. -------------------
+# -- These wont be included in normalisation		 -------------------
+signal_index = [5,6,7]
+# --------------------------------------------------------------------------
+
 #Build linked files lists:
 for f in file_names: 
   if not (os.path.isfile(f)):
@@ -82,12 +113,11 @@ for i in range(len(keys[0][0])):
 	
 	stack = ROOT.THStack()	
 	c = ROOT.TCanvas()
-	c.SetLogy()
 	
 	to_be_stacked = []
 
 	for l in range(len(file_list)):
-	  for j in range(len(file_list[l])):
+	  for j in range(len(file_list[l][0])):
 
 		f = file_list[l][0][j]
 		h = keys[l][j][i].ReadObj()
@@ -98,31 +128,38 @@ for i in range(len(keys[0][0])):
 			tmp[l] = h.Clone()
 		else:  tmp[l].Add(h)
 
-	  tmp[l].SetFillColor(titles_colors[str(l)][1])
-	  leg.AddEntry(tmp[l],titles_colors[str(l)][0],'F')
-          #tmp[l].SetLineWidth(1.5)
-
-	  to_be_stacked.append(tmp[l])
+	  # -- Only include signal plots if specified -----------
+          if   (include_signal and file_list[l][1] ) or\
+	   not file_list[l][1]:
+	    tmp[l].SetFillColor(titles_colors[str(l)][1])
+	    leg.AddEntry(tmp[l],titles_colors[str(l)][0],'F')
+	    to_be_stacked.append(tmp[l])
+	  # -----------------------------------------------------
 	
 
 	data_hist = data_k[i].ReadObj()
 	n_data	= data_hist.Integral()
 
 	stacked_sum = 0
+
 	for l,h in enumerate(to_be_stacked):
 	  if not file_list[l][1]:
 	    stacked_sum+=h.Integral()
 
 	for h in to_be_stacked:
-	  h.Scale(n_data/stacked_sum)
+          if stacked_sum != 0 and scale_montecarlo:
+	    h.Scale(n_data/stacked_sum)
 	  stack.Add(h)  
-
+        
+	if set_logy: c.SetLogy()
+	else	   : data_hist.SetMinimum(0)
+        # -- Data Styles ------------------------
 	data_hist.SetMarkerStyle(21)
 	data_hist.SetMarkerSize(0.7)
 	data_hist.Sumw2()
-
 	leg.AddEntry(data_hist, 'Data','PLE')
-	
+	# ---------------------------------------	
+
 	data_hist.Draw()
 	stack.Draw('same')
 	data_hist.Draw('same')
@@ -130,6 +167,7 @@ for i in range(len(keys[0][0])):
 
 	c.SetGrid(True)	
 	c.SaveAs('plots/'+h.GetName()+'.pdf')
+
 
 #EOF
 
