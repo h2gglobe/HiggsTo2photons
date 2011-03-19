@@ -178,18 +178,32 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
   }
 
   float best_mass = 0.;
+
   //Event Selection
   int n_preselected_pho = preselected_photons.size();
   histoContainer[histVal]->Fill("h_n_sel",n_preselected_pho);
+
   if (n_preselected_pho > 1 ){
-        if (preselected_photons[0].p4->Pt() > 40.){
+
+  Elec leading, nleading;
+
+     if (preselected_photons[0].p4->Pt() >= preselected_photons[1].p4->Pt()){
+
+             leading  = preselected_photons[0];
+             nleading = preselected_photons[1];
+     } else {
+
+             leading  = preselected_photons[1];
+             nleading = preselected_photons[0];
+     }
+
+
+       if (leading.p4->Pt() > 40.){
            TLorentzVector Higgs = (*(preselected_photons[0].p4))
                                  +(*(preselected_photons[1].p4));
            float mass = Higgs.M();
              if (mass > 100. && mass < 150.){
              //Good event, passes preselection and acceptance cuts
-             Elec leading  = preselected_photons[0];
-             Elec nleading = preselected_photons[1];
 
              int pass_selection[2];
              int pass_isolation[2];
