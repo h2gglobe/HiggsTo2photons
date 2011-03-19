@@ -10,6 +10,7 @@ void LoopAll::InitRealPhotonAnalysis(Util *ut, int typerun) {
 //    histoContainer[ind]->Add("invmass_barrel", 200, 0, 200);
 //    histoContainer[ind]->Add("invmass_endcap", 200, 0, 200);
     histoContainer[ind]->Add("h_mass","M #gamma #gamma - GeV/c^{2}", 10, 100, 150);
+    histoContainer[ind]->Add("h_n_sel","pre-selected photons", 4, 0, 4);
 //    histoContainer[ind]->Add("h_pho_hoe", 100, 0, 0.1);
 //    histoContainer[ind]->Add("h_pho_sieie", 100, 0, 0.07);
 //    histoContainer[ind]->Add("h_pho_ecalsumetconedr03", 100, 0, 20);
@@ -108,7 +109,7 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 
   b_pho_n->GetEntry(jentry); 
   b_pho_p4->GetEntry(jentry); 
-  b_pho_calopos->GetEntry(jentry); 
+  //b_pho_calopos->GetEntry(jentry); 
   b_pho_hoe->GetEntry(jentry); 
   b_pho_sieie->GetEntry(jentry); 
   b_pho_ecalsumetconedr03->GetEntry(jentry); 
@@ -121,10 +122,10 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
   b_pho_trksumpthollowconedr04->GetEntry(jentry); 
   b_pho_haspixseed->GetEntry(jentry); 
 
-  b_gp_n->GetEntry();
-  b_gp_p4->GetEntry();
-  b_gp_status->GetEntry();
-  b_gp_pdgid->GetEntry();
+//  b_gp_n->GetEntry(jentry);
+//  b_gp_p4->GetEntry(jentry);
+//  b_gp_status->GetEntry(jentry);
+//  b_gp_pdgid->GetEntry(jentry);
 
 //  struct Elec{
 //    TLorentzVector *p4;
@@ -138,10 +139,10 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 
   std::vector<Elec> preselected_photons;  
   std::vector<Elec> selected_photons; 
- 
+
+
   for (int i=0; i<pho_n; i++) {
     TLorentzVector *p4 = (TLorentzVector *) pho_p4->At(i);
-    TLorentzVector *calopos = (TLorentzVector *) pho_calopos->At(i);
 //    histoContainer[histVal]->Fill("pho_pt", p4->Pt());
 //    histoContainer[histVal]->Fill("h_pho_hoe", pho_hoe[i]);
 //    histoContainer[histVal]->Fill("h_pho_sieie", pho_sieie[i]);
@@ -152,6 +153,7 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 //    histoContainer[histVal]->Fill("h_pho_trksumptsolidconedr03", pho_trksumptsolidconedr03[i]);
 //    histoContainer[histVal]->Fill("h_pho_trksumpthollowconedr04", pho_trksumpthollowconedr04[i]);
     float pt  = p4->Pt();
+    
     float eta = fabs(p4->Eta());
     //PreSelection
      if ( 
@@ -164,14 +166,13 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
        &&((eta < 1.4442) || ((eta > 1.566) && (eta < 2.5))) 
        ) {
          Elec candidate;
-         candidate.p4 = p4;
-	 candidate.calopos = calopos;
-         candidate.pixSeed = pho_haspixseed[i];
-         candidate.trkIso = pho_trksumpthollowconedr04[i];
-         candidate.ecalIso = pho_ecalsumetconedr04[i];
-         candidate.hcalIso = pho_hcalsumetconedr04[i];
-         candidate.sieie = pho_sieie[i];
-         candidate.hoe = pho_hoe[i];
+         candidate.p4 		= p4;
+         candidate.pixSeed 	= pho_haspixseed[i];
+         candidate.trkIso 	= pho_trksumpthollowconedr04[i];
+         candidate.ecalIso 	= pho_ecalsumetconedr04[i];
+         candidate.hcalIso 	= pho_hcalsumetconedr04[i];
+         candidate.sieie 	= pho_sieie[i];
+         candidate.hoe 		= pho_hoe[i];
          preselected_photons.push_back(candidate);
        }
   }
@@ -179,40 +180,37 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
   float best_mass = 0.;
   //Event Selection
   int n_preselected_pho = preselected_photons.size();
+  histoContainer[histVal]->Fill("h_n_sel",n_preselected_pho);
   if (n_preselected_pho > 1 ){
-    for (int i=0; i< n_preselected_pho-1; i++){
-      for (int j=i+1;j<n_preselected_pho;j++){
-        if (preselected_photons[i].p4->Pt() > 40. 
-	   || preselected_photons[j].p4->Pt() > 40.){
-          
-           TLorentzVector Higgs = (*(preselected_photons[i].p4))
-                                 +(*(preselected_photons[j].p4));
+        if (preselected_photons[0].p4->Pt() > 40.){
+           TLorentzVector Higgs = (*(preselected_photons[0].p4))
+                                 +(*(preselected_photons[1].p4));
            float mass = Higgs.M();
              if (mass > 100. && mass < 150.){
              //Good event, passes preselection and acceptance cuts
-             Elec leading  = preselected_photons[i];
-             Elec nleading = preselected_photons[j];
+             Elec leading  = preselected_photons[0];
+             Elec nleading = preselected_photons[1];
 
              int pass_selection[2];
              int pass_isolation[2];
     
             //Now do selection on leading photon
-             pass_selection[0] = (!leading.pixSeed)
-                && leading.hoe < 0.02
+             pass_selection[0] = 
+                   leading.hoe < 0.02
                 && leading.ecalIso < (2.0 + 0.006*leading.p4->Pt())
                 && leading.hcalIso < (2.0 + 0.0025*leading.p4->Pt())
                 && (((leading.sieie < 0.01)  && (leading.p4->Eta() < 1.4442)) 
                 || (( leading.sieie < 0.028)
-                   && ((leading.calopos->Eta() < 2.5) && (leading.calopos->Eta() > 1.566))) );
+                   && ((fabs(leading.p4->Eta()) < 2.5) && (fabs(leading.p4->Eta()) > 1.566))) );
              pass_isolation[0] =  leading.trkIso < (1.5 + 0.001*leading.p4->Pt());
              //Selection on next to leading photon
-             pass_selection[1] = (!nleading.pixSeed)
-                && nleading.hoe < 0.02
-                && nleading.ecalIso < (2.0 + 0.006*nleading.p4->Pt())
-                && nleading.hcalIso < (2.0 + 0.0025*nleading.p4->Pt())
+             pass_selection[1] = 
+                   (nleading.hoe < 0.02)
+                && (nleading.ecalIso < (2.0 + 0.006*nleading.p4->Pt()))
+                && (nleading.hcalIso < (2.0 + 0.0025*nleading.p4->Pt()))
                 && (((nleading.sieie < 0.01)  && (nleading.p4->Eta() < 1.4442)) 
                 || (( nleading.sieie < 0.028)
-                  && ((nleading.calopos->Eta() < 2.5) && (nleading.calopos->Eta() > 1.566))) );
+                  && ((fabs(nleading.p4->Eta()) < 2.5) && (fabs(nleading.p4->Eta()) > 1.566))) );
              pass_isolation[1] =  nleading.trkIso < (1.5 + 0.001*nleading.p4->Pt());
              //Double Sideband Method
              histoContainer[histVal]->Fill("h_sideband_leading",
@@ -225,8 +223,6 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
                }
              }
            }
-         } 
-       }
      }
    }
 
@@ -279,7 +275,7 @@ void LoopAll::myReducePhotonAnalysis(Util * ut, int jentry) {
 void LoopAll::myGetBranchPhotonAnalysis() {
   b_pho_n = fChain->GetBranch("pho_n");
   b_pho_p4 = fChain->GetBranch("pho_p4");
-  b_pho_calopos = fChain->GetBranch("pho_p4");
+  b_pho_calopos = fChain->GetBranch("pho_calopos");
   b_pho_hoe = fChain->GetBranch("pho_hoe");
   b_pho_sieie = fChain->GetBranch("pho_sieie");
   b_pho_ecalsumetconedr03 = fChain->GetBranch("pho_ecalsumetconedr03");

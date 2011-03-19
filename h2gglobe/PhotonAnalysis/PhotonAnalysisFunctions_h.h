@@ -17,7 +17,6 @@ Float_t pho_Et[MAX_PHOTONS];
 
 struct Elec{
     TLorentzVector *p4;
-    TLorentzVector *calopos;
     bool pixSeed;
     double trkIso;
     double ecalIso;
