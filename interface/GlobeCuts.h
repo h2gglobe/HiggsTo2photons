@@ -7,6 +7,8 @@
 
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
@@ -51,6 +53,7 @@ class GlobeCuts {
   GlobeCuts(const edm::ParameterSet&);
   virtual ~GlobeCuts() {};
 
+  bool cut(const reco::Conversion&);
   bool cut(const reco::Photon&);
   bool cut(const reco::PFCandidate&);
   bool cut(const reco::GsfElectron&);
