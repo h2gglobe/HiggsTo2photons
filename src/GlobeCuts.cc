@@ -68,6 +68,12 @@ bool GlobeCuts::cut(const reco::Photon &photon) {
 }
 
 
+// Conversions
+bool GlobeCuts::cut(const reco::Conversion &conv) { 
+  return (sqrt(conv.refittedPairMomentum().perp2()) <  convertedPhotonEtCut_); 
+}
+
+
 // Electrons
 bool GlobeCuts::cut(const reco::GsfElectron& electron) { 
           return (electron.et() < electronEtCut_); 
