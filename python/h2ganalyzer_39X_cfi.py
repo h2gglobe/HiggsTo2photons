@@ -89,8 +89,8 @@ h2ganalyzer = cms.EDAnalyzer(
                                      cms.InputTag("eidTight")),
                                 
     PhotonCollStd = cms.InputTag("photons"),
-    ConvertedPhotonColl = cms.InputTag("convertedPhotons"),
-    
+    # this will be from 420 ConvertedPhotonColl = cms.InputTag("allConversions"),
+    ConvertedPhotonColl = cms.InputTag("trackerOnlyConversions"),
     MuonColl = cms.InputTag("muons"),
     
     JetColl_algo1 = cms.InputTag("ak5CaloJets"),
