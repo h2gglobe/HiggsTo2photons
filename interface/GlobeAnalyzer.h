@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Matteosan SANI
 //         Created:  Thu Feb  7 10:14:43 CET 2008
-// $Id: GlobeAnalyzer.h,v 1.3 2011/03/01 15:58:46 capalmer Exp $
+// $Id: GlobeAnalyzer.h,v 1.4 2011/03/02 10:14:13 capalmer Exp $
 //
 //
 
@@ -32,6 +32,7 @@ Implementation:
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeElectrons.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeMuons.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePhotons.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/GlobeConversions.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeEcalClusters.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCaloTowers.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeHcal.h"
@@ -76,6 +77,7 @@ public:
   void fillTree();
   GlobeCommon* common;
   GlobePhotons* photons;
+  GlobeConversions* allConversions;
   GlobePFCandidates* pfCandidates;
   GlobeEcalClusters* ecalclusters;
   GlobeMET* met, *tcmet, *pfmet; 
@@ -144,6 +146,7 @@ private:
   bool doHcal;
   bool doEcal;
   bool doPhoton;
+  bool doAllConversions;
   bool doL1;
   bool doVertices_std;
   bool doVertices_nobs;
