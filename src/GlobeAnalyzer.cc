@@ -25,6 +25,7 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   doGenParticles = iConfig.getParameter<bool>("doGenParticles");
 
   doPhoton = iConfig.getParameter<bool>("doPhoton"); 
+  doAllConversions = iConfig.getParameter<bool>("doAllConversions"); 
   doCaloTower = iConfig.getParameter<bool>("doCaloTower"); 
   doHcal = iConfig.getParameter<bool>("doHcal"); 
   doEcal = iConfig.getParameter<bool>("doEcal"); 
@@ -118,6 +119,10 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if (doPhoton)
     photons = new GlobePhotons(iConfig);
 
+  // Conversions
+  if (doAllConversions)
+    allConversions = new GlobeConversions(iConfig);
+
   //ELECTRONS
 
   if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeElectrons"<<std::endl;
@@ -205,6 +210,13 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doPhoton)
     photons->analyze(iEvent, iSetup);
 
+  //ALL CONVERSIONS
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: conversions" << std::endl;
+  if (doAllConversions)
+    allConversions->analyze(iEvent, iSetup);
+
+
+
   //ELECTRONS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: std_electrons" << std::endl;
   if (doElectronStd)
@@ -233,6 +245,8 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if(doPhoton && doLeptons)
     leptons->addPhotons(photons);
  
+
+
   //GENERATOR
   if(debug_level > 2) std::cout << "GlobeAnalyzer: gen" << std::endl;
   if (doGenerator){
@@ -433,7 +447,10 @@ void GlobeAnalyzer::beginJob() {
   
   if (doPhoton)
     photons->defineBranch(tree);
-  
+
+  if (doAllConversions)
+    allConversions->defineBranch(tree);  
+
   if (doEcalRecHits)
     ecalrechits->defineBranch(tree);
   if (doEcal)
