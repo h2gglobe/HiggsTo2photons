@@ -17,6 +17,7 @@ Float_t pho_Et[MAX_PHOTONS];
 
 struct Elec{
     TLorentzVector *p4;
+    TVector3 *calopos;
     bool pixSeed;
     double trkIso;
     double ecalIso;
@@ -24,3 +25,11 @@ struct Elec{
     double sieie;
     double hoe;
 };
+
+//Added NCKW
+bool ElecP4greater(Elec e1, Elec e2){
+	
+     return e1.p4->Pt() > e2.p4->Pt();
+
+
+}

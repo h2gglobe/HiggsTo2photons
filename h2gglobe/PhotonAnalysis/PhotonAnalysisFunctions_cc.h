@@ -6,19 +6,21 @@ void LoopAll::InitRealPhotonAnalysis(Util *ut, int typerun) {
   // Book histos only if not reduce step
   if (typerun != 1) {    
    for (int ind=0;ind<ut->ntypes;ind++){
-//    histoContainer[ind]->Add("pho_pt", 100, 0, 100);
-//    histoContainer[ind]->Add("invmass_barrel", 200, 0, 200);
-//    histoContainer[ind]->Add("invmass_endcap", 200, 0, 200);
     histoContainer[ind]->Add("h_mass","M #gamma #gamma - GeV/c^{2}", 10, 100, 150);
+    histoContainer[ind]->Add("h_pt","p_{T} #gamma #gamma - GeV/c", 50, 0, 150);
     histoContainer[ind]->Add("h_n_sel","pre-selected photons", 4, 0, 4);
-//    histoContainer[ind]->Add("h_pho_hoe", 100, 0, 0.1);
-//    histoContainer[ind]->Add("h_pho_sieie", 100, 0, 0.07);
-//    histoContainer[ind]->Add("h_pho_ecalsumetconedr03", 100, 0, 20);
-//    histoContainer[ind]->Add("h_pho_ecalsumetconedr04", 100, 0, 20);
-//    histoContainer[ind]->Add("h_pho_hcalsumetconedr03", 100, 0, 20);
-//    histoContainer[ind]->Add("h_pho_hcalsumetconedr04", 100, 0, 20);
-//    histoContainer[ind]->Add("h_pho_trksumptsolidconedr03", 100, 0, 20);
-//    histoContainer[ind]->Add("h_pho_trksumpthollowconedr04", 100, 0, 20);
+    histoContainer[ind]->Add("h_pho_hoe","H/E", 100, 0, 0.05);
+
+    // Isolation Histograms for Pass/Fail distributions ---------------------------------------------------
+    histoContainer[ind]->Add("h_pho_trksumpthollowconedr04_leading_pass","TrkIso hollow DR04", 20, 0, 3);
+    histoContainer[ind]->Add("h_pho_trksumpthollowconedr04_leading_fail","TrkIso hollow DR04", 20, 0, 3);
+    histoContainer[ind]->Add("h_pho_trksumpthollowconedr04_nleading_pass","TrkIso hollow DR04", 20, 0, 3);
+    histoContainer[ind]->Add("h_pho_trksumpthollowconedr04_nleading_fail","TrkIso hollow DR04", 20, 0, 3);
+    // ----------------------------------------------------------------------------------------------------
+
+    histoContainer[ind]->Add("h_dr_lead",150,0,0.15);
+    histoContainer[ind]->Add("h_dr_nlead",150,0,0.15);
+
     histoContainer[ind]->Add("h_sideband_leading",  2, -0.5, 1.5, 2, -0.5, 1.5);
     histoContainer[ind]->Add("h_sideband_nleading", 2, -0.5, 1.5, 2, -0.5, 1.5);
    }
@@ -50,7 +52,7 @@ void LoopAll::TermRealPhotonAnalysis(int typerun)
 {
    if (typerun == 3){
  
-     rooContainer->FitToData("exp","mass");
+     rooContainer->FitToData("exp","mass",100,115,125,200);
  
    }
 
@@ -70,7 +72,7 @@ void LoopAll::myFillHistPhotonAnalysis(Util *ut, int jentry) {
   
   for (int i=0; i<pho_n; i++) {
     TLorentzVector *p4 = (TLorentzVector *) pho_p4->At(i);
- //   histoContainer[histVal]->Fill("pho_pt", p4->Pt());
+    histoContainer[histVal]->Fill("pho_pt", p4->Pt());
   }
   
   Int_t in_endcap = 0;
@@ -101,15 +103,20 @@ void LoopAll::myFillHistPhotonAnalysis(Util *ut, int jentry) {
 
 void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 
+
   if(PADEBUG) 
     cout << "myFillHistRed START"<<endl;
 
   int histVal = ut->type2HistVal[ut->datatype[ut->current]];
   counters[0]++;
 
+// From Here is the Standard Dec Review Selection/ gen Level studies
+// and double sid-band distribution histograms
+// Please do not edit!
+/*
   b_pho_n->GetEntry(jentry); 
   b_pho_p4->GetEntry(jentry); 
-  //b_pho_calopos->GetEntry(jentry); 
+  b_pho_calopos->GetEntry(jentry); 
   b_pho_hoe->GetEntry(jentry); 
   b_pho_sieie->GetEntry(jentry); 
   b_pho_ecalsumetconedr03->GetEntry(jentry); 
@@ -117,56 +124,35 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
   b_pho_hcalsumetconedr03->GetEntry(jentry); 
   b_pho_hcalsumetconedr04->GetEntry(jentry); 
   b_pho_trksumptsolidconedr03->GetEntry(jentry); 
-//  b_pho_trksumptsolidconedr04->GetEntry(jentry);  
- // b_pho_trksumpthollowconedr03->GetEntry(jentry); 
   b_pho_trksumpthollowconedr04->GetEntry(jentry); 
   b_pho_haspixseed->GetEntry(jentry); 
 
-//  b_gp_n->GetEntry(jentry);
-//  b_gp_p4->GetEntry(jentry);
-//  b_gp_status->GetEntry(jentry);
-//  b_gp_pdgid->GetEntry(jentry);
-
-//  struct Elec{
-//    TLorentzVector *p4;
-//    bool pixSeed;
-//    double trkIso;
-//    double ecalIso;
-//    double hcalIso;
-//    double sieie;
-//    double hoe;
-//  };
+  b_gp_n->GetEntry(jentry);
+  b_gp_p4->GetEntry(jentry);
+  b_gp_pdgid->GetEntry(jentry);
 
   std::vector<Elec> preselected_photons;  
-  std::vector<Elec> selected_photons; 
 
-
-  for (int i=0; i<pho_n; i++) {
-    TLorentzVector *p4 = (TLorentzVector *) pho_p4->At(i);
-//    histoContainer[histVal]->Fill("pho_pt", p4->Pt());
-//    histoContainer[histVal]->Fill("h_pho_hoe", pho_hoe[i]);
-//    histoContainer[histVal]->Fill("h_pho_sieie", pho_sieie[i]);
-//    histoContainer[histVal]->Fill("h_pho_ecalsumetconedr03", pho_ecalsumetconedr03[i]);
-//    histoContainer[histVal]->Fill("h_pho_ecalsumetconedr04", pho_ecalsumetconedr04[i]);
-//    histoContainer[histVal]->Fill("h_pho_hcalsumetconedr03", pho_hcalsumetconedr03[i]);
-//    histoContainer[histVal]->Fill("h_pho_hcalsumetconedr04", pho_hcalsumetconedr04[i]);
-//    histoContainer[histVal]->Fill("h_pho_trksumptsolidconedr03", pho_trksumptsolidconedr03[i]);
-//    histoContainer[histVal]->Fill("h_pho_trksumpthollowconedr04", pho_trksumpthollowconedr04[i]);
-    float pt  = p4->Pt();
-    
-    float eta = fabs(p4->Eta());
+    TVector3 *calopos;	
+    TLorentzVector *p4;
+  for (int i=0; i<pho_n && i < 4; i++) {
+    p4 = (TLorentzVector *) pho_p4->At(i);
+    calopos  = (TVector3 *) pho_calopos->At(i);
+    float pt  = p4->Pt(); 
+    float eta = fabs(calopos->Eta());
     //PreSelection
      if ( 
        (! pho_haspixseed[i])
        && pt > 30. 
-       && pho_hoe[i] <  0.10
-       //&& pho_trksumpthollowconedr04[i] < (7.0 + 0.002*pt)
-       && pho_ecalsumetconedr04[i] < (8.4 + 0.012*pt)
-       && pho_hcalsumetconedr04[i] < (4.4 + 0.005*pt)
+       && pho_hoe[i] <  0.1
+       && pho_trksumpthollowconedr04[i] < 3*(1.5 + 0.001*pt)
+       && pho_ecalsumetconedr04[i] < 2*(2.0 + 0.006*pt)
+       && pho_hcalsumetconedr04[i] < 2*(2.0 + 0.0025*pt)
        &&((eta < 1.4442) || ((eta > 1.566) && (eta < 2.5))) 
        ) {
          Elec candidate;
          candidate.p4 		= p4;
+	 candidate.calopos	= calopos;
          candidate.pixSeed 	= pho_haspixseed[i];
          candidate.trkIso 	= pho_trksumpthollowconedr04[i];
          candidate.ecalIso 	= pho_ecalsumetconedr04[i];
@@ -177,7 +163,10 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
        }
   }
 
+  
+
   float best_mass = 0.;
+  float best_pt ;
 
   //Event Selection
   int n_preselected_pho = preselected_photons.size();
@@ -185,7 +174,7 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 
   if (n_preselected_pho > 1 ){
 
-  Elec leading, nleading;
+     Elec leading, nleading;
 
      if (preselected_photons[0].p4->Pt() >= preselected_photons[1].p4->Pt()){
 
@@ -199,9 +188,28 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 
 
        if (leading.p4->Pt() > 40.){
+
+
+         // Dr gen-photon for leading and subleading candidate
+         TLorentzVector *gen_p4;
+         for (int k=0;k<gp_n;k++){
+           if (gp_pdgid[k] == 22){
+	     gen_p4 = (TLorentzVector*) gp_p4->At(k);
+	     float dr1 =DeltaR(leading.p4->Phi(),gen_p4->Phi()
+	       	       	     ,leading.p4->Eta(),gen_p4->Eta());
+
+	     float dr2 =DeltaR(nleading.p4->Phi(),gen_p4->Phi()
+		       	     ,nleading.p4->Eta(),gen_p4->Eta());
+
+	     if (dr1 < 0.15) histoContainer[histVal]->Fill("h_dr_lead",dr1);
+	     if (dr2 < 0.15) histoContainer[histVal]->Fill("h_dr_nlead",dr2);
+	    }
+         }
+           // -------------------------------------------------------
            TLorentzVector Higgs = (*(preselected_photons[0].p4))
                                  +(*(preselected_photons[1].p4));
            float mass = Higgs.M();
+           float h_pt = Higgs.Pt();
              if (mass > 100. && mass < 150.){
              //Good event, passes preselection and acceptance cuts
 
@@ -213,27 +221,49 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
                    leading.hoe < 0.02
                 && leading.ecalIso < (2.0 + 0.006*leading.p4->Pt())
                 && leading.hcalIso < (2.0 + 0.0025*leading.p4->Pt())
-                && (((leading.sieie < 0.01)  && (leading.p4->Eta() < 1.4442)) 
+                && (((leading.sieie < 0.01)  && (leading.calopos->Eta() < 1.4442)) 
                 || (( leading.sieie < 0.028)
-                   && ((fabs(leading.p4->Eta()) < 2.5) && (fabs(leading.p4->Eta()) > 1.566))) );
+                   && ((fabs(leading.calopos->Eta()) < 2.5) && (fabs(leading.calopos->Eta()) > 1.566))) );
              pass_isolation[0] =  leading.trkIso < (1.5 + 0.001*leading.p4->Pt());
+	 
              //Selection on next to leading photon
              pass_selection[1] = 
                    (nleading.hoe < 0.02)
                 && (nleading.ecalIso < (2.0 + 0.006*nleading.p4->Pt()))
                 && (nleading.hcalIso < (2.0 + 0.0025*nleading.p4->Pt()))
-                && (((nleading.sieie < 0.01)  && (nleading.p4->Eta() < 1.4442)) 
+                && (((nleading.sieie < 0.01)  && (nleading.calopos->Eta() < 1.4442)) 
                 || (( nleading.sieie < 0.028)
-                  && ((fabs(nleading.p4->Eta()) < 2.5) && (fabs(nleading.p4->Eta()) > 1.566))) );
+                  && ((fabs(nleading.calopos->Eta()) < 2.5) && (fabs(nleading.calopos->Eta()) > 1.566))) );
              pass_isolation[1] =  nleading.trkIso < (1.5 + 0.001*nleading.p4->Pt());
              //Double Sideband Method
+
+	     if (pass_selection[0])  histoContainer[histVal]->Fill(
+					"h_pho_trksumpthollowconedr04_leading_pass"
+					,leading.trkIso - 0.001*leading.p4->Pt());
+
+	     if (!pass_selection[0]) histoContainer[histVal]->Fill(
+					"h_pho_trksumpthollowconedr04_leading_fail"
+					,leading.trkIso - 0.001*leading.p4->Pt());
+	     if (pass_selection[0] && pass_isolation[0]){
+
+	       if (pass_selection[1])  histoContainer[histVal]->Fill(
+					"h_pho_trksumpthollowconedr04_nleading_pass"
+					,nleading.trkIso - 0.001*nleading.p4->Pt());
+
+	       if (!pass_selection[1]) histoContainer[histVal]->Fill(
+					"h_pho_trksumpthollowconedr04_nleading_fail"
+					,nleading.trkIso - 0.001*nleading.p4->Pt());
+	     }
+
+	     // Fill Side-bands and Signal Regions
              histoContainer[histVal]->Fill("h_sideband_leading",
                                          pass_isolation[0],pass_selection[0]);
              if (pass_selection[0] && pass_isolation[0]){
                histoContainer[histVal]->Fill("h_sideband_nleading",
-                                         pass_isolation[1],pass_selection[1]);
+                                        pass_isolation[1],pass_selection[1]);
                if (pass_selection[1] && pass_isolation[1]){
                  best_mass = mass;
+ 		 best_pt   = h_pt;
                }
              }
            }
@@ -242,6 +272,9 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 
      
   histoContainer[histVal]->Fill("h_mass", best_mass);
+  histoContainer[histVal]->Fill("h_pt", best_pt);
+*/
+
   if(PADEBUG) 
     cout<<"myFillHistRed END"<<endl;
 }
