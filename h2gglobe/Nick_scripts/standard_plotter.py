@@ -6,7 +6,7 @@ ROOT.gStyle.SetOptStat(0)
 import sys,os,getopt
 
 # -- User Imput Options -------------------------------------------
-optlist  = ['-signal','-norm','-logy']
+optlist  = ['-signal','-norm','-logy','-nostack','-data']
 tmp,opts = getopt.getopt(sys.argv[0:],'', \
 			 longopts=optlist)
 args = sys.argv[1:]
@@ -14,6 +14,8 @@ args = sys.argv[1:]
 include_signal 		= False
 scale_montecarlo	= False
 set_logy		= False
+dont_stack		= False	
+plot_data		= False
 
 for o in opts[1:]:
   if   o=='-sig':
@@ -22,11 +24,19 @@ for o in opts[1:]:
   elif o=='-norm':
     scale_montecarlo = True
     args.remove(o)
-  elif o=='-logy':
-    set_logy = True
+  elif o=='-nostack':
+    dont_stack = True
+    args.remove(o)
+  elif o=='-data':
+    plot_data = True
     args.remove(o)
   else : sys.exit('No Option Available: %s'%o)
 
+# -- Check Sanity -------------------------------------------------
+if not plot_data and scale_montecarlo:
+  print "Cannot scale MC to Data without Data input"
+  print "Scaling MC to simulation norms"
+  scale_montecarlo = False
 # -- Parameters ---------------------------------------------------
 random		 = ROOT.TRandom3()
 current_lumi    = 36.1
@@ -129,11 +139,21 @@ for i in range(len(keys[0][0])):
 		else:  tmp[l].Add(h)
 
 	  # -- Only include signal plots if specified -----------
+	  print "DEBUG -- Making stacks"
           if   (include_signal and file_list[l][1] ) or\
 	   not file_list[l][1]:
-	    tmp[l].SetFillColor(titles_colors[str(l)][1])
-	    leg.AddEntry(tmp[l],titles_colors[str(l)][0],'F')
+   
+	    if dont_stack:	     
+	      tmp[l].SetLineColor(titles_colors[str(l)][1])
+	      tmp[l].SetLineWidth(2)	
+	      if  tmp[l].Integral() != 0: tmp[l].Scale(1./tmp[l].Integral())
+	      leg.AddEntry(tmp[l],titles_colors[str(l)][0],'L')
+	    else:
+	      tmp[l].SetFillColor(titles_colors[str(l)][1])
+	      leg.AddEntry(tmp[l],titles_colors[str(l)][0],'F')
+
 	    to_be_stacked.append(tmp[l])
+	  print "DEBUG -- Made Stacks"
 	  # -----------------------------------------------------
 	
 
@@ -157,16 +177,32 @@ for i in range(len(keys[0][0])):
 	data_hist.SetMarkerStyle(21)
 	data_hist.SetMarkerSize(0.7)
 	data_hist.Sumw2()
-	leg.AddEntry(data_hist, 'Data','PLE')
 	# ---------------------------------------	
 
-	data_hist.Draw()
-	stack.Draw('same')
-	data_hist.Draw('same')
+	print "Plotting Histograms"	
+
+	if plot_data:
+	  leg.AddEntry(data_hist, 'Data','PLE')
+	  data_hist.Draw()
+
+	
+        if dont_stack:
+	 to_be_stacked[0].SetMaximum(1.0)	 
+	 to_be_stacked[0].Draw()
+         for hist in to_be_stacked[1:]: hist.Draw("same")
+
+	else: 
+	  if plot_data: stack.Draw('same')
+	  else:  stack.Draw()
+	
+	
+	# Plot data again to ensure overlay
+	if plot_data: data_hist.Draw('same')
+
 	leg.Draw()
 
 	c.SetGrid(True)	
-	c.SaveAs('plots/'+h.GetName()+'.pdf')
+	c.SaveAs('plots/'+data_hist.GetName()+'.pdf')
 
 
 #EOF
