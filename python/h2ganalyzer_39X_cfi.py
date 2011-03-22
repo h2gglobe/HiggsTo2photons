@@ -247,7 +247,7 @@ h2ganalyzer = cms.EDAnalyzer(
     doElectron_std = cms.bool(True),
     doMuon = cms.bool(True),
     doPhoton = cms.bool(True),
-    doConvertedPhoton = cms.bool(False),
+    doAllConversions = cms.bool(True),
     doLeptons = cms.bool(True),
     
     doJet_algo1 = cms.bool(True),
