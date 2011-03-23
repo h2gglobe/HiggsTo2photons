@@ -7,11 +7,13 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCuts.h"
 
+
 #include "TTree.h"
 #include "TClonesArray.h"
 #include "TVector3.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include <iostream>
 
@@ -26,6 +28,13 @@ class GlobeVertex {
 
   // variables
   Int_t vtx_n;
+
+  TClonesArray *bs_xyz;
+  Float_t bs_sigmaZ;
+  Float_t bs_x0Error;
+  Float_t bs_y0Error;
+  Float_t bs_z0Error;
+  Float_t bs_sigmaZ0Error;
 
   TClonesArray *vtx_xyz;
   TClonesArray *vtx_dxdydz;
@@ -44,6 +53,7 @@ class GlobeVertex {
 
   edm::InputTag vertexColl;
   edm::InputTag trackColl;
+  edm::InputTag bsColl;
   int debug_level;
 };
 
