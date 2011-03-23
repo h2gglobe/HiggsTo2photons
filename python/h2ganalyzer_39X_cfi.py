@@ -20,6 +20,8 @@ h2ganalyzer = cms.EDAnalyzer(
     GenParticlesColl = cms.InputTag("genParticles"),
     GlobeReducedGendRMin = cms.double(0.3),
     
+    pileupInfoCollection = cms.InputTag("addPileupInfo"),
+    
     #GenJetColl_algo3 = cms.InputTag("sisCone5GenJets"),
     GenJetColl_algo1 = cms.InputTag("ak5GenJets"),
     GenJetColl_algo2 = cms.InputTag("ak7GenJets"),
@@ -106,6 +108,8 @@ h2ganalyzer = cms.EDAnalyzer(
     JetTrackAssociationColl_algo1 = cms.InputTag("ak5JetTracksAssociatorAtVertex"),    
     JetTrackAssociationColl_algo2 = cms.InputTag("ak7JetTracksAssociatorAtVertex"),
     JetTrackAssociationColl_algo3 = cms.InputTag("kt4JetTracksAssociatorAtVertex"),
+    
+    rhoCorrection = cms.InputTag("kt6PFJets","rho"),
 
     PFCandidateColl = cms.InputTag("particleFlow"),
     
@@ -264,10 +268,12 @@ h2ganalyzer = cms.EDAnalyzer(
     doPFMet = cms.bool(True),
     doHt = cms.bool(True),
     
+    doRho = cms.bool(True),
+    doPileup = cms.bool(True),
+    
     doFastSim = cms.bool(False),
     doAodSim  = cms.bool(False),
-    doEgammaSummer09Skim = cms.bool(False),
-
+    
     storeGsfTracksOnlyIfElectrons = cms.bool(True),
 
     #PAT

@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+maxEvents = cms.untracked.PSet( input = cms.untracked.int32(50) )
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 source = cms.Source ("PoolSource",fileNames = readFiles)

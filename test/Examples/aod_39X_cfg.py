@@ -34,10 +34,12 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 500
 process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
 process.h2ganalyzer.Debug_Level = 0
 
+process.load('RecoJets.JetProducers.kt4PFJets_cfi')
+process.kt6PFJets = process.kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+process.kt6PFJets.Rho_EtaMax = cms.double(2.5)
+
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
-
-process.p11 = cms.Path(process.h2ganalyzerPath)
-
+process.p11 = cms.Path(process.kt6PFJets*process.h2ganalyzerPath)
 
 process.h2ganalyzer.doGenJet_algo1 = True
 process.h2ganalyzer.doGenJet_algo2 = True

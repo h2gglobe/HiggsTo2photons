@@ -15,7 +15,7 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 #from SHarper.HEEPAnalyzer.HEEPSelectionCuts_cfi import *
 
 process.load("HiggsAnalysis.HiggsTo2photons.CMSSW_RelValDUMMY_cfi")
-#process.skipEvents = cms.untracked.PSet(input=cms.untracked.uint32(3500))
+process.skipEvents = cms.untracked.PSet(input=cms.untracked.uint32(100))
 #skipEvents = cms.untracked.uint32(3500)
 
 process.options = cms.untracked.PSet(
@@ -34,10 +34,14 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 500
 process.h2ganalyzer.RootFileName = 'reco_data_test.root'
 process.h2ganalyzer.Debug_Level = 0
 
+process.load('RecoJets.JetProducers.kt4PFJets_cfi')
+process.kt6PFJets = process.kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
+process.kt6PFJets.Rho_EtaMax = cms.double(2.5)
+
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
+process.p11 = cms.Path(process.kt6PFJets*process.h2ganalyzerPath)
 
-process.p11 = cms.Path(process.h2ganalyzerPath)
-
+process.h2ganalyzer.doPileup = False
 process.h2ganalyzer.doGenJet_algo1 = False
 process.h2ganalyzer.doGenJet_algo2 = False
 process.h2ganalyzer.doGenJet_algo3 = False

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Matteosan SANI
 //         Created:  Thu Feb  7 10:14:43 CET 2008
-// $Id: GlobeAnalyzer.h,v 1.4 2011/03/02 10:14:13 capalmer Exp $
+// $Id: GlobeAnalyzer.h,v 1.5 2011/03/22 17:22:19 nancy Exp $
 //
 //
 
@@ -58,6 +58,9 @@ Implementation:
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeHT.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeReducedGen.h"
 //#include "HiggsAnalysis/HiggsTo2photons/interface/GlobePAT.h"
+
+#include "HiggsAnalysis/HiggsTo2photons/interface/GlobeRho.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/GlobePileup.h"
 
 #include "TFile.h"
 //#include "TRFIOFile.h"
@@ -104,6 +107,8 @@ public:
   GlobeHT* ht;
   //GlobePAT* pat;
   GlobeReducedGen* reducedgen;
+  GlobeRho* rho;
+  GlobePileup* pileup;
 
 private:
   void beginJob();
@@ -165,6 +170,8 @@ private:
   bool doLeptons;
   bool doHt;
   bool doPAT;
+  bool doRho;
+  bool doPileup;
 
   bool fullHLT;
   std::vector<edm::InputTag> theElHLTLabels;
