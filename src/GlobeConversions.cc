@@ -18,7 +18,7 @@ GlobeConversions::GlobeConversions(const edm::ParameterSet& iConfig, const char*
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
 
-  conv_nHitsBeforeVtx = new std::vector<std::vector<unsigned char> >; conv_nHitsBeforeVtx->clear();
+  conv_nHitsBeforeVtx = new std::vector<std::vector<unsigned short> >; conv_nHitsBeforeVtx->clear();
 
 }
 
@@ -41,7 +41,7 @@ void GlobeConversions::defineBranch(TTree* tree) {
   tree->Branch("conv_lxy",&conv_lxy,"conv_lxy[conv_n]/F"); // will not be filled because this will only be available from 420
   tree->Branch("conv_lz",&conv_lz,"conv_lz[conv_n]/F");    // will not be filled because this will only be available from 420
   tree->Branch("conv_zofprimvtxfromtrks",&conv_zofprimvtxfromtrks,"conv_zofprimvtxfromtrks[conv_n]/F");
-  tree->Branch("conv_nHitsBeforeVtx", "std::vector<std::vector<unsigned char> >",&conv_nHitsBeforeVtx);
+  tree->Branch("conv_nHitsBeforeVtx", "std::vector<std::vector<unsigned short> >", &conv_nHitsBeforeVtx);
   tree->Branch("conv_nSharedHits",&conv_nSharedHits,"conv_nSharedHits[conv_n]/I");
 
   tree->Branch("conv_validvtx",&conv_validvtx,"conv_validvtx[conv_n]/I");
@@ -142,10 +142,6 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     if(debug_level>9)
       std::cout << "GlobeConversions: -22 "<< std::endl;
-
-  
-  
-
 
     //GlobalPoint pSc(localPho.superCluster()->position().x(),  localPho.superCluster()->position().y(), localPho.superCluster()->position().z());
     if(debug_level>9)std::cout << "GlobeConversions: -23 "<< std::endl;
@@ -283,12 +279,14 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     conv_lz[conv_n]=localConv.lz();
     */
 
+    std::vector<unsigned short> tmp;
+    for (unsigned int i=0; i<localConv.nHitsBeforeVtx().size(); ++i) {
+      tmp.push_back(static_cast<unsigned short>(localConv.nHitsBeforeVtx()[i]));
+    }
 
-    std::vector<uint8_t> tmp= localConv.nHitsBeforeVtx();
-    conv_nHitsBeforeVtx->push_back( tmp );
+    conv_nHitsBeforeVtx->push_back(tmp);
     conv_nSharedHits[conv_n] = localConv.nSharedHits();
 
-    
     if(localConv.tracks().size() > 0) {
       conv_tk1_d0[conv_n]=localConv.tracksSigned_d0()[0];
       conv_tk1_pout[conv_n]=sqrt(localConv.tracksPout()[0].Mag2());

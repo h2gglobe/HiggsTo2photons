@@ -76,7 +76,7 @@ class GlobeConversions {
   Float_t conv_dz[MAX_CONVERTEDPHOTONS];
   Float_t conv_lxy[MAX_CONVERTEDPHOTONS];
   Float_t conv_lz[MAX_CONVERTEDPHOTONS];
-  std::vector<std::vector<unsigned char> >* conv_nHitsBeforeVtx;
+  std::vector<std::vector<unsigned short> >* conv_nHitsBeforeVtx;
   uint8_t conv_nSharedHits[MAX_CONVERTEDPHOTONS];
   Float_t conv_zofprimvtxfromtrks[MAX_CONVERTEDPHOTONS];
 
