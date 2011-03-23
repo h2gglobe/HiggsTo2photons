@@ -53,6 +53,9 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   doPFCandidates = iConfig.getParameter<bool>("doPFCandidates");
   //doPAT = iConfig.getParameter<bool>("doPAT");
 
+  doRho = iConfig.getParameter<bool>("doRho");
+  doPileup = iConfig.getParameter<bool>("doPileup");
+
   debug_level = iConfig.getParameter<int>("Debug_Level");
   
 
@@ -187,6 +190,12 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
 
   if (doPFCandidates)
     pfCandidates = new GlobePFCandidates(iConfig);
+
+  if (doRho)
+    rho = new GlobeRho(iConfig);
+
+  if (doPileup)
+    pileup = new GlobePileup(iConfig);
 
   //if (doPAT)
   //  pat = new GlobePAT(iConfig);
@@ -416,6 +425,13 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   //  if(debug_level > 2) std::cout << "GlobeAnalyzer: PAT" << std::endl;
   //  pat->analyze(iEvent, iSetup, std_electrons, photons, algo1_jets);
   //}
+
+  if (doRho)
+    rho->analyze(iEvent, iSetup);
+
+  if (doPileup)
+    pileup->analyze(iEvent, iSetup);
+
   
 
   if(debug_level > 2) 
@@ -545,6 +561,13 @@ void GlobeAnalyzer::beginJob() {
   
   //if (doPAT)
   //  pat->defineBranch(tree);
+
+
+  if (doRho)
+     rho->defineBranch(tree);
+
+  if (doPileup)
+     pileup->defineBranch(tree);
   
   defineBranch();
   
