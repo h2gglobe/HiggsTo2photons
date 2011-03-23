@@ -10,6 +10,7 @@ GlobeVertex::GlobeVertex(const edm::ParameterSet& iConfig, const char* n): nome(
   sprintf(a, "VertexColl_%s", nome);
   vertexColl = iConfig.getParameter<edm::InputTag>(a);
   trackColl = iConfig.getParameter<edm::InputTag>("TrackColl");
+  bsColl =   iConfig.getParameter<edm::InputTag>("BeamSpot");
   
   debug_level = iConfig.getParameter<int>("Debug_Level");
   // get cut thresholds
@@ -18,10 +19,18 @@ GlobeVertex::GlobeVertex(const edm::ParameterSet& iConfig, const char* n): nome(
 
 void GlobeVertex::defineBranch(TTree* tree) {
 
+  bs_xyz = new TClonesArray("TVector3",1);
   vtx_xyz = new TClonesArray("TVector3", MAX_TRACKS);
   vtx_dxdydz = new TClonesArray("TVector3", MAX_TRACKS);
   vtx_vectorp3 = new TClonesArray("TVector3", MAX_TRACKS);
   
+  tree->Branch("bs_xyz", "TClonesArray", &bs_xyz, 32000, 0);
+  tree->Branch("bs_sigmaZ", &bs_sigmaZ, "bs_sigmaZ/F");
+  tree->Branch("bs_x0Error", &bs_x0Error, "bs_x0Error/F");
+  tree->Branch("bs_y0Error", &bs_y0Error, "bs_y0Error/F");
+  tree->Branch("bs_z0Error", &bs_z0Error, "bs_z0Error/F");
+  tree->Branch("bs_sigmaZ0Error", &bs_sigmaZ0Error, "bs_sigmaZ0Error/F");
+
   char a1[50], a2[50];
   
   sprintf(a1, "vtx_%s_n", nome);
@@ -80,13 +89,29 @@ bool GlobeVertex::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   if (debug_level > 99)
     std::cout << "GlobeVertex: start 3: "<< std::endl;
+
+  edm::Handle<reco::BeamSpot> bsH;
+  iEvent.getByLabel(bsColl,bsH);
+
+
   
   vtx_n = 0;
   
   vtx_xyz->Clear();
   vtx_dxdydz->Clear();
   vtx_vectorp3->Clear();
-  
+  bs_xyz->Clear();
+
+  new((*bs_xyz)[0]) TVector3();  
+  ((TVector3 *) bs_xyz->At(0))->SetXYZ(bsH->x0(), bsH->y0(), bsH->z0());
+
+  bs_sigmaZ = bsH->sigmaZ();
+  bs_x0Error = bsH->x0Error();
+  bs_y0Error = bsH->y0Error();
+  bs_z0Error = bsH->z0Error();
+  bs_sigmaZ0Error = bsH->sigmaZ0Error();
+
+
   if (debug_level > 9)
     std::cout << "GlobeVertex: Vertex collection size: "<< vtxH->size() << std::endl;
   
