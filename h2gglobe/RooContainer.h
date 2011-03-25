@@ -9,7 +9,7 @@
 #include "RooGenericPdf.h"
 #include "RooExtendPdf.h"
 #include "RooAddPdf.h"
-
+#include "RooFitResult.h"
 #include "TRandom3.h"
 
 #include <map>
@@ -38,7 +38,7 @@ class RooContainer {
    void FitToData(const char*,const char*);
    void FitToData(const char*,const char *
 	         ,double, double, double, double);
-
+   void Save();
    
   private:
    std::map<const char*, RooRealVar> m_real_var_;
@@ -49,8 +49,9 @@ class RooContainer {
    std::map<const char*, float> m_var_min_;
    std::map<const char*, float> m_var_max_;
 
-   RooDataSet *data_;
+   std::map<const char *,RooDataSet*> data_;
    
+   std::map<RooPlot*,RooFitResult*> fit_res_;
 
 };
 

@@ -1,7 +1,6 @@
 #include "RooContainer.h"
 #include "RooArgSet.h"
 #include "RooArgList.h"
-#include "RooFitResult.h"
 #include "RooAddPdf.h"
 #include "RooGlobalFunc.h"
 #include <cmath>
@@ -79,30 +78,33 @@ void RooContainer::ComposePdf(const char* name, const char * composition
 
 void RooContainer::CreateDataSet(const char *name){
  
-    data_ = new RooDataSet("data","data",RooArgSet(m_real_var_[name]) );
+    data_[name] = new RooDataSet("data","data",RooArgSet(m_real_var_[name]) );
 
 }
 
 void RooContainer::FitToData(const char* name_func, const char * name_var){
 
     bool use_composed_pdf = false;
-    std::cout << "Fitting function " << name_func << " To data" <<std::endl; 
+    std::cout << "Fitting function " << name_func 
+	      << " To data" << name_var
+	      << std::endl; 
 
+    RooFitResult *fit_result;
     // Look in the composed pdf before checking the standards
     std::map<const char *,RooAddPdf>::const_iterator it_pdf_ = m_pdf_.find(name_func);
     if (it_pdf_ != m_pdf_.end()){
-      RooFitResult *fit_result = m_pdf_[name_func].fitTo(*data_);
+      fit_result = m_pdf_[name_func].fitTo(*(data_[name_var]));
       use_composed_pdf = true;
     }
     else {
-      RooFitResult *fit_result = m_exp_[name_func].fitTo(*data_);
+      fit_result = m_exp_[name_func].fitTo(*(data_[name_var]));
     }
 
     float x_min = m_var_min_[name_var];
     float x_max = m_var_max_[name_var];
  
     RooPlot *xframe = m_real_var_[name_var].frame(x_min,x_max);
-    data_->plotOn(xframe);
+    data_[name_var]->plotOn(xframe);
 
     if (use_composed_pdf){
       m_pdf_[name_func].plotOn(xframe,LineColor(4));
@@ -117,7 +119,8 @@ void RooContainer::FitToData(const char* name_func, const char * name_var){
     }
     else m_exp_[name_func].plotOn(xframe,LineColor(4));
  
-    xframe->Draw();
+    fit_res_.insert(std::pair<RooPlot*,RooFitResult*>(xframe,fit_result));
+    //xframe->Draw();
 }
 
 void RooContainer::FitToData(const char* name_func, const char * name_var
@@ -128,37 +131,40 @@ void RooContainer::FitToData(const char* name_func, const char * name_var
     float x_max = m_var_max_[name_var];
 
     bool use_composed_pdf = false;
-    std::cout << "Fitting function " << name_func << " To data" <<std::endl; 
+    std::cout << "Fitting function " << name_func 
+	      << " To dataset " << name_var
+	      << std::endl; 
 
+    RooFitResult *fit_result;
     // Look in the composed pdf before checking the standards
     std::map<const char *,RooAddPdf>::const_iterator it_pdf_ = m_pdf_.find(name_func);
     if (it_pdf_ != m_pdf_.end()){
 
       if (x1 < x_min || x4 > x_max){
         std::cout << "Ranges outside of DataSet Range!" << std::endl;
-        RooFitResult *fit_result = m_pdf_[name_func].fitTo(*data_);
+        fit_result = m_pdf_[name_func].fitTo(*(data_[name_var]));
         std::cout << "Fitted To Full Range" << std::endl;
       } else {
         m_real_var_[name_var].setRange("rnge1",x1,x2);
         m_real_var_[name_var].setRange("rnge2",x3,x4);
-        RooFitResult *fit_result = m_pdf_[name_func].fitTo(*data_,Range("rnge1,rnge2"));
+        fit_result = m_pdf_[name_func].fitTo(*(data_[name_var]),Range("rnge1,rnge2"));
       }
       use_composed_pdf = true;
     }
     else {
      if (x1 < x_min || x4 > x_max){
         std::cout << "Ranges outside of DataSet Range!" << std::endl;
-        RooFitResult *fit_result = m_exp_[name_func].fitTo(*data_);
+        fit_result = m_exp_[name_func].fitTo(*(data_[name_var]));
         std::cout << "Fitted To Full Range" << std::endl;
       } else {
         m_real_var_[name_var].setRange("rnge1",x1,x2);
         m_real_var_[name_var].setRange("rnge2",x3,x4);
-        RooFitResult *fit_result = m_exp_[name_func].fitTo(*data_,Range("rnge1,rnge2"));
+        fit_result = m_exp_[name_func].fitTo(*(data_[name_var]),Range("rnge1,rnge2"));
       }
     }
 
     RooPlot *xframe = m_real_var_[name_var].frame(x_min,x_max);
-    data_->plotOn(xframe);
+    data_[name_var]->plotOn(xframe);
 
     if (use_composed_pdf){
       m_pdf_[name_func].plotOn(xframe,LineColor(4));
@@ -173,8 +179,9 @@ void RooContainer::FitToData(const char* name_func, const char * name_var
     }
 
     else m_exp_[name_func].plotOn(xframe,LineColor(4));
- 
-    xframe->Draw();
+
+    fit_res_.insert(std::pair<RooPlot*,RooFitResult*>(xframe,fit_result));
+    //xframe->Draw();
 }
 
 void RooContainer::SetRealVar(const char * name, float x){
@@ -187,8 +194,21 @@ void RooContainer::SetRealVar(const char * name, float x){
 
     if (x > min_x && x < max_x){
       m_real_var_[name] = x;
-      data_->add(RooArgSet(m_real_var_[name]));
+      data_[name]->add(RooArgSet(m_real_var_[name]));
     }
 
+}
+
+void RooContainer::Save(){
+ 
+  std::map<RooPlot*,RooFitResult*>::const_iterator it;
+
+  for(it  = fit_res_.begin()
+     ;it != fit_res_.end()
+     ;it++ ){
+       std::cout << "Saving To File "<< std::endl;
+       it->first->Write();
+       //it->second->Write();
+  }
 }
 

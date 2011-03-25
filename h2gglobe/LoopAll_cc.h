@@ -96,7 +96,12 @@ void LoopAll::Loop(Util* ut) {
     
     if(jentry%10000==0) 
       cout << "Entry: "<<jentry<<endl;
-    
+      /*int tot_size_;
+      for (std::vector<HistoContainer*>::iterator it = histoContainer.begin();
+	    it!= histoContainer.end(); ++it )
+	tot_size_ += sizeof(*it);
+      cout << "TOT " << tot_size_ << std::endl;
+      */
     if(DEBUG) 
       cout<<"call LoadTree"<<endl;
     
@@ -209,6 +214,9 @@ void LoopAll::myWritePlot(Util * ut) {
   for(int ind=0; ind<ut->ntypes; ind++) {
     histoContainer[ind]->Save();
   }
+
+  rooContainer->Save();
+
   if (UtilInstance->makeOutputTree) 
     UtilInstance->outputFile->cd();
 }
