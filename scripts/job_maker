@@ -212,5 +212,5 @@ for run in runselection:
 
     print "Useful commands" 
     print "cd ../test/crabTasks/"+job_name
-    print "crab -cfg crab_"+job_name+" -create -submit"
+    print "crab -cfg crab_"+job_name+".cfg -create -submit"
     print "crab -c "+job_name+" -status"
