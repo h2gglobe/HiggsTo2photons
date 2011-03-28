@@ -125,7 +125,7 @@ if (flagRECO and flagAOD) or (not flagRECO and not flagAOD):
 for run in runselection:
     job_name = name
         
-    file = open("template_aod_39X_cfg.py")
+    file = open("template_aod_311X_cfg.py")
     lines = file.readlines()
     file.close()
     if os.path.exists("../test/crabTasks")==False:
@@ -209,5 +209,8 @@ for run in runselection:
         else:
             file_out.write(line)
     file_out.close()
-        
 
+    print "Useful commands" 
+    print "cd ../test/crabTasks/"+job_name
+    print "crab -cfg crab_"+job_name+" -create -submit"
+    print "crab -c "+job_name+" -status"
