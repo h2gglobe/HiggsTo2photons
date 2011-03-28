@@ -213,4 +213,9 @@ for run in runselection:
     print "Useful commands" 
     print "cd ../test/crabTasks/"+job_name
     print "crab -cfg crab_"+job_name+".cfg -create -submit"
-    print "crab -c "+job_name+" -status"
+    print "cd -"
+
+    checker = open("../test/crabTasks/checker", "w+")
+    checker.write("crab -c "+job_name+"/"+job_name+" -status")
+    checker.write("crab -c "+job_name+"/"+job_name+" -get")
+    checker.close()
