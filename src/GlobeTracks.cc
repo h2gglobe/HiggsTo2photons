@@ -112,36 +112,10 @@ bool GlobeTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     tk_hp_nlost[tk_n] =  tk->hitPattern().numberOfLostHits();
     tk_hp_nvalidpix[tk_n] =  tk->hitPattern().numberOfValidPixelHits();
 
-
-
-    if (!doAodSim) {
-
-      //this is the same and it does not take forever
-      tk_hp_expin[tk_n] = tk->trackerExpectedHitsInner().numberOfHits();
-      tk_hp_expout[tk_n] = tk->trackerExpectedHitsOuter().numberOfHits();
-
-      //MARCO ???
-      /*
-      for(unsigned int j=0; j<tkH2->size(); j++) { 
-
-        reco::TrackRef tk2(tkH2, j);
-
-	//std::cout << "Marco comparison " << i<<" "<< j<< std::endl;
-
-        std::pair<unsigned int, float> result = sharedHits(*tk2, *tk);
-
-        
-        if (result.second > .999) {
-          //std::cout << result.first << "  " << result.second << std::endl;
-          //std::cout <<  tk2->trackerExpectedHitsInner().numberOfHits() << std::endl;
-          tk_hp_expin[tk_n] = tk2->trackerExpectedHitsInner().numberOfHits();
-          tk_hp_expout[tk_n] = tk2->trackerExpectedHitsOuter().numberOfHits();
-          break;
-        }
-      }
-      */
-    }
-
+    //this is the same and it does not take forever
+    tk_hp_expin[tk_n] = tk->trackerExpectedHitsInner().numberOfLostHits();
+    tk_hp_expout[tk_n] = tk->trackerExpectedHitsOuter().numberOfLostHits();
+    
     tk_n++;
   } // for i (loop over all tracks)
 
