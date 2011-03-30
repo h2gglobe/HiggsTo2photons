@@ -583,7 +583,7 @@ void GlobeAnalyzer::endJob() {
 }
 
 void GlobeAnalyzer::readConfiguration(const edm::ParameterSet& iConfig) {
-
+  jobmaker = new std::string(getenv("JOBMAKER"));
   parameters = new std::vector<std::string>;
   parameters->push_back(iConfig.dump());
 }
@@ -596,29 +596,15 @@ void GlobeAnalyzer::defineBranch() {
   tree2->Branch("type", &type, "type/I");
   tree2->Branch("tot_events", &tot_events, "tot_events/I");
   tree2->Branch("sel_events", &sel_events, "sel_events/I");
-
   tree2->Branch("parameters", "std::vector<std::string>", &parameters); 
-  //if(fullHLT){
-  //  hlt_path_names = new std::vector<std::string>;
-  //  tree2->Branch("hlt_path_names", "std::vector<std::string>", &hlt_path_names);
-  //}
+  tree2->Branch("jobmaker", "std::string", &jobmaker); 
 }
 
 void GlobeAnalyzer::fillTree() {
 
   version = H2G_VERSION;
   type = 0;
-  
-  /*
-  if(fullHLT){
-    for(unsigned int i=0; i<theElHLTLabels.size(); i++) 
-      hlt_path_names->push_back(theElHLTLabels[i].label());
-    for(unsigned int i=0; i<theMuHLTLabels.size(); i++) 
-      hlt_path_names->push_back(theMuHLTLabels[i].label());
-    for(unsigned int i=0; i<thePhHLTLabels.size(); i++) 
-      hlt_path_names->push_back(thePhHLTLabels[i].label());
-  }
-  */
+
   tree2->Fill();
 }
 
