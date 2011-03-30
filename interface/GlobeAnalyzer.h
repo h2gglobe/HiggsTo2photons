@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Matteosan SANI
 //         Created:  Thu Feb  7 10:14:43 CET 2008
-// $Id: GlobeAnalyzer.h,v 1.5 2011/03/22 17:22:19 nancy Exp $
+// $Id: GlobeAnalyzer.h,v 1.6 2011/03/23 11:40:35 sani Exp $
 //
 //
 
@@ -124,6 +124,7 @@ private:
   std::vector<std::string> *parameters;
   std::vector<std::string> *hlt_path_names, *reduced_path;
   std::vector<int>* reduced_index;
+  std::string* jobmaker;
 
   int version, type, sel_events, tot_events; 
   int selector_bits;
