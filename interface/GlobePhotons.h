@@ -40,6 +40,13 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterEnergyCorrection.h"
+#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrection.h"
+#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterLocalContCorrection.h"
+
+
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "Math/VectorUtil.h"
 #include <iostream>
@@ -57,6 +64,11 @@ class GlobePhotons {
   // variables
 
   Int_t pho_n;
+  //correction schemes
+  Float_t pho_feta[MAX_PHOTONS][5];
+  Float_t pho_crackcorr[MAX_PHOTONS];
+  Float_t pho_localcorr[MAX_PHOTONS];
+
   //fiducial flags
   Int_t pho_isEB[MAX_PHOTONS];
   Int_t pho_isEE[MAX_PHOTONS];
@@ -166,6 +178,11 @@ class GlobePhotons {
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
   const HBHERecHitCollection* hithbhe_;
+// Correction Schemes
+  EcalClusterFunctionBaseClass *fEtaCorr;
+  EcalClusterFunctionBaseClass *CrackCorr;
+  EcalClusterFunctionBaseClass *LocalCorr;
+
 };
 
 #endif
