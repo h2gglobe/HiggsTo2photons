@@ -35,6 +35,8 @@ GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "algo1"):
   
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
+  jet_tkind =  new std::vector<std::vector<unsigned short> >;
+  jet_calotwind =  new std::vector<std::vector<unsigned short> >;
 }
 
 void GlobeJets::defineBranch(TTree* tree) {
@@ -57,22 +59,16 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a1, "jet_%s_hadfrac", nome);
   sprintf(a2, "jet_%s_hadfrac[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_hadfrac, a2);
-    
+
   sprintf(a1, "jet_%s_ntk", nome);
   sprintf(a2, "jet_%s_ntk[jet_%s_n]/I", nome, nome);
   tree->Branch(a1, &jet_ntk, a2);
   
-  sprintf(a1, "jet_%s_tkind", nome);
-  sprintf(a2, "jet_%s_tkind[jet_%s_n][%d]/I", nome, nome, MAX_JET_TRACKS);
-  tree->Branch(a1, &jet_tkind, a2);
+  sprintf(a1, "jet_%s_tkind", nome); 
+  tree->Branch(a1, "std::vector<std::vector<unsigned short> >", &jet_tkind);
 
-  sprintf(a1, "jet_%s_ncalotw", nome);
-  sprintf(a2, "jet_%s_ncalotw[jet_%s_n]/I", nome, nome);
-  tree->Branch(a1, &jet_ncalotw, a2);
-  
   sprintf(a1, "jet_%s_calotwind", nome);
-  sprintf(a2, "jet_%s_calotwind[jet_%s_n][%d]/I", nome, nome, MAX_JET_TOWERS);
-  tree->Branch(a1, &jet_calotwind, a2);
+  tree->Branch(a1, "std::vector<std::vector<unsigned short> >", &jet_calotwind);
 }
 
 bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -92,7 +88,9 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByLabel(trackColl, tkH);
     
     jet_p4->Clear();
-    
+    jet_tkind->clear();
+    jet_calotwind->clear();
+
     jet_n = 0;
     
     if (debug_level > 9)
@@ -120,56 +118,42 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::vector<CaloTowerPtr> towers = j->getCaloConstituents();
       std::vector<CaloTowerPtr>::const_iterator it;
       
-      int limit = 0;
-      if (towers.size() >= MAX_JET_TOWERS) {
-        std::cout << "GlobeJets: WARNING TOO MANY TOWERS IN JET: " << towers.size() << " (allowed " << MAX_JET_TOWERS << ")" << std::endl;
-        limit = MAX_JET_TOWERS;
-      } else {
-        limit = towers.size();
-      }
-      
-      jet_ncalotw[jet_n] = limit;
-      
-      int index = 0;
+      std::vector<unsigned short> temp;
       for(it = towers.begin(); it != towers.end(); ++it) {
-        if (index >= limit)
-          break;
         for(unsigned int k = 0; k<ctH->size(); k++) {
           CaloTowerRef t(ctH, k);
           if (&(**it) == &(*t)) {
-            jet_calotwind[jet_n][index] = k;
+            temp.push_back(k);
             break;
           }
         }
-        index++;
       }
+      jet_calotwind->push_back(temp);
       
       if (jetTkAssColl.encode() != "") {
+        std::vector<unsigned short> temp;       
         edm::Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
         iEvent.getByLabel(jetTkAssColl, jetTracksAssociation);
         
         for(reco::JetTracksAssociationCollection::const_iterator itass = jetTracksAssociation->begin(); itass != jetTracksAssociation->end(); ++itass) {
           if (&(*(itass->first)) != &(*j)) 
             continue;
-          limit = 0;
+          
           reco::TrackRefVector tracks = itass->second;
-          if (tracks.size() >= MAX_JET_TRACKS)
-            limit = MAX_JET_TRACKS;
-          else 
-            limit = tracks.size();
           
-          jet_ntk[jet_n] = limit;
+          jet_ntk[jet_n] = tracks.size();
           
-          for (int ii = 0; ii < limit; ++ii) {
+          for (unsigned int ii = 0; ii < tracks.size(); ++ii) {
             for(unsigned int k = 0; k<tkH->size(); k++) {
               reco::TrackRef t(tkH, k);
               if (&(*(tracks[ii])) == &(*t) ) {
-                jet_tkind[jet_n][ii] = k;
+                temp.push_back(k);
                 break;
               }
             }
           }
         }
+        jet_tkind->push_back(temp);
       }
       
       jet_n++;
@@ -190,7 +174,9 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByLabel(trackColl, tkH);
     
     jet_p4->Clear();
-    
+    jet_tkind->clear();
+    jet_calotwind->clear();
+
     jet_n = 0;
     
     if (debug_level > 9)
@@ -214,13 +200,40 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       jet_emfrac[jet_n] = j->chargedEmEnergyFraction() + j->neutralEmEnergyFraction() + j->chargedMuEnergyFraction();
       jet_hadfrac[jet_n] = j->chargedHadronEnergyFraction() + j->neutralHadronEnergyFraction();
       
+          
+      if (jetTkAssColl.encode() != "") {
+        std::vector<unsigned short> temp;       
+      
+        edm::Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
+        iEvent.getByLabel(jetTkAssColl, jetTracksAssociation);
+        
+        for(reco::JetTracksAssociationCollection::const_iterator itass = jetTracksAssociation->begin(); itass != jetTracksAssociation->end(); ++itass) {
+          if (&(*(itass->first)) != &(*j)) 
+            continue;
+          
+          reco::TrackRefVector tracks = itass->second;
+          
+          jet_ntk[jet_n] = tracks.size();
+          
+          for (unsigned int ii = 0; ii < tracks.size(); ++ii) {
+      
+            for(unsigned int k = 0; k<tkH->size(); k++) {
+              reco::TrackRef t(tkH, k);
+              if (&(*(tracks[ii])) == &(*t) ) {
+                temp.push_back(k);
+                break;
+              }
+            }
+          }
+        }
+        jet_tkind->push_back(temp);
+      }
+      
       jet_n++;
       
     }
     
   }
-  //if (jet_n == 0)
-  //  return false;
   
   return true;
 }

@@ -35,8 +35,8 @@ class GlobeEcalHits {
 
   TClonesArray *ecalhit_p4;
   Int_t ecalhit_n;
-  Int_t ecalhit_type[MAX_ECALRECHITS];
-  Int_t ecalhit_flag[MAX_ECALRECHITS];
+  Short_t ecalhit_type[MAX_ECALRECHITS];
+  Short_t ecalhit_flag[MAX_ECALRECHITS];
   Float_t ecalhit_time[MAX_ECALRECHITS];
   UInt_t ecalhit_detid[MAX_ECALRECHITS];
   

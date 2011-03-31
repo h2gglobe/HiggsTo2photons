@@ -14,7 +14,10 @@ GlobeVertex::GlobeVertex(const edm::ParameterSet& iConfig, const char* n): nome(
   
   debug_level = iConfig.getParameter<int>("Debug_Level");
   // get cut thresholds
-  gCUT = new GlobeCuts(iConfig);
+  gCUT = new GlobeCuts(iConfig); 
+  vtx_tkind = new std::vector<std::vector<unsigned short> >;
+  vtx_tkweight = new std::vector<std::vector<float> >;
+
 }
 
 void GlobeVertex::defineBranch(TTree* tree) {
@@ -63,14 +66,12 @@ void GlobeVertex::defineBranch(TTree* tree) {
   sprintf(a1, "vtx_%s_ntks", nome); 
   sprintf(a2, "vtx_%s_ntks[vtx_%s_n]/I",nome,nome);
   tree->Branch(a1, &vtx_ntks, a2);
-  
+
   sprintf(a1, "vtx_%s_tkind", nome); 
-  sprintf(a2, "vtx_%s_tkind[vtx_%s_n][%d]/I", nome, nome, MAX_VERTEX_TRACKS);
-  tree->Branch(a1, &vtx_tkind, a2);
+  tree->Branch(a1, "std::vector<std::vector<unsigned short> >", &vtx_tkind);
   
   sprintf(a1, "vtx_%s_tkweight", nome); 
-  sprintf(a2, "vtx_%s_tkweight[vtx_%s_n][%d]/F", nome, nome, MAX_VERTEX_TRACKS);
-  tree->Branch(a1, &vtx_tkweight, a2);
+  tree->Branch(a1, "std::vector<std::vector<float> >", &vtx_tkweight);
 }
 
 bool GlobeVertex::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -93,7 +94,8 @@ bool GlobeVertex::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<reco::BeamSpot> bsH;
   iEvent.getByLabel(bsColl,bsH);
 
-
+  vtx_tkind->clear();
+  vtx_tkweight->clear();
   
   vtx_n = 0;
   
@@ -142,60 +144,47 @@ bool GlobeVertex::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     
     
     if (strcmp(nome, "std") == 0) { 
-      if (vtx->tracksSize() < MAX_VERTEX_TRACKS) {
-        vtx_ntks[vtx_n] = vtx->tracksSize();
-        
-        if (debug_level > 9)
-          std::cout << "GlobeVertex: Tracks size: "<< vtx->tracksSize() << std::endl;
-        
-        int k=0;
-        std::vector<reco::TrackBaseRef>::const_iterator tk;
-            
-        for(tk=vtx->tracks_begin();tk!=vtx->tracks_end();++tk) {
-          int index = -1;
-          for(reco::TrackCollection::size_type j = 0; j<tkH->size(); ++j) {
-            reco::TrackRef track(tkH, j);
-            if(gCUT->cut(*track))continue; 
-            if (&(**tk) == &(*track)) {
-              //std::cout << "MWL: " << k << " " << index << " " << vtx->trackWeight(track) << std::endl;
-              vtx_tkind[vtx_n][k] = index;
-              vtx_tkweight[vtx_n][k] = vtx->trackWeight(track);
-              break;
-            }
-            index++;
+      vtx_ntks[vtx_n] = vtx->tracksSize();
+      
+      if (debug_level > 9)
+        std::cout << "GlobeVertex: Tracks size: "<< vtx->tracksSize() << std::endl;
+      
+      std::vector<reco::TrackBaseRef>::const_iterator tk;
+      
+      std::vector<unsigned short> temp;
+      std::vector<float> temp_float;
+      
+      for(tk=vtx->tracks_begin();tk!=vtx->tracks_end();++tk) {
+        int index = -1;
+        for(reco::TrackCollection::size_type j = 0; j<tkH->size(); ++j) {
+          reco::TrackRef track(tkH, j);
+          if(gCUT->cut(*track))continue; 
+          if (&(**tk) == &(*track)) {
+            //std::cout << "MWL: " << k << " " << index << " " << vtx->trackWeight(track) << std::endl;
+            temp.push_back(index);
+            temp_float.push_back(vtx->trackWeight(track));
+            break;
           }
-          if(index == -1) {
-            vtx_tkind[vtx_n][k] = -9999;
-            vtx_tkweight[vtx_n][k] = -9999;
-          }
-          k++;
+          index++;
         }
-        for(int k=vtx->tracksSize();k<MAX_VERTEX_TRACKS;++k) {
-          vtx_tkweight[vtx_n][k] = -9999;
-          vtx_tkind[vtx_n][k] = -9999;
-        }
-      } else { //end < MAX VERTEX TRACKS
-        vtx_ntks[vtx_n] = 0;
-        for(int k=0;k<MAX_VERTEX_TRACKS;++k) {
-          vtx_tkweight[vtx_n][k] = -9999;
-          vtx_tkind[vtx_n][k] = -9999;
+        if(index == -1) {
+          temp.push_back(-9999);
+          temp_float.push_back(-9999);
         }
       }
+      
+      vtx_tkind->push_back(temp);
+      vtx_tkweight->push_back(temp_float);
     } else { //end "std"
       vtx_ntks[vtx_n] = 0;
-      for(int i=0;i<MAX_VERTEX_TRACKS;++i) {
-        vtx_tkweight[vtx_n][i] = -9999;
-        vtx_tkind[vtx_n][i] = -9999;
-      }
+      vtx_tkind->push_back(std::vector<unsigned short>(0));
+      vtx_tkweight->push_back(std::vector<float>(0));
     }
     
     vtx_x2dof[vtx_n]=vtx->normalizedChi2();
     vtx_ndof[vtx_n]=vtx->ndof();
     vtx_n++;
   }
-  
-  if (debug_level > 99)
-    std::cout << "GlobeVertex: start 1: "<< std::endl;
-  
+
   return true;
 }

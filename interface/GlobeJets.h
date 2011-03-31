@@ -28,8 +28,8 @@ class GlobeJets {
 
   Int_t jet_ntk[MAX_JETS];
   Int_t jet_ncalotw[MAX_JETS];
-  Int_t jet_calotwind[MAX_JETS][MAX_JET_TOWERS];
-  Int_t jet_tkind[MAX_JETS][MAX_JET_TRACKS];
+  std::vector<std::vector<unsigned short> >* jet_calotwind;
+  std::vector<std::vector<unsigned short> >* jet_tkind;
   
   TClonesArray *jet_p4;
 

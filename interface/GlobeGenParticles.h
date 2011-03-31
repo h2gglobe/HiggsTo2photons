@@ -25,10 +25,9 @@ class GlobeGenParticles {
   // variables
   Int_t gp_n;
 
-  Int_t gp_status[MAX_GENERATOR];
-  Int_t gp_pdgid[MAX_GENERATOR];
-  Int_t gp_mother[MAX_GENERATOR];
-  Int_t gp_daughter[MAX_GENERATOR];
+  Short_t gp_status[MAX_GENERATOR];
+  Short_t gp_pdgid[MAX_GENERATOR];
+  Short_t gp_mother[MAX_GENERATOR];
   
   TClonesArray *gp_p4;
   TClonesArray *gp_vtx;

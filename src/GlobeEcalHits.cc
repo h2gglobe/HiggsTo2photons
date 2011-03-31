@@ -35,8 +35,8 @@ GlobeEcalHits::GlobeEcalHits(const edm::ParameterSet& iConfig, const char* n): n
 void GlobeEcalHits::defineBranch(TTree* tree) {
   
   tree->Branch("ecalhit_n", &ecalhit_n, "ecalhit_n/I");
-  tree->Branch("ecalhit_type", &ecalhit_type, "ecalhit_type[ecalhit_n]/I");
-  tree->Branch("ecalhit_flag", &ecalhit_flag, "ecalhit_flag[ecalhit_n]/I");
+  tree->Branch("ecalhit_type", &ecalhit_type, "ecalhit_type[ecalhit_n]/S");
+  tree->Branch("ecalhit_flag", &ecalhit_flag, "ecalhit_flag[ecalhit_n]/S");
   tree->Branch("ecalhit_time", &ecalhit_time, "ecalhit_time[ecalhit_n]/F");
   tree->Branch("ecalhit_detid", &ecalhit_detid, "ecalhit_detid[ecalhit_n]/I");
 

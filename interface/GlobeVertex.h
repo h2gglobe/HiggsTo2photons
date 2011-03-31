@@ -44,8 +44,8 @@ class GlobeVertex {
   Float_t vtx_ndof[MAX_VERTICES];
 
   Int_t vtx_ntks[MAX_VERTICES];
-  Int_t vtx_tkind[MAX_VERTICES][MAX_VERTEX_TRACKS];
-  Float_t vtx_tkweight[MAX_VERTICES][MAX_VERTEX_TRACKS];
+  std::vector<std::vector<unsigned short> >* vtx_tkind;
+  std::vector<std::vector<float> >* vtx_tkweight;
 
  private:
   const char* nome;
