@@ -22,16 +22,29 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   hcalFColl =  iConfig.getParameter<edm::InputTag>("HcalHitsFColl");
   hcalHoColl =  iConfig.getParameter<edm::InputTag>("HcalHitsHoColl");
 
+  // get the Correction Functions
+  fEtaCorr  = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection",iConfig);
+  CrackCorr = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection",iConfig);
+  LocalCorr = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection",iConfig);
+
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
 }
 
 void GlobePhotons::defineBranch(TTree* tree) {
 
+
+
   pho_p4 = new TClonesArray("TLorentzVector", MAX_PHOTONS);
   pho_calopos = new TClonesArray("TVector3", MAX_PHOTONS);
 
   tree->Branch("pho_n", &pho_n, "pho_n/I");
+
+  //Correction Schemes
+  tree->Branch("pho_feta",&pho_feta,"pho_feta[pho_n][5]/F");
+  tree->Branch("pho_crackcorr",&pho_crackcorr,"pho_crackcorr[pho_n]/F");
+  tree->Branch("pho_localcorr",&pho_localcorr,"pho_localcorr[pho_n]/F");
+
   //fiducial flags
   tree->Branch("pho_isEB",&pho_isEB,"pho_isEB[pho_n]/I");
   tree->Branch("pho_isEE",&pho_isEE,"pho_isEE[pho_n]/I");
@@ -122,7 +135,8 @@ void GlobePhotons::defineBranch(TTree* tree) {
 
 bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  if (debug_level > 9) 
+ 
+ if (debug_level > 9) 
     {
     std::cout << "GlobePhotons: Start analyze" << std::endl;
   }
@@ -133,6 +147,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   if (debug_level > 9) {
     std::cout << "GlobePhotons: Start analyze" << std::endl;
   }
+
+  // Initialise the Correction Scheme
+  fEtaCorr->init(iSetup);
+  CrackCorr->init(iSetup);
+  LocalCorr->init(iSetup);
 
   edm::Handle<reco::SuperClusterCollection> superClustersHybridH; 
   edm::Handle<reco::SuperClusterCollection> superClustersEndcapH; 
@@ -246,6 +265,15 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     bool isBarrel=(id.subdetId() == EcalBarrel);
     pho_barrel[pho_n]=(Int_t)isBarrel;
+
+
+    // Correction Schemes,
+    for (int corr_iter=1;corr_iter<=5;corr_iter++) 
+      pho_feta[pho_n][corr_iter] = fEtaCorr->getValue(*(localPho.superCluster()),corr_iter);
+     
+    pho_crackcorr[pho_n] = CrackCorr->getValue(*(localPho.superCluster()));
+    if (isBarrel) pho_localcorr[pho_n] = LocalCorr->getValue(*(localPho.superCluster()),0);
+    else pho_localcorr[pho_n] = 1.;
 
 
     //fiducial flags
