@@ -19,9 +19,9 @@ void GlobeGenParticles::defineBranch(TTree* tree) {
   tree->Branch("gp_p4", "TClonesArray", &gp_p4, 32000, 0);
   tree->Branch("gp_vtx", "TClonesArray", &gp_vtx, 32000, 0);
   
-  tree->Branch("gp_status", gp_status, "gp_status[gp_n]/I");
-  tree->Branch("gp_pdgid", gp_pdgid, "gp_pdgid[gp_n]/I");
-  tree->Branch("gp_mother", gp_mother, "gp_mother[gp_n]/I");
+  tree->Branch("gp_status", gp_status, "gp_status[gp_n]/S");
+  tree->Branch("gp_pdgid", gp_pdgid, "gp_pdgid[gp_n]/S");
+  tree->Branch("gp_mother", gp_mother, "gp_mother[gp_n]/S");
 }
 
 bool GlobeGenParticles::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
