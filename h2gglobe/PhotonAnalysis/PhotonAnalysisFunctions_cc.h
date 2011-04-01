@@ -259,6 +259,9 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 // Regular Event Selection begins here
   float best_mass = 0.;
   float best_pt = -1;
+  int category=1;
+  float min_r9  =1.;
+  float max_eta =1.;
 
   if (n_preselected_pho > 1 ){
 
@@ -322,8 +325,8 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
      leading  = preselected_photons[0];
      nleading = preselected_photons[1];
 
-     if (leading.p4->Pt() > 40.){
 
+  	 if (leading.p4->Pt() > 40.){
          
          // Dr gen-photon for leading and subleading candidate
          TLorentzVector *gen_p4;
@@ -345,11 +348,10 @@ void LoopAll::myFillHistPhotonAnalysisRed(Util * ut, int jentry) {
 
          // Determine the Category of the event
          // -> Which histogram is filled
-         int category;
-         float min_R9  = min(leading.r9
-			    ,nleading.r9);
-	 float max_eta = max(fabs(leading.calopos->Eta())
-			    ,fabs(nleading.calopos->Eta()));
+         min_r9  =1.;// min(leading.r9
+			  //  ,nleading.r9);
+	 max_eta =1.; //max(fabs(leading.calopos->Eta())
+			   // ,fabs(nleading.calopos->Eta()));
 	 if (min_r9 < 0.93 && max_eta < 1.4442 ) category = 1;
 	 if (min_r9 > 0.93 && max_eta < 1.4442 ) category = 2;
 	 if (min_r9 < 0.93 && max_eta > 1.566 && max_eta < 2.5) category = 3;
