@@ -16,10 +16,10 @@ void LoopAll::PhotonAnalysisReducedOutputTree() {
   UtilInstance->outputTree->Branch("pho_isEE", &pho_isEE, "pho_isEE[pho_n]/F");
   UtilInstance->outputTree->Branch("pho_haspixseed", &pho_haspixseed, "pho_haspixseed[pho_n]/F");
   UtilInstance->outputTree->Branch("pho_Et", &pho_Et, "pho_Et[pho_n]/F");
-  UtilInstance->outputTree->Branch("pho_r9", &pho_r9, "pho_r9[pho_r9]/F");
-  UtilInstance->outputTree->Branch("pho_r1x5", &pho_r1x5, "pho_r1x5[pho_r1x5]/F");
-  UtilInstance->outputTree->Branch("pho_r2x5", &pho_r2x5, "pho_r2x5[pho_r2x5]/F");
-  UtilInstance->outputTree->Branch("pho_scind", &pho_scind, "pho_scind[pho_scind]/I");
+  UtilInstance->outputTree->Branch("pho_r9", &pho_r9, "pho_r9[pho_n]/F");
+  UtilInstance->outputTree->Branch("pho_r1x5", &pho_r1x5, "pho_r1x5[pho_n]/F");
+  UtilInstance->outputTree->Branch("pho_r2x5", &pho_r2x5, "pho_r2x5[pho_n]/F");
+  UtilInstance->outputTree->Branch("pho_scind", &pho_scind, "pho_scind[pho_n]/I");
 
   //SuperCluster Information
   UtilInstance->outputTree->Branch("sc_n", &sc_n, "sc_n/I");
