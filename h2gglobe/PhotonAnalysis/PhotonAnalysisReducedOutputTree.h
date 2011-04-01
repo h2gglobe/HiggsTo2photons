@@ -9,22 +9,43 @@ void LoopAll::PhotonAnalysisReducedOutputTree() {
   UtilInstance->outputTree->Branch("pho_hcalsumetconedr03", &pho_hcalsumetconedr03, "pho_hcalsumetconedr03[pho_n]/F");
   UtilInstance->outputTree->Branch("pho_hcalsumetconedr04", &pho_hcalsumetconedr04, "pho_hcalsumetconedr04[pho_n]/F");
   UtilInstance->outputTree->Branch("pho_trksumptsolidconedr03", &pho_trksumptsolidconedr03, "pho_trksumptsolidconedr03[pho_n]/F");
-  UtilInstance->outputTree->Branch("pho_trksumptsolidconedr03", &pho_trksumptsolidconedr03, "pho_trksumptsolidconedr03[pho_n]/F");
-  UtilInstance->outputTree->Branch("pho_trksumpthollowconedr04", &pho_trksumpthollowconedr04, "pho_trksumpthollowconedr04[pho_n]/F");
+  UtilInstance->outputTree->Branch("pho_trksumptsolidconedr04", &pho_trksumptsolidconedr04, "pho_trksumptsolidconedr04[pho_n]/F");
+  UtilInstance->outputTree->Branch("pho_trksumpthollowconedr03", &pho_trksumpthollowconedr03, "pho_trksumpthollowconedr03[pho_n]/F");
   UtilInstance->outputTree->Branch("pho_trksumpthollowconedr04", &pho_trksumpthollowconedr04, "pho_trksumpthollowconedr04[pho_n]/F");
   UtilInstance->outputTree->Branch("pho_isEB", &pho_isEB, "pho_isEB[pho_n]/F");
   UtilInstance->outputTree->Branch("pho_isEE", &pho_isEE, "pho_isEE[pho_n]/F");
   UtilInstance->outputTree->Branch("pho_haspixseed", &pho_haspixseed, "pho_haspixseed[pho_n]/F");
   UtilInstance->outputTree->Branch("pho_Et", &pho_Et, "pho_Et[pho_n]/F");
+  UtilInstance->outputTree->Branch("pho_r9", &pho_r9, "pho_r9[pho_r9]/F");
+  UtilInstance->outputTree->Branch("pho_r1x5", &pho_r1x5, "pho_r1x5[pho_r1x5]/F");
+  UtilInstance->outputTree->Branch("pho_r2x5", &pho_r2x5, "pho_r2x5[pho_r2x5]/F");
+  UtilInstance->outputTree->Branch("pho_scind", &pho_scind, "pho_scind[pho_scind]/I");
+
+  //SuperCluster Information
+  UtilInstance->outputTree->Branch("sc_n", &sc_n, "sc_n/I");
+  UtilInstance->outputTree->Branch("sc_p4", "TClonesArray", &sc_p4, 32000, 0);
+ 
+  //Vertex Information
+  UtilInstance->outputTree->Branch("vtx_std_n", &vtx_std_n, "vtx_std_n/I");
+  UtilInstance->outputTree->Branch("vtx_std_xyz","TClonesArray", &vtx_std_xyz, 32000, 0);
+  UtilInstance->outputTree->Branch("vtx_std_dxdydz","TClonesArray", &vtx_std_dxdydz, 32000, 0);
+  UtilInstance->outputTree->Branch("vtx_std_ndof", &vtx_std_ndof, "vtx_std_ndof[vtx_std_n]/F");
+  UtilInstance->outputTree->Branch("vtx_std_x2dof", &vtx_std_x2dof, "vtx_std_x2dof[vtx_std_n]/F");
+  UtilInstance->outputTree->Branch("vtx_pix_n", &vtx_pix_n, "vtx_pix_n/I");
+  UtilInstance->outputTree->Branch("vtx_pix_xyz","TClonesArray", &vtx_pix_xyz, 32000, 0);
+  UtilInstance->outputTree->Branch("vtx_pix_dxdydz","TClonesArray", &vtx_pix_dxdydz, 32000, 0);
+  UtilInstance->outputTree->Branch("vtx_pix_ndof", &vtx_pix_ndof, "vtx_pix_ndof[vtx_pix_n]/F");
+  UtilInstance->outputTree->Branch("vtx_pix_x2dof", &vtx_pix_x2dof, "vtx_pix_x2dof[vtx_pix_n]/F");
+   
   
+
   //Generator Information
-  
   UtilInstance->outputTree->Branch("gp_n",  &gp_n, "gp_n/I");
   UtilInstance->outputTree->Branch("gp_p4", "TClonesArray", &gp_p4,32000,0);
   UtilInstance->outputTree->Branch("gp_vtx", "TClonesArray", &gp_vtx,32000,0);
-  UtilInstance->outputTree->Branch("gp_status",&gp_status, "gp_status/I");
-  UtilInstance->outputTree->Branch("gp_pdgid",&gp_pdgid, "gp_pdgid/I");
-  UtilInstance->outputTree->Branch("gp_mother",&gp_mother, "gp_mother/I");
+  UtilInstance->outputTree->Branch("gp_status",&gp_status, "gp_status[gp_n]/I");
+  UtilInstance->outputTree->Branch("gp_pdgid",&gp_pdgid, "gp_pdgid[gp_n]/I");
+  UtilInstance->outputTree->Branch("gp_mother",&gp_mother, "gp_mother[gp_n]/I");
 
 }
 

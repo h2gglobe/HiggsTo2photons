@@ -2,9 +2,35 @@
 #define Tools_h
 
 #include "TRandom.h"
+#include "TLorentzVector.h"
+#include <algorithm>
 
 #define PI 3.141592654
 #define TWOPI 6.283185308
+
+
+//ADDED MJ
+Float_t pho_Et[MAX_PHOTONS];
+
+struct Elec{
+    TLorentzVector *p4;
+    TVector3 *calopos;
+    bool pixSeed;
+    double trkIso;
+    double ecalIso;
+    double hcalIso;
+    double sieie;
+    double hoe;
+};
+
+
+//Added NCKW
+bool ElecP4greater(Elec e1, Elec e2){
+	
+     return e1.p4->Pt() > e2.p4->Pt();
+
+
+}
 
 float DeltaPhi(float phi1, float phi2) {
   float deltaphi;

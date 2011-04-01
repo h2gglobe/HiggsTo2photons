@@ -14,15 +14,15 @@
 
   cout << "Setting Analysis Type" << endl;
   ut->SetTypeRun(3, "stats.root");
-  ut->AddFile("/vols/cms02/mjarvis/ntuples/h2gred/Run2010A.root",1);
-  ut->AddFile("/vols/cms02/mjarvis/ntuples/h2gred/Run2010B.root",1);
+  ut->AddFile("/vols/cms02/mjarvis/ntuples/h2gred2/Run2010A.root",1);
+  ut->AddFile("/vols/cms02/mjarvis/ntuples/h2gred2/Run2010B.root",1);
   //ut->AddFileList("myFiles.txt");
 
   cout << "starting loop" <<endl;
   
   ut->LoopAndFillHistos();
   gBenchmark->Show("Anslysis");
-
+  ut->WriteHist();
 //  ut->FitData();  
 }
 

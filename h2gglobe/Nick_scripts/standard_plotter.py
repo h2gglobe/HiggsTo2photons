@@ -24,6 +24,9 @@ for o in opts[1:]:
   elif o=='-norm':
     scale_montecarlo = True
     args.remove(o)
+  elif  o=='-logy':
+    set_logy = True
+    args.remove(o)
   elif o=='-nostack':
     dont_stack = True
     args.remove(o)
@@ -34,9 +37,10 @@ for o in opts[1:]:
 
 # -- Check Sanity -------------------------------------------------
 if not plot_data and scale_montecarlo:
-  print "Cannot scale MC to Data without Data input"
-  print "Scaling MC to simulation norms"
   scale_montecarlo = False
+if plot_data and not dont_stack:
+  plot_ratio = True
+else: plot_ratio = False
 # -- Parameters ---------------------------------------------------
 random		 = ROOT.TRandom3()
 current_lumi    = 36.1
@@ -57,15 +61,15 @@ file_names	= {
 		  #,'hist/Box_250_hist.root'	:[3,3795528846.154 	]
 		  ,'hist/DYEEM20_hist.root'	:[4,1636.621	   	]
 		  ,'hist/DYEEM1020_hist.root'	:[4,726.965	   	]
-		  ,'hist/WZTTH115_hist.root'	:[5,0.1*40475893.478    ]
-		  ,'hist/VBF115_hist.root'	:[5,0.1*38717590.830    ]
-		  ,'hist/GGH115_hist.root'	:[5,0.1*2848260.736     ]
-		  ,'hist/WZTTH120_hist.root'	:[6,0.1*43907180.221    ]
-		  ,'hist/VBF120_hist.root'	:[6,0.1*38470186.499    ]
-		  ,'hist/GGH120_hist.root'	:[6,0.1*2939587.092     ]
-		  ,'hist/WZTTH130_hist.root'	:[7,0.1*56914996.108    ]
-		  ,'hist/VBF130_hist.root'	:[7,0.1*41722136.164    ]
-		  ,'hist/GGH130_hist.root'	:[7,0.1*3427365.075     ]
+		  ,'hist/WZTTH115_hist.root'	:[5,40475893.478    ]
+		  ,'hist/VBF115_hist.root'	:[5,38717590.830    ]
+		  ,'hist/GGH115_hist.root'	:[5,2848260.736     ]
+		  ,'hist/WZTTH120_hist.root'	:[6,43907180.221    ]
+		  ,'hist/VBF120_hist.root'	:[6,38470186.499    ]
+		  ,'hist/GGH120_hist.root'	:[6,2939587.092     ]
+		  ,'hist/WZTTH130_hist.root'	:[7,56914996.108    ]
+		  ,'hist/VBF130_hist.root'	:[7,41722136.164    ]
+		  ,'hist/GGH130_hist.root'	:[7,3427365.075     ]
 		  }
 
 print "Using files/type/weight :"
@@ -122,8 +126,21 @@ for i in range(len(keys[0][0])):
 	leg.SetBorderSize(0)
 	
 	stack = ROOT.THStack()	
+        # ------------------------------------------------------
 	c = ROOT.TCanvas()
-	
+	if plot_ratio:
+          u_pad = ROOT.TPad(str(i)+'u',str(i)+'u'\
+			 ,0.01,0.25,0.99,0.99)
+          d_pad = ROOT.TPad(str(i)+'d',str(i)+'d'\
+			 ,0.01,0.01,0.99,0.25)
+	  u_pad.SetNumber(1)
+	  d_pad.SetNumber(2)
+          u_pad.Draw()
+	  d_pad.Draw()
+
+	  u_pad.SetGrid(True)	
+	# ------------------------------------------------------
+
 	to_be_stacked = []
 
 	for l in range(len(file_list)):
@@ -133,7 +150,7 @@ for i in range(len(keys[0][0])):
 		h = keys[l][j][i].ReadObj()
 		w = (file_names[f.GetName()])[1]
 
-		h.Scale(current_lumi/w)
+		h.Scale(float(current_lumi)/w)
 		if j == 0: 
 			tmp[l] = h.Clone()
 		else:  tmp[l].Add(h)
@@ -171,7 +188,7 @@ for i in range(len(keys[0][0])):
 	    h.Scale(n_data/stacked_sum)
 	  stack.Add(h)  
         
-	if set_logy: c.SetLogy()
+	if set_logy: u_pad.SetLogy()
 	else	   : data_hist.SetMinimum(0)
         # -- Data Styles ------------------------
 	data_hist.SetMarkerStyle(21)
@@ -179,8 +196,7 @@ for i in range(len(keys[0][0])):
 	data_hist.Sumw2()
 	# ---------------------------------------	
 
-	print "Plotting Histograms"	
-
+        c.cd(1)
 	if plot_data:
 	  leg.AddEntry(data_hist, 'Data','PLE')
 	  data_hist.Draw()
@@ -201,7 +217,34 @@ for i in range(len(keys[0][0])):
 
 	leg.Draw()
 
-	c.SetGrid(True)	
+	if plot_ratio:
+	  c.cd(2)
+	  hist_rat = data_hist.Clone() 
+	  hist_tot = data_hist.Clone() 
+	  hist_1 = data_hist.Clone()
+
+	  for b in range(hist_1.GetNbinsX()+1):
+	    hist_1.SetBinContent(b,1) 
+	    hist_tot.SetBinContent(b, \
+		  sum([hh.GetBinContent(b)   \
+		  for hh in to_be_stacked]))
+
+          hist_rat.Divide(hist_tot)
+
+	  hist_1.SetLineColor(4)
+	  hist_1.SetLineWidth(3)
+	  hist_1.SetMaximum(2)
+	  hist_1.SetMinimum(0)
+	  hist_1.SetTitle('')
+	  hist_1.GetYaxis().SetLabelSize(0.12)
+	  hist_1.GetYaxis().SetNdivisions(3)
+	  hist_1.GetXaxis().SetLabelSize(0.12)
+	  hist_1.GetXaxis().SetTitle('')
+	  hist_1.GetYaxis().SetTitle('')
+
+	  hist_1.Draw("hist")
+	  hist_rat.Draw('same')
+        # ----------------------------------------------------
 	c.SaveAs('plots/'+data_hist.GetName()+'.pdf')
 
 

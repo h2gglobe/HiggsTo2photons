@@ -68,12 +68,12 @@ void HistoContainer::Add(const char* name, int binsx, float xmin, float xmax,
 void HistoContainer::Fill(const char* name, float value) {
 
   std::string modName = ModifiedName(name);
-  std::map<std::string, TH1F*>::iterator it = h1->find(modName);
+  //std::map<std::string, TH1F*>::iterator it = h1->find(modName);
  
-  if (it != h1->end()) {
+  //if (it != h1->end()) {
     (*h1)[modName]->Fill(value);
     return;
-  }
+  //}
 
   if(HCDEBUG)std::cerr << "ERROR !: histogram " << modName << " is not a TH1F." << std::endl;
 }

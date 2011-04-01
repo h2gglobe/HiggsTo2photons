@@ -23,6 +23,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <algorithm>
 #include <math.h>
 
 // binary numbers (HLT)
