@@ -4,6 +4,8 @@
 
 GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   
+  jobmaker = new std::string("");
+
   fileName = iConfig.getParameter<std::string>("RootFileName");
   
   doElectronStd = iConfig.getParameter<bool>("doElectron_std");
@@ -583,7 +585,6 @@ void GlobeAnalyzer::endJob() {
 }
 
 void GlobeAnalyzer::readConfiguration(const edm::ParameterSet& iConfig) {
-  jobmaker = new std::string(getenv("JOBMAKER"));
   parameters = new std::vector<std::string>;
   parameters->push_back(iConfig.dump());
 }
@@ -604,6 +605,11 @@ void GlobeAnalyzer::fillTree() {
 
   version = H2G_VERSION;
   type = 0;
+
+  if (getenv("JOBMAKER") != NULL) 
+    jobmaker = new std::string(getenv("JOBMAKER"));
+  else 
+    jobmaker = new std::string("jobmaker unknown");
 
   tree2->Fill();
 }
