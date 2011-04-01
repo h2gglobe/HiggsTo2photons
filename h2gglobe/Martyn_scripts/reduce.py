@@ -1,6 +1,7 @@
 import ROOT
-from readJSON import ReadJSON
 import sys, os, commands
+#from readJSON import ReadJSON # if python version >=2.6
+from evalJSON import ReadJSON # if python version < 2.6
 
 ##~~~~~~~~ User Defined Things
 dir = "../samples/"
@@ -8,6 +9,7 @@ dir = "../samples/"
 
 ROOT.gSystem.Load("libPhysics.so");
 ROOT.gSystem.Load("libCore.so");
+ROOT.gSystem.Load("libRooFit.so");
 ROOT.gSystem.Load("libLoopAll.so");
 
 def chunks(l, n):
@@ -15,8 +17,10 @@ def chunks(l, n):
     yield l[i:i+n]
 def prompt_file_overwrite(path):
   if os.path.exists(path):
-    print "File %s exists. Do you want to overwrite (default n)" % path
-    return (raw_input("\ty/n:").lstrip().rstrip()=="y")
+    print "File %s exists. Overwriting..." % path
+    #print "File %s exists. Do you want to overwrite (default n)" % path
+    return True#(raw_input("\ty/n:").lstrip().rstrip()=="y")
+    #return (raw_input("\ty/n:").lstrip().rstrip()=="y")
   return True
 
 ##~~~~~~~~ Defaults
@@ -60,7 +64,8 @@ if len(json) < 1:
 if doBatch :##SUBMIT TO BATCH QUEUE AND EXIT
   print "Setting up batch analysis."
   jobTemplate = '''#!/bin/sh
-source H2GDIR/setup.sh
+cd H2GDIR
+source setup.sh
 cd THISDIR
 python ./THISFILE -j${SGE_TASK_ID} -nNUMBATCH  SAMPLE
   '''
@@ -107,7 +112,7 @@ ut.SetTypeRun(1, outputName)
 print "Files:"
 for file in fileList :
   print file
-  ut.AddFile(str(file))
+  ut.AddFile(str(file),1)
 print "Starting analysis."
 ut.LoopAndFillHistos();
 ROOT.gBenchmark.Show("Reduction")
