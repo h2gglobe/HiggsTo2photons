@@ -13,6 +13,7 @@ import FWCore.ParameterSet.Config as cms
 h2ganalyzer = cms.EDAnalyzer(
     "GlobeAnalyzer",
     RootFileName = cms.string('prova.root'),
+    JobMaker = cms.string('jobmaker unknown'),
     
     # COLLECTIONS
     GeneratorColl = cms.InputTag("generator"),
