@@ -135,12 +135,11 @@ for run in runselection:
     file_out = open("../test/crabTasks/" + job_name + "/" + job_name + "_cfg.py", "w")
     printHeader(file_out)
 
-    file_out.write("import os\n")
-    file_out.write("os.putenv(\"JOBMAKER\", \""+os.path.basename(sys.argv[0]) + " " + " ".join(sys.argv[1:])+"\")\n")
-
     for line in lines:
         if ("RootFileName" in line):
             file_out.write("process.h2ganalyzer.RootFileName = \'"+job_name+".root\'\n")
+        elif("jobMaker = 'jobmaker unknown'" in line):
+            file_out.write("jobMaker = \'" + os.path.basename(sys.argv[0]) + " " + " ".join(sys.argv[1:])+"\'\n")
         elif ("flagData = 'OFF'" in line and flagData):
             file_out.write("flagData = \'ON\'\n")
         elif ("flagMC = 'OFF'" in line and flagMC):

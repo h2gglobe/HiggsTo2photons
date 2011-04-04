@@ -10,6 +10,7 @@ flagNoSkim = 'OFF'
 
 #ADDITIONAL OPTIONS
 flagAOD = 'ON'
+jobMaker = 'jobmaker unknown'
 
 if (flagNoSkim is 'ON' and flagSkimDiphoton is 'ON') or (flagNoSkim is 'OFF' and flagSkimDiphoton is 'OFF'):
   print "You must skim or not skim... these are your options"
@@ -125,6 +126,7 @@ process.kt6PFJets.Rho_EtaMax = cms.double(2.5)
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 process.p11 = cms.Path(process.eventFilter1*process.kt6PFJets*process.h2ganalyzerPath)
 
+process.h2ganalyzer.JobMaker = jobMaker
 
 if flagMC is 'ON':
   process.h2ganalyzer.doGenJet_algo1 = True
