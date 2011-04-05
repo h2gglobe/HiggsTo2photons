@@ -31,11 +31,11 @@ void LoopAll::PhotonAnalysisReducedOutputTree() {
   UtilInstance->outputTree->Branch("vtx_std_dxdydz","TClonesArray", &vtx_std_dxdydz, 32000, 0);
   UtilInstance->outputTree->Branch("vtx_std_ndof", &vtx_std_ndof, "vtx_std_ndof[vtx_std_n]/F");
   UtilInstance->outputTree->Branch("vtx_std_x2dof", &vtx_std_x2dof, "vtx_std_x2dof[vtx_std_n]/F");
-  UtilInstance->outputTree->Branch("vtx_pix_n", &vtx_n, "vtx_pix_n/I");
-  UtilInstance->outputTree->Branch("vtx_pix_xyz","TClonesArray", &vtx_xyz, 32000, 0);
-  UtilInstance->outputTree->Branch("vtx_pix_dxdydz","TClonesArray", &vtx_dxdydz, 32000, 0);
-  UtilInstance->outputTree->Branch("vtx_pix_ndof", &vtx_ndof, "vtx_pix_ndof[vtx_pix_n]/F");
-  UtilInstance->outputTree->Branch("vtx_pix_x2dof", &vtx_x2dof, "vtx_pix_x2dof[vtx_pix_n]/F");
+  UtilInstance->outputTree->Branch("vtx_pix_n", &vtx_pix_n, "vtx_pix_n/I");
+  UtilInstance->outputTree->Branch("vtx_pix_xyz","TClonesArray", &vtx_pix_xyz, 32000, 0);
+  UtilInstance->outputTree->Branch("vtx_pix_dxdydz","TClonesArray", &vtx_pix_dxdydz, 32000, 0);
+  UtilInstance->outputTree->Branch("vtx_pix_ndof", &vtx_pix_ndof, "vtx_pix_ndof[vtx_pix_n]/F");
+  UtilInstance->outputTree->Branch("vtx_pix_x2dof", &vtx_pix_x2dof, "vtx_pix_x2dof[vtx_pix_n]/F");
    
   
 
