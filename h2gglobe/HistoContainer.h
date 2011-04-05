@@ -17,6 +17,7 @@ class HistoContainer {
   void Add(const char*, int, float, float);
   void Add(const char*,const char *, int, float, float);
   void Add(const char*, int, float, float, int, float, float);
+  void Add(const char*,const char*, int, float, float, int, float, float);
   void Add(const char*, int, float, float, float, float);
 
   void Fill(const char*, float);

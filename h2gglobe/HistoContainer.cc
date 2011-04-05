@@ -57,6 +57,15 @@ void HistoContainer::Add(const char* name, int binsx, float xmin, float xmax,
   h2.insert(std::pair< std::string, TH2F>(modName, temp));
 }
 
+void HistoContainer::Add(const char* name, const char* title, int binsx, float xmin, float xmax,
+			 int binsy, float ymin, float ymax) {
+		       
+  std::string modName = ModifiedName(name);
+  std::string modTitle = ModifiedName(title);
+  TH2F temp(modName.c_str(), modTitle.c_str(), binsx, xmin, xmax, binsy, ymin, ymax);
+  h2.insert(std::pair< std::string, TH2F>(modName, temp));
+}
+
 void HistoContainer::Add(const char* name, int binsx, float xmin, float xmax,
 			 float ymin, float ymax) {
 		       

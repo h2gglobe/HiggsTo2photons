@@ -3,6 +3,7 @@ ROOT.gROOT.SetStyle('Plain')
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0)
 #ROOT.gStyle.SetLineWidth(2)
+ROOT.gStyle.SetPalette(1)
 import sys,os,getopt
 
 # -- User Imput Options -------------------------------------------
@@ -101,6 +102,16 @@ linked_files = [[filter(lambda x: (file_names[x])[0]==i,file_names),
 		 i in signal_index] \
 		for i in range(len(file_names))]
 
+#remove signals from file list if no signal option
+if not include_signal:
+  remove_me=[]
+  for si in signal_index: j = titles_colors.pop(str(si))
+  for lnk in linked_files:
+    if  lnk[1]: remove_me.append(lnk)
+  for rm in remove_me:  linked_files.remove(rm)
+
+print linked_files
+
 file_list = [[[ROOT.TFile(f) for f in F[0]],F[1]] for F in linked_files]
 file_list = filter(lambda x: len(x[0]) > 0, file_list)
 
@@ -115,6 +126,13 @@ if len(titles_colors) != len(file_list):
 keys 	  = [[f.GetListOfKeys() for f in F[0]] 
 	      for F in file_list]
 data_k	  = data_file.GetListOfKeys()
+
+#for i,key_list in enumerate(keys):
+#  if len(data_k) != len(key_list):
+#    print "In FILE", file_list[i][0].GetName()
+#    print "number of data hists:", len(data_k) 
+#    print "number of mc   hists:", len(key_list) 
+#    sys.exit("Warning, Unmatched histograms!")
 
 tmp=[0 for kk in file_list]
 
@@ -151,6 +169,7 @@ for i in range(len(keys[0][0])):
 		w = (file_names[f.GetName()])[1]
 
 		h.Scale(float(current_lumi)/w)
+                print f.GetName()
 		if j == 0: 
 			tmp[l] = h.Clone()
 		else:  tmp[l].Add(h)
@@ -188,7 +207,8 @@ for i in range(len(keys[0][0])):
 	    h.Scale(n_data/stacked_sum)
 	  stack.Add(h)  
         
-	if set_logy: u_pad.SetLogy()
+	if set_logy and plot_ratio: u_pad.SetLogy()
+        elif set_logy: c.SetLogy()
 	else	   : data_hist.SetMinimum(0)
         # -- Data Styles ------------------------
 	data_hist.SetMarkerStyle(21)
@@ -245,7 +265,7 @@ for i in range(len(keys[0][0])):
 	  hist_1.Draw("hist")
 	  hist_rat.Draw('same')
         # ----------------------------------------------------
-	c.SaveAs('plots/'+data_hist.GetName()+'.pdf')
+	c.SaveAs('plots/'+data_hist.GetName()+'.gif')
 
 
 #EOF

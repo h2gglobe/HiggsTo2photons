@@ -21,6 +21,7 @@ struct Elec{
     double hcalIso;
     double sieie;
     double hoe;
+    double r9;
 };
 
 
