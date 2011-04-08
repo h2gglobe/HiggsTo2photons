@@ -26,7 +26,7 @@ GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "algo1"):
   
   std::string strnome = nome;
 
-  if (strnome.find("pf",0) == std::string::npos){
+  if (strnome.find("PF",0) == std::string::npos){
     sprintf (a,"JetTrackAssociationColl_%s", nome);
     jetTkAssColl =  iConfig.getParameter<edm::InputTag>(a);
   }
@@ -75,7 +75,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   std::string strnome = nome;
 
-  if (strnome.find("pf",0) == std::string::npos) {
+  if (strnome.find("PF",0) == std::string::npos) {
     edm::Handle<reco::CaloJetCollection> jetH;
     iEvent.getByLabel(jetColl, jetH);  
     
@@ -161,7 +161,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   
-  if (strnome.find("pf",0) != std::string::npos){
+  if (strnome.find("PF",0) != std::string::npos){
     
     // take collections
     edm::Handle<reco::PFJetCollection> pfjetH;

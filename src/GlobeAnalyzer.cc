@@ -170,11 +170,11 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if (doJetAlgo3)
     algo3_jets = new GlobeJets(iConfig, "algo3");
   if (doJetAlgoPF1)
-    algoPF1_jets = new GlobeJets(iConfig, "algo1");
+    algoPF1_jets = new GlobeJets(iConfig, "algoPF1");
   if (doJetAlgoPF2)
-    algoPF2_jets = new GlobeJets(iConfig, "algo2");
+    algoPF2_jets = new GlobeJets(iConfig, "algoPF2");
   if (doJetAlgoPF3)
-    algoPF3_jets = new GlobeJets(iConfig, "algo3");
+    algoPF3_jets = new GlobeJets(iConfig, "algoPF3");
   
   if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeSelector"<<std::endl;
   selector = new GlobeSelector(iConfig);
