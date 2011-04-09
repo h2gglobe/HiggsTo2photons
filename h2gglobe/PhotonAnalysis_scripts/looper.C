@@ -1,17 +1,19 @@
 {
   gSystem->Load("libPhysics.so");
   gSystem->Load("libCore.so");
+  gSystem->Load("libRooFit.so");
   gSystem->Load("libLoopAll.so");
 
   gBenchmark->Start("Analysis");
   Util* ut = new Util();
 
-  ut->SetTypeRun(2, "hist.root");
-  ut->AddFile(" reducedExamples/GluGlu2H2GG140_reduced.root", 1);
-  ut->AddFile(" reducedExamples/GluGlu2H2GG140_3_reduced.root", 1);
-  ut->AddFile(" reducedExamples/DiPhotonBox_reduced.root", -1);
-  ut->AddFile(" reducedExamples/QCD_Pt40_reduced.root", -2);
+  //ut->SetTypeRun(2, "Run2010.root");
+  //ut->AddFile("/vols/cms02/mjarvis/ntuples/h2gred/Run2010A.root", 1);
+  //ut->AddFile("/vols/cms02/mjarvis/ntuples/h2gred/Run2010B.root", 1);
   
+  ut->SetTypeRun(2, "QCD40.root");
+  ut->AddFile("/vols/cms02/mjarvis/ntuples/h2gred/QCD40.root", 1);
+   
   ut->LoopAndFillHistos();
   gBenchmark->Show("Analysis");
 

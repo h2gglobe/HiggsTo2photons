@@ -5,7 +5,7 @@
 #include <TGraphAsymmErrors.h>
 #include <TMultiGraph.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 Util::Util() {
   loops = new LoopAll();

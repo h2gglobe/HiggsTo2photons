@@ -2,7 +2,7 @@
 #include <utility>
 #include <iostream>
 
-#define HCDEBUG 1
+#define HCDEBUG 0
 
 
 HistoContainer::HistoContainer() {

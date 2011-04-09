@@ -619,6 +619,7 @@ void LoopAll::myGetBranchPhotonAnalysis() {
   b_pho_haspixseed = fChain->GetBranch("pho_haspixseed");
 
   b_gen_n = fChain->GetBranch("gp_n");
+  b_gen_mother = fChain->GetBranch("gp_mother");
   b_gen_p4 = fChain->GetBranch("gp_p4");
   b_gen_status = fChain->GetBranch("gp_status");
   b_gen_pdgid = fChain->GetBranch("gp_pdgid");
@@ -659,6 +660,7 @@ void LoopAll::mySetBranchAddressRedPhotonAnalysis() {
   fChain->SetBranchAddress("pho_isEE", &pho_isEE, &b_pho_isEE);
   fChain->SetBranchAddress("pho_haspixseed", &pho_haspixseed, &b_pho_haspixseed);
 
+  fChain->SetBranchAddress("gp_mother", &gen_mother, &b_gen_mother);
   fChain->SetBranchAddress("gp_n", &gen_n, &b_gen_n);
   fChain->SetBranchAddress("gp_p4", &gen_p4, &b_gen_p4);
   fChain->SetBranchAddress("gp_status", &gen_status, &b_gen_status);
