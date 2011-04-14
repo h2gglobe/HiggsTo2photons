@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCommon.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include <iostream>
 
 GlobeCommon::GlobeCommon(const edm::ParameterSet& iConfig) {
@@ -20,7 +21,7 @@ bool GlobeCommon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
   static int nerror=0;
 
-  edm::Handle<edm::HepMCProduct> HepMCEvt;
+  edm::Handle<GenEventInfoProduct> HepMCEvt;
   edm::Handle<double> weightHandle;
   event = iEvent.id().event();
   run = iEvent.id().run();  
@@ -33,18 +34,20 @@ bool GlobeCommon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   if (HepMCEvt.isValid()) {
 
-    const HepMC::GenEvent* MCEvt = HepMCEvt->GetEvent();
-    pthat = MCEvt->event_scale();  
-    process_id = MCEvt->signal_process_id();
+    const GenEventInfoProduct* event = HepMCEvt.product();
+    pthat = event->qScale();
+    process_id = event->signalProcessID();
 
-    if (MCEvt->weights().size() > 1) {
+    if (event->weights().size() > 1) {
       if (nerror++<10) {
-	std::cout << "GlobeCommon: more than 1 weight." << std::endl;
+	      std::cout << "GlobeCommon: more than 1 weight." << std::endl;
       }
     }
 
-    weight = MCEvt->weights().front();
+    weight = event->weights().front();
   } else {
+    std::cout << "HepMCEvt.isValid() = " << HepMCEvt.isValid() << std::endl;
+
     pthat = -1;
     process_id = -1;
     weight = 1;

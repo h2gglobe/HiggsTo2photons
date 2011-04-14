@@ -17,6 +17,7 @@ h2ganalyzer = cms.EDAnalyzer(
     
     # COLLECTIONS
     GeneratorColl = cms.InputTag("generator"),
+    #GeneratorColl = cms.InputTag("GenEventInfoProduct"),
     GenParticlesColl = cms.InputTag("genParticles"),
     GlobeReducedGendRMin = cms.double(0.3),
     
