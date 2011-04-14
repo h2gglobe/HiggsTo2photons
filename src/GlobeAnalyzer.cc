@@ -26,6 +26,7 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
 
   doGenerator = iConfig.getParameter<bool>("doGenerator");
   doGenParticles = iConfig.getParameter<bool>("doGenParticles");
+  doGenVertices = iConfig.getParameter<bool>("doGenVertices");
 
   doPhoton = iConfig.getParameter<bool>("doPhoton"); 
   doAllConversions = iConfig.getParameter<bool>("doAllConversions"); 
@@ -77,6 +78,10 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if (doGenParticles)
     genP = new GlobeGenParticles(iConfig);
   
+  if (doGenVertices)
+    genV = new GlobeGenVertices(iConfig);
+
+
   //SIMHITS
   if (doSimHits)
     simhits = new GlobeSimHits(iConfig);
@@ -271,6 +276,12 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     genP->analyze(iEvent, iSetup);
   }
 
+  //GENVERTICES 
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: genV" << std::endl;
+  if (doGenVertices){
+    genV->analyze(iEvent, iSetup);
+  }
+
   //SIMHITS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: simhits" << std::endl;
   if (doSimHits)
@@ -445,9 +456,15 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   else
     selector_bits = selector->select(std_electrons, muons, photons).to_ulong();
   
+  if(debug_level > 2) 
+    std::cout << "GlobeAnalyzer: selectorbits = " << selector_bits << std::endl;
+
   if (selector_bits > 0) {
     sel_events++;
     
+  if(debug_level > 2) 
+    std::cout << "GlobeAnalyzer: fill my tree!" << std::endl;
+
     // fill the tree
     tree->Fill();
   }
@@ -539,6 +556,9 @@ void GlobeAnalyzer::beginJob() {
 
   if (doGenParticles)
     genP->defineBranch(tree);
+
+  if (doGenVertices)
+    genV->defineBranch(tree);
 
   
   // GEN JETS
