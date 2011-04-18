@@ -1,3 +1,4 @@
+<use   name="CondFormats/EcalObjects"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
