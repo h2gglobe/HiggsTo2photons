@@ -1,4 +1,8 @@
+
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePhotons.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -122,7 +126,31 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_conv_ch1ch2",&pho_conv_ch1ch2,"pho_conv_ch1ch2[pho_n]/I");
   tree->Branch("pho_conv_validvtx",&pho_conv_validvtx,"pho_conv_validvtx[pho_n]/I");
   tree->Branch("pho_conv_MVALikelihood",&pho_conv_MVALikelihood,"pho_conv_MVALikelihood[pho_n]/I");
-  
+
+  // added by pasquale
+  tree->Branch("pho_sipip",&pho_sipip,"pho_sipip[pho_n]/F");
+  tree->Branch("pho_sieip",&pho_sieip,"pho_sieip[pho_n]/F");
+  tree->Branch("pho_zernike20",&pho_zernike20,"pho_zernike20[pho_n]/F");
+  tree->Branch("pho_zernike42",&pho_zernike42,"pho_zernike42[pho_n]/F");
+  tree->Branch("pho_e2nd",&pho_e2nd,"pho_e2nd[pho_n]/F");
+  tree->Branch("pho_e5x5",&pho_e5x5,"pho_e5x5[pho_n]/F");
+
+  tree->Branch("pho_e2x5right",&pho_e2x5right,"pho_e2x5right[pho_n]/F");
+  tree->Branch("pho_e2x5left",&pho_e2x5left,"pho_e2x5left[pho_n]/F");
+  tree->Branch("pho_e2x5Top",&pho_e2x5Top,"pho_e2x5Top[pho_n]/F");
+  tree->Branch("pho_e2x5bottom",&pho_e2x5bottom,"pho_e2x5bottom[pho_n]/F");
+  tree->Branch("pho_eright",&pho_eright,"pho_eright[pho_n]/F");
+  tree->Branch("pho_eleft",&pho_eleft,"pho_eleft[pho_n]/F");
+  tree->Branch("pho_etop",&pho_etop,"pho_etop[pho_n]/F");
+  tree->Branch("pho_ebottom",&pho_ebottom,"pho_ebottom[pho_n]/F");
+
+  tree->Branch("pho_e2overe9",&pho_e2overe9,"pho_e2overe9[pho_n]/F");
+  tree->Branch("pho_seed_severity",&pho_seed_severity,"pho_seed_severity[pho_n]/F");
+  tree->Branch("pho_seed_time",&pho_seed_time,"pho_seed_time[pho_n]/F");
+  tree->Branch("pho_seed_outoftimechi2",&pho_seed_outoftimechi2,"pho_seed_outoftimechi2[pho_n]/F");
+  tree->Branch("pho_seed_chi2",&pho_seed_chi2,"pho_seed_chi2[pho_n]/F");
+  tree->Branch("pho_seed_recoflag",&pho_seed_recoflag,"pho_seed_recoflag[pho_n]/F");
+
   pho_conv_vtx = new TClonesArray("TVector3", MAX_PHOTONS);
   tree->Branch("pho_conv_vtx", "TClonesArray", &pho_conv_vtx, 32000, 0);
   pho_conv_pair_momentum = new TClonesArray("TVector3", MAX_PHOTONS);
@@ -275,7 +303,16 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     if (isBarrel) pho_localcorr[pho_n] = LocalCorr->getValue(*(localPho.superCluster()),0);
     else pho_localcorr[pho_n] = 1.;
 
+    // Rech-Hits related
+    EcalClusterLazyTools lazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl );   
+    edm::Handle<EcalRecHitCollection> prechits;
+    iEvent.getByLabel( (localPho.isEB() ? ecalHitEBColl : ecalHitEEColl) ,prechits );
+    edm::ESHandle<EcalChannelStatus> chStatus;
+    iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
+    const reco::CaloClusterPtr  seed_clu = localPho.superCluster()->seed();
+    EcalRecHitCollection::const_iterator seedcry_rh = prechits->find( id );
+    
     //fiducial flags
     pho_isEB[pho_n] = localPho.isEB();
     pho_isEE[pho_n] = localPho.isEE();
@@ -299,7 +336,30 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_r2x5[pho_n] = localPho.r2x5();
     pho_r9[pho_n] = localPho.r9();
 
+    // more cluster shapes from Lazy Tools
+    std::vector<float> viCov;
+    viCov = lazyTool.localCovariances(*seed_clu);
+    pho_sipip[pho_n] = viCov[2];
+    pho_sieip[pho_n] = viCov[1];
+    pho_zernike20[pho_n] = lazyTool.zernike20(*seed_clu);
+    pho_zernike42[pho_n] = lazyTool.zernike42(*seed_clu);
+    pho_e2nd[pho_n] = lazyTool.e2nd(*seed_clu);
+    pho_e2x5right[pho_n] = lazyTool.e2x5Right(*seed_clu);
+    pho_e2x5left[pho_n] = lazyTool.e2x5Left(*seed_clu);
+    pho_e2x5Top[pho_n] = lazyTool.e2x5Top(*seed_clu);
+    pho_e2x5bottom[pho_n] = lazyTool.e2x5Bottom(*seed_clu);
+    pho_eright[pho_n] = lazyTool.eRight(*seed_clu);
+    pho_eleft[pho_n] = lazyTool.eLeft(*seed_clu);
+    pho_etop[pho_n] = lazyTool.eTop(*seed_clu);
+    pho_ebottom[pho_n] = lazyTool.eBottom(*seed_clu);
 
+    //spike-ID
+    pho_e2overe9[pho_n] = EcalSeverityLevelAlgo::E2overE9( id, *prechits, 5.0, 0.0);
+    pho_seed_severity[pho_n] = EcalSeverityLevelAlgo::severityLevel( id, *prechits, *chStatus );
+    pho_seed_time[pho_n] = seedcry_rh != prechits->end() ? seedcry_rh->time() : 999.;
+    pho_seed_outoftimechi2[pho_n] = seedcry_rh != prechits->end() ? seedcry_rh->outOfTimeChi2() : 999.;
+    pho_seed_chi2[pho_n] = seedcry_rh != prechits->end() ? seedcry_rh->chi2() : 999.;
+    pho_seed_recoflag[pho_n] = seedcry_rh != prechits->end() ? seedcry_rh->recoFlag() : 999.;
 
     //isolation variables
     pho_ecalsumetconedr04[pho_n] = localPho.ecalRecHitSumEtConeDR04();
@@ -318,7 +378,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_trksumpthollowconedr03[pho_n] = localPho.trkSumPtHollowConeDR03();
     pho_ntrksolidconedr03[pho_n] = localPho.nTrkSolidConeDR03();
     pho_ntrkhollowconedr03[pho_n] = localPho.nTrkHollowConeDR03();
-
 
     //other variables
     pho_haspixseed[pho_n] = localPho.hasPixelSeed();
