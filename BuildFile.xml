@@ -33,6 +33,7 @@
 <use   name="SimTracker/Records"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="SimDataFormats/PileupSummaryInfo"/>
+<use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="hepmc"/>
 <use   name="heppdt"/>
 <use   name="clhep"/>

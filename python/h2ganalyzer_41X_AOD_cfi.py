@@ -261,7 +261,8 @@ h2ganalyzer = cms.EDAnalyzer(
     doJet_algoPF2 = cms.bool(True),
     doJet_algoPF3 = cms.bool(True),
 
-    doPFCandidates = cms.bool(False),
+    doPFCandidates = cms.bool(True),
+    PFIsoOuterCone = cms.double(0.4),
     
     doMet = cms.bool(True),
     dotcMet = cms.bool(True),
