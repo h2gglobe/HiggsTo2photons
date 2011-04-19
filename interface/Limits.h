@@ -25,7 +25,7 @@
 
 #define MAX_ECALRECHITS 10000
 
-#define MAX_JETS 100
+#define MAX_JETS 150
 #define MAX_JET_TOWERS 100
 #define MAX_JET_TRACKS 100 
 

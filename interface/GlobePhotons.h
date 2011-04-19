@@ -79,6 +79,8 @@ class GlobePhotons {
   //shower shape variables
   Float_t pho_see[MAX_PHOTONS];
   Float_t pho_sieie[MAX_PHOTONS];
+  Float_t pho_sipip[MAX_PHOTONS];
+  Float_t pho_sieip[MAX_PHOTONS];
   Float_t pho_e1x5[MAX_PHOTONS];
   Float_t pho_e2x5[MAX_PHOTONS];
   Float_t pho_e3x3[MAX_PHOTONS];
@@ -90,6 +92,25 @@ class GlobePhotons {
   Float_t pho_r1x5[MAX_PHOTONS];
   Float_t pho_r2x5[MAX_PHOTONS];
   Float_t pho_r9[MAX_PHOTONS];
+  Float_t pho_zernike20[MAX_PHOTONS];
+  Float_t pho_zernike42[MAX_PHOTONS];
+
+  Float_t pho_e2nd[MAX_PHOTONS];
+  Float_t pho_e2x5right[MAX_PHOTONS];
+  Float_t pho_e2x5left[MAX_PHOTONS];
+  Float_t pho_e2x5Top[MAX_PHOTONS];
+  Float_t pho_e2x5bottom[MAX_PHOTONS];
+  Float_t pho_eright[MAX_PHOTONS];
+  Float_t pho_eleft[MAX_PHOTONS];
+  Float_t pho_etop[MAX_PHOTONS];
+  Float_t pho_ebottom[MAX_PHOTONS];
+
+  Float_t pho_e2overe9[MAX_PHOTONS];
+  Float_t pho_seed_time[MAX_PHOTONS];
+  Float_t pho_seed_outoftimechi2[MAX_PHOTONS];
+  Float_t pho_seed_chi2[MAX_PHOTONS];
+  Float_t pho_seed_recoflag[MAX_PHOTONS];
+  Float_t pho_seed_severity[MAX_PHOTONS];
 
   //isolation variables
   Float_t pho_ecalsumetconedr04[MAX_PHOTONS];

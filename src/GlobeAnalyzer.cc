@@ -432,7 +432,7 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
   // PF CANDIDATES
   if (doPFCandidates)
-    pfCandidates->analyze(iEvent, iSetup, tracks, muons);
+    pfCandidates->analyze(iEvent, iSetup, tracks, muons, photons);
 
   //PAT
   //if (doPAT) {
