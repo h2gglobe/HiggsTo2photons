@@ -9,6 +9,7 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCuts.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeMuons.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeTracks.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/GlobePhotons.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -21,7 +22,7 @@ class GlobePFCandidates {
   virtual ~GlobePFCandidates() {};
 
   void defineBranch(TTree* tree);
-  bool analyze(const edm::Event&, const edm::EventSetup&, GlobeTracks*, GlobeMuons*);
+  bool analyze(const edm::Event&, const edm::EventSetup&, GlobeTracks*, GlobeMuons*, GlobePhotons*);
 
   // variables
   Int_t pfcand_n;
@@ -42,6 +43,12 @@ class GlobePFCandidates {
   Float_t pfcand_mva_nothing_gamma[MAX_PFCANDS];
   Float_t pfcand_mva_nothing_nh[MAX_PFCANDS];
   Float_t pfcand_mva_gamma_nh[MAX_PFCANDS];
+  Float_t pfcand_vz[MAX_PFCANDS];
+
+  Int_t pho_n;
+  //Int_t pfcandtimespho_n;
+  UInt_t pfcand_overlappho[MAX_PFCANDS];
+  //Int_t pfcand_overlappho[MAX_PFCANDS][MAX_PHOTONS];
 
   TClonesArray *pfcand_p4;
   TClonesArray *pfcand_poscalo;
@@ -49,6 +56,8 @@ class GlobePFCandidates {
  private:
   GlobeCuts *gCUT;
   edm::InputTag pfColl;
+  edm::InputTag photonCollStd;
+  double PFIsoOuterConeSize;
   int debug_level;
 };
 
