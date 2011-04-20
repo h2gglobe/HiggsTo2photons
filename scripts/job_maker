@@ -36,6 +36,7 @@ job_maker [options]
 --outputdir=                       output dir in the storage element (e.g. matteo/data/2010 in hadoop or /s/sani/data/2010  in castor)
 --globaltag=                       change globaltag
 --hlttag=                          set the HLT tag (HLT is standard, REGIGI3YX is frequent)
+--blacklist=                       sites to black list (e.g. "T2_US_UCSD,ultralight.org,hpc.ufl.edu")
 """
 
 
@@ -61,8 +62,9 @@ hlttag = ""
 json = ""
 lumis = -1
 lumis_per_job=10
+blackList=""
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'skim2pho', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag='])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'skim2pho', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'blacklist='])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -106,6 +108,8 @@ for opt,argm in opts:
         lumis_per_job = int(argm)
     elif (opt == "--hlttag"):
         hlttag = argm
+    elif (opt == "--blacklist"):
+        blackList = argm
     else:
         print 'Wrong options: %s' % (opt)
         sys.exit(3)
@@ -203,11 +207,13 @@ for run in runselection:
         elif ("events_per_job" in line and json == ""):
             file_out.write("events_per_job = "+str(events_job)+"\n")
         elif ("lumi_mask" in line and json != ""):
-            file_out.write("lumi_mask = "+str(json)+"\n")
+            file_out.write("lumi_mask = ../../../scripts/"+str(json)+"\n")
         elif ("lumis_per_job" in line and json != ""):
             file_out.write("lumis_per_job = "+str(lumis_per_job)+"\n")
         elif ("total_number_of_lumis" in line and json != ""):
             file_out.write("total_number_of_lumis = "+str(lumis)+"\n")
+        elif ("se_black_list" in line and blackList != ""):
+            file_out.write("se_black_list = T0, T1,"+str(blackList)+"\n")
         else:
             file_out.write(line)
     file_out.close()
