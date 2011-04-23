@@ -1,13 +1,8 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeElectrons.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+//#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "RecoCaloTools/Navigation/interface/CaloNavigator.h"
 #include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
@@ -31,7 +26,33 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include <iostream>
 
+float GlobeElectrons::hoeCalculator(const reco::BasicCluster* clus, const CaloGeometry& geometry,
+                                    const edm::Event& e , const edm::EventSetup& c) {
+  
+  float h = 0.;
 
+  GlobalPoint pclu(clus->x(),clus->y(),clus->z());
+
+  edm::Handle< HBHERecHitCollection > hbhe ;
+  e.getByLabel("reducedHcalRecHits", "hbhereco",hbhe);
+  const HBHERecHitCollection* hithbhe_ = hbhe.product();
+ 
+  const CaloSubdetectorGeometry *geometry_p ; 
+  geometry_p = geometry.getSubdetectorGeometry (DetId::Hcal,4) ;
+
+  DetId hcalDetId ;
+  hcalDetId = geometry_p->getClosestCell(pclu) ;
+
+   CaloRecHitMetaCollection f;
+  f.add(hithbhe_);
+  CaloRecHitMetaCollection::const_iterator iterRecHit; 
+  iterRecHit = f.find(hcalDetId) ;
+  if (iterRecHit!=f.end()) {
+    h = iterRecHit->energy() ;
+  }
+ 
+  return h;
+}
 
 
 GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
@@ -163,6 +184,10 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_nbrem", nome);
   sprintf(a2, "el_%s_nbrem[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_nbrem, a2);
+
+  sprintf(a1, "el_%s_h", nome);
+  sprintf(a2, "el_%s_h[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_h, a2);
   
   sprintf(a1, "el_%s_hoe", nome);
   sprintf(a2, "el_%s_hoe[el_%s_n]/F", nome, nome);
@@ -493,6 +518,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       el_1pxf[el_n] = 1;
 
     el_fbrem[el_n] = egsf.fbrem();
+
+    el_h[el_n] = hoeCalculator(&(*(egsf.superCluster()->seed())), geometry, iEvent, iSetup);
 
     el_eseed[el_n] = egsf.superCluster()->seed()->energy();
     el_eseedopout[el_n] = egsf.eSeedClusterOverPout();

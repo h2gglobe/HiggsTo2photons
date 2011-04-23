@@ -37,6 +37,8 @@ class GlobeElectrons {
   bool analyze(const edm::Event&, const edm::EventSetup&);
   bool analyze_pf(const edm::Event&, const edm::EventSetup&);
   void initialize_branches(int electron_number);
+  float hoeCalculator(const reco::BasicCluster*, const CaloGeometry&,
+                      const edm::Event&, const edm::EventSetup&);
 
   bool inCrack(float eta);
 
@@ -59,6 +61,7 @@ class GlobeElectrons {
   Int_t el_1pxb[MAX_ELECTRONS];
   Int_t el_1pxf[MAX_ELECTRONS];
 
+  Float_t el_h[MAX_ELECTRONS];
   Float_t el_hoe[MAX_ELECTRONS];
   Float_t el_hoed1[MAX_ELECTRONS];
   Float_t el_hoed2[MAX_ELECTRONS];

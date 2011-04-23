@@ -6,6 +6,45 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+float GlobePhotons::hoeCalculator(const reco::BasicCluster* clus, const CaloGeometry& geometry,
+                                  const edm::Event& e , const edm::EventSetup& c) {
+  
+  float h = 0.;
+
+  GlobalPoint pclu(clus->x(),clus->y(),clus->z());
+
+  edm::Handle< HBHERecHitCollection > hbhe ;
+  e.getByLabel("reducedHcalRecHits", "hbhereco",hbhe);
+  const HBHERecHitCollection* hithbhe_ = hbhe.product();
+  //edm::Handle<edm::SortedCollection<CaloTower> > caltowH;
+  //e.getByLabel("towerMaker", caltowH);
+
+  const CaloSubdetectorGeometry *geometry_p ; 
+  geometry_p = geometry.getSubdetectorGeometry (DetId::Hcal,4) ;
+
+  DetId hcalDetId ;
+  hcalDetId = geometry_p->getClosestCell(pclu) ;
+
+  
+  CaloRecHitMetaCollection f;
+  f.add(hithbhe_);
+  CaloRecHitMetaCollection::const_iterator iterRecHit; 
+  iterRecHit = f.find(hcalDetId) ;
+  if (iterRecHit!=f.end()) {
+    h = iterRecHit->energy() ;
+  }
+  
+  /*
+  edm::SortedCollection<CaloTower>::const_iterator iter;
+  iter = caltowH.product()->find(hcalDetId);
+  if (iter !=  caltowH.product()->end()) {
+    h = iter->energy() ;
+  }
+  */
+
+  return h;
+}
+
 GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
 
   debug_level = iConfig.getParameter<int>("Debug_Level");
@@ -64,6 +103,7 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_e3x3",&pho_e3x3,"pho_e3x3[pho_n]/F");
   tree->Branch("pho_e5x5",&pho_e5x5,"pho_e5x5[pho_n]/F");
   tree->Branch("pho_emaxxtal",&pho_emaxxtal,"pho_emaxxtal[pho_n]/F");
+  tree->Branch("pho_h",&pho_h,"pho_h[pho_n]/F");
   tree->Branch("pho_hoe",&pho_hoe,"pho_hoe[pho_n]/F");
   tree->Branch("pho_h1oe",&pho_h1oe,"pho_h1oe[pho_n]/F");
   tree->Branch("pho_h2oe",&pho_h2oe,"pho_h2oe[pho_n]/F");
@@ -192,6 +232,10 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.getByLabel(hybridSuperClusterColl,superClustersHybridH);
   iEvent.getByLabel(endcapSuperClusterColl, superClustersEndcapH);
 
+  edm::ESHandle<CaloGeometry> geoHandle;
+  iSetup.get<CaloGeometryRecord>().get(geoHandle);
+  const CaloGeometry& geometry = *geoHandle;
+
   if (debug_level > 9) {
     std::cout << "GlobePhotons: Photon collection size: "<< phoH->size() << std::endl;
 
@@ -233,24 +277,15 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     //std::cout << "Marco GlobePhotons: et, eta, phi "<< localPho.pt()<<" "<<localPho.eta()<<" "<<localPho.phi()<<" "<<std::endl;
 
-    if(debug_level>9)
-      std::cout << "Marco GlobePhotons: -22 "<< std::endl;
-
     reco::SuperClusterRef theClus=localPho.superCluster();
 
     //GlobalPoint pSc(localPho.superCluster()->position().x(),  localPho.superCluster()->position().y(), localPho.superCluster()->position().z());
-    if(debug_level>9)std::cout << "GlobePhotons: -23 "<< std::endl;
-
-    pho_hoe[pho_n]=-1;
-    if(debug_level>9)std::cout << "GlobePhotons: -24 "<< std::endl;
-
-    if(debug_level>9)std::cout << "GlobePhotons: -1 "<< std::endl;
-
+    
+    pho_h[pho_n] = hoeCalculator(&(*(localPho.superCluster()->seed())), geometry, iEvent, iSetup);
+    
     pho_hoe[pho_n] = localPho.hadronicOverEm();
-    if(debug_level>9)std::cout << "GlobePhotons: -2 "<< std::endl;
     pho_scind[pho_n] = -1;
-    if(debug_level>9)std::cout << "GlobePhotons: -3 "<< std::endl;
-
+    
     int index = 0;
 
     if(debug_level>9)std::cout << "GlobePhotons: 0 "<< std::endl;
