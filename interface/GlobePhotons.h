@@ -60,6 +60,8 @@ class GlobePhotons {
   void defineBranch(TTree* tree);
   bool analyze(const edm::Event&, const edm::EventSetup&);
   double getHoE(GlobalPoint, double, const edm::Event&, const edm::EventSetup&);
+  float hoeCalculator(const reco::BasicCluster*, const CaloGeometry&,
+                      const edm::Event&, const edm::EventSetup&);
 
   // variables
 
@@ -68,6 +70,8 @@ class GlobePhotons {
   Float_t pho_feta[MAX_PHOTONS][5];
   Float_t pho_crackcorr[MAX_PHOTONS];
   Float_t pho_localcorr[MAX_PHOTONS];
+
+  Float_t pho_n[MAX_PHOTONS];
 
   //fiducial flags
   Int_t pho_isEB[MAX_PHOTONS];
