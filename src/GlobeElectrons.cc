@@ -1,5 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeElectrons.h"
-//#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
@@ -12,7 +12,7 @@
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
-
+#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollection.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
