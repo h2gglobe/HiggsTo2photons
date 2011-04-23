@@ -71,7 +71,7 @@ class GlobePhotons {
   Float_t pho_crackcorr[MAX_PHOTONS];
   Float_t pho_localcorr[MAX_PHOTONS];
 
-  Float_t pho_n[MAX_PHOTONS];
+  Float_t pho_h[MAX_PHOTONS];
 
   //fiducial flags
   Int_t pho_isEB[MAX_PHOTONS];
