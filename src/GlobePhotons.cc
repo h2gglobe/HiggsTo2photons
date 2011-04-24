@@ -173,7 +173,6 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_zernike20",&pho_zernike20,"pho_zernike20[pho_n]/F");
   tree->Branch("pho_zernike42",&pho_zernike42,"pho_zernike42[pho_n]/F");
   tree->Branch("pho_e2nd",&pho_e2nd,"pho_e2nd[pho_n]/F");
-  tree->Branch("pho_e5x5",&pho_e5x5,"pho_e5x5[pho_n]/F");
 
   tree->Branch("pho_e2x5right",&pho_e2x5right,"pho_e2x5right[pho_n]/F");
   tree->Branch("pho_e2x5left",&pho_e2x5left,"pho_e2x5left[pho_n]/F");
