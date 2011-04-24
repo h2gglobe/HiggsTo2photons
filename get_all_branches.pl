@@ -306,18 +306,23 @@ foreach $filename (@files) {
 		    print "ERROR TVector3 $line\n";
 		}
 	    }
-		  elsif(($line=~ /std::vector<std::short>/)) {
-          system "echo '$line' >> $output5";
-		  }
-		  elsif(($line=~ /std::vector<unsigned short>/)) {
-          system "echo '$line' >> $output5";
-		  }
-		  elsif(($line=~ /std::vector<int>/)) {
-          system "echo '$line' >> $output5";
-		  }
-		  elsif(($line=~ /std::map/)) {
-          system "echo '$line' >> $output5";
-		  }
+            elsif(($line=~ /std::vector/)) {
+		if(($line=~ /(.*std::vector.*\* *)(.+)_(.+)_(.+)/)) {
+		    system "echo '$1$2$names[$i]$3_$4' >> $output5";
+		}
+		elsif(($line=~ /(.*std::vector.*\* *)(.+)_(.+)/)) {
+		    system "echo '$1$2$names[$i]$3' >> $output5";
+		}
+		elsif(($line=~ /(.*std::vector.*\* *)(.+)/)) {
+		    system "echo '$1$2' >> $output5";
+		}
+		else {
+		    print "ERROR std::vector $line\n";
+		}
+	    }
+            elsif(($line=~ /std::map/)) {
+		system "echo '$line' >> $output5";
+	    }
 	    else {
 		print "****UNACCOUNTED**** $line";
 	    }
