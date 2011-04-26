@@ -140,6 +140,7 @@ elif flagData is 'ON':
   process.h2ganalyzer.doGenJet_algo2 = False
   process.h2ganalyzer.doGenJet_algo3 = False
   process.h2ganalyzer.doGenParticles = False
+  process.h2ganalyzer.doGenVertices = False
   process.h2ganalyzer.doReducedGen = False
 
 if flagMC is 'ON' and flagAOD is 'OFF':
@@ -147,13 +148,11 @@ if flagMC is 'ON' and flagAOD is 'OFF':
   process.h2ganalyzer.doSimTrackPlusSimVertex = False
 
 if flagAOD is 'ON':
-  process.h2ganalyzer.doPFCandidates = False
   process.h2ganalyzer.doAodSim = True
   process.h2ganalyzer.doHcal = False
   process.h2ganalyzer.doHFHcal = False
   process.h2ganalyzer.doPreshowerHits = False
 else:
-  process.h2ganalyzer.doPFCandidates = True
   process.h2ganalyzer.doAodSim = False
   process.h2ganalyzer.doHcal = True
   process.h2ganalyzer.doHFHcal = True
