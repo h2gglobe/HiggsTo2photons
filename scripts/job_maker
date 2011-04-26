@@ -222,7 +222,8 @@ for run in runselection:
     print "crab -cfg crab_"+job_name+".cfg -create -submit"
     print "cd -"
 
-    checker = open("../test/crabTasks/checker", "w+")
-    checker.write("crab -c "+job_name+"/"+job_name+" -status")
-    checker.write("crab -c "+job_name+"/"+job_name+" -get")
+    checker = open("../test/crabTasks/checker", "a+")
+    checker.write("crab -c "+job_name+"/"+job_name+" -status\n")
+    checker.write("crab -c "+job_name+"/"+job_name+" -get\n")
+    checker.write("crab -c "+job_name+"/"+job_name+" -status\n")
     checker.close()
