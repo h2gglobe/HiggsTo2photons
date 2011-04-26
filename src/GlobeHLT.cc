@@ -155,7 +155,7 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     if(debug_level > 99) 
       std::cout << iCand << "=" << hlt_n << std::endl;
     if (hlt_n >= MAX_HLT) {
-      std::cout << "GlobeHLT: WARNING TOO MANY HLT CANDIDATES: (allowed " << MAX_HLT << ")" << std::endl;
+      std::cout << "GlobeHLT: WARNING TOO MANY HLT CANDIDATES:  " << hlt_n << " found (allowed " << MAX_HLT << ")" << std::endl;
       break;
     }
     

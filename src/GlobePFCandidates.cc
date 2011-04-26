@@ -162,13 +162,15 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
       
 
-
+    
     if (phos!=0){
 
       int coding = 1;
       
       //pho_n = 0;
       pfcand_overlappho[pfcand_n] = 0;
+
+      /*
       //pfcand_overlappho[pfcand_n][pho_n] = 0;
 
       for (Int_t i=0; i<phos->pho_n; i++){
@@ -223,8 +225,8 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  }
 
 	}
-
       }
+      */
     }
     
     

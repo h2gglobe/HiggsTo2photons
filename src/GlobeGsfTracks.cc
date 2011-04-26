@@ -123,18 +123,18 @@ bool GlobeGsfTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     gsf_tk_hp_nlost[gsf_tk_n] =  tk->hitPattern().numberOfLostHits();
     gsf_tk_hp_nvalidpix[gsf_tk_n] =  tk->hitPattern().numberOfValidPixelHits();
 
-    if (cacheIDMagField_!=iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier()){
-
-      cacheIDMagField_=iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier();
-      iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
-    }
-
-    if (cacheIDTDGeom_!=iSetup.get<TrackerDigiGeometryRecord>().cacheIdentifier()){
-      cacheIDTDGeom_=iSetup.get<TrackerDigiGeometryRecord>().cacheIdentifier();
-      iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
-    }
-
     if (!doAodSim) {
+      if (cacheIDMagField_!=iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier()){
+	
+	cacheIDMagField_=iSetup.get<IdealMagneticFieldRecord>().cacheIdentifier();
+	iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
+      }
+      
+      if (cacheIDTDGeom_!=iSetup.get<TrackerDigiGeometryRecord>().cacheIdentifier()){
+	cacheIDTDGeom_=iSetup.get<TrackerDigiGeometryRecord>().cacheIdentifier();
+	iSetup.get<TrackerDigiGeometryRecord>().get(trackerHandle_);
+      }
+
       const MultiTrajectoryStateTransform *mtsTransform_ = new MultiTrajectoryStateTransform(trackerHandle_.product(),theMagField.product());
       const MultiTrajectoryStateMode *mtsMode_ = new MultiTrajectoryStateMode();
       TrajectoryStateOnSurface innTSOS_;

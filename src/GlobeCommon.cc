@@ -46,7 +46,6 @@ bool GlobeCommon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     weight = event->weights().front();
   } else {
-    std::cout << "HepMCEvt.isValid() = " << HepMCEvt.isValid() << std::endl;
 
     pthat = -1;
     process_id = -1;
