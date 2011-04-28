@@ -1,9 +1,0 @@
-output=Data2011_reduced.root
-Fil=/afs/cern.ch/user/n/nckw/public/data.root typ=1
-
-->
-filestoreduce.dat
-add the files to be reduced and their types
-->
-
-
