@@ -41,6 +41,7 @@ def cleanfiles(dir):
 def removeduplicated(dir):
 	jobnum=[]
 	subnum=[]
+	if dir[len(dir)-1:len(dir)]!="/": dir+="/" 
 	filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
 	for i in range(len(filename)):
 		filename[i] = filename[i].strip("\n")
@@ -55,10 +56,19 @@ def removeduplicated(dir):
 	for i in range(max(jobnum)):
 		if (jobnum.count(i)>1):
 			lastsubmission=max(subnum[jobnum.index(i):jobnum.index(i)+jobnum.count(i)-1])
-			for j in range(jobnum.index(i),jobnum.index(i)+jobnum.count(i)-1):
-				newfilename = filename[j].replace(".root",".duplicate")
-				print "Moving duplicate file %s to %s" %(filename[j],newfilename)
-				popen("rfrename "+dir+filename[j]+" "+dir+newfilename)
+			firstsubmission=min(subnum[jobnum.index(i):jobnum.index(i)+jobnum.count(i)-1])
+			if lastsubmission!=firstsubmission:
+				for j in range(jobnum.index(i),jobnum.index(i)+jobnum.count(i)-1):
+					newfilename = filename[j].replace(".root",".duplicate")
+					print "Moving duplicate file %s to %s" %(filename[j],newfilename)
+					popen("rfrename "+dir+filename[j]+" "+dir+newfilename)
+			elif lastsubmission==firstsubmission:
+				timesort = popen("rfdir "+dir+" | grep "+filename[jobnum.index(i)][:filename[jobnum.index(i)].rfind("_")]+" | sort -k 7,8 | awk '{print $9}' ").readlines()
+				for j in range(len(timesort)-1):
+					timesort[j] = timesort[j].strip("\n")
+					newfilename = timesort[j].replace(".root",".duplicate")
+					print "Moving duplicate file %s to %s" %(timesort[j],newfilename)
+					popen("rfrename "+dir+timesort[j]+" "+dir+newfilename)
 
 def makefilelists(dir):
 	dirlist = dir.split("/")
@@ -97,8 +107,8 @@ for i in range(len(filelists)):
 	NumFiles = popen("cat "+filelist+" | wc | awk '{print $1}'").readlines()
 	NumFiles[0] = NumFiles[0].strip("\n")
 	myOptions.THREADS = NumFiles[0]
-	if (int(NumFiles[0])>25): myOptions.THREADS="25"
-	if (options.singlethread): myOptions.THREADS="1"
+	if int(NumFiles[0])>25: myOptions.THREADS="25"
+	if options.singlethread: myOptions.THREADS="1"
 	drExit = data_replica.data_replica(fileName, myOptions)
 	if (drExit!=0 and not(options.DRYRUN)):
 		print "Some errors in copying"
