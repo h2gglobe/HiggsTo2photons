@@ -26,7 +26,7 @@ def removeduplicated(dir):
 	jobnum=[]
 	subnum=[]
 	if dir[len(dir)-1:len(dir)]!="/": dir+="/" 
-	filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
+	filename = popen("rfdir "+dir+" | grep .root | awk '{print $9}' ").readlines()
 	for i in range(len(filename)):
 		filename[i] = filename[i].strip("\n")
 		regsearch = re.search('[0-9]*_[0-9]*_[A-Za-z0-9]*.root',filename[i])
@@ -40,10 +40,19 @@ def removeduplicated(dir):
 	for i in range(max(jobnum)):
 		if jobnum.count(i)>1:
 			lastsubmission=max(subnum[jobnum.index(i):jobnum.index(i)+jobnum.count(i)-1])
-			for j in range(jobnum.index(i),jobnum.index(i)+jobnum.count(i)-1):
-				newfilename = filename[j].replace(".root",".duplicate")
-				print "Moving duplicate file %s to %s" %(filename[j],newfilename)
-				popen("rfrename "+dir+filename[j]+" "+dir+newfilename)
+			firstsubmission=min(subnum[jobnum.index(i):jobnum.index(i)+jobnum.count(i)-1])
+			if lastsubmission!=firstsubmission:
+				for j in range(jobnum.index(i),jobnum.index(i)+jobnum.count(i)-1):
+					newfilename = filename[j].replace(".root",".duplicate")
+					print "Moving duplicate file %s to %s" %(filename[j],newfilename)
+					popen("rfrename "+dir+filename[j]+" "+dir+newfilename)
+			elif lastsubmission==firstsubmission:
+				timesort = popen("rfdir "+dir+" | grep "+filename[jobnum.index(i)][:filename[jobnum.index(i)].rfind("_")]+" | sort -k 7,8 | awk '{print $9}' ").readlines()
+				for j in range(len(timesort)-1):
+					timesort[j] = timesort[j].strip("\n")
+					newfilename = timesort[j].replace(".root",".duplicate")
+					print "Moving duplicate file %s to %s" %(timesort[j],newfilename)
+					popen("rfrename "+dir+timesort[j]+" "+dir+newfilename)
 
 dir = options.directory
 if dir[len(dir)-1:len(dir)]!="/": dir+="/" 
