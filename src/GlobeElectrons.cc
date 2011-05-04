@@ -43,7 +43,7 @@ float GlobeElectrons::hoeCalculator(const reco::BasicCluster* clus, const CaloGe
   DetId hcalDetId ;
   hcalDetId = geometry_p->getClosestCell(pclu) ;
 
-   CaloRecHitMetaCollection f;
+  CaloRecHitMetaCollection f;
   f.add(hithbhe_);
   CaloRecHitMetaCollection::const_iterator iterRecHit; 
   iterRecHit = f.find(hcalDetId) ;
@@ -387,6 +387,10 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_hp_1pxf", nome);
   sprintf(a2, "el_%s_hp_1pxf[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_1pxf, a2);
+
+  //sprintf(a1, "el_%s_conv", nome);
+  //sprintf(a2, "el_%s_conv[el_%s_n]/I", nome, nome);
+  //tree->Branch(a1, &el_conv, a2);
 }
 
 
@@ -395,7 +399,14 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // take collections
   edm::Handle<reco::GsfElectronCollection> elH;
   iEvent.getByLabel(electronColl, elH);
-  
+
+  //edm::Handle<reco::ConversionCollection> hConversions;
+  //iEvent.getByLabel("trackerOnlyConversions", hConversions);
+
+  //edm::Handle<reco::BeamSpot> bsHandle;
+  //event.getByLabel("offlineBeamSpot", bsHandle);
+  //const reco::BeamSpot &thebs = *bsHandle.product();
+
   edm::Handle<reco::TrackCollection> tkH;
   iEvent.getByLabel(trackColl, tkH);
 
@@ -520,6 +531,9 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_fbrem[el_n] = egsf.fbrem();
 
     el_h[el_n] = hoeCalculator(&(*(egsf.superCluster()->seed())), geometry, iEvent, iSetup);
+
+    //bool passconversionveto = !ConversionTools::hasMatchedConversion(egsf, hConversions, thebs.position());
+    //el_conv[el_n] = int(passconversionveto);
 
     el_eseed[el_n] = egsf.superCluster()->seed()->energy();
     el_eseedopout[el_n] = egsf.eSeedClusterOverPout();

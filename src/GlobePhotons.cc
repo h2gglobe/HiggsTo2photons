@@ -1,4 +1,4 @@
-
+//#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePhotons.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
@@ -150,7 +150,9 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_seed_outoftimechi2",&pho_seed_outoftimechi2,"pho_seed_outoftimechi2[pho_n]/F");
   tree->Branch("pho_seed_chi2",&pho_seed_chi2,"pho_seed_chi2[pho_n]/F");
   tree->Branch("pho_seed_recoflag",&pho_seed_recoflag,"pho_seed_recoflag[pho_n]/F");
-
+  
+  //tree->Branch("pho_isconv", &pho_isconv, "pho_isconv[pho_n]/I");
+  
   pho_conv_vtx = new TClonesArray("TVector3", MAX_PHOTONS);
   tree->Branch("pho_conv_vtx", "TClonesArray", &pho_conv_vtx, 32000, 0);
   pho_conv_pair_momentum = new TClonesArray("TVector3", MAX_PHOTONS);
@@ -171,6 +173,17 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   // get collections
   edm::Handle<reco::PhotonCollection> phoH;
   iEvent.getByLabel(photonCollStd, phoH);
+
+  //edm::Handle<reco::BeamSpot> bsHandle;
+  //event.getByLabel("offlineBeamSpot", bsHandle);
+  //const reco::BeamSpot &thebs = *bsHandle.product();
+
+  //edm::Handle<reco::ConversionCollection> hConversions;
+  //event.getByLabel("trackerOnlyConversions", hConversions);
+
+  //edm::Handle<reco::GsfElectronCollection> hElectrons;
+  //event.getByLabel("gsfElectrons", hElectrons);
+
 
   if (debug_level > 9) {
     std::cout << "GlobePhotons: Start analyze" << std::endl;
@@ -378,6 +391,10 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_trksumpthollowconedr03[pho_n] = localPho.trkSumPtHollowConeDR03();
     pho_ntrksolidconedr03[pho_n] = localPho.nTrkSolidConeDR03();
     pho_ntrkhollowconedr03[pho_n] = localPho.nTrkHollowConeDR03();
+
+    //bool passelectronveto = !hasMatchedPromptElectron(ph->superCluster(), hElectrons, hConversions, thebs.position());
+    //pho_isconv[pho_n] = int(passelectronveto);
+
 
     //other variables
     pho_haspixseed[pho_n] = localPho.hasPixelSeed();

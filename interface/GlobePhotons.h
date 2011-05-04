@@ -167,6 +167,7 @@ class GlobePhotons {
   Float_t pho_conv_chi2_probability[MAX_PHOTONS];
   Int_t pho_conv_validvtx[MAX_PHOTONS];
   Float_t pho_conv_MVALikelihood[MAX_PHOTONS];
+  Int_t pho_isconv[MAX_PHOTONS];
   
   TClonesArray *pho_p4;
   TClonesArray *pho_calopos;

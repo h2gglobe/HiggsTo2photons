@@ -110,7 +110,8 @@ class GlobeElectrons {
   Int_t el_scind[MAX_ELECTRONS];
   Int_t el_crack[MAX_ELECTRONS];
   Int_t el_tkind[MAX_ELECTRONS];
-
+  Int_t el_conv[MAX_ELECTRONS];
+  
   Int_t el_nambtk[MAX_ELECTRONS];
 
   Int_t el_roloose[MAX_ELECTRONS];
