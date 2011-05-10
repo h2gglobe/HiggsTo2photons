@@ -99,6 +99,12 @@ class GlobePhotons {
   Float_t pho_zernike20[MAX_PHOTONS];
   Float_t pho_zernike42[MAX_PHOTONS];
 
+// pi0 disc variable
+  Float_t pho_pi0disc[MAX_PHOTONS];
+
+// OutIn Conv trks variable
+  Int_t pho_IsConvOutIn[MAX_PHOTONS];
+
   Float_t pho_e2nd[MAX_PHOTONS];
   Float_t pho_e2x5right[MAX_PHOTONS];
   Float_t pho_e2x5left[MAX_PHOTONS];

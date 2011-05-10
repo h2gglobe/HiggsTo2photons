@@ -23,6 +23,17 @@ if flagAOD is 'ON':
   process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_41X_AOD_cfi")
 else:
   process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_41X_RECO_cfi")
+  ###############
+  #pi0 disc
+  process.load("RecoEcal.EgammaClusterProducers.preshowerClusterShape_cfi")
+  process.load("EgammaAnalysis.PhotonIDProducers.piZeroDiscriminators_cfi")
+  
+  #rerun ConvId
+  process.load("RecoEgamma.EgammaPhotonProducers.conversionTrackSequence_cff")
+  # NOTICE: You need the following two python files to rerun the conversion tracking with ECAL association
+  process.load("RecoEgamma.EgammaPhotonProducers.conversionTrackCandidates_cfi")
+  process.load("RecoEgamma.EgammaPhotonProducers.ckfOutInTracksFromConversions_cfi")
+  ###############
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("PhysicsTools/PatAlgos/patSequences_cff")
@@ -124,7 +135,16 @@ process.kt6PFJets = process.kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
 process.kt6PFJets.Rho_EtaMax = cms.double(2.5)
 
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
-process.p11 = cms.Path(process.eventFilter1*process.kt6PFJets*process.h2ganalyzerPath)
+if flagAOD is 'ON':
+  process.p11 = cms.Path(process.eventFilter1*process.kt6PFJets*process.h2ganalyzerPath)
+else:
+  process.p11 = cms.Path( process.eventFilter1*
+                        process.kt6PFJets*
+                        process.conversionTrackCandidates*
+		                    process.ckfOutInTracksFromConversions*
+                        process.preshowerClusterShape*
+		                    process.piZeroDiscriminators*
+                        process.h2ganalyzerPath)
 
 process.h2ganalyzer.JobMaker = jobMaker
 
