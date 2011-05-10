@@ -6,6 +6,30 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
+///////////////
+// pi0 disc
+#include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
+// OutIn Conv tracks
+//
+#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackEcalImpactPoint.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionTrackPairFinder.h"
+#include "RecoEgamma/EgammaPhotonAlgos/interface/ConversionVertexFinder.h"
+#include "RecoEgamma/EgammaPhotonProducers/interface/ConvertedPhotonProducer.h"
+
+#include "RecoTracker/Record/interface/CkfComponentsRecord.h"
+#include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
+
+//
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
+#include "TrackingTools/PatternTools/interface/TwoTrackMinimumDistance.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
+
+#include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
+/////////////////
+
 GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
 
   debug_level = iConfig.getParameter<int>("Debug_Level");
@@ -70,6 +94,13 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_r1x5",&pho_r1x5,"pho_r1x5[pho_n]/F");
   tree->Branch("pho_r2x5",&pho_r2x5,"pho_r2x5[pho_n]/F");
   tree->Branch("pho_r9",&pho_r9,"pho_r9[pho_n]/F");
+  
+  // added by Aris
+  // pi0 disc
+  tree->Branch("pho_pi0disc",&pho_pi0disc,"pho_pi0disc[pho_n]/F");
+  // OutIn Conv trks
+  tree->Branch("pho_IsConvOutIn",&pho_IsConvOutIn,"pho_IsConvOutIn[pho_n]/I");
+  ////////
 
   //isolation variables
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
@@ -174,6 +205,41 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<reco::PhotonCollection> phoH;
   iEvent.getByLabel(photonCollStd, phoH);
 
+  ///////////////
+  // take the pi0 rejection info from RECO
+  edm::Handle<reco::PhotonPi0DiscriminatorAssociationMap>  map;
+  iEvent.getByLabel("piZeroDiscriminators","PhotonPi0DiscriminatorAssociationMap",  map);
+  reco::PhotonPi0DiscriminatorAssociationMap::const_iterator mapIter;
+
+  edm::Handle<reco::PhotonCollection> R_PhotonHandle;
+  iEvent.getByLabel("photons", "", R_PhotonHandle);
+  const reco::PhotonCollection R_photons = *(R_PhotonHandle.product());   
+
+  // Transform Track into TransientTrack (needed by the Vertex fitter)
+  edm::ESHandle<TransientTrackBuilder> theTTkBuilder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theTTkBuilder);
+
+  //// Get the Out In CKF tracks from conversions 
+  bool validTrackInputs=true;
+  edm::Handle<reco::TrackCollection> outInTrkHandle;
+  iEvent.getByLabel("ckfOutInTracksFromConversions",  outInTrkHandle);
+  if (!outInTrkHandle.isValid()) {
+    std::cout << "Error! Can't get the conversionOITrack " << "\n";
+    validTrackInputs=false;
+  }
+  if (debug_level > 9)
+    std::cout  << "ConvertedPhotonProducer  outInTrack collection size " << (*outInTrkHandle).size() << "\n";
+
+  //// Get the association map between CKF Out In tracks and the SC where they originated
+  edm::Handle<reco::TrackCaloClusterPtrAssociation> outInTrkSCAssocHandle;
+  iEvent.getByLabel( "ckfOutInTracksFromConversions" , "outInTrackSCAssociationCollection", outInTrkSCAssocHandle);
+  if (!outInTrkSCAssocHandle.isValid()) {
+    //  std::cout << "Error! Can't get the product " <<  outInTrackSCAssociationCollection_.c_str() <<"\n";
+    validTrackInputs=false;
+  }
+
+  std::vector<reco::TransientTrack> t_outInTrk = ( *theTTkBuilder).build(outInTrkHandle );
+  ///////////////
   //edm::Handle<reco::BeamSpot> bsHandle;
   //event.getByLabel("offlineBeamSpot", bsHandle);
   //const reco::BeamSpot &thebs = *bsHandle.product();
@@ -186,6 +252,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 
   if (debug_level > 9) {
+    std::cout  << "ConvertedPhotonProducer  outInTrack association map with SC collection size " << (*outInTrkSCAssocHandle).size() << "\n";
     std::cout << "GlobePhotons: Start analyze" << std::endl;
   }
 
@@ -348,6 +415,46 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_r1x5[pho_n] = localPho.r1x5();
     pho_r2x5[pho_n] = localPho.r2x5();
     pho_r9[pho_n] = localPho.r9();
+
+    // Added by Aris - Begin
+    int R_nphot = 0;
+    float nn = -1.;
+    pho_pi0disc[pho_n] = nn;
+    for( reco::PhotonCollection::const_iterator  R_phot_iter = R_photons.begin(); R_phot_iter != R_photons.end(); R_phot_iter++) { 
+      mapIter = map->find(edm::Ref<reco::PhotonCollection>(R_PhotonHandle,R_nphot));
+      if(mapIter!=map->end()) {
+        nn = mapIter->val;
+      }
+      if(iPho->p4() == R_phot_iter->p4()) pho_pi0disc[pho_n] = nn;
+      R_nphot++;              
+    }
+      
+    int iTrk=0;
+    bool ConvMatch = false;
+    for( std::vector<reco::TransientTrack>::iterator  iTk =  t_outInTrk.begin(); iTk !=  t_outInTrk.end(); iTk++) {
+      edm::Ref<reco::TrackCollection> trackRef(outInTrkHandle, iTrk );    
+      iTrk++;
+     
+      const reco::CaloClusterPtr  aClus = (*outInTrkSCAssocHandle)[trackRef];
+
+      float conv_SC_et = aClus->energy()/cosh(aClus->eta());
+      float conv_SC_eta = aClus->eta(); float conv_SC_phi = aClus->phi(); 
+            
+      if((*iPho).superCluster()->position() == aClus->position()) {
+        ConvMatch = true;	      
+        if (debug_level > 9) {
+         std::cout <<  " ---> ConversionTrackPairFinder track from handle hits " 
+	           << trackRef->recHitsSize() << " inner pt  " 
+	           << sqrt(iTk->track().innerMomentum().perp2()) << "\n";  
+         std::cout << " ---> ConversionTrackPairFinder  Out In track belonging to SC with (Et,eta,phi) (" 
+            << conv_SC_et << "," << conv_SC_eta << "," <<  conv_SC_phi << ")\n"; 
+        }
+      } 
+    }
+    
+    pho_IsConvOutIn[pho_n] = (int)ConvMatch; 
+    // Added by Aris - End
+
 
     // more cluster shapes from Lazy Tools
     std::vector<float> viCov;
