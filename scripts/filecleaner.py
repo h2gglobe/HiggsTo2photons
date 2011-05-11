@@ -21,6 +21,12 @@ def cleanfiles(dir):
 			newfilename = filename[i].replace(".root",".resubmit")
 			print "Moving corrupted file %s to %s" %(filename[i], jobnum[i], subnum[i])
 			popen("rfrename "+dir+filename[j]+" "+dir+newfilename)
+		else:
+			TestTree = testfile.Get("event")
+			if TestTree.GetEntries()==0:
+				newfilename = filename[i].replace(".root",".empty")
+				print "Moving corrupted file %s to %s" %(filename[i], jobnum[i], subnum[i])
+				popen("rfrename "+dir+filename[j]+" "+dir+newfilename)
 
 def removeduplicated(dir):
 	jobnum=[]
