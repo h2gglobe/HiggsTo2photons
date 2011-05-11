@@ -37,6 +37,12 @@ def cleanfiles(dir):
 				newfilename = filename[i].replace(".root",".resubmit")
 				print "Moving corrupted file %s to %s" %(filename[i], jobnum[i], subnum[i])
 				popen("rfrename "+dir+filename[j]+" "+dir+newfilename)
+			else:
+				TestTree = testfile.Get("event")
+				if TestTree.GetEntries()==0:
+					newfilename = filename[i].replace(".root",".empty")
+					print "Moving corrupted file %s to %s" %(filename[i], jobnum[i], subnum[i])
+					popen("rfrename "+dir+filename[j]+" "+dir+newfilename)
 
 def removeduplicated(dir):
 	jobnum=[]
@@ -74,7 +80,7 @@ def makefilelists(dir):
 	dirlist = dir.split("/")
 	outputfile = dirlist[len(dirlist)-2]+".filelist"
 	print "Making %s for directory %s" %(outputfile,dir)
-	popen("nsfind "+dir+" | grep .root >& "+outputfile)
+	popen("nsfind "+dir+" | grep '.root\|.json' >& "+outputfile)
 
 dir = options.directory
 if (dir[len(dir)-1:len(dir)]!="/"): dir+="/" 
