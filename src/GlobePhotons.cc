@@ -18,7 +18,7 @@
 
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
-
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 //
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TrackTransientTrack.h"
@@ -175,7 +175,7 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_etop",&pho_etop,"pho_etop[pho_n]/F");
   tree->Branch("pho_ebottom",&pho_ebottom,"pho_ebottom[pho_n]/F");
 
-  tree->Branch("pho_e2overe9",&pho_e2overe9,"pho_e2overe9[pho_n]/F");
+  //tree->Branch("pho_e2overe9",&pho_e2overe9,"pho_e2overe9[pho_n]/F");
   tree->Branch("pho_seed_severity",&pho_seed_severity,"pho_seed_severity[pho_n]/F");
   tree->Branch("pho_seed_time",&pho_seed_time,"pho_seed_time[pho_n]/F");
   tree->Branch("pho_seed_outoftimechi2",&pho_seed_outoftimechi2,"pho_seed_outoftimechi2[pho_n]/F");
@@ -474,8 +474,14 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_ebottom[pho_n] = lazyTool.eBottom(*seed_clu);
 
     //spike-ID
-    pho_e2overe9[pho_n] = EcalSeverityLevelAlgo::E2overE9( id, *prechits, 5.0, 0.0);
-    pho_seed_severity[pho_n] = EcalSeverityLevelAlgo::severityLevel( id, *prechits, *chStatus );
+    //pho_e2overe9[pho_n] = EcalSeverityLevelAlgo::E2overE9( id, *prechits, 5.0, 0.0);
+    edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+    iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+    const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
+    //pho_seed_severity[pho_n] = EcalSeverityLevelAlgo::severityLevel(id, *prechits);//, *chStatus );
+    pho_seed_severity[pho_n] = sevLevel->severityLevel(id, *prechits);
+
+
     pho_seed_time[pho_n] = seedcry_rh != prechits->end() ? seedcry_rh->time() : 999.;
     pho_seed_outoftimechi2[pho_n] = seedcry_rh != prechits->end() ? seedcry_rh->outOfTimeChi2() : 999.;
     pho_seed_chi2[pho_n] = seedcry_rh != prechits->end() ? seedcry_rh->chi2() : 999.;

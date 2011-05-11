@@ -205,7 +205,7 @@ bool GlobeSelector::selectRecoElectrons(GlobeElectrons* el) {
   if(el) for (int i = 0 ; i < el->el_n; i++){
     TLorentzVector * elp4 = (TLorentzVector *) el->el_p4->At(i);
     // std::cout<<"El energy = "<<elp4->E()<<"\t id :"<<el->el_robust[i]<<std::endl;
-    if( fabs(elp4->Eta()) < 3. && elp4->Et() > 5. && el->el_roloose[i] == 1)
+    if( fabs(elp4->Eta()) < 3. && elp4->Et() > 5.)// && el->el_roloose[i] == 1)
     {
       nel++;
     }
