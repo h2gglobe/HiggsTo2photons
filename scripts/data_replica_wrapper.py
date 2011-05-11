@@ -29,20 +29,21 @@ class drOptions:
 	pass
 
 def cleanfiles(dir):
-		filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
-		for i in range(len(filename)):
-			filename[i] = filename[i].strip("\n")
-			testfile = TFile.Open("rfio:"+dir+"/"+filename[i])
-			if (testfile.IsZombie()):
-				newfilename = filename[i].replace(".root",".resubmit")
-				print "Moving corrupted file %s to %s" %(filename[i], jobnum[i], subnum[i])
-				popen("rfrename "+dir+filename[j]+" "+dir+newfilename)
-			else:
-				TestTree = testfile.Get("event")
-				if TestTree.GetEntries()==0:
-					newfilename = filename[i].replace(".root",".empty")
-					print "Moving corrupted file %s to %s" %(filename[i], jobnum[i], subnum[i])
-					popen("rfrename "+dir+filename[j]+" "+dir+newfilename)
+	if dir[len(dir)-1:len(dir)]!="/": dir+="/" 
+	filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
+	for i in range(len(filename)):
+		filename[i] = filename[i].strip("\n")
+		testfile = TFile.Open("rfio:"+dir+filename[i])
+		if testfile.IsZombie():
+			newfilename = filename[i].replace(".root",".resubmit")
+			print "Moving corrupted file %s to %s" %(filename[i], newfilename)
+			popen("rfrename "+dir+filename[i]+" "+dir+newfilename)
+		else:
+			TestTree = testfile.Get("event")
+			if TestTree.GetEntries()==0:
+				newfilename = filename[i].replace(".root",".empty")
+				print "Moving corrupted file %s to %s" %(filename[i], newfilename)
+				popen("rfrename "+dir+filename[i]+" "+dir+newfilename)
 
 def removeduplicated(dir):
 	jobnum=[]
