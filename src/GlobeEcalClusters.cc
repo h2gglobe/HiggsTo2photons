@@ -74,7 +74,6 @@ void GlobeEcalClusters::defineBranch(TTree* tree) {
   tree->Branch("sc_2xN", &sc_2xN, "sc_2xN[sc_n]/F");
   tree->Branch("sc_5xN", &sc_5xN, "sc_5xN[sc_n]/F");
   tree->Branch("sc_sieie", &sc_sieie, "sc_sieie[sc_n]/F");
-  //tree->Branch("sc_see", &sc_see, "sc_see[sc_n]/F");
   tree->Branch("sc_nbc", &sc_nbc, "sc_nbc[sc_n]/I");
   tree->Branch("sc_bcseedind", &sc_bcseedind, "sc_bcseedind[sc_n]/I");
   sprintf (a2, "sc_bcind[sc_n][%d]/I", MAX_SUPERCLUSTER_BASICCLUSTERS);
@@ -89,21 +88,15 @@ void GlobeEcalClusters::defineBranch(TTree* tree) {
   tree->Branch("bc_xyz", "TClonesArray", &bc_xyz, 32000, 0);
   tree->Branch("bc_nhits", &bc_nhits,"bc_nhits[bc_n]/I");
   tree->Branch("bc_s1", &bc_s1, "bc_s1[bc_n]/F");
-  tree->Branch("bc_rook", &bc_rook, "bc_rook[bc_n]/F");
   tree->Branch("bc_chx", &bc_chx, "bc_chx[bc_n]/F");
   tree->Branch("bc_s4", &bc_s4, "bc_s4[bc_n]/F");
   tree->Branch("bc_s9", &bc_s9, "bc_s9[bc_n]/F");
   tree->Branch("bc_s25", &bc_s25, "bc_s25[bc_n]/F");
-  //tree->Branch("bc_hoe", &bc_hoe, "bc_hoe[bc_n]/F");
-  //tree->Branch("bc_radius", &bc_radius, "bc_radius[bc_n]/F");
-  //tree->Branch("bc_z", &bc_z, "bc_z[bc_n]/F");
-  tree->Branch("bc_spp", &bc_spp, "bc_spp[bc_n]/F");
-  tree->Branch("bc_see", &bc_see, "bc_see[bc_n]/F");
-  tree->Branch("bc_sep", &bc_sep, "bc_sep[bc_n]/F");
-  tree->Branch("bc_type", &bc_type, "bc_type[bc_n]/I");//type 1 = hybrid, 2 = island endcap, 3 = island barrel.
+  tree->Branch("bc_sipip", &bc_sipip, "bc_sipip[bc_n]/F");
   tree->Branch("bc_sieie", &bc_sieie, "bc_sieie[bc_n]/F");
-
-  tree->Branch("bc_seed", &bc_seed, "bc_seed[bc_n]/I");
+  tree->Branch("bc_sieip", &bc_sieip, "bc_sieip[bc_n]/F");
+  tree->Branch("bc_type", &bc_type, "bc_type[bc_n]/I");//type 1 = hybrid, 2 = island endcap, 3 = island barrel.
+  //tree->Branch("bc_seed", &bc_seed, "bc_seed[bc_n]/I");
 }
 
 //----------------------------------------------------------------------
@@ -469,17 +462,15 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
     rook_vect.push_back(EcalClusterTools::eTop(*(bc), &(*endcapRecHits), &(*topology)));
     rook_vect.push_back(EcalClusterTools::eBottom(*(bc), &(*endcapRecHits), &(*topology)));
     rook_vect.push_back(EcalClusterTools::eRight(*(bc), &(*endcapRecHits), &(*topology)));
-    bc_rook[bc_n] = *(max_element(rook_vect.begin(), rook_vect.end()));
+    //bc_rook[bc_n] = *(max_element(rook_vect.begin(), rook_vect.end()));
     bc_chx[bc_n] = std::accumulate(rook_vect.begin(), rook_vect.end(), 0.);
 
-    std::vector<float> vCov = EcalClusterTools::covariances( *(bc), &(*endcapRecHits), &(*topology), geometry);
-    
-    bc_see[bc_n] = vCov[0];
-    bc_sep[bc_n] = vCov[1];
-    bc_spp[bc_n] = vCov[2];
+    std::vector<float> vCov = EcalClusterTools::localCovariances( *(bc), &(*endcapRecHits), &(*topology));
+    bc_sieie[bc_n] = sqrt(vCov[0]);
+    bc_sieip[bc_n] = vCov[1];
+    bc_sipip[bc_n] = sqrt(vCov[2]);
+    //bc_sieie[bc_n] = sqrt(EcalClusterTools::localCovariances(*(bc), &(*endcapRecHits), &(*topology))[0]);
 
-    // localCovariances no longer takes geometry as input.  At this point still need to do "cvs co RecoEcal/EgammaClusterTools" from the cern cvs. REMOVE COMENT ONCE TI WORKS
-    bc_sieie[bc_n] = sqrt(EcalClusterTools::localCovariances(*(bc), &(*endcapRecHits), &(*topology))[0]);
     bc_type[bc_n] = 2;
 
     bc_n++;
@@ -544,14 +535,14 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
        rook_vect.push_back(EcalClusterTools::eTop(*(bc), &(*barrelRecHits), &(*topology)));
        rook_vect.push_back(EcalClusterTools::eBottom(*(bc), &(*barrelRecHits), &(*topology)));
        rook_vect.push_back(EcalClusterTools::eRight(*(bc), &(*barrelRecHits), &(*topology)));
-       bc_rook[bc_n] = *(max_element(rook_vect.begin(), rook_vect.end()));
+       //bc_rook[bc_n] = *(max_element(rook_vect.begin(), rook_vect.end()));
        bc_chx[bc_n] = std::accumulate(rook_vect.begin(), rook_vect.end(), 0.);
        
-       std::vector<float> vCov = EcalClusterTools::covariances( *(bc), &(*barrelRecHits), &(*topology), geometry);
+       std::vector<float> vCov = EcalClusterTools::localCovariances( *(bc), &(*barrelRecHits), &(*topology));
        
-       bc_see[bc_n] = vCov[0];
-       bc_sep[bc_n] = vCov[1];
-       bc_spp[bc_n] = vCov[2];
+       bc_sieie[bc_n] = sqrt(vCov[0]);
+       bc_sieip[bc_n] = vCov[1];
+       bc_sipip[bc_n] = sqrt(vCov[2]);
        //bc_seed[bc_n] = bc->seed();
        /*
          bc_s1x5_0[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), 0, 0, -2, 2);
@@ -568,7 +559,8 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
          bc_s3x1_2[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -1, 1, 1, 1);
        */
        // localCovariances no longer takes geometry as input.  At this point still need to do "cvs co RecoEcal/EgammaClusterTools" from the cern cvs. REMOVE COMENT ONCE TI WORKS
-       bc_sieie[bc_n] = sqrt(EcalClusterTools::localCovariances(*(bc), &(*barrelRecHits), &(*topology))[0]);
+       //bc_sieie[bc_n] = sqrt(EcalClusterTools::localCovariances(*(bc), &(*barrelRecHits), &(*topology))[0]);
+
        bc_type[bc_n] = 3;
        
        bc_n++;
@@ -620,20 +612,18 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
     rook_vect.push_back(EcalClusterTools::eTop(*(bc), &(*barrelRecHits), &(*topology)));
     rook_vect.push_back(EcalClusterTools::eBottom(*(bc), &(*barrelRecHits), &(*topology)));
     rook_vect.push_back(EcalClusterTools::eRight(*(bc), &(*barrelRecHits), &(*topology)));
-    bc_rook[bc_n] = *(max_element(rook_vect.begin(), rook_vect.end()));
+    //bc_rook[bc_n] = *(max_element(rook_vect.begin(), rook_vect.end()));
     bc_chx[bc_n] = std::accumulate(rook_vect.begin(), rook_vect.end(), 0.);
 
-    std::vector<float> vCov = EcalClusterTools::covariances( *(bc), &(*barrelRecHits), &(*topology), geometry);
-    bc_see[bc_n] = vCov[0];
-    bc_sep[bc_n] = vCov[1];
-    bc_spp[bc_n] = vCov[2];
+    std::vector<float> vCov = EcalClusterTools::localCovariances( *(bc), &(*barrelRecHits), &(*topology));
+    bc_sieie[bc_n] = sqrt(vCov[0]);
+    bc_sieip[bc_n] = vCov[1];
+    bc_sipip[bc_n] = sqrt(vCov[2]);
 
-
-    // localCovariances no longer takes geometry as input.  At this point still need to do "cvs co RecoEcal/EgammaClusterTools" from the cern cvs. REMOVE COMENT ONCE IT WORKS
-    bc_sieie[bc_n] = sqrt(EcalClusterTools::localCovariances(*(bc), &(*barrelRecHits), &(*topology))[0]);// WAS USING endcapRecHits (CAN SEE FROM LINE BELOW)
     //bc_sieie[bc_n] = sqrt(EcalClusterTools::localCovariances(*(bc), &(*endcapRecHits), &(*topology), &geometry)[0]);
     //bc_2x5_max[bc_n] = EcalClusterTools::e2x5Max(*(bc), &(*endcapRecHits), &(*topology));
     //bc_5x1_sam[bc_n] = EcalClusterTools::e5x1(*(bc), &(*endcapRecHits), &(*topology));
+    
     bc_type[bc_n] = 1;
 
     bc_n++;

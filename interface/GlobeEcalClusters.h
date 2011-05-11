@@ -112,8 +112,7 @@ public:
   Float_t sc_2xN[MAX_SUPERCLUSTERS];
   Float_t sc_5xN[MAX_SUPERCLUSTERS];
   Float_t sc_sieie[MAX_SUPERCLUSTERS];
-  Float_t sc_see[MAX_SUPERCLUSTERS];
-
+ 
 // BASIC CLUSTERS
   Int_t bc_n;
   Int_t bc_hybrid_n;
@@ -122,7 +121,7 @@ public:
   Int_t bc_nhits[MAX_BASICCLUSTERS];
   Int_t bc_type[MAX_BASICCLUSTERS];
 
-  Float_t bc_rook[MAX_BASICCLUSTERS];
+  //Float_t bc_rook[MAX_BASICCLUSTERS];
   Float_t bc_s1[MAX_BASICCLUSTERS];
   Float_t bc_s4[MAX_BASICCLUSTERS];
   Float_t bc_s9[MAX_BASICCLUSTERS];
@@ -130,9 +129,9 @@ public:
   //Float_t bc_hoe[MAX_BASICCLUSTERS];
   //Float_t bc_radius[MAX_BASICCLUSTERS];
   //Float_t bc_z[MAX_BASICCLUSTERS];
-  Float_t bc_spp[MAX_BASICCLUSTERS];
-  Float_t bc_see[MAX_BASICCLUSTERS];
-  Float_t bc_sep[MAX_BASICCLUSTERS];
+  Float_t bc_sipip[MAX_BASICCLUSTERS];
+  Float_t bc_sieie[MAX_BASICCLUSTERS];
+  Float_t bc_sieip[MAX_BASICCLUSTERS];
   Float_t bc_chx[MAX_BASICCLUSTERS];
   
   Float_t bc_s1x5_0[MAX_BASICCLUSTERS];
@@ -147,7 +146,6 @@ public:
   Float_t bc_s3x1_0[MAX_BASICCLUSTERS];
   Float_t bc_s3x1_1[MAX_BASICCLUSTERS];
   Float_t bc_s3x1_2[MAX_BASICCLUSTERS];
-  Float_t bc_sieie[MAX_BASICCLUSTERS];
   Float_t bc_2x5_max[MAX_BASICCLUSTERS];
   Float_t bc_5x1_sam[MAX_BASICCLUSTERS];
   Int_t bc_seed[MAX_BASICCLUSTERS];
