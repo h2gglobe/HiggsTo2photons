@@ -42,12 +42,9 @@ class GlobeElectrons {
   float hoeCalculator(const reco::BasicCluster*, const CaloGeometry&,
                       const edm::Event&, const edm::EventSetup&);
 
-  bool inCrack(float eta);
-
-  bool identify(const reco::GsfElectronRef electron, int type);
-  bool st_identify(const reco::GsfElectronRef electron, int type);
-
-  int classify(const reco::GsfElectronRef electron);
+  //bool identify(const reco::GsfElectronRef electron, int type);
+  //bool st_identify(const reco::GsfElectronRef electron, int type);
+  //int classify(const reco::GsfElectronRef electron);
 
   std::pair<unsigned int, float> sharedHits(const reco::Track& trackA, const reco::Track& trackB);
 
@@ -81,12 +78,11 @@ class GlobeElectrons {
   //Float_t el_emax[MAX_ELECTRONS];
   Float_t el_e1x5[MAX_ELECTRONS];
   Float_t el_e5x5[MAX_ELECTRONS];
-  Float_t el_spp[MAX_ELECTRONS];
-  Float_t el_see[MAX_ELECTRONS];
+  Float_t el_sipip[MAX_ELECTRONS];
   Float_t el_sieie[MAX_ELECTRONS];
   Float_t el_sieiesc[MAX_ELECTRONS];
-  Float_t el_sieie_nolog[MAX_ELECTRONS];
-  Float_t el_sieiesc_nolog[MAX_ELECTRONS];
+  //Float_t el_sieie_nolog[MAX_ELECTRONS];
+  //Float_t el_sieiesc_nolog[MAX_ELECTRONS];
 
   Float_t el_e2x5[MAX_ELECTRONS];
   Float_t el_esc[MAX_ELECTRONS];
@@ -114,11 +110,11 @@ class GlobeElectrons {
   
   Int_t el_nambtk[MAX_ELECTRONS];
 
-  Int_t el_roloose[MAX_ELECTRONS];
-  Int_t el_rotight[MAX_ELECTRONS];
-  Int_t el_rohighe[MAX_ELECTRONS];
-  Int_t el_loose[MAX_ELECTRONS]; 
-  Int_t el_tight[MAX_ELECTRONS];
+  //Int_t el_roloose[MAX_ELECTRONS];
+  //Int_t el_rotight[MAX_ELECTRONS];
+  //Int_t el_rohighe[MAX_ELECTRONS];
+  //Int_t el_loose[MAX_ELECTRONS]; 
+  //Int_t el_tight[MAX_ELECTRONS];
 
   Float_t el_tkiso03[MAX_ELECTRONS];
   Float_t el_ecaliso03[MAX_ELECTRONS];
