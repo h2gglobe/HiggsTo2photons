@@ -60,7 +60,7 @@ def removeduplicated(dir):
 			jobnum.append(int(numarg[0:numarg.find("_")]))
 			subnum.append(int(numarg[numarg.find("_")+1:len(numarg)]))
 
-	for i in range(max(jobnum)):
+	for i in range(max(jobnum)+1):
 		if (jobnum.count(i)>1):
 			lastsubmission=max(subnum[jobnum.index(i):jobnum.index(i)+jobnum.count(i)-1])
 			firstsubmission=min(subnum[jobnum.index(i):jobnum.index(i)+jobnum.count(i)-1])
