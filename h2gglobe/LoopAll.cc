@@ -144,7 +144,6 @@ void LoopAll::DefineSamples(const char *filesshortnam,
     sampleContainer[sample_is_defined].computeWeight(intlumi);
   } else {
     sampleContainer.push_back(SampleContainer());
-    sampleContainer.back().itype = type;
     sampleContainer.back().ntot = ntot;
     sampleContainer.back().nred = nred;
     sampleContainer.back().histoplotit = histoplotit;
