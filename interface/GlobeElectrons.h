@@ -153,7 +153,7 @@ class GlobeElectrons {
   bool doFastSim;
   bool doAodSim;
   GlobeCuts *gCUT;
-  edm::InputTag electronColl, trackColl, trackColl2, vertexColl;
+  edm::InputTag electronColl, trackColl, trackColl2, vertexColl, beamSpotColl, conversionColl;
   std::vector<edm::InputTag> eIDLabels;
 
   int debug_level;
@@ -163,6 +163,7 @@ class GlobeElectrons {
   edm::InputTag endcapSuperClusterColl;  
   edm::InputTag ecalHitEBColl;
   edm::InputTag ecalHitEEColl;
+  edm::InputTag hcalHitColl;
   edm::InputTag dcsTag_;
 };
 

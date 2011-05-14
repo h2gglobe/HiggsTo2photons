@@ -23,6 +23,8 @@
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateMode.h"
 
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include <iostream>
 
@@ -34,7 +36,7 @@ float GlobeElectrons::hoeCalculator(const reco::BasicCluster* clus, const CaloGe
   GlobalPoint pclu(clus->x(),clus->y(),clus->z());
 
   edm::Handle< HBHERecHitCollection > hbhe ;
-  e.getByLabel("reducedHcalRecHits", "hbhereco",hbhe);
+  e.getByLabel(hcalHitColl, hbhe);
   const HBHERecHitCollection* hithbhe_ = hbhe.product();
  
   const CaloSubdetectorGeometry *geometry_p ; 
@@ -63,6 +65,9 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
   debug_level = iConfig.getParameter<int>("Debug_Level");
   doFastSim = iConfig.getParameter<bool>("doFastSim");
   doAodSim = iConfig.getParameter<bool>("doAodSim");
+
+  conversionColl = iConfig.getParameter<edm::InputTag>("ConvertedPhotonColl");
+  beamSpotColl = iConfig.getParameter<edm::InputTag>("BeamSpot");
   trackColl = iConfig.getParameter<edm::InputTag>("TrackColl");
   trackColl2 = iConfig.getParameter<edm::InputTag>("TrackColl3");
   vertexColl = iConfig.getParameter<edm::InputTag>("VertexColl_std");
@@ -71,6 +76,7 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
   endcapSuperClusterColl = iConfig.getParameter<edm::InputTag>("EndcapSuperClusterColl");
   ecalHitEBColl = iConfig.getParameter<edm::InputTag>("EcalHitEBColl");
   ecalHitEEColl = iConfig.getParameter<edm::InputTag>("EcalHitEEColl");
+  hcalHitColl = iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
 
   eIDLabels = iConfig.getParameter<std::vector<edm::InputTag> >("eIDLabels");
 
@@ -402,12 +408,11 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<reco::GsfElectronCollection> elH;
   iEvent.getByLabel(electronColl, elH);
 
-  // FIXME MAKE IT CONFIGURABLE
   edm::Handle<reco::ConversionCollection> hConversions;
-  iEvent.getByLabel("allConversions", hConversions);
+  iEvent.getByLabel(conversionColl, hConversions);
 
   edm::Handle<reco::BeamSpot> bsHandle;
-  iEvent.getByLabel("offlineBeamSpot", bsHandle);
+  iEvent.getByLabel(beamSpotColl, bsHandle);
   const reco::BeamSpot &thebs = *bsHandle.product();
 
   edm::Handle<reco::TrackCollection> tkH;
@@ -538,8 +543,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_h[el_n] = hoeCalculator(&(*(egsf.superCluster()->seed())), geometry, iEvent, iSetup);
 
     // FIXME
-    //bool passconversionveto = !ConversionTools::hasMatchedConversion(egsf, hConversions, thebs.position());
-    //el_conv[el_n] = int(passconversionveto);
+    bool passconversionveto = !ConversionTools::hasMatchedConversion(egsf, hConversions, thebs.position());
+    el_conv[el_n] = int(passconversionveto);
 
     //el_eseed[el_n] = egsf.superCluster()->seed()->energy();
     el_eseedopout[el_n] = egsf.eSeedClusterOverPout();

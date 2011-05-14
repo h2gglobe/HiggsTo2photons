@@ -27,6 +27,8 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
 
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+
 #include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 /////////////////
 
@@ -49,6 +51,10 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   hcalBEColl =  iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
   hcalFColl =  iConfig.getParameter<edm::InputTag>("HcalHitsFColl");
   hcalHoColl =  iConfig.getParameter<edm::InputTag>("HcalHitsHoColl");
+
+  convertedPhotonColl =  iConfig.getParameter<edm::InputTag>("ConvertedPhotonColl");
+  beamSpotColl =  iConfig.getParameter<edm::InputTag>("BeamSpot");
+  electronColl =  iConfig.getParameter<edm::InputTag>("ElectronColl_std");
 
   // get the Correction Functions
   fEtaCorr  = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection",iConfig);
@@ -208,11 +214,12 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   ///////////////
   // take the pi0 rejection info from RECO
   edm::Handle<reco::PhotonPi0DiscriminatorAssociationMap>  map;
-  iEvent.getByLabel("piZeroDiscriminators","PhotonPi0DiscriminatorAssociationMap",  map);
   reco::PhotonPi0DiscriminatorAssociationMap::const_iterator mapIter;
+  if (!doAodSim) 
+    iEvent.getByLabel("piZeroDiscriminators","PhotonPi0DiscriminatorAssociationMap",  map);
 
   edm::Handle<reco::PhotonCollection> R_PhotonHandle;
-  iEvent.getByLabel("photons", "", R_PhotonHandle);
+  iEvent.getByLabel(photonCollStd, R_PhotonHandle);
   const reco::PhotonCollection R_photons = *(R_PhotonHandle.product());   
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
@@ -239,17 +246,16 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   std::vector<reco::TransientTrack> t_outInTrk = ( *theTTkBuilder).build(outInTrkHandle );
-  ///////////////
-  //edm::Handle<reco::BeamSpot> bsHandle;
-  //event.getByLabel("offlineBeamSpot", bsHandle);
-  //const reco::BeamSpot &thebs = *bsHandle.product();
 
-  //edm::Handle<reco::ConversionCollection> hConversions;
-  //event.getByLabel("trackerOnlyConversions", hConversions);
-
-  //edm::Handle<reco::GsfElectronCollection> hElectrons;
-  //event.getByLabel("gsfElectrons", hElectrons);
-
+  edm::Handle<reco::BeamSpot> bsHandle;
+  iEvent.getByLabel(beamSpotColl, bsHandle);
+  const reco::BeamSpot &thebs = *bsHandle.product();
+  
+  edm::Handle<reco::ConversionCollection> hConversions;
+  iEvent.getByLabel(convertedPhotonColl, hConversions);
+  
+  edm::Handle<reco::GsfElectronCollection> hElectrons;
+  iEvent.getByLabel(electronColl, hElectrons);
 
   if (debug_level > 9) {
     std::cout  << "ConvertedPhotonProducer  outInTrack association map with SC collection size " << (*outInTrkSCAssocHandle).size() << "\n";
@@ -311,29 +317,15 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     ((TLorentzVector *)pho_p4->At(pho_n))->SetXYZT(localPho.px(), localPho.py(), localPho.pz(), localPho.energy());
     ((TVector3 *)pho_calopos->At(pho_n))->SetXYZ(localPho.caloPosition().x(), localPho.caloPosition().y(), localPho.caloPosition().z());
 
-    //std::cout << "Marco GlobePhotons: et, eta, phi "<< localPho.pt()<<" "<<localPho.eta()<<" "<<localPho.phi()<<" "<<std::endl;
-
-    if(debug_level>9)
-      std::cout << "Marco GlobePhotons: -22 "<< std::endl;
-
     reco::SuperClusterRef theClus=localPho.superCluster();
 
-    //GlobalPoint pSc(localPho.superCluster()->position().x(),  localPho.superCluster()->position().y(), localPho.superCluster()->position().z());
-    if(debug_level>9)std::cout << "GlobePhotons: -23 "<< std::endl;
-
     pho_hoe[pho_n]=-1;
-    if(debug_level>9)std::cout << "GlobePhotons: -24 "<< std::endl;
-
-    if(debug_level>9)std::cout << "GlobePhotons: -1 "<< std::endl;
 
     pho_hoe[pho_n] = localPho.hadronicOverEm();
-    if(debug_level>9)std::cout << "GlobePhotons: -2 "<< std::endl;
     pho_scind[pho_n] = -1;
-    if(debug_level>9)std::cout << "GlobePhotons: -3 "<< std::endl;
 
     int index = 0;
 
-    if(debug_level>9)std::cout << "GlobePhotons: 0 "<< std::endl;
     for(int isuperClusterType=0; isuperClusterType<3; ++isuperClusterType) {
       if (isuperClusterType == 0) {
         for(reco::SuperClusterCollection::size_type j = 0; j<superClustersHybridH->size(); ++j){
@@ -417,42 +409,44 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_r9[pho_n] = localPho.r9();
 
     // Added by Aris - Begin
-    int R_nphot = 0;
-    float nn = -1.;
-    pho_pi0disc[pho_n] = nn;
-    for( reco::PhotonCollection::const_iterator  R_phot_iter = R_photons.begin(); R_phot_iter != R_photons.end(); R_phot_iter++) { 
-      mapIter = map->find(edm::Ref<reco::PhotonCollection>(R_PhotonHandle,R_nphot));
-      if(mapIter!=map->end()) {
-        nn = mapIter->val;
+    if (!doAodSim) {
+      int R_nphot = 0;
+      float nn = -1.;
+      pho_pi0disc[pho_n] = nn;
+      for( reco::PhotonCollection::const_iterator  R_phot_iter = R_photons.begin(); R_phot_iter != R_photons.end(); R_phot_iter++) { 
+	mapIter = map->find(edm::Ref<reco::PhotonCollection>(R_PhotonHandle,R_nphot));
+	if(mapIter!=map->end()) {
+	  nn = mapIter->val;
+	}
+	if(iPho->p4() == R_phot_iter->p4()) pho_pi0disc[pho_n] = nn;
+	R_nphot++;              
       }
-      if(iPho->p4() == R_phot_iter->p4()) pho_pi0disc[pho_n] = nn;
-      R_nphot++;              
-    }
       
-    int iTrk=0;
-    bool ConvMatch = false;
-    for( std::vector<reco::TransientTrack>::iterator  iTk =  t_outInTrk.begin(); iTk !=  t_outInTrk.end(); iTk++) {
-      edm::Ref<reco::TrackCollection> trackRef(outInTrkHandle, iTrk );    
-      iTrk++;
-     
-      const reco::CaloClusterPtr  aClus = (*outInTrkSCAssocHandle)[trackRef];
-
-      float conv_SC_et = aClus->energy()/cosh(aClus->eta());
-      float conv_SC_eta = aClus->eta(); float conv_SC_phi = aClus->phi(); 
-            
-      if((*iPho).superCluster()->position() == aClus->position()) {
-        ConvMatch = true;	      
-        if (debug_level > 9) {
-         std::cout <<  " ---> ConversionTrackPairFinder track from handle hits " 
-	           << trackRef->recHitsSize() << " inner pt  " 
-	           << sqrt(iTk->track().innerMomentum().perp2()) << "\n";  
-         std::cout << " ---> ConversionTrackPairFinder  Out In track belonging to SC with (Et,eta,phi) (" 
-            << conv_SC_et << "," << conv_SC_eta << "," <<  conv_SC_phi << ")\n"; 
-        }
-      } 
+      int iTrk=0;
+      bool ConvMatch = false;
+      for( std::vector<reco::TransientTrack>::iterator  iTk =  t_outInTrk.begin(); iTk !=  t_outInTrk.end(); iTk++) {
+	edm::Ref<reco::TrackCollection> trackRef(outInTrkHandle, iTrk );    
+	iTrk++;
+	
+	const reco::CaloClusterPtr  aClus = (*outInTrkSCAssocHandle)[trackRef];
+	
+	float conv_SC_et = aClus->energy()/cosh(aClus->eta());
+	float conv_SC_eta = aClus->eta(); float conv_SC_phi = aClus->phi(); 
+	
+	if((*iPho).superCluster()->position() == aClus->position()) {
+	  ConvMatch = true;	      
+	  if (debug_level > 9) {
+	    std::cout <<  " ---> ConversionTrackPairFinder track from handle hits " 
+		      << trackRef->recHitsSize() << " inner pt  " 
+		      << sqrt(iTk->track().innerMomentum().perp2()) << "\n";  
+	    std::cout << " ---> ConversionTrackPairFinder  Out In track belonging to SC with (Et,eta,phi) (" 
+		      << conv_SC_et << "," << conv_SC_eta << "," <<  conv_SC_phi << ")\n"; 
+	  }
+	} 
+      }
+      
+      pho_IsConvOutIn[pho_n] = (int)ConvMatch; 
     }
-    
-    pho_IsConvOutIn[pho_n] = (int)ConvMatch; 
     // Added by Aris - End
 
 
@@ -478,8 +472,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
     iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
     const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
-    //pho_seed_severity[pho_n] = EcalSeverityLevelAlgo::severityLevel(id, *prechits);//, *chStatus );
-    pho_seed_severity[pho_n] = sevLevel->severityLevel(id, *prechits);
+     pho_seed_severity[pho_n] = sevLevel->severityLevel(id, *prechits);
 
 
     pho_seed_time[pho_n] = seedcry_rh != prechits->end() ? seedcry_rh->time() : 999.;
@@ -505,9 +498,8 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_ntrksolidconedr03[pho_n] = localPho.nTrkSolidConeDR03();
     pho_ntrkhollowconedr03[pho_n] = localPho.nTrkHollowConeDR03();
 
-    //bool passelectronveto = !hasMatchedPromptElectron(ph->superCluster(), hElectrons, hConversions, thebs.position());
-    //pho_isconv[pho_n] = int(passelectronveto);
-
+    bool passelectronveto = !ConversionTools::hasMatchedPromptElectron(localPho.superCluster(), hElectrons, hConversions, thebs.position());
+    pho_isconv[pho_n] = int(passelectronveto);
 
     //other variables
     pho_haspixseed[pho_n] = localPho.hasPixelSeed();
