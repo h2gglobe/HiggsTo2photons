@@ -6,7 +6,7 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 source = cms.Source ("PoolSource",fileNames = readFiles)
 readFiles.extend( (
-'file:/tmp/AE5FE127-F057-E011-A8F2-0030487A3232.root',
+'file:/tmp/sani/7ED5B1F7-DB7B-E011-896C-0026189438BF.root',
 #'/store/data/Run2011A/Photon/AOD/PromptReco-v1/000/161/217/1CABCC0B-E656-E011-9A1C-000423D996C8.root',
 
 #'/store/mc/Spring11/GluGluToHToWWTo2L2Nu_M-160_7TeV-powheg-pythia6/AODSIM/PU_S1_START311_V1G1-v1/0012/84419D32-6550-E011-8980-00266CF2679C.root',

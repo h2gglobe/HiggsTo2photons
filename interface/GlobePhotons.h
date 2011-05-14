@@ -204,6 +204,10 @@ class GlobePhotons {
   edm::InputTag hcalFColl;
   edm::InputTag hcalHoColl; 
 
+  edm::InputTag convertedPhotonColl;
+  edm::InputTag beamSpotColl;
+  edm::InputTag electronColl;
+  
   int debug_level;
   bool doFastSim;
   bool doAodSim;

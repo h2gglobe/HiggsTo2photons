@@ -36,8 +36,6 @@ bool GlobeHcal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
   edm::Handle<HORecHitCollection> hcalHoH;
 
   iEvent.getByLabel(hcalBEColl, hcalBEH);
-  iEvent.getByLabel(hcalFColl, hcalFH);
-  iEvent.getByLabel(hcalHoColl, hcalHoH);
 
   edm::ESHandle<CaloGeometry> pG;
   const CaloGeometry* caloGeom;
@@ -48,8 +46,8 @@ bool GlobeHcal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 
   if (debug_level > 9) {
     std::cout<<"GlobeHcal: hcalBEH->size() "<< hcalBEH->size()<<std::endl;
-    std::cout<<"GlobeHcal: hcalFH->size() "<< hcalFH->size()<<std::endl;
-    std::cout<<"GlobeHcal: hcalHoH->size() "<< hcalHoH->size()<<std::endl;
+    //std::cout<<"GlobeHcal: hcalFH->size() "<< hcalFH->size()<<std::endl;
+    //std::cout<<"GlobeHcal: hcalHoH->size() "<< hcalHoH->size()<<std::endl;
   }
   // now have collections
 
@@ -158,6 +156,8 @@ bool GlobeHcal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 
 
   if (doHFHcal) {
+    iEvent.getByLabel(hcalFColl, hcalFH);
+    iEvent.getByLabel(hcalHoColl, hcalHoH);
 
     for(unsigned int i=0; i<hcalFH->size(); i++) {
 
