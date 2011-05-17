@@ -116,6 +116,9 @@ class GlobeElectrons {
   //Int_t el_loose[MAX_ELECTRONS]; 
   //Int_t el_tight[MAX_ELECTRONS];
 
+  Float_t el_pfiso_neutral[MAX_ELECTRONS];
+  Float_t el_pfiso_charged[MAX_ELECTRONS];
+  Float_t el_pfiso_photon[MAX_ELECTRONS];
   Float_t el_tkiso03[MAX_ELECTRONS];
   Float_t el_ecaliso03[MAX_ELECTRONS];
   Float_t el_hcaliso03[MAX_ELECTRONS];
