@@ -109,6 +109,10 @@ void GlobePhotons::defineBranch(TTree* tree) {
   ////////
 
   //isolation variables
+  tree->Branch("pho_pfiso_charged",&pho_pfiso_charged,"pho_pfiso_charged[pho_n]/F");
+  tree->Branch("pho_pfiso_neutral",&pho_pfiso_neutral,"pho_pfiso_neutral[pho_n]/F");
+  tree->Branch("pho_pfiso_photon",&pho_pfiso_photon,"pho_pfiso_photon[pho_n]/F");
+
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcal1sumetconedr04",&pho_hcal1sumetconedr04,"pho_hcal1sumetconedr04[pho_n]/F");
@@ -480,6 +484,9 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_seed_recoflag[pho_n] = seedcry_rh != prechits->end() ? seedcry_rh->recoFlag() : 999.;
 
     //isolation variables
+    pho_pfiso_charged[pho_n] = localPho.chargedHadronIso();
+    pho_pfiso_photon[pho_n] = localPho.photonIso();
+    pho_pfiso_neutral[pho_n] = localPho.neutralHadronIso();
     pho_ecalsumetconedr04[pho_n] = localPho.ecalRecHitSumEtConeDR04();
     pho_hcalsumetconedr04[pho_n] = localPho.hcalTowerSumEtConeDR04();
     pho_hcal1sumetconedr04[pho_n] = localPho.hcalDepth1TowerSumEtConeDR04();

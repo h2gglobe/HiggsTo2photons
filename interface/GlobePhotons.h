@@ -123,6 +123,9 @@ class GlobePhotons {
   Float_t pho_seed_severity[MAX_PHOTONS];
 
   //isolation variables
+  Float_t pho_pfiso_neutral[MAX_PHOTONS];
+  Float_t pho_pfiso_charged[MAX_PHOTONS];
+  Float_t pho_pfiso_photon[MAX_PHOTONS];
   Float_t pho_ecalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcal1sumetconedr04[MAX_PHOTONS];

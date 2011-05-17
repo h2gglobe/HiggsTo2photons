@@ -340,6 +340,18 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a2, "el_%s_tkind[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_tkind, a2); 
 
+  sprintf(a1, "el_%s_pfiso_neutral", nome);
+  sprintf(a2, "el_%s_pfiso_neutral[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_pfiso_neutral, a2);
+
+  sprintf(a1, "el_%s_pfiso_charged", nome);
+  sprintf(a2, "el_%s_pfiso_charged[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_pfiso_charged, a2);
+  
+  sprintf(a1, "el_%s_pfiso_photon", nome);
+  sprintf(a2, "el_%s_pfiso_photon[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_pfiso_photon, a2);
+
   sprintf(a1, "el_%s_hcaliso03", nome);
   sprintf(a2, "el_%s_hcaliso03[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_hcaliso03, a2);
@@ -712,6 +724,10 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_ecaldrv[el_n] = egsf.ecalDrivenSeed();
     el_tkdrv[el_n] = egsf.trackerDrivenSeed();
     
+    el_pfiso_charged[el_n] = egsf.pfIsolationVariables().chargedHadronIso;
+    el_pfiso_photon[el_n] = egsf.pfIsolationVariables().photonIso;
+    el_pfiso_neutral[el_n] = egsf.pfIsolationVariables().neutralHadronIso;
+
     el_tkiso04[el_n] = egsf.dr04TkSumPt();
     el_ecaliso04[el_n] = egsf.dr04EcalRecHitSumEt();
     el_hcaliso04[el_n] = egsf.dr04HcalTowerSumEt();
