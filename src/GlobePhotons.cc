@@ -215,8 +215,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   // take the pi0 rejection info from RECO
   edm::Handle<reco::PhotonPi0DiscriminatorAssociationMap>  map;
   reco::PhotonPi0DiscriminatorAssociationMap::const_iterator mapIter;
-  if (!doAodSim) 
-    iEvent.getByLabel("piZeroDiscriminators","PhotonPi0DiscriminatorAssociationMap",  map);
+  if (!doAodSim) iEvent.getByLabel("piZeroDiscriminators","PhotonPi0DiscriminatorAssociationMap",  map);
 
   edm::Handle<reco::PhotonCollection> R_PhotonHandle;
   iEvent.getByLabel(photonCollStd, R_PhotonHandle);
@@ -414,21 +413,21 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       float nn = -1.;
       pho_pi0disc[pho_n] = nn;
       for( reco::PhotonCollection::const_iterator  R_phot_iter = R_photons.begin(); R_phot_iter != R_photons.end(); R_phot_iter++) { 
-	mapIter = map->find(edm::Ref<reco::PhotonCollection>(R_PhotonHandle,R_nphot));
-	if(mapIter!=map->end()) {
-	  nn = mapIter->val;
-	}
-	if(iPho->p4() == R_phot_iter->p4()) pho_pi0disc[pho_n] = nn;
-	R_nphot++;              
+        mapIter = map->find(edm::Ref<reco::PhotonCollection>(R_PhotonHandle,R_nphot));
+        if(mapIter!=map->end()) {
+          nn = mapIter->val;
+        }
+        if(iPho->p4() == R_phot_iter->p4()) pho_pi0disc[pho_n] = nn;
+        R_nphot++;              
       }
       
       int iTrk=0;
       bool ConvMatch = false;
       for( std::vector<reco::TransientTrack>::iterator  iTk =  t_outInTrk.begin(); iTk !=  t_outInTrk.end(); iTk++) {
-	edm::Ref<reco::TrackCollection> trackRef(outInTrkHandle, iTrk );    
-	iTrk++;
+        edm::Ref<reco::TrackCollection> trackRef(outInTrkHandle, iTrk );    
+        iTrk++;
 	
-	const reco::CaloClusterPtr  aClus = (*outInTrkSCAssocHandle)[trackRef];
+        const reco::CaloClusterPtr  aClus = (*outInTrkSCAssocHandle)[trackRef];
 	
 	float conv_SC_et = aClus->energy()/cosh(aClus->eta());
 	float conv_SC_eta = aClus->eta(); float conv_SC_phi = aClus->phi(); 
