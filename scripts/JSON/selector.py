@@ -23,7 +23,7 @@ my_jf_dict = json.load(jf)
 runs = my_jf_dict.keys()
 runs.sort()
 
-output = 'allGoodLumi_'+str(time.strftime("%Y-%m-%d"))+'.txt'
+output = 'allGoodLumi_'+str(time.strftime("%Y-%m-%d_%H%M%S"))+'.txt'
 f = open(output,'w')
 f.write('bool LoopAll::lumiRunSelection(Int_t jentry) {\n\n')
 f.write('  b_run->GetEntry(jentry);\n')
