@@ -272,12 +272,11 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     conv_dphitrksatvtx[conv_n]=localConv.dPhiTracksAtVtx();
     //conv_dphitrksatecal[conv_n]=localConv.dPhiTracksAtEcal();
     //conv_detatrksatecal[conv_n]=localConv.dEtaTracksAtEcal();
-    /* commented out for now since these will only be available in cmssw_420
+    //commented out for now since these will only be available in cmssw_420
     conv_dxy[conv_n]=localConv.dxy();
     conv_dz[conv_n]=localConv.dz();
     conv_lxy[conv_n]=localConv.lxy();
     conv_lz[conv_n]=localConv.lz();
-    */
 
     std::vector<unsigned short> tmp;
     for (unsigned int i=0; i<localConv.nHitsBeforeVtx().size(); ++i) {
