@@ -45,8 +45,9 @@ def removeduplicated(dir):
 
 	for i in range(max(jobnum)+1):
 		if jobnum.count(i)>1:
-			lastsubmission=max(subnum[jobnum.index(i):jobnum.index(i)+jobnum.count(i)-1])
-			firstsubmission=min(subnum[jobnum.index(i):jobnum.index(i)+jobnum.count(i)-1])
+			lastsubmission=max(subnum[jobnum.index(i):jobnum.index(i)+jobnum.count(i)])
+			firstsubmission=min(subnum[jobnum.index(i):jobnum.index(i)+jobnum.count(i)])
+			
 			if lastsubmission!=firstsubmission:
 				for j in range(jobnum.index(i),jobnum.index(i)+jobnum.count(i)-1):
 					newfilename = filename[j].replace(".root",".duplicate")
