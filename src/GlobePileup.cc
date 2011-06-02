@@ -25,18 +25,39 @@ void GlobePileup::defineBranch(TTree* tree) {
 
 bool GlobePileup::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
-  edm::Handle<std::vector<PileupSummaryInfo> > pileupHandle;
-  iEvent.getByLabel(pileupCollection, pileupHandle);
-  
-  PileupSummaryInfo pileup = (*pileupHandle.product())[0];
-  
-  pu_n = pileup.getPU_NumInteractions();
-  //pu_bunchcrossing = pileup.getBunchCrossing();
-  *pu_zpos = pileup.getPU_zpositions();
-  *pu_sumpt_lowpt = pileup.getPU_sumpT_lowpT();
-  *pu_sumpt_highpt = pileup.getPU_sumpT_highpT();
-  *pu_ntrks_lowpt = pileup.getPU_ntrks_lowpT();
-  *pu_ntrks_highpt = pileup.getPU_ntrks_highpT();
-   
-  return true;
+	// Broken PU code
+	/*
+	edm::Handle<std::vector<PileupSummaryInfo> > pileupHandle;
+	iEvent.getByLabel(pileupCollection, pileupHandle);
+	PileupSummaryInfo pileup = (*pileupHandle.product())[0];
+	pu_n = pileup.getPU_NumInteractions();
+	//pu_bunchcrossing = pileup.getBunchCrossing();
+
+	*pu_zpos = pileup.getPU_zpositions();
+	*pu_sumpt_lowpt = pileup.getPU_sumpT_lowpT();
+	*pu_sumpt_highpt = pileup.getPU_sumpT_highpT();
+	*pu_ntrks_lowpt = pileup.getPU_ntrks_lowpT();
+	*pu_ntrks_highpt = pileup.getPU_ntrks_highpT();
+	*/
+
+	// New PU code that should work in 42X
+	edm::Handle<std::vector< PileupSummaryInfo> > PupInfo;
+	iEvent.getByLabel(pileupCollection, PupInfo);
+	std::vector<PileupSummaryInfo>::const_iterator PVI;
+	pu_n = -1;
+	for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+		int pu_bunchcrossing = PVI->getBunchCrossing();
+		if(pu_bunchcrossing == 0) {
+			pu_n = PVI->getPU_NumInteractions();
+			*pu_zpos = PVI->getPU_zpositions();
+			*pu_sumpt_lowpt = PVI->getPU_sumpT_lowpT();
+			*pu_sumpt_highpt = PVI->getPU_sumpT_highpT();
+			*pu_ntrks_lowpt = PVI->getPU_ntrks_lowpT();
+			*pu_ntrks_highpt = PVI->getPU_ntrks_highpT();
+
+			break;
+		}
+	}
+
+	return true;
 }
