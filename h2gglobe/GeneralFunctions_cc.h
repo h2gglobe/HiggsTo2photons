@@ -381,14 +381,51 @@ std::vector<int> LoopAll::vertexSelection(HggVertexAnalyzer & vtxAna, HggVertexF
 	  
         }
 	
+	// ---- METHOD 1 	
 	// preselection 
-	if ( preselConv.size()==0 ) 
-          vtxAna.preselection(preselAll);
-        else 
-          vtxAna.preselection(preselConv);
-
-	std::vector<int> rankprod = vtxAna.rankprod(vtxVarNames);
+	//	if ( preselConv.size()==0 )
+        //  vtxAna.preselection(preselAll);
+        //else
+        //  vtxAna.preselection(preselConv);
 	
+	//std::vector<int> rankprod = vtxAna.rankprod(vtxVarNames);
+	
+	// ---- METHOD 1 
+
+	
+	// ---- NEW METHOD 2 (suggested by MarcoP) : first use ranking, then conversions info, e.g. on the N vtxs with best rank
+	// preselection  : all vtxs
+	std::vector<int> rankprodAll = vtxAna.rankprod(vtxVarNames);
+	int iClosestConv = -1;
+	float dminconv = 9999999;
+	
+	TLorentzVector dipho = get_pho_p4( p1, 0 ) + get_pho_p4( p2, 0 ) ;
+	
+	int nbest ;
+	if (  dipho.Pt() < 30 ) nbest = 5;
+	else nbest = 3; 
+	if (rankprodAll.size() < nbest ) nbest = rankprodAll.size();
+
+	for (int ii = 0; ii < nbest; ii++ ){
+	   TVector3 * vtxpos= (TVector3 *) vtx_std_xyz->At(rankprodAll[ii]);
+	   if ( fabs( vtxpos->Z()-zconv ) < dzconv && fabs(vtxpos->Z() - zconv ) < dminconv){
+	     iClosestConv = rankprodAll[ii];
+	     dminconv = fabs(vtxpos->Z()-zconv );
+	   }
+	}
+	std::vector<int> rankprod;
+	rankprod.clear();
+	if (iClosestConv!=-1 ) rankprod.push_back(iClosestConv);
+
+	//for (int kk = 0; kk  < nbest; kk++ ){
+	for (int kk = 0; kk  < rankprodAll.size(); kk++ ){
+	  if ( iClosestConv == rankprodAll[kk] ) continue;
+	  else rankprod.push_back(rankprodAll[kk]);
+	}
+	// ---- METHOD 2
+
+
+ 
 	return rankprod;
 }
 
@@ -1080,14 +1117,16 @@ std::pair<int,int> LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, ph
   std::vector<std::vector<bool> > ph_passcut;
   for(int ipho=0;ipho!=pho_n;++ipho) {
     TLorentzVector * iphop4 = (TLorentzVector*)pho_p4_array->At(ipho);
-    if(iphop4->Et() < leadPtMin || fabs(iphop4->Eta()) > 2.5)continue;
+    float scEta = fabs(((TVector3 *)pho_calopos->At(ipho))->Eta());
+    if(iphop4->Et() < leadPtMin || scEta > 2.5 || ( scEta > 1.4442 && scEta < 1.566 ) )continue;
 
     if(PhotonCiCSelectionLevel(ipho, ph_passcut, ncategories, 0) < LEADCUTLEVEL)continue;
 
     for(int iipho=0;iipho!=pho_n;++iipho) {
       if(iipho == ipho)continue;
       TLorentzVector * iiphop4 = (TLorentzVector*)pho_p4_array->At(iipho);
-      if(iiphop4->Et() < subleadPtMin || fabs(iiphop4->Eta()) > 2.5)continue;
+      float iiscEta = fabs(((TVector3 *)pho_calopos->At(iipho))->Eta());
+      if(iiphop4->Et() < subleadPtMin || iiscEta > 2.5 || ( iiscEta > 1.4442 && iiscEta < 1.566 ) )continue;
       if(iiphop4->Et() > iphop4->Et())continue;
       float m_gamgam = (*iphop4+*iiphop4).M();
       float L_ptom = iphop4->Et()/m_gamgam;
@@ -1356,7 +1395,7 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 // ---------------------------------------------------------------------------------------------------------------------------------------------
 void LoopAll::DefineUserBranches() 
 {
-  runCiC = false;
+  runCiC = true;
 #ifndef __CINT__
 
 	BRANCH_DICT(gv_n  );
