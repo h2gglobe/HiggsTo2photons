@@ -136,21 +136,21 @@ elif flagMMgSkim == 'ON':
 process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
 process.h2ganalyzer.Debug_Level = 0
 
-process.load('RecoJets.JetProducers.kt4PFJets_cfi')
-process.kt6PFJets = process.kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
-process.kt6PFJets.Rho_EtaMax = cms.double(2.5)
+process.load('RecoJets.JetProducers.kt6PFJets_cfi')
+process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(doRhoFastjet = True)
+process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 if flagAOD is 'ON':
   process.p11 = cms.Path(process.eventFilter1*process.kt6PFJets*process.h2ganalyzerPath)
 else:
   process.p11 = cms.Path( process.eventFilter1*
-                        process.kt6PFJets*
-                        process.conversionTrackCandidates*
-		                    process.ckfOutInTracksFromConversions*
-                        process.preshowerClusterShape*
-		                    process.piZeroDiscriminators*
-                        process.h2ganalyzerPath)
+                          process.kt6PFJetsForRhoCorrection*
+                          process.conversionTrackCandidates*
+                          process.ckfOutInTracksFromConversions*
+                          process.preshowerClusterShape*
+                          process.piZeroDiscriminators*
+                          process.h2ganalyzerPath)
 
 process.h2ganalyzer.JobMaker = jobMaker
 
