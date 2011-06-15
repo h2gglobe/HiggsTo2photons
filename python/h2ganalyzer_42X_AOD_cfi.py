@@ -106,7 +106,7 @@ h2ganalyzer = cms.EDAnalyzer(
     JetTrackAssociationColl_algo2 = cms.InputTag("ak7JetTracksAssociatorAtVertex"),
     JetTrackAssociationColl_algo3 = cms.InputTag(""),
     
-    rhoCorrection = cms.InputTag("kt6PFJets","rho"),
+    rhoCorrection = cms.InputTag("kt6PFJetsForRhoCorrection","rho"),
 
     PFCandidateColl = cms.InputTag("particleFlow"),
     
