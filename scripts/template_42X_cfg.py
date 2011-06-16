@@ -142,7 +142,7 @@ process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 if flagAOD is 'ON':
-  process.p11 = cms.Path(process.eventFilter1*process.kt6PFJets*process.h2ganalyzerPath)
+  process.p11 = cms.Path(process.eventFilter1*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
 else:
   process.p11 = cms.Path( process.eventFilter1*
                           process.kt6PFJetsForRhoCorrection*
