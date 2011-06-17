@@ -136,7 +136,7 @@ elif flagMMgSkim == 'ON':
 process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
 process.h2ganalyzer.Debug_Level = 0
 
-process.load('RecoJets.JetProducers.kt6PFJets_cfi')
+process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(doRhoFastjet = True)
 process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 
