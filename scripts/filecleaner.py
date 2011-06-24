@@ -16,6 +16,7 @@ def cleanfiles(dir):
 	filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
 	for i in range(len(filename)):
 		filename[i] = filename[i].strip("\n")
+		print "Cleaning File: %s" %(dir+filename[i])
 		testfile = TFile.Open("rfio:"+dir+filename[i])
 		if testfile.IsZombie():
 			newfilename = filename[i].replace(".root",".resubmit")
