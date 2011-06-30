@@ -6,6 +6,7 @@ flagMC = 'OFF'
 
 #SKIM TYPE
 flagSkimDiphoton = 'OFF'
+flagVLPreSelection = 'OFF'
 flagNoSkim = 'OFF'
 flagMMgSkim = 'OFF'
 
@@ -13,10 +14,9 @@ flagMMgSkim = 'OFF'
 flagAOD = 'ON'
 jobMaker = 'jobmaker unknown'
 
-if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON'))):
+if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON') ^ (flagVLPreSelection is 'ON'))):
   print "You must skim or not skim... these are your options"
   exit(-1)
-
 
 process = cms.Process("Globe") 
 process.load("Configuration.StandardSequences.GeometryDB_cff") 
@@ -46,6 +46,9 @@ process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('HiggsAnalysis.HiggsTo2photons.ZMuSkim_cff')
 process.load('HiggsAnalysis.HiggsTo2photons.photonReRecoForMMG_cfi')
+
+if flagSkimDiphoton == 'ON':
+  process.load('Configuration.Skimming.PDWG_DiPhoton_SD_cff')
 
 process.load("HiggsAnalysis.HiggsTo2photons.CMSSW_RelValDUMMY_cfi")
 #process.skipEvents = cms.untracked.PSet(input=cms.untracked.uint32(3500))
@@ -125,12 +128,18 @@ process.dummySelector = cms.EDFilter("CandViewCountFilter",
 
 process.diMuonSelSeq.remove(process.ZMuHLTFilter)
 
-if flagSkimDiphoton == 'ON':
+if flagVLPreSelection == 'ON':
   process.eventFilter1 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut) # for bkg
+  process.eventFilter2 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut) # for bkg
+elif flagSkimDiphoton == 'ON':
+  process.eventFilter1 = cms.Sequence(process.CaloIdIsoPhotonPairsFilter) # for some data
+  process.eventFilter2 = cms.Sequence(process.R9IdPhotonPairsFilter)      # for some data
 elif flagNoSkim == 'ON':    
   process.eventFilter1 = cms.Sequence(process.dummySelector)   #for signal MC
+  process.eventFilter2 = cms.Sequence(process.dummySelector)   #for signal MC
 elif flagMMgSkim == 'ON':
   process.eventFilter1 = cms.Sequence(process.diMuonSelSeq*process.photonReReco)
+  process.eventFilter2 = cms.Sequence(process.diMuonSelSeq*process.photonReReco)
 
 
 process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
@@ -143,8 +152,16 @@ process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 if flagAOD is 'ON':
   process.p11 = cms.Path(process.eventFilter1*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
+  process.p12 = cms.Path(process.eventFilter2*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
 else:
   process.p11 = cms.Path( process.eventFilter1*
+                          process.kt6PFJetsForRhoCorrection*
+                          process.conversionTrackCandidates*
+                          process.ckfOutInTracksFromConversions*
+                          process.preshowerClusterShape*
+                          process.piZeroDiscriminators*
+                          process.h2ganalyzerPath)
+  process.p12 = cms.Path( process.eventFilter2*
                           process.kt6PFJetsForRhoCorrection*
                           process.conversionTrackCandidates*
                           process.ckfOutInTracksFromConversions*
