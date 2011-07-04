@@ -92,7 +92,10 @@ for index, fname in enumerate(ARGV):
     print >> sys.stderr,"opening file",(index+1),"of",len(ARGV)
     fin = ROOT.TFile.Open(fname)
 
-    event = fin.Get("event")
+    event = fin.Get("lumi")
+    if not event:
+        print "Warning lumi tree not found, using event tree. The result may be inaccurate though."
+        event = fin.Get("event")
 
     event.SetEstimate(event.GetEntries())
 
