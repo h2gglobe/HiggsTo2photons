@@ -478,8 +478,10 @@ void GlobeAnalyzer::beginJob() {
   file = new TFile(fileName.c_str(), "recreate");
   tree = new TTree("event", "Event data");
   tree2 = new TTree("global_variables", "Global Parameters"); // need a different tree to fill once per job
+  lumitree = new TTree("lumi", "Processed lumi sections");
 
   common->defineBranch(tree);
+  common->defineLumiBranch(lumitree);
   
   if (doPhoton)
     photons->defineBranch(tree);
@@ -604,6 +606,12 @@ void GlobeAnalyzer::endJob() {
   file->Write();
   file->Close();
 }
+
+void GlobeAnalyzer::endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & es) {
+  common->endLumiBlock(l,es);
+  lumitree->Fill();
+}
+
 
 void GlobeAnalyzer::readConfiguration(const edm::ParameterSet& iConfig) {
   parameters = new std::vector<std::string>;

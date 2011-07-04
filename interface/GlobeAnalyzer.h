@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Matteosan SANI
 //         Created:  Thu Feb  7 10:14:43 CET 2008
-// $Id: GlobeAnalyzer.h,v 1.8 2011/04/04 10:45:22 sani Exp $
+// $Id: GlobeAnalyzer.h,v 1.9 2011/04/14 11:30:14 capalmer Exp $
 //
 //
 
@@ -115,12 +115,13 @@ public:
 private:
   void beginJob();
   void analyze(const edm::Event&, const edm::EventSetup&);
+  void endLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &);
   void endJob();
 
   std::string fileName;
       
   TFile *file;
-  TTree *tree, *tree2;
+  TTree *tree, *tree2, *lumitree;
 
   //std::vector<std::string> a, b;
   std::vector<std::string> *parameters;

@@ -17,6 +17,12 @@ void GlobeCommon::defineBranch(TTree* tree) {
   tree->Branch("weight", &weight, "weight/F");
 }
 
+void GlobeCommon::defineLumiBranch(TTree* tree) {
+
+  tree->Branch("run", &run, "run/I");
+  tree->Branch("lumis", &lumis, "lumis/I");
+}
+
 bool GlobeCommon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   static int nerror=0;
@@ -56,4 +62,9 @@ bool GlobeCommon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     weight = (*weightHandle);
 
   return true;
+}
+
+void GlobeCommon::endLumiBlock(const edm::LuminosityBlock & l, const edm::EventSetup & es) {
+  lumis = l.id().luminosityBlock();
+  run   = l.id().run();
 }
