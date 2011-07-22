@@ -10,6 +10,8 @@ import FWCore.ParameterSet.Config as cms
 # BOOLS
 # OTHER
 
+from HiggsAnalysis.HiggsTo2photons.hggPhotonIDCuts_cfi import *
+
 h2ganalyzer = cms.EDAnalyzer(
     "GlobeAnalyzer",
     RootFileName = cms.string('prova.root'),
@@ -141,6 +143,8 @@ h2ganalyzer = cms.EDAnalyzer(
     # TriggerResultsTag          = cms.InputTag("hltTriggerSummaryAOD","","HLT8E29")),
     
     # CUTS
+    hggPhotonIDConfiguration = cms.PSet(hggPhotonIDCuts),
+    
     GeneratorCuts = cms.PSet(EtCut = cms.double(10.0)),
     GenJetCuts = cms.PSet(EtCut = cms.double(-1.0)),
     
