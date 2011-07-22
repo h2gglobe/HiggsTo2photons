@@ -25,6 +25,8 @@
 #include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -49,19 +51,33 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "Math/VectorUtil.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 #include <iostream>
+
+typedef math::XYZTLorentzVector LorentzVector;
 
 class GlobePhotons {
  public:
-  
+
   GlobePhotons(const edm::ParameterSet&, const char* n = "unused");
   virtual ~GlobePhotons() {};
 
   void defineBranch(TTree* tree);
   bool analyze(const edm::Event&, const edm::EventSetup&);
-  double getHoE(GlobalPoint, double, const edm::Event&, const edm::EventSetup&);
   float hoeCalculator(const reco::BasicCluster*, const CaloGeometry&,
                       const edm::Event&, const edm::EventSetup&);
+
+  int PhotonID(reco::PhotonRef, int, reco::VertexRef, bool, int a = -1);
+
+  Float_t SumTrackPtInConeHgg(reco::PhotonRef, reco::VertexRef, Float_t, Float_t, Float_t, Float_t, Float_t, Float_t);
+  Float_t WorstSumTrackPtInConeHgg(reco::PhotonRef, Float_t, Float_t, Float_t, Float_t, Float_t, Float_t);
+  Float_t DeltaRToTrackHgg(reco::PhotonRef, edm::Handle<reco::GsfElectronCollection>, int);
+  LorentzVector VertexCorrectedP4Hgg(reco::PhotonRef, reco::VertexRef);
+
+  int photonCutLevel6(float, float, float, float, float, float, float, float);
+  int photonCutLevel4(float, float, float, float, float, float, float, float);
+
+  void setPhotonIDThresholds(const edm::ParameterSet&);
 
   // variables
 
@@ -70,8 +86,6 @@ class GlobePhotons {
   Float_t pho_feta[MAX_PHOTONS][5];
   Float_t pho_crackcorr[MAX_PHOTONS];
   Float_t pho_localcorr[MAX_PHOTONS];
-
-  Float_t pho_h[MAX_PHOTONS];
 
   //fiducial flags
   Int_t pho_isEB[MAX_PHOTONS];
@@ -91,6 +105,7 @@ class GlobePhotons {
   Float_t pho_e5x5[MAX_PHOTONS];
   Float_t pho_emaxxtal[MAX_PHOTONS];
   Float_t pho_hoe[MAX_PHOTONS];
+  Float_t pho_h[MAX_PHOTONS];
   Float_t pho_h1oe[MAX_PHOTONS];
   Float_t pho_h2oe[MAX_PHOTONS];
   Float_t pho_r1x5[MAX_PHOTONS];
@@ -177,7 +192,12 @@ class GlobePhotons {
   Int_t pho_conv_validvtx[MAX_PHOTONS];
   Float_t pho_conv_MVALikelihood[MAX_PHOTONS];
   Int_t pho_isconv[MAX_PHOTONS];
-  
+
+  Float_t pho_residCorrEnergy[MAX_PHOTONS];
+  Float_t pho_residCorrResn[MAX_PHOTONS];
+
+  Int_t pho_id[MAX_PHOTONS];
+
   TClonesArray *pho_p4;
   TClonesArray *pho_calopos;
 
@@ -210,18 +230,44 @@ class GlobePhotons {
   edm::InputTag convertedPhotonColl;
   edm::InputTag beamSpotColl;
   edm::InputTag electronColl;
-  
+
+  edm::InputTag rhoCollection;
+  edm::InputTag vtxCollection;
+  edm::InputTag tkCollection;
+  edm::InputTag hcalHitColl;
+
   int debug_level;
   bool doFastSim;
   bool doAodSim;
-
+  double rho; 
+  
+  edm::Handle<reco::VertexCollection> hVertex;
+  edm::Handle<reco::TrackCollection> tkHandle;
+  edm::Handle<reco::GsfElectronCollection> hElectrons;
   edm::ESHandle<CaloGeometry> theCaloGeom_;
+
   const HBHERecHitCollection* hithbhe_;
 // Correction Schemes
   EcalClusterFunctionBaseClass *fEtaCorr;
   EcalClusterFunctionBaseClass *CrackCorr;
   EcalClusterFunctionBaseClass *LocalCorr;
 
+  // PhotonID thresholds
+  std::vector<double> cutsubleadisosumoet6c[12];
+  std::vector<double> cutsubleadisosumoetbad6c[12];
+  std::vector<double> cutsubleadtrkisooetom6c[12];
+  std::vector<double> cutsubleadsieie6c[12];
+  std::vector<double> cutsubleadhovere6c[12];
+  std::vector<double> cutsubleadr96c[12];
+  std::vector<double> cutsublead_drtotk6c[12];
+  
+  std::vector<double> cutsubleadisosumoet[12];
+  std::vector<double> cutsubleadisosumoetbad[12];
+  std::vector<double> cutsubleadtrkisooetom[12];
+  std::vector<double> cutsubleadsieie[12];
+  std::vector<double> cutsubleadhovere[12];
+  std::vector<double> cutsubleadr9[12];
+  std::vector<double> cutsublead_drtotk[12];
 };
 
 #endif
