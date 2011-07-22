@@ -149,19 +149,26 @@ process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(doRhoFastjet = True)
 process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 
+# event counters
+process.processedEvents = cms.EDProducer("EventCountProducer")
+process.eventCounters = cms.Sequence(process.processedEvents)
+process.h2ganalyzer.globalCounters.extend(['processedEvents']) 
+
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 if flagAOD is 'ON':
-  process.p11 = cms.Path(process.eventFilter1*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
-  process.p12 = cms.Path(process.eventFilter2*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
+  process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
+  process.p12 = cms.Path(process.eventCounters*process.eventFilter2*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
 else:
-  process.p11 = cms.Path( process.eventFilter1*
+  process.p11 = cms.Path( process.eventCounters*
+                          process.eventFilter1*
                           process.kt6PFJetsForRhoCorrection*
                           process.conversionTrackCandidates*
                           process.ckfOutInTracksFromConversions*
                           process.preshowerClusterShape*
                           process.piZeroDiscriminators*
                           process.h2ganalyzerPath)
-  process.p12 = cms.Path( process.eventFilter2*
+  process.p12 = cms.Path( process.eventCounters*
+                          process.eventFilter2*
                           process.kt6PFJetsForRhoCorrection*
                           process.conversionTrackCandidates*
                           process.ckfOutInTracksFromConversions*

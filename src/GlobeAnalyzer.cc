@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeAnalyzer.h"
+#include "DataFormats/Common/interface/MergeableCounter.h"
 
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
 
@@ -8,7 +9,9 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
 
   fileName = iConfig.getParameter<std::string>("RootFileName");
   jobmaker = iConfig.getParameter<std::string>("JobMaker");
-  
+
+  globalCountersNames = iConfig.getParameter<std::vector<std::string> >("globalCounters");
+
   doElectronStd = iConfig.getParameter<bool>("doElectron_std");
 
   doMuon = iConfig.getParameter<bool>("doMuon");
@@ -458,13 +461,13 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   
   if(debug_level > 2) 
     std::cout << "GlobeAnalyzer: selectorbits = " << selector_bits << std::endl;
-
+  
   if (selector_bits > 0) {
     sel_events++;
     
-  if(debug_level > 2) 
-    std::cout << "GlobeAnalyzer: fill my tree!" << std::endl;
-
+    if(debug_level > 2) 
+      std::cout << "GlobeAnalyzer: fill my tree!" << std::endl;
+    
     // fill the tree
     tree->Fill();
   }
@@ -610,6 +613,11 @@ void GlobeAnalyzer::endJob() {
 void GlobeAnalyzer::endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & es) {
   common->endLumiBlock(l,es);
   lumitree->Fill();
+  for(size_t ii=0; ii< globalCounters.size(); ++ii ) {
+	  edm::Handle<edm::MergeableCounter> ctrHandle;
+	  l.getByLabel(globalCountersNames[ii], ctrHandle);
+	  globalCounters[ii] += ctrHandle->value;
+  }
 }
 
 
@@ -628,7 +636,15 @@ void GlobeAnalyzer::defineBranch() {
   tree2->Branch("sel_events", &sel_events, "sel_events/I");
   tree2->Branch("parameters", "std::vector<std::string>", &parameters); 
   tree2->Branch("jobmaker", "std::string", &jobmaker); 
+  
+  globalCounters.clear();
+  globalCounters.resize(globalCountersNames.size(),0);
+  for(size_t ii=0; ii< globalCounters.size(); ++ii ) {
+	  tree2->Branch( globalCountersNames[ii].c_str(), &globalCounters[ii], (globalCountersNames[ii]+"/I").c_str() );
+  }
+  
 }
+
 
 void GlobeAnalyzer::fillTree() {
 

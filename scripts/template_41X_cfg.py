@@ -134,17 +134,23 @@ process.load('RecoJets.JetProducers.kt4PFJets_cfi')
 process.kt6PFJets = process.kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
 process.kt6PFJets.Rho_EtaMax = cms.double(2.5)
 
+# event counters
+process.processedEvents = cms.EDProducer("EventCountProducer")
+process.eventCounters = cms.Sequence(process.processedEvents)
+process.h2ganalyzer.globalCounters.extend(['processedEvents']) 
+
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 if flagAOD is 'ON':
-  process.p11 = cms.Path(process.eventFilter1*process.kt6PFJets*process.h2ganalyzerPath)
+  process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.kt6PFJets*process.h2ganalyzerPath)
 else:
-  process.p11 = cms.Path( process.eventFilter1*
-                        process.kt6PFJets*
-                        process.conversionTrackCandidates*
-		                    process.ckfOutInTracksFromConversions*
-                        process.preshowerClusterShape*
-		                    process.piZeroDiscriminators*
-                        process.h2ganalyzerPath)
+  process.p11 = cms.Path( process.eventCounters*
+                          process.eventFilter1*
+                          process.kt6PFJets*
+                          process.conversionTrackCandidates*
+                          process.ckfOutInTracksFromConversions*
+                          process.preshowerClusterShape*
+                          process.piZeroDiscriminators*
+                          process.h2ganalyzerPath)
 
 process.h2ganalyzer.JobMaker = jobMaker
 
