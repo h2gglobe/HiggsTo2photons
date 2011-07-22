@@ -14,6 +14,7 @@ h2ganalyzer = cms.EDAnalyzer(
     "GlobeAnalyzer",
     RootFileName = cms.string('prova.root'),
     JobMaker = cms.string('jobmaker unknown'),
+    globalCounters = cms.vstring(),
     
     # COLLECTIONS
     GeneratorColl = cms.InputTag("generator"),
