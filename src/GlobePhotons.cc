@@ -818,7 +818,7 @@ int GlobePhotons::photonCutLevel4(float r9, float eta, float isosumoet, float is
 
   int lev=0;
   
-  while(lev < 12 &&
+  while(lev < 11 &&
 	isosumoet    <= cutsubleadisosumoet[lev][ccat] &&
 	isosumoetbad <= cutsubleadisosumoetbad[lev][ccat] &&
 	tkisosumoet  <= cutsubleadtrkisooetom[lev][ccat] &&
@@ -843,7 +843,7 @@ int GlobePhotons::photonCutLevel6(float r9, float eta, float isosumoet, float is
     ccat++;
 
   int lev=0;
-  while(lev < 12 && 
+  while(lev < 11 && 
 	isosumoet    <= cutsubleadisosumoet6c[lev][ccat] &&
     	isosumoetbad <= cutsubleadisosumoetbad6c[lev][ccat] &&
 	tkisosumoet  <= cutsubleadtrkisooetom6c[lev][ccat] &&
