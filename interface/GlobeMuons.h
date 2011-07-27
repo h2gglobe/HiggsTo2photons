@@ -38,12 +38,16 @@ class GlobeMuons {
   Float_t mu_emS9[MAX_MUONS];
   Float_t mu_hadS9[MAX_MUONS];
   Float_t mu_hoS9[MAX_MUONS];
-  Float_t mu_z0[MAX_MUONS];
+  Float_t mu_dz[MAX_MUONS];
   Float_t mu_d0[MAX_MUONS];
-  Float_t mu_z0err[MAX_MUONS];
+  Float_t mu_dzerr[MAX_MUONS];
   Float_t mu_d0err[MAX_MUONS];
   Float_t mu_chi2[MAX_MUONS];
   Float_t mu_dof[MAX_MUONS];
+  Float_t mu_tkpterr[MAX_MUONS];
+  Float_t mu_ecaliso03[MAX_MUONS];
+  Float_t mu_hcaliso03[MAX_MUONS];
+  Float_t mu_tkiso03[MAX_MUONS];
 
   Int_t mu_charge[MAX_MUONS];
   Int_t mu_losthits[MAX_MUONS];
@@ -52,6 +56,9 @@ class GlobeMuons {
   Int_t mu_nmatches[MAX_MUONS];
   Int_t mu_staind[MAX_MUONS];
   Int_t mu_type[MAX_MUONS];
+  Int_t mu_innerhits[MAX_MUONS];
+  Int_t mu_pixelhits[MAX_MUONS];
+  Int_t mu_validChmbhits[MAX_MUONS];
 
   Float_t mu_iso[MAX_MUONS];
 
