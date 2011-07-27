@@ -94,13 +94,20 @@ void GlobePhotons::setPhotonIDThresholds(const edm::ParameterSet& iConfig) {
   char a[100];
 
   for (int lev = 0; lev < 11; ++lev) {
-    //cutsubleadisosumoet6c[lev]     = gammaIDCuts.getParameter<std::vector<double> >(a);
-    //cutsubleadisosumoetbad6c[lev]  = gammaIDCuts.getParameter<std::vector<double> >(a);
-    //cutsubleadtrkisooetom6c[lev]   = gammaIDCuts.getParameter<std::vector<double> >(a);
-    //cutsubleadsieie6c[lev]         = gammaIDCuts.getParameter<std::vector<double> >(a);
-    //cutsubleadhovere6c[lev]        = gammaIDCuts.getParameter<std::vector<double> >(a);
-    //cutsubleadr96c[lev]            = gammaIDCuts.getParameter<std::vector<double> >(a);
-    //cutsublead_drtotk6c[lev] = gammaIDCuts.getParameter<std::vector<double> >(a);
+    sprintf(a, "cutsubleadisosumoet6c%d", lev);
+    cutsubleadisosumoet6c[lev]     = gammaIDCuts.getParameter<std::vector<double> >(a);
+    sprintf(a, "cutsubleadisosumoetbad6c%d", lev);
+    cutsubleadisosumoetbad6c[lev]  = gammaIDCuts.getParameter<std::vector<double> >(a);
+    sprintf(a, "cutsubleadtrkisooetom6c%d", lev);
+    cutsubleadtrkisooetom6c[lev]   = gammaIDCuts.getParameter<std::vector<double> >(a);
+    sprintf(a, "cutsubleadsieie6c%d", lev);
+    cutsubleadsieie6c[lev]         = gammaIDCuts.getParameter<std::vector<double> >(a);
+    sprintf(a, "cutsubleadhovere6c%d", lev);
+    cutsubleadhovere6c[lev]        = gammaIDCuts.getParameter<std::vector<double> >(a);
+    sprintf(a, "cutsubleadr96c%d", lev);
+    cutsubleadr96c[lev]            = gammaIDCuts.getParameter<std::vector<double> >(a);
+    sprintf(a, "cutsublead_drtotk_25_996c%d", lev);
+    cutsublead_drtotk6c[lev] = gammaIDCuts.getParameter<std::vector<double> >(a);
     
     sprintf(a, "cutsubleadisosumoet%d", lev);
     cutsubleadisosumoet[lev]     = gammaIDCuts.getParameter<std::vector<double> >(a);
