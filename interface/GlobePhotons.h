@@ -138,9 +138,12 @@ class GlobePhotons {
   Float_t pho_seed_severity[MAX_PHOTONS];
 
   //isolation variables
-  Float_t pho_pfiso_neutral[MAX_PHOTONS];
-  Float_t pho_pfiso_charged[MAX_PHOTONS];
-  Float_t pho_pfiso_photon[MAX_PHOTONS];
+  Float_t pho_pfiso_neutral03[MAX_PHOTONS];
+  Float_t pho_pfiso_charged03[MAX_PHOTONS];
+  Float_t pho_pfiso_photon03[MAX_PHOTONS];
+  Float_t pho_pfiso_neutral04[MAX_PHOTONS];
+  Float_t pho_pfiso_charged04[MAX_PHOTONS];
+  Float_t pho_pfiso_photon04[MAX_PHOTONS];
   Float_t pho_ecalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcal1sumetconedr04[MAX_PHOTONS];
@@ -235,6 +238,8 @@ class GlobePhotons {
   edm::InputTag vtxCollection;
   edm::InputTag tkCollection;
   edm::InputTag hcalHitColl;
+  std::vector<edm::InputTag> inputTagIsoVals03_;
+  std::vector<edm::InputTag> inputTagIsoVals04_;
 
   int debug_level;
   bool doFastSim;

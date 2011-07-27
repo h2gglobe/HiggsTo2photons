@@ -25,6 +25,7 @@
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
@@ -32,6 +33,7 @@
 /////////////////
 
 #include "HiggsAnalysis/HiggsTo2photons/interface/PhotonFixCMS.h"
+#include "DataFormats/Math/interface/deltaR.h"
 
 GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
 
@@ -62,6 +64,16 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   tkCollection  = iConfig.getParameter<edm::InputTag>("tkColl");
 
   hcalHitColl = iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
+
+  edm::ParameterSet isoVals03  = iConfig.getParameter<edm::ParameterSet> ("isolationValues03");
+  inputTagIsoVals03_.push_back(isoVals03.getParameter<edm::InputTag>("pfChargedHadrons"));
+  inputTagIsoVals03_.push_back(isoVals03.getParameter<edm::InputTag>("pfPhotons"));
+  inputTagIsoVals03_.push_back(isoVals03.getParameter<edm::InputTag>("pfNeutralHadrons"));
+
+  edm::ParameterSet isoVals04  = iConfig.getParameter<edm::ParameterSet> ("isolationValues04");
+  inputTagIsoVals04_.push_back(isoVals04.getParameter<edm::InputTag>("pfChargedHadrons"));
+  inputTagIsoVals04_.push_back(isoVals04.getParameter<edm::InputTag>("pfPhotons"));
+  inputTagIsoVals04_.push_back(isoVals04.getParameter<edm::InputTag>("pfNeutralHadrons"));
 
   // get the Correction Functions
   fEtaCorr  = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection",iConfig);
@@ -151,9 +163,13 @@ void GlobePhotons::defineBranch(TTree* tree) {
   ////////
 
   //isolation variables
-  tree->Branch("pho_pfiso_charged",&pho_pfiso_charged,"pho_pfiso_charged[pho_n]/F");
-  tree->Branch("pho_pfiso_neutral",&pho_pfiso_neutral,"pho_pfiso_neutral[pho_n]/F");
-  tree->Branch("pho_pfiso_photon",&pho_pfiso_photon,"pho_pfiso_photon[pho_n]/F");
+  tree->Branch("pho_pfiso_charged03", &pho_pfiso_charged03, "pho_pfiso_charged03[pho_n]/F");
+  tree->Branch("pho_pfiso_neutral03", &pho_pfiso_neutral03, "pho_pfiso_neutral03[pho_n]/F");
+  tree->Branch("pho_pfiso_photon03", &pho_pfiso_photon03, "pho_pfiso_photon03[pho_n]/F");
+
+  tree->Branch("pho_pfiso_charged04", &pho_pfiso_charged04, "pho_pfiso_charged04[pho_n]/F");
+  tree->Branch("pho_pfiso_neutral04", &pho_pfiso_neutral04, "pho_pfiso_neutral04[pho_n]/F");
+  tree->Branch("pho_pfiso_photon04", &pho_pfiso_photon04, "pho_pfiso_photon04[pho_n]/F");
 
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
@@ -321,8 +337,21 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
 
+  // FOR PF ISOLATION
+  edm::Handle<reco::PFCandidateCollection> pfHandle;
+  iEvent.getByLabel("pfSelectedPhotons", pfHandle);
+ 
+  std::vector< edm::Handle< edm::ValueMap<double> > > isolationValues03(inputTagIsoVals03_.size());
+  for (size_t j = 0; j<inputTagIsoVals03_.size(); ++j) {
+    iEvent.getByLabel(inputTagIsoVals03_[j], isolationValues03[j]);
+  }
+  
+  std::vector< edm::Handle< edm::ValueMap<double> > > isolationValues04(inputTagIsoVals04_.size());
+  for (size_t j = 0; j<inputTagIsoVals04_.size(); ++j) {
+    iEvent.getByLabel(inputTagIsoVals04_[j], isolationValues04[j]);
+  }
+
   if (debug_level > 9) {
-    std::cout  << "ConvertedPhotonProducer  outInTrack association map with SC collection size " << (*outInTrkSCAssocHandle).size() << "\n";
     std::cout << "GlobePhotons: Start analyze" << std::endl;
   }
 
@@ -546,8 +575,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
     iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
     const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
-     pho_seed_severity[pho_n] = sevLevel->severityLevel(id, *prechits);
-
+    pho_seed_severity[pho_n] = sevLevel->severityLevel(id, *prechits);
 
     pho_seed_time[pho_n] = seedcry_rh != prechits->end() ? seedcry_rh->time() : 999.;
     pho_seed_outoftimechi2[pho_n] = seedcry_rh != prechits->end() ? seedcry_rh->outOfTimeChi2() : 999.;
@@ -555,9 +583,37 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_seed_recoflag[pho_n] = seedcry_rh != prechits->end() ? seedcry_rh->recoFlag() : 999.;
 
     //isolation variables
-    pho_pfiso_charged[pho_n] = localPho->chargedHadronIso();
-    pho_pfiso_photon[pho_n] = localPho->photonIso();
-    pho_pfiso_neutral[pho_n] = localPho->neutralHadronIso();
+    int myIndex = -1;
+
+    float dRmin = 0.2;
+    for (unsigned int j=0; j<pfHandle->size(); ++j) {
+
+      reco::PFCandidatePtr temp(pfHandle, j);
+      float dR = deltaR(localPho->superCluster()->eta(), localPho->superCluster()->phi(), temp->superClusterRef()->eta(), temp->superClusterRef()->phi());
+      if (dR < dRmin) 
+	myIndex = j;
+    }
+
+    if (myIndex != -1) {
+      reco::PFCandidatePtr pfCandidate(pfHandle, myIndex);
+	
+      pho_pfiso_charged03[pho_n] = (*isolationValues03[0])[pfCandidate];
+      pho_pfiso_photon03[pho_n]  = (*isolationValues03[1])[pfCandidate];
+      pho_pfiso_neutral03[pho_n] = (*isolationValues03[2])[pfCandidate];
+
+      pho_pfiso_charged04[pho_n] = (*isolationValues04[0])[pfCandidate];
+      pho_pfiso_photon04[pho_n]  = (*isolationValues04[1])[pfCandidate];
+      pho_pfiso_neutral04[pho_n] = (*isolationValues04[2])[pfCandidate];
+    } else {
+      pho_pfiso_charged03[pho_n] = -9999.;
+      pho_pfiso_photon03[pho_n]  = -9999.;
+      pho_pfiso_neutral03[pho_n] = -9999.;
+
+      pho_pfiso_charged04[pho_n] = -9999.;
+      pho_pfiso_photon04[pho_n]  = -9999.;
+      pho_pfiso_neutral04[pho_n] = -9999.;
+    }
+
     pho_ecalsumetconedr04[pho_n] = localPho->ecalRecHitSumEtConeDR04();
     pho_hcalsumetconedr04[pho_n] = localPho->hcalTowerSumEtConeDR04();
     pho_hcal1sumetconedr04[pho_n] = localPho->hcalDepth1TowerSumEtConeDR04();

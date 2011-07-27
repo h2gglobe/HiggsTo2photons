@@ -154,10 +154,14 @@ process.processedEvents = cms.EDProducer("EventCountProducer")
 process.eventCounters = cms.Sequence(process.processedEvents)
 process.h2ganalyzer.globalCounters.extend(['processedEvents']) 
 
+# PFIsolation photons
+process.load("HiggsAnalysis.HiggsTo2photons.pfBasedPhotonIso_cff")
+
+
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 if flagAOD is 'ON':
-  process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
-  process.p12 = cms.Path(process.eventCounters*process.eventFilter2*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
+  process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfBasedPhotonIsoSequence*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
+  process.p12 = cms.Path(process.eventCounters*process.eventFilter2*process.pfBasedPhotonIsoSequence*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
 else:
   process.p11 = cms.Path( process.eventCounters*
                           process.eventFilter1*
