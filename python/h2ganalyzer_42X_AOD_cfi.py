@@ -112,6 +112,15 @@ h2ganalyzer = cms.EDAnalyzer(
     rhoCorrection = cms.InputTag("kt6PFJetsForRhoCorrection","rho"),
 
     PFCandidateColl = cms.InputTag("particleFlow"),
+    isolationValues03 = cms.PSet(pfChargedHadrons = cms.InputTag('isoValPhotonWithCharged03'),
+                                 pfPhotons = cms.InputTag('isoValPhotonWithPhotons03'),
+                                 pfNeutralHadrons= cms.InputTag('isoValPhotonWithNeutral03')
+                                 ),
+
+    isolationValues04 = cms.PSet(pfChargedHadrons = cms.InputTag('isoValPhotonWithCharged04'),
+                                 pfPhotons = cms.InputTag('isoValPhotonWithPhotons04'),
+                                 pfNeutralHadrons= cms.InputTag('isoValPhotonWithNeutral04')
+                                 ),
     
     CaloMETColl = cms.InputTag("met"),
     TcMETColl = cms.InputTag("tcMet"),
