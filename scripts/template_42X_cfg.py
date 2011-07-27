@@ -155,7 +155,7 @@ process.eventCounters = cms.Sequence(process.processedEvents)
 process.h2ganalyzer.globalCounters.extend(['processedEvents']) 
 
 # PFIsolation photons
-process.load("HiggsAnalysis.HiggsTo2photons.pfBasedPhotonIso_cff")
+process.load("HiggsAnalysis.HiggsTo2photons.pfIsolation_cff")
 
 
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
