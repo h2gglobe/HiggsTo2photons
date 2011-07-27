@@ -35,6 +35,7 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/PhotonFixCMS.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+
 GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
 
   debug_level = iConfig.getParameter<int>("Debug_Level");
@@ -64,16 +65,19 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   tkCollection  = iConfig.getParameter<edm::InputTag>("tkColl");
 
   hcalHitColl = iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
+  pfColl = iConfig.getParameter<edm::InputTag>("PFCandidateColl");
 
   edm::ParameterSet isoVals03  = iConfig.getParameter<edm::ParameterSet> ("isolationValues03");
   inputTagIsoVals03_.push_back(isoVals03.getParameter<edm::InputTag>("pfChargedHadrons"));
   inputTagIsoVals03_.push_back(isoVals03.getParameter<edm::InputTag>("pfPhotons"));
   inputTagIsoVals03_.push_back(isoVals03.getParameter<edm::InputTag>("pfNeutralHadrons"));
+  inputTagIsoVals03_.push_back(isoVals03.getParameter<edm::InputTag>("pfPhotonsNoveto"));
 
   edm::ParameterSet isoVals04  = iConfig.getParameter<edm::ParameterSet> ("isolationValues04");
   inputTagIsoVals04_.push_back(isoVals04.getParameter<edm::InputTag>("pfChargedHadrons"));
   inputTagIsoVals04_.push_back(isoVals04.getParameter<edm::InputTag>("pfPhotons"));
   inputTagIsoVals04_.push_back(isoVals04.getParameter<edm::InputTag>("pfNeutralHadrons"));
+  inputTagIsoVals04_.push_back(isoVals04.getParameter<edm::InputTag>("pfPhotonsNoveto"));
 
   // get the Correction Functions
   fEtaCorr  = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection",iConfig);
@@ -85,6 +89,12 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
+
+  pho_pfiso_mycharged03 = new std::vector<std::vector<float> >();
+  pho_pfiso_mycharged04 = new std::vector<std::vector<float> >();
+  pho_pfiso_mycharged03_noveto = new std::vector<std::vector<float> >();
+  pho_pfiso_mycharged04_noveto = new std::vector<std::vector<float> >();
+
 }
 
 
@@ -172,11 +182,18 @@ void GlobePhotons::defineBranch(TTree* tree) {
   //isolation variables
   tree->Branch("pho_pfiso_charged03", &pho_pfiso_charged03, "pho_pfiso_charged03[pho_n]/F");
   tree->Branch("pho_pfiso_neutral03", &pho_pfiso_neutral03, "pho_pfiso_neutral03[pho_n]/F");
-  tree->Branch("pho_pfiso_photon03", &pho_pfiso_photon03, "pho_pfiso_photon03[pho_n]/F");
+  tree->Branch("pho_pfiso_photon03", &pho_pfiso_photon03, "pho_pfiso_photon03[pho_n]/F");  
+  tree->Branch("pho_pfiso_photon03_noveto", &pho_pfiso_photon03_noveto, "pho_pfiso_photon03_noveto[pho_n]/F");
 
   tree->Branch("pho_pfiso_charged04", &pho_pfiso_charged04, "pho_pfiso_charged04[pho_n]/F");
   tree->Branch("pho_pfiso_neutral04", &pho_pfiso_neutral04, "pho_pfiso_neutral04[pho_n]/F");
   tree->Branch("pho_pfiso_photon04", &pho_pfiso_photon04, "pho_pfiso_photon04[pho_n]/F");
+  tree->Branch("pho_pfiso_photon04_noveto", &pho_pfiso_photon04_noveto, "pho_pfiso_photon04_noveto[pho_n]/F");
+
+  tree->Branch("pho_pfiso_mycharged03", "std::vector<std::vector<float> >", &pho_pfiso_mycharged03);
+  tree->Branch("pho_pfiso_mycharged04", "std::vector<std::vector<float> >", &pho_pfiso_mycharged04);
+  tree->Branch("pho_pfiso_mycharged03_noveto", "std::vector<std::vector<float> >", &pho_pfiso_mycharged03_noveto);
+  tree->Branch("pho_pfiso_mycharged04_noveto", "std::vector<std::vector<float> >", &pho_pfiso_mycharged04_noveto);
 
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
@@ -345,6 +362,9 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   const CaloGeometry& geometry = *geoHandle;
 
   // FOR PF ISOLATION
+  edm::Handle<reco::PFCandidateCollection> pfCollection;
+  iEvent.getByLabel(pfColl, pfCollection);
+
   edm::Handle<reco::PFCandidateCollection> pfHandle;
   iEvent.getByLabel("pfSelectedPhotons", pfHandle);
  
@@ -391,7 +411,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   pho_conv_pair_momentum->Clear();
   pho_conv_refitted_momentum->Clear();
   pho_conv_vertexcorrected_p4->Clear();
-  
+  pho_pfiso_mycharged03->clear();
+  pho_pfiso_mycharged04->clear();
+  pho_pfiso_mycharged03_noveto->clear();
+  pho_pfiso_mycharged04_noveto->clear();
+
   pho_n = 0;
 
   if(debug_level>9)std::cout << "GlobePhotons: photons" << std::endl;
@@ -607,18 +631,29 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_pfiso_charged03[pho_n] = (*isolationValues03[0])[pfCandidate];
       pho_pfiso_photon03[pho_n]  = (*isolationValues03[1])[pfCandidate];
       pho_pfiso_neutral03[pho_n] = (*isolationValues03[2])[pfCandidate];
+      pho_pfiso_photon03_noveto[pho_n]  = (*isolationValues03[3])[pfCandidate];
 
       pho_pfiso_charged04[pho_n] = (*isolationValues04[0])[pfCandidate];
       pho_pfiso_photon04[pho_n]  = (*isolationValues04[1])[pfCandidate];
       pho_pfiso_neutral04[pho_n] = (*isolationValues04[2])[pfCandidate];
+      pho_pfiso_photon04_noveto[pho_n]  = (*isolationValues04[3])[pfCandidate];
+      
+      pho_pfiso_mycharged03->push_back(pfTkIsoWithVertex(pfCandidate, pfCollection.product(), 0.3, 0.02)); 
+      pho_pfiso_mycharged04->push_back(pfTkIsoWithVertex(pfCandidate, pfCollection.product(), 0.4, 0.02)); 
+
+      pho_pfiso_mycharged03_noveto->push_back(pfTkIsoWithVertex(pfCandidate, pfCollection.product(), 0.3, 0)); 
+      pho_pfiso_mycharged04_noveto->push_back(pfTkIsoWithVertex(pfCandidate, pfCollection.product(), 0.4, 0)); 
+				       
     } else {
       pho_pfiso_charged03[pho_n] = -9999.;
       pho_pfiso_photon03[pho_n]  = -9999.;
       pho_pfiso_neutral03[pho_n] = -9999.;
-
+      pho_pfiso_photon03_noveto[pho_n]  = -9999.;
+      
       pho_pfiso_charged04[pho_n] = -9999.;
       pho_pfiso_photon04[pho_n]  = -9999.;
       pho_pfiso_neutral04[pho_n] = -9999.;
+      pho_pfiso_photon04_noveto[pho_n]  = -9999.;
     }
 
     pho_ecalsumetconedr04[pho_n] = localPho->ecalRecHitSumEtConeDR04();
@@ -1000,3 +1035,57 @@ Float_t GlobePhotons::DeltaRToTrackHgg(reco::PhotonRef photon, edm::Handle<reco:
 
   return eldr;
 }
+
+std::vector<float> GlobePhotons::pfTkIsoWithVertex(const reco::PFCandidatePtr cand, const reco::PFCandidateCollection* forIsolation, float dRmax, float dRveto) {
+  
+  std::vector<float> result;
+  
+  for(unsigned int ivtx=0; ivtx<hVertex->size(); ++ivtx) {
+    
+    reco::VertexRef vtx(hVertex, ivtx);
+    math::XYZVector vCand(cand->px() - vtx->x(), cand->py() - vtx->y(), cand->pz() - vtx->z());
+    
+    float sum = 0;
+    for(unsigned i=0; i<forIsolation->size(); i++) {
+    
+      const reco::PFCandidate& pfc = (*forIsolation)[i];
+
+      if(sameParticle(cand, pfc)) 
+	continue; 
+      
+      if (pfc.particleId() != reco::PFCandidate::h)
+	continue;
+      
+      if (pfc.pt() < 1.)
+	continue;
+      
+      float dz = fabs(pfc.vz() - vtx->z());
+      if (dz > 10)
+	continue;
+      
+      math::XYZVector pvi(pfc.momentum());
+      float dR = deltaR(vCand.Eta(), vCand.Phi(), pvi.Eta(), pvi.Phi());
+      
+      if(dR > dRmax || dR < dRveto)
+	continue;
+      
+      sum += pfc.pt();
+    }
+    
+    result.push_back(sum);
+  }
+  
+  return result;
+}
+
+ bool GlobePhotons::sameParticle(const reco::PFCandidate& particle1, const reco::PFCandidate& particle2) const {
+  
+  double smallNumber = 1e-15;
+  
+  if( particle1.particleId() != particle2.particleId() ) return false;
+  else if( fabs( particle1.energy() - particle2.energy() ) > smallNumber ) return false;
+  else if( fabs( particle1.eta() - particle2.eta() ) > smallNumber ) return false;
+  else if( fabs( particle1.eta() - particle2.eta() ) > smallNumber ) return false;
+  else return true; 
+}
+

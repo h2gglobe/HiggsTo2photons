@@ -48,6 +48,7 @@
 #include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrection.h"
 #include "RecoEcal/EgammaCoreTools/plugins/EcalClusterLocalContCorrection.h"
 
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "Math/VectorUtil.h"
@@ -78,8 +79,9 @@ class GlobePhotons {
   int photonCutLevel4(float, float, float, float, float, float, float, float);
 
   void setPhotonIDThresholds(const edm::ParameterSet&);
-
-  // variables
+  std::vector<float> pfTkIsoWithVertex(const reco::PFCandidatePtr, const reco::PFCandidateCollection*, float, float); 
+  
+    // variables
 
   Int_t pho_n;
   //correction schemes
@@ -140,10 +142,17 @@ class GlobePhotons {
   //isolation variables
   Float_t pho_pfiso_neutral03[MAX_PHOTONS];
   Float_t pho_pfiso_charged03[MAX_PHOTONS];
-  Float_t pho_pfiso_photon03[MAX_PHOTONS];
+  Float_t pho_pfiso_photon03[MAX_PHOTONS];  
+  Float_t pho_pfiso_photon03_noveto[MAX_PHOTONS];
   Float_t pho_pfiso_neutral04[MAX_PHOTONS];
   Float_t pho_pfiso_charged04[MAX_PHOTONS];
   Float_t pho_pfiso_photon04[MAX_PHOTONS];
+  Float_t pho_pfiso_photon04_noveto[MAX_PHOTONS];
+  std::vector<std::vector<float> >* pho_pfiso_mycharged03;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged04;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged03_noveto;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged04_noveto;
+
   Float_t pho_ecalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcal1sumetconedr04[MAX_PHOTONS];
@@ -210,6 +219,8 @@ class GlobePhotons {
   TClonesArray *pho_conv_vertexcorrected_p4;
 
  private:
+  bool sameParticle(const reco::PFCandidate&, const reco::PFCandidate&) const;
+
   const char* nome;
   GlobeCuts *gCUT;
   edm::InputTag photonCollStd;
@@ -238,6 +249,7 @@ class GlobePhotons {
   edm::InputTag vtxCollection;
   edm::InputTag tkCollection;
   edm::InputTag hcalHitColl;
+  edm::InputTag pfColl;
   std::vector<edm::InputTag> inputTagIsoVals03_;
   std::vector<edm::InputTag> inputTagIsoVals04_;
 
@@ -249,6 +261,7 @@ class GlobePhotons {
   edm::Handle<reco::VertexCollection> hVertex;
   edm::Handle<reco::TrackCollection> tkHandle;
   edm::Handle<reco::GsfElectronCollection> hElectrons;
+  edm::Handle<reco::PFCandidateCollection> pfCollection;
   edm::ESHandle<CaloGeometry> theCaloGeom_;
 
   const HBHERecHitCollection* hithbhe_;
