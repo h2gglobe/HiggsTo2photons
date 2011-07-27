@@ -46,6 +46,16 @@ void GlobeMuons::defineBranch(TTree* tree) {
   tree->Branch("mu_glo_posecal", "TClonesArray", &mu_posecal, 32000, 0);
   tree->Branch("mu_glo_poshcal", "TClonesArray", &mu_poshcal, 32000, 0);
 
+  tree->Branch("mu_glo_losthits", &mu_losthits, "mu_glo_losthits[mu_glo_n]/I");
+  tree->Branch("mu_glo_validhits", &mu_validhits, "mu_glo_validhits[mu_glo_n]/I");
+  tree->Branch("mu_glo_innerhits", &mu_innerhits, "mu_glo_innerhits[mu_glo_n]/I");
+  tree->Branch("mu_glo_pixelhits", &mu_pixelhits, "mu_glo_pixelhits[mu_glo_n]/I");
+  tree->Branch("mu_glo_validChmbhits", &mu_validChmbhits, "mu_glo_validChmbhits[mu_glo_n]/I");
+  tree->Branch("mu_glo_tkpterr", &mu_tkpterr, "mu_glo_tkpterr[mu_glo_n]/F");
+  tree->Branch("mu_glo_ecaliso03", &mu_ecaliso03, "mu_glo_ecaliso03[mu_glo_n]/F");
+  tree->Branch("mu_glo_hcaliso03", &mu_hcaliso03, "mu_glo_hcaliso03[mu_glo_n]/F");
+  tree->Branch("mu_glo_tkiso03", &mu_tkiso03, "mu_glo_tkiso03[mu_glo_n]/F");
+
   tree->Branch("mu_glo_nmatches", &mu_nmatches, "mu_glo_nmatches[mu_glo_n]/I");
   tree->Branch("mu_glo_em", &mu_em, "mu_glo_em[mu_glo_n]/F");
   tree->Branch("mu_glo_had", &mu_had, "mu_glo_had[mu_glo_n]/F");
@@ -57,16 +67,12 @@ void GlobeMuons::defineBranch(TTree* tree) {
   tree->Branch("mu_glo_dof", &mu_dof, "mu_glo_dof[mu_glo_n]/F");
   tree->Branch("mu_glo_tkind", &mu_tkind,"mu_glo_tkind[mu_glo_n]/I");
   tree->Branch("mu_glo_staind", &mu_staind,"mu_glo_staind[mu_glo_n]/I");
-  tree->Branch("mu_glo_z0", &mu_z0, "mu_glo_z0[mu_glo_n]/F");
+  tree->Branch("mu_glo_dz", &mu_dz, "mu_glo_dz[mu_glo_n]/F");
   tree->Branch("mu_glo_d0", &mu_d0, "mu_glo_d0[mu_glo_n]/F");
-  tree->Branch("mu_glo_z0err", &mu_z0err, "mu_glo__z0err[mu_glo_n]/F");
+  tree->Branch("mu_glo_dzerr", &mu_dzerr, "mu_glo__dzerr[mu_glo_n]/F");
   tree->Branch("mu_glo_d0err", &mu_d0err, "mu_glo_d0err[mu_glo_n]/F");
   tree->Branch("mu_glo_charge", &mu_charge, "mu_glo_charge[mu_glo_n]/I");
-  tree->Branch("mu_glo_losthits", &mu_losthits, "mu_glo_losthits[mu_glo_n]/I");
-  tree->Branch("mu_glo_validhits", &mu_validhits, "mu_glo_validhits[mu_glo_n]/I");
   tree->Branch("mu_glo_type", &mu_type, "mu_glo_type[mu_glo_n]/I"); 
-
-  tree->Branch("mu_glo_iso", &mu_iso, "mu_glo_iso[mu_glo_n]/F");
 }
 
 bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -183,24 +189,39 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     
     if (m->isGlobalMuon()) { 
       mu_d0[mu_n] = m->combinedMuon()->d0();
-      mu_z0[mu_n] = m->combinedMuon()->dz();
+      mu_dz[mu_n] = m->combinedMuon()->dz();
       mu_d0err[mu_n] = m->combinedMuon()->d0Error();
-      mu_z0err[mu_n] = m->combinedMuon()->dzError();
+      mu_dzerr[mu_n] = m->combinedMuon()->dzError();
       mu_chi2[mu_n] = m->combinedMuon()->chi2();
       mu_dof[mu_n] = m->combinedMuon()->ndof();
       mu_validhits[mu_n] = m->combinedMuon()->numberOfValidHits();
       mu_losthits[mu_n] = m->combinedMuon()->numberOfLostHits();    
+      // added by cp for muon ID
+      mu_innerhits[mu_n]=m->innerTrack()->found();
+      mu_pixelhits[mu_n]=m->innerTrack()->hitPattern().numberOfValidPixelHits();
+      mu_validChmbhits[mu_n]=m->globalTrack()->hitPattern().numberOfValidMuonHits();
+      mu_tkpterr[mu_n]=m->track()->ptError();
     } else {
       mu_d0[mu_n] = -1;
-      mu_z0[mu_n] = -1;
+      mu_dz[mu_n] = -1;
       mu_d0err[mu_n] = -1;
-      mu_z0err[mu_n] = -1;
+      mu_dzerr[mu_n] = -1;
       mu_chi2[mu_n] = -1;
       mu_dof[mu_n] = -1;
       mu_validhits[mu_n] = -1;
       mu_losthits[mu_n] = -1;
+
+      mu_innerhits[mu_n]=-1;
+      mu_pixelhits[mu_n]=-1;
+      mu_validChmbhits[mu_n]=-1;
+      mu_tkpterr[mu_n]=-1;
     }
-    
+  
+    reco::MuonIsolation muIso03 = m->isolationR03();
+    mu_ecaliso03[mu_n]=muIso03.emEt;
+    mu_hcaliso03[mu_n]=muIso03.hadEt;
+    mu_tkiso03[mu_n]=muIso03.sumPt;
+
     if (debug_level > 99)
       std::cout << "GlobeMuons: Start 5"<< std::endl;
     
@@ -218,38 +239,8 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       mu_tkind[mu_n] = -1;
     }
     
-    //Isolation
-    mu_iso[mu_n]=0;
-    
-    if (m->isTrackerMuon()||m->isGlobalMuon()) {
-      for(unsigned int j=0; j<tkH->size(); ++j) {
-        
-        reco::TrackRef tk(tkH, j);
-        
-        //Doesn't pass the track quality cuts
-        if (!(doAodSim)) {
-          if(vtxH->size())
-            {
-              reco::VertexRef vtx(vtxH, 0);
-              if (debug_level > 99)
-                std::cout << "GlobeMuons: Start 91"<< std::endl;
-              
-              if(!gCUT->isocut(*tk,*m->track(),*vtx)) continue; //is primary vertex
-              
-              if (debug_level > 99)
-                std::cout << "GlobeMuons: Start 10"<< std::endl;
-            }
-          else 
-            if( !gCUT->isocut(*tk,*m->track())) 
-              continue; //is no primary vertex
-        }
-	
-        //Add the pt
-        if (debug_level > 99)
-          std::cout << "GlobeMuons: Start 11"<< std::endl;
-        mu_iso[mu_n] += tk->pt();
-      }
       
+    if (m->isTrackerMuon()||m->isGlobalMuon()) {
       reco::TrackRef tk(tkH, mu_tkind[mu_n]);
 
       float eta=m->eta();
