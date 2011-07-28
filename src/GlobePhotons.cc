@@ -1043,7 +1043,12 @@ std::vector<float> GlobePhotons::pfTkIsoWithVertex(const reco::PFCandidatePtr ca
   for(unsigned int ivtx=0; ivtx<hVertex->size(); ++ivtx) {
     
     reco::VertexRef vtx(hVertex, ivtx);
-    math::XYZVector vCand(cand->x() - vtx->x(), cand->y() - vtx->y(), cand->z() - vtx->z());
+    math::XYZVector vCand(cand->superClusterRef()->position().x()
+      - vtx->x(), 
+      cand->superClusterRef()->position().y()
+      - vtx->y(), 
+      cand->superClusterRef()->position().z()
+      - vtx->z());
     
     float sum = 0;
     for(unsigned i=0; i<forIsolation->size(); i++) {
