@@ -101,10 +101,12 @@ isoValPhotonWithPhotons03 = cms.EDProducer(
     src = cms.InputTag("isoDepPhotonWithPhotons"),
     deltaR = cms.double(0.3),
     weight = cms.string('1'),
-    vetos = cms.vstring('NumCrystalVeto(3.0)', 
-                        'NumCrystalEtaPhiVeto(1.0,9999.0)',
+    vetos = cms.vstring('EcalBarrel:0.045', 
+                        'EcalBarrel:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)',
                         'EcalBarrel:AbsThresholdFromTransverse(0.08)',
-                        'EcalEndcaps:AbsThreshold(0.100)'),
+                        'EcalEndcaps:AbsThreshold(0.100)',
+                        'EcalEndcaps:0.070', 
+                        'EcalEndcaps:RectangularEtaPhiVeto(-0.02,0.02,-0.5,0.5)'), 
     skipDefaultVeto = cms.bool(True),
     mode = cms.string('sum')
     )

@@ -80,7 +80,10 @@ class GlobePhotons {
 
   void setPhotonIDThresholds(const edm::ParameterSet&);
   std::vector<float> pfTkIsoWithVertex(const reco::PFCandidatePtr, const reco::PFCandidateCollection*, float, float); 
-  
+  std::vector<float> pfTkIsoWithVertex(math::XYZVector, const reco::PFCandidateCollection*, float, float); 
+  float pfEcalIso(math::XYZVector, const reco::PFCandidateCollection*, float, float, float, float, float, float);
+  float pfHcalIso(math::XYZVector, const reco::PFCandidateCollection*, float, float);
+
     // variables
 
   Int_t pho_n;
