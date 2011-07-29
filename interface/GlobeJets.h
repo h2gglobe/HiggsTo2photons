@@ -26,6 +26,9 @@ class GlobeJets {
   Float_t jet_emfrac[MAX_JETS];
   Float_t jet_hadfrac[MAX_JETS];
 
+  Float_t jet_pull_dy[MAX_JETS];
+  Float_t jet_pull_dphi[MAX_JETS];
+
   Int_t jet_ntk[MAX_JETS];
   Int_t jet_ncalotw[MAX_JETS];
   std::vector<std::vector<unsigned short> >* jet_calotwind;
