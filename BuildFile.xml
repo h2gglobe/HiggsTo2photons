@@ -35,6 +35,7 @@
 <use   name="SimDataFormats/PileupSummaryInfo"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="RecoEgamma/EgammaTools"/>
+<use   name="JetMETCorrections/Objects"/>
 <use   name="hepmc"/>
 <use   name="heppdt"/>
 <use   name="clhep"/>

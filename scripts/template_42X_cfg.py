@@ -20,11 +20,8 @@ if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON'
 
 process = cms.Process("Globe") 
 process.load("Configuration.StandardSequences.GeometryDB_cff") 
-if flagAOD is 'ON':
-  process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_42X_AOD_cfi")
-else:
-  process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_42X_RECO_cfi")
-  ###############
+process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_42X_cfi")
+if flagAOD is 'OFF':
   #pi0 disc
   process.load("RecoEcal.EgammaClusterProducers.preshowerClusterShape_cfi")
   process.load("EgammaAnalysis.PhotonIDProducers.piZeroDiscriminators_cfi")
@@ -147,12 +144,12 @@ process.h2ganalyzer.Debug_Level = 0
 
 ##-------------------- Import the JEC services -----------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+process.ak5PFL1Fastjet.srcRho = cms.InputTag('kt6PFJetsForRhoCorrection','rho')
 ##-------------------- Import the Jet RECO modules -----------------------
 process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(doRhoFastjet = True)
 process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 
-JetCorrectionService = cms.string('ak5PFL1FastL2L3')
 
 # event counters
 process.processedEvents = cms.EDProducer("EventCountProducer")
@@ -165,12 +162,13 @@ process.load("HiggsAnalysis.HiggsTo2photons.pfIsolation_cff")
 
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 if flagAOD is 'ON':
-  process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfBasedPhotonIsoSequence*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
-  process.p12 = cms.Path(process.eventCounters*process.eventFilter2*process.pfBasedPhotonIsoSequence*process.kt6PFJetsForRhoCorrection*process.h2ganalyzerPath)
+  process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfBasedPhotonIsoSequence*process.kt6PFJetsForRhoCorrection*process.ak5PFJets*process.h2ganalyzerPath)
+  process.p12 = cms.Path(process.eventCounters*process.eventFilter2*process.pfBasedPhotonIsoSequence*process.kt6PFJetsForRhoCorrection*process.ak5PFJets*process.h2ganalyzerPath)
 else:
   process.p11 = cms.Path( process.eventCounters*
                           process.eventFilter1*
                           process.kt6PFJetsForRhoCorrection*
+                          process.ak5PFJets*
                           process.conversionTrackCandidates*
                           process.ckfOutInTracksFromConversions*
                           process.preshowerClusterShape*
@@ -179,6 +177,7 @@ else:
   process.p12 = cms.Path( process.eventCounters*
                           process.eventFilter2*
                           process.kt6PFJetsForRhoCorrection*
+                          process.ak5PFJets*
                           process.conversionTrackCandidates*
                           process.ckfOutInTracksFromConversions*
                           process.preshowerClusterShape*
@@ -216,7 +215,16 @@ else:
   process.h2ganalyzer.doHcal = True
   process.h2ganalyzer.doHFHcal = True
   process.h2ganalyzer.doPreshowerHits = True
-  
+  process.h2ganalyzer.EcalHitEBColl = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+  process.h2ganalyzer.EcalHitEEColl = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+  process.h2ganalyzer.HcalHitsBEColl = cms.InputTag("hbhereco")
+  process.h2ganalyzer.HcalHitsFColl = cms.InputTag("hfreco")
+  process.h2ganalyzer.HcalHitsHoColl = cms.InputTag("horeco")
+  process.h2ganalyzer.BarrelBasicClusterColl = cms.InputTag("")
+  process.h2ganalyzer.BarrelBasicClusterShapeColl = cms.InputTag("multi5x5BasicClusters","multi5x5BarrelShapeAssoc")
+  process.h2ganalyzer.JetTrackAssociationColl_algo3 = cms.InputTag("kt4JetTracksAssociatorAtVertex")
+
+
 
 process.h2ganalyzer.doL1 = True
 process.h2ganalyzer.doHLT = True
