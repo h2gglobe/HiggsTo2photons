@@ -644,12 +644,12 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 				       
     } else {
       math::XYZVector vCand(localPho->caloPosition().x(), localPho->caloPosition().y(), localPho->caloPosition().z());
-      pho_pfiso_photon03[pho_n]  = pfEcalIso(vCand, pfCollection.product(), 0.3, 0.045, 0.02, 0.5, 0.08, 0.1);
-      pho_pfiso_neutral03[pho_n] = pfHcalIso(vCand, pfCollection.product(), 0.3, 0.02);
+      pho_pfiso_photon03[pho_n]  = pfEcalIso(vCand, pfCollection.product(), 0.3, 0.045, 0.00, 0.0, 0.08, 0.1);
+      pho_pfiso_neutral03[pho_n] = pfHcalIso(vCand, pfCollection.product(), 0.3, 0.00);
       pho_pfiso_photon03_noveto[pho_n]  = pfEcalIso(vCand, pfCollection.product(), 0.4, 0.045, 0.0, 0.0, 0.08, 0.1);
       
-      pho_pfiso_photon04[pho_n]  = pfEcalIso(vCand, pfCollection.product(), 0.4, 0.045, 0.02, 0.5, 0.08, 0.1);
-      pho_pfiso_neutral04[pho_n] = pfHcalIso(vCand, pfCollection.product(), 0.4, 0.02);
+      pho_pfiso_photon04[pho_n]  = pfEcalIso(vCand, pfCollection.product(), 0.4, 0.045, 0.00, 0.0, 0.08, 0.1);
+      pho_pfiso_neutral04[pho_n] = pfHcalIso(vCand, pfCollection.product(), 0.4, 0.00);
       pho_pfiso_photon04_noveto[pho_n] = pfEcalIso(vCand, pfCollection.product(), 0.4, 0.045, 0.0, 0.0, 0.08, 0.1);
 
       pho_pfiso_mycharged03->push_back(pfTkIsoWithVertex(vCand, pfCollection.product(), 0.3, 0.02)); 
