@@ -55,7 +55,7 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   doReducedGen = iConfig.getParameter<bool>("doReducedGen");
 
   doLeptons = iConfig.getParameter<bool>("doLeptons");
-  doHt = iConfig.getParameter<bool>("doHt");
+  //doHt = iConfig.getParameter<bool>("doHt");
 
   doPFCandidates = iConfig.getParameter<bool>("doPFCandidates");
   //doPAT = iConfig.getParameter<bool>("doPAT");
@@ -192,8 +192,8 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
     leptons = new GlobeLeptons();
   
   if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeHt"<<std::endl;
-  if (doHt)
-    ht = new GlobeHT(iConfig);
+  //if (doHt)
+  //  ht = new GlobeHT(iConfig);
 
   if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeReducedGen"<<std::endl;
   if (doReducedGen)
@@ -405,21 +405,21 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     algoPF3_jets->analyze(iEvent, iSetup);
 
   //HT
-  if (doHt) {
-    bool doLeptonHT=doJetAlgo1 && doMet && doPhoton && doLeptons;
-    if(debug_level > 2) std::cout << "GlobeAnalyzer: leptonHT" << std::endl;
-    if(doLeptonHT)
-      ht->fillLeptonHT(algo1_jets, met, leptons);
-    
-    bool doCaloTowerHT=doJetAlgo1 && doMet && doPhoton && doLeptons;
-    if(debug_level > 2) std::cout << "GlobeAnalyzer: caloHT" << std::endl;
-    if(doCaloTowerHT)
-      ht->fillCaloTowerHT(met, calotowers);
+  //if (doHt) {
+  //  bool doLeptonHT=doJetAlgo1 && doMet && doPhoton && doLeptons;
+  //  if(debug_level > 2) std::cout << "GlobeAnalyzer: leptonHT" << std::endl;
+  //  if(doLeptonHT)
+  //    ht->fillLeptonHT(algo1_jets, met, leptons);
+  //  
+  //  bool doCaloTowerHT=doJetAlgo1 && doMet && doPhoton && doLeptons;
+  //  if(debug_level > 2) std::cout << "GlobeAnalyzer: caloHT" << std::endl;
+  //  if(doCaloTowerHT)
+  //    ht->fillCaloTowerHT(met, calotowers);
 
-    if(debug_level > 2) std::cout << "GlobeAnalyzer: trackHT" << std::endl;
-    if(doTracks)
-      ht->fillTrackHT(iEvent);
-  }
+  //  if(debug_level > 2) std::cout << "GlobeAnalyzer: trackHT" << std::endl;
+  //  if(doTracks)
+  //    ht->fillTrackHT(iEvent);
+  //}
 
   if(doReducedGen && doGenerator && doLeptons) {
     if(debug_level > 2) 
@@ -577,8 +577,8 @@ void GlobeAnalyzer::beginJob() {
   if (doLeptons)
     leptons->defineBranch(tree);
   
-  if (doHt)
-    ht->defineBranch(tree);
+  //if (doHt)
+  //  ht->defineBranch(tree);
   
   // REDUCED GEN LIST
   if (doReducedGen) 

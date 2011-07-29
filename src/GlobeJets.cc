@@ -63,6 +63,14 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a1, "jet_%s_ntk", nome);
   sprintf(a2, "jet_%s_ntk[jet_%s_n]/I", nome, nome);
   tree->Branch(a1, &jet_ntk, a2);
+
+  sprintf(a1, "jet_%s_pull_dy", nome);
+  sprintf(a2, "jet_%s_pull_dy[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_pull_dy, a2);
+  
+  sprintf(a1, "jet_%s_pull_dphi", nome);
+  sprintf(a2, "jet_%s_pull_dphi[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_pull_dphi, a2);
   
   sprintf(a1, "jet_%s_tkind", nome); 
   tree->Branch(a1, "std::vector<std::vector<unsigned short> >", &jet_tkind);
@@ -199,7 +207,45 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       ((TLorentzVector *)jet_p4->At(jet_n))->SetXYZT(j->px(), j->py(), j->pz(), j->energy()); 
       jet_emfrac[jet_n] = j->chargedEmEnergyFraction() + j->neutralEmEnergyFraction() + j->chargedMuEnergyFraction();
       jet_hadfrac[jet_n] = j->chargedHadronEnergyFraction() + j->neutralHadronEnergyFraction();
+
+
+      float dy = 0;
+      float dphi = 0;
+      float dy_i = 0;
+      float dphi_i = 0;
+      float y_i = 0;
+      float phi_i = 0;
+      float dr_i = 0;
+      float pt_i = 0;
       
+      float pt_jt = j->pt();
+      float y_jt = j->rapidity();
+      float phi_jt = j->phi();
+      unsigned int nCand = j->getPFConstituents().size();
+      
+      jet_pull_dy[jet_n]   = 0;
+      jet_pull_dphi[jet_n] = 0;
+      
+      for(unsigned int c=0; c<nCand; c++) {
+        reco::PFCandidatePtr iCand = j->getPFConstituent(c);
+        y_i = iCand->rapidity(); //iCand rapidity
+        dy_i = y_i - y_jt;
+        
+        phi_i = iCand->phi(); //iCand phi
+        dphi_i = phi_i - phi_jt;
+        
+        dr_i=sqrt(dy_i*dy_i + phi_i*phi_i);
+        
+        pt_i= iCand->pt(); //iCand pt
+        
+        dy += pt_i*dr_i/pt_jt*dy_i;
+        dphi += pt_i*dr_i/pt_jt*dphi_i;
+      }
+      
+      jet_pull_dy[jet_n]   = dy;
+      jet_pull_dphi[jet_n] = dphi;
+
+
           
       if (jetTkAssColl.encode() != "") {
         std::vector<unsigned short> temp;       
