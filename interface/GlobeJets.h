@@ -28,6 +28,7 @@ class GlobeJets {
 
   Float_t jet_pull_dy[MAX_JETS];
   Float_t jet_pull_dphi[MAX_JETS];
+  Float_t jet_erescale[MAX_JETS];
 
   Int_t jet_ntk[MAX_JETS];
   Int_t jet_ncalotw[MAX_JETS];
@@ -40,6 +41,7 @@ class GlobeJets {
   const char* nome;
   GlobeCuts *gCUT;
   edm::InputTag jetColl, calotowerColl, trackColl, jetTkAssColl;
+  std::string pfak5corrdata, pfak5corrmc, pfak5corr;
   edm::InputTag bcBColl, bcEColl, tkColl, pfJetColl;
   int debug_level;
 

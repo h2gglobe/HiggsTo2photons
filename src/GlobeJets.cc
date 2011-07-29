@@ -10,6 +10,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
+#include "JetMETCorrections/Objects/interface/JetCorrector.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -23,7 +24,8 @@ GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "algo1"):
   jetColl =  iConfig.getParameter<edm::InputTag>(a);
   calotowerColl =  iConfig.getParameter<edm::InputTag>("CaloTowerColl");
   trackColl =  iConfig.getParameter<edm::InputTag>("TrackColl");
-  
+  pfak5corrdata =  iConfig.getParameter<std::string>("JetCorrectionData");
+  pfak5corrmc   =  iConfig.getParameter<std::string>("JetCorrectionMC");
   std::string strnome = nome;
 
   if (strnome.find("PF",0) == std::string::npos){
@@ -63,6 +65,10 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a1, "jet_%s_ntk", nome);
   sprintf(a2, "jet_%s_ntk[jet_%s_n]/I", nome, nome);
   tree->Branch(a1, &jet_ntk, a2);
+
+  sprintf(a1, "jet_%s_erescale", nome);
+  sprintf(a2, "jet_%s_erescale[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_erescale, a2);
 
   sprintf(a1, "jet_%s_pull_dy", nome);
   sprintf(a2, "jet_%s_pull_dy[jet_%s_n]/F", nome, nome);
@@ -122,6 +128,8 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       jet_emfrac[jet_n] = j->emEnergyFraction();
       jet_hadfrac[jet_n] = j->energyFractionHadronic();
       
+      jet_erescale[jet_n] = 1;
+
       // Tracks and CaloTowers
       std::vector<CaloTowerPtr> towers = j->getCaloConstituents();
       std::vector<CaloTowerPtr>::const_iterator it;
@@ -190,6 +198,13 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (debug_level > 9)
       std::cout << "GlobeJets: Jet collection size: "<< pfjetH->size() << std::endl;
     
+    if(iEvent.isRealData()){
+      pfak5corr = pfak5corrdata;
+    } else {
+      pfak5corr = pfak5corrmc;
+    }
+
+
     // check if collection is present
     for(unsigned int i=0; i<pfjetH->size(); i++) {
       if (jet_n >= MAX_JETS) {
@@ -208,6 +223,17 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       jet_emfrac[jet_n] = j->chargedEmEnergyFraction() + j->neutralEmEnergyFraction() + j->chargedMuEnergyFraction();
       jet_hadfrac[jet_n] = j->chargedHadronEnergyFraction() + j->neutralHadronEnergyFraction();
 
+      
+      if (jetColl.encode() == "ak5PFJets") {
+        const JetCorrector* corrector = JetCorrector::getJetCorrector(pfak5corr,iSetup);
+	std::cout << "I die 2" << std::endl;
+        edm::RefToBase<reco::Jet> jetRef(edm::Ref<std::vector<reco::PFJet> >(pfjetH,i));
+	std::cout << "I die 3" << std::endl;
+        jet_erescale[jet_n] = corrector->correction(*j, jetRef, iEvent, iSetup);
+	std::cout << "I die 4" << std::endl;
+      } else {
+        jet_erescale[jet_n] = 1;
+      }
 
       float dy = 0;
       float dphi = 0;
