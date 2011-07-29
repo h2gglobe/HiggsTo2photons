@@ -145,9 +145,14 @@ elif flagMMgSkim == 'ON':
 process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
 process.h2ganalyzer.Debug_Level = 0
 
+##-------------------- Import the JEC services -----------------------
+process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
+##-------------------- Import the Jet RECO modules -----------------------
 process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(doRhoFastjet = True)
 process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
+
+JetCorrectionService = cms.string('ak5PFL1FastL2L3')
 
 # event counters
 process.processedEvents = cms.EDProducer("EventCountProducer")
