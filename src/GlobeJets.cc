@@ -226,11 +226,8 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       if (jetColl.encode() == "ak5PFJets") {
         const JetCorrector* corrector = JetCorrector::getJetCorrector(pfak5corr,iSetup);
-	std::cout << "I die 2" << std::endl;
         edm::RefToBase<reco::Jet> jetRef(edm::Ref<std::vector<reco::PFJet> >(pfjetH,i));
-	std::cout << "I die 3" << std::endl;
         jet_erescale[jet_n] = corrector->correction(*j, jetRef, iEvent, iSetup);
-	std::cout << "I die 4" << std::endl;
       } else {
         jet_erescale[jet_n] = 1;
       }
