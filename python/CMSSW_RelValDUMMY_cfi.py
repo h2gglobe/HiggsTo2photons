@@ -1,11 +1,12 @@
 
 import FWCore.ParameterSet.Config as cms
 
-maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10000) )
+maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 source = cms.Source ("PoolSource",fileNames = readFiles)
 readFiles.extend( (
+'file:/hadoop/cms/phedex/store/data/Run2011A/Photon/AOD/05Jul2011ReReco-ECAL-v1/0000/0845B870-AFA7-E011-B24F-001A6478AB7C.root',
 'file:/hadoop/cms/phedex/store/mc/Summer11/VBF_HToGG_M-120_7TeV-powheg-pythia6/GEN-SIM-RECO/PU_S4_START42_V11-v1/0000/00A587ED-A490-E011-A4CB-E0CB4E1A1183.root',
 'file:/hadoop/cms/phedex/store/mc/Summer11/VBF_HToGG_M-120_7TeV-powheg-pythia6/GEN-SIM-RECO/PU_S4_START42_V11-v1/0000/0A7C80B8-A590-E011-AD8B-E0CB4E19F9A2.root',
 'file:/hadoop/cms/phedex/store/mc/Summer11/VBF_HToGG_M-120_7TeV-powheg-pythia6/GEN-SIM-RECO/PU_S4_START42_V11-v1/0000/0AD88479-F790-E011-9BD9-E0CB4EA0A92E.root',
