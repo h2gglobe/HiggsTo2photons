@@ -18,6 +18,7 @@ h2ganalyzer = cms.EDAnalyzer(
     JobMaker = cms.string('jobmaker unknown'),
     globalCounters = cms.vstring(),
     
+
     # COLLECTIONS
     GeneratorColl = cms.InputTag("generator"),
     GenParticlesColl = cms.InputTag("genParticles"),
