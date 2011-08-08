@@ -108,31 +108,34 @@ void StatAnalysis::Init(LoopAll& l)
 
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
-	
-    eSmearPars.categoryType = "2CatR9_EBEE";
-    eSmearPars.byRun = false;
-    eSmearPars.n_categories = 4;
+    
+    //// This is done in PhotonAnalysis now GF
+    //eSmearPars.categoryType = "2CatR9_EBEE";
+    //eSmearPars.byRun = false;
+    //eSmearPars.n_categories = 4;
+    //
+    //// E scale is shifted for data, NOT for MC 
+    //eSmearPars.scale_offset["EBHighR9"] = 0.;
+    //eSmearPars.scale_offset["EBLowR9"]  = 0.;
+    //eSmearPars.scale_offset["EEHighR9"] = 0.;
+    //eSmearPars.scale_offset["EELowR9"]  = 0.;
+    //// E scale systematics are applied to MC, NOT to data
+    //eSmearPars.scale_offset_error["EBHighR9"] = scale_offset_error_EBHighR9;
+    //eSmearPars.scale_offset_error["EBLowR9"]  = scale_offset_error_EBLowR9;
+    //eSmearPars.scale_offset_error["EEHighR9"] = scale_offset_error_EEHighR9;
+    //eSmearPars.scale_offset_error["EELowR9"]  = scale_offset_error_EELowR9;
+    //// E resolution smearing applied to MC 
+    //eSmearPars.smearing_sigma["EBHighR9"] = smearing_sigma_EBHighR9;
+    //eSmearPars.smearing_sigma["EBLowR9"]  = smearing_sigma_EBLowR9;
+    //eSmearPars.smearing_sigma["EEHighR9"] = smearing_sigma_EEHighR9;
+    //eSmearPars.smearing_sigma["EELowR9"]  = smearing_sigma_EELowR9;
+    //// E resolution systematics applied to MC 
+    //eSmearPars.smearing_sigma_error["EBHighR9"] = smearing_sigma_error_EBHighR9;
+    //eSmearPars.smearing_sigma_error["EBLowR9"]  = smearing_sigma_error_EBLowR9;
+    //eSmearPars.smearing_sigma_error["EEHighR9"] = smearing_sigma_error_EEHighR9;
+    //eSmearPars.smearing_sigma_error["EELowR9"]  = smearing_sigma_error_EELowR9;
+    // MC would need Paul's corrections, of its own GF
 
-    // E scale is shifted for data, NOT for MC 
-    eSmearPars.scale_offset["EBHighR9"] = 0.;
-    eSmearPars.scale_offset["EBLowR9"]  = 0.;
-    eSmearPars.scale_offset["EEHighR9"] = 0.;
-    eSmearPars.scale_offset["EELowR9"]  = 0.;
-    // E scale systematics are applied to MC, NOT to data
-    eSmearPars.scale_offset_error["EBHighR9"] = scale_offset_error_EBHighR9;
-    eSmearPars.scale_offset_error["EBLowR9"]  = scale_offset_error_EBLowR9;
-    eSmearPars.scale_offset_error["EEHighR9"] = scale_offset_error_EEHighR9;
-    eSmearPars.scale_offset_error["EELowR9"]  = scale_offset_error_EELowR9;
-    // E resolution smearing applied to MC 
-    eSmearPars.smearing_sigma["EBHighR9"] = smearing_sigma_EBHighR9;
-    eSmearPars.smearing_sigma["EBLowR9"]  = smearing_sigma_EBLowR9;
-    eSmearPars.smearing_sigma["EEHighR9"] = smearing_sigma_EEHighR9;
-    eSmearPars.smearing_sigma["EELowR9"]  = smearing_sigma_EELowR9;
-    // E resolution systematics applied to MC 
-    eSmearPars.smearing_sigma_error["EBHighR9"] = smearing_sigma_error_EBHighR9;
-    eSmearPars.smearing_sigma_error["EBLowR9"]  = smearing_sigma_error_EBLowR9;
-    eSmearPars.smearing_sigma_error["EEHighR9"] = smearing_sigma_error_EEHighR9;
-    eSmearPars.smearing_sigma_error["EELowR9"]  = smearing_sigma_error_EELowR9;
 
     // This is done in PhotonAnalysis now
     //// eSmearDataPars.categoryType = "2CatR9_EBEE";
@@ -158,6 +161,8 @@ void StatAnalysis::Init(LoopAll& l)
     //// eSmearDataPars.smearing_sigma_error["EBLowR9"]  = 0.;
     //// eSmearDataPars.smearing_sigma_error["EEHighR9"] = 0.;
     //// eSmearDataPars.smearing_sigma_error["EELowR9"]  = 0.;
+    // DATA would need Paul's corrections, of its own (different from eSmearPars which is for MC) GF
+
 
     effSmearPars.categoryType = "2CatR9_EBEE";
     effSmearPars.n_categories = 4;
@@ -167,20 +172,21 @@ void StatAnalysis::Init(LoopAll& l)
     diPhoEffSmearPars.efficiency_file = efficiencyFile;
 
     if( doEscaleSmear ) {
-	// energy scale systematics to MC
-	eScaleSmearer = new EnergySmearer( eSmearPars );
-	eScaleSmearer->name("E_scale");
-	eScaleSmearer->doEnergy(true);
-	eScaleSmearer->scaleOrSmear(true);
-	photonSmearers_.push_back(eScaleSmearer);
-	
+        // Moved to PhotonAnalysis GF 
+	//// energy scale systematics to MC
+        //eScaleSmearer = new EnergySmearer( eSmearPars );
+	//eScaleSmearer->name("E_scale");
+	//eScaleSmearer->doEnergy(true);
+	//eScaleSmearer->scaleOrSmear(true);
+        photonSmearers_.push_back(eScaleSmearer);
+
 	//// Moved to PhotonAnalysis PM
 	//// // energy scale corrections to Data
 	//// eScaleDataSmearer = new EnergySmearer( eSmearDataPars );
 	//// eScaleDataSmearer->name("E_scale_data");
 	//// eScaleDataSmearer->doEnergy(true);
 	//// eScaleDataSmearer->scaleOrSmear(true);
-	//photonDataSmearers_.push_back(eScaleDataSmearer); // must not be included among MC smearers; will be singled out upon need // GF
+	//photonDataSmearers_.push_back(eScaleDataSmearer); // must not be included among MC smearers; will be singled out upon need // GF questions?
     }
     if( doEresolSmear ) {
 	// energy resolution smearing
@@ -248,7 +254,6 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->sigmaRange = systRange;
     // RooContainer does not support steps different from 1 sigma
     //assert( ((float)nSystSteps) == systRange );
-
     if( doEscaleSmear && doEscaleSyst ) {
 	systPhotonSmearers_.push_back( eScaleSmearer );
 	std::vector<std::string> sys(1,eScaleSmearer->name());
@@ -300,7 +305,7 @@ void StatAnalysis::Init(LoopAll& l)
 
     // Create observables for shape-analysis with ranges
     // l.rooContainer->AddObservable("mass" ,100.,150.);
-    l.rooContainer->AddObservable("mass" ,massMin,massMax);
+    l.rooContainer->AddObservable("CMS_hgg_mass" ,massMin,massMax);
 
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
 
@@ -329,40 +334,40 @@ void StatAnalysis::Init(LoopAll& l)
     data_pol_pars[0] = "modpol0";
     data_pol_pars[1] = "modpol1";
     l.rooContainer->AddGenericPdf("data_pol_model",
-	  "0","mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
+	  "0","CMS_hgg_mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
         
     // -----------------------------------------------------
     int nDataBins=50;
     // Make some data sets from the observables to fill in the event loop		  
     // Binning is for histograms (will also produce unbinned data sets)
-    l.rooContainer->CreateDataSet("mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
-    l.rooContainer->CreateDataSet("mass","bkg_mass"     ,nDataBins);    	  	
-    l.rooContainer->CreateDataSet("mass","sig_mass_m105",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m110",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m115",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m120",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m130",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_m140",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m105",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m110",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m115",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m120",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m130",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_rv_m140",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m105",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m110",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m115",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m120",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m130",nDataBins);    
-    l.rooContainer->CreateDataSet("mass","sig_mass_wv_m140",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","bkg_mass"     ,nDataBins);    	  	
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m105",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m110",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m115",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m120",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m130",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m140",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m105",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m110",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m115",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m120",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m130",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m140",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m105",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m110",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m115",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m120",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m130",nDataBins);    
+    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m140",nDataBins);    
 
     // Make more data sets to represent systematic shitfs , 
-    l.rooContainer->MakeSystematics("mass","sig_mass_m105",-1);	
-    l.rooContainer->MakeSystematics("mass","sig_mass_m110",-1);	
-    l.rooContainer->MakeSystematics("mass","sig_mass_m115",-1);	
-    l.rooContainer->MakeSystematics("mass","sig_mass_m120",-1);	
-    l.rooContainer->MakeSystematics("mass","sig_mass_m130",-1);	
-    l.rooContainer->MakeSystematics("mass","sig_mass_m140",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m105",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m110",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m115",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m120",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m130",-1);	
+    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m140",-1);	
 	
     /* -----------------------------------------------------------------------------------------
        KFactors Reweighting
@@ -566,10 +571,11 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		
 		l.FillHist("pho_n",category+1,l.pho_n, evweight);
 	}
-	
-	eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4
-		   << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
-	eventListText << endl;
+
+	if (cur_type==0){
+	  eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
+	  eventListText << endl;
+	}
        
 	// --------------------------------------------------------------------------------------------- 
 	if (cur_type == 0 ){
@@ -577,9 +583,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	}
 	if (cur_type > 0 && cur_type != 3 && cur_type != 4)
 	    l.rooContainer->InputDataPoint("bkg_mass",category,mass,evweight);
-	else if (cur_type == 3 || cur_type == 4)
-	    l.rooContainer->InputDataPoint("zee_mass",category,mass,evweight);
-
 	else if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16){
 	    l.rooContainer->InputDataPoint("sig_mass_m105",category,mass,evweight);
 	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_mass_rv_m105",category,mass,evweight);
