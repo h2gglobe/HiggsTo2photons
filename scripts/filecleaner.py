@@ -16,7 +16,7 @@ def cleanfiles(dir):
 	filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
 	for i in range(len(filename)):
 		filename[i] = filename[i].strip("\n")
-		print "Checking File: %s" %(dir+filename[i])
+		print "Cleaning File: %s" %(dir+filename[i])
 		testfile = TFile.Open("rfio:"+dir+filename[i])
 		if testfile.IsZombie():
 			newfilename = filename[i].replace(".root",".resubmit")
@@ -67,12 +67,12 @@ if dir[len(dir)-1:len(dir)]!="/": dir+="/"
 rootfiles = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
 
 if len(rootfiles)!=0:
-	if (options.duplicate): removeduplicated(dir)
 	if (options.clean): cleanfiles(dir)
+	if (options.duplicate): removeduplicated(dir)
 
 if options.recursive:
 	subdirs = popen("rfdir "+dir+" | awk '{print $9}'").readlines()
 	for i in range(len(subdirs)):
 		subdir = dir+subdirs[i].strip("\n") + "/"
-		if (options.duplicate): removeduplicated(subdir)
 		if (options.clean): cleanfiles(subdir)
+		if (options.duplicate): removeduplicated(subdir)
