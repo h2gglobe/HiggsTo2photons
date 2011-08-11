@@ -654,7 +654,7 @@ void RooContainer::combineBinnedDatasets(std::string data_one, std::string data_
 	  double N1 = (it_one->second).Integral();
 	  double N2 = (it_two->second).Integral();
 	  double f_mc = N2/(N1+N2);
-          double total = N1 + N2;
+      double total = N1 + N2;
 
  	  double f_data = fraction*f_mc;
 

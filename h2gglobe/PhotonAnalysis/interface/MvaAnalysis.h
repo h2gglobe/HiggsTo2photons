@@ -126,7 +126,7 @@ protected:
 //        TMVA::Factory* tmvaFactory_[5] ;
 	TTree * signalTree_[6];
 	TTree * backgroundTree_[6];
-	TFile* mvaFile_;
+	TFile * mvaFile_;
 	
 };
 

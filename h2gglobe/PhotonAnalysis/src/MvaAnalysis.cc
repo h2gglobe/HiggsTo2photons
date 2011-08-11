@@ -16,8 +16,8 @@ MvaAnalysis::MvaAnalysis()  :
 {
     reRunCiC = false;
     doMCSmearing = true;
-    massMin = 100.;
-    massMax = 150.;
+    massMin = 105*0.93;//100.;
+    massMax = 140*1.07;//;
     int nDataBins=50;
 
     systRange  = 3.; // in units of sigma
@@ -44,8 +44,23 @@ void MvaAnalysis::Term(LoopAll& l)
     }
 
     else{
+        for (int i = 0; i<nMasses;i++){
+            l.rooContainer->FitToData("data_pol_model","data_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
+            l.rooContainer->FitToData("data_pol_model", "bkg_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
+        }
+        //TODO, obtain normalisation from fit.
+        std::vector<double> c_1;
+        c_1.push_back(1.);
+        std::vector<double> c_2; 
+        c_2.push_back(1.);
+
+        bool scale = false;
+        l.rooContainer->SumBinnedDatasets("data_BDT_sideband_ada_120" ,"data_BDT_ada_105" ,"data_BDT_ada_140" , c_1, c_2,scale);
+        l.rooContainer->SumBinnedDatasets("data_BDT_sideband_grad_120","data_BDT_grad_105","data_BDT_grad_140", c_1, c_2,scale);
+        l.rooContainer->SumBinnedDatasets("bkg_BDT_sideband_ada_120" ,"bkg_BDT_ada_105" ,"bkg_BDT_ada_140" , c_1, c_2,scale);
+        l.rooContainer->SumBinnedDatasets("bkg_BDT_sideband_grad_120","bkg_BDT_grad_105","bkg_BDT_grad_140", c_1, c_2,scale);
+
         std::string outputfilename = (std::string) l.histFileName;  
-        //l.rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
         //l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","data_pol_model");
 
         //for (int i = 0; i<nMasses;i++){
@@ -296,7 +311,8 @@ void MvaAnalysis::Init(LoopAll& l)
     // the systematic sets to be formed
 
     // FIXME move these params to config file
-    l.rooContainer->SetNCategories(nCategories_);
+    //l.rooContainer->SetNCategories(nCategories_);
+    l.rooContainer->SetNCategories(1);
     l.rooContainer->nsigmas = nSystSteps;
     l.rooContainer->sigmaRange = systRange;
     // RooContainer does not support steps different from 1 sigma
@@ -393,8 +409,6 @@ void MvaAnalysis::Init(LoopAll& l)
     // -----------------------------------------------------
     // Make some data sets from the observables to fill in the event loop		  
     // Binning is for histograms (will also produce unbinned data sets)
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass"    ,nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","bkg_mass"     ,nDataBins);    	  	
 //    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m105",nDataBins);    
 //    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m110",nDataBins);    
 //    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m115",nDataBins);    
@@ -491,7 +505,7 @@ void MvaAnalysis::Init(LoopAll& l)
 
         //Set up TMVA reader
         tmvaReader_= new TMVA::Reader();
- 		tmvaReader_->AddVariable("log_H_pt", &_log_H_pt);
+ 		tmvaReader_->AddVariable("H_ptOverM", &_H_ptOverM);
  		tmvaReader_->AddVariable("H_eta", &_H_eta);
  		tmvaReader_->AddVariable("d_phi", &_d_phi);
  		tmvaReader_->AddVariable("max_eta", &_max_eta);
@@ -503,22 +517,33 @@ void MvaAnalysis::Init(LoopAll& l)
  		tmvaReader_->AddVariable("delta_MOverM", &_delta_MOverM);
 
         for (int i = 0; i<nMasses;i++){
-            //l.rooContainer->CreateDataSet("BDT","data_low_BDT_ada"+names[i],50);
+            //Adaptive Boost
+            l.rooContainer->CreateDataSet("BDT","data_low_BDT_ada"+names[i],50);
             l.rooContainer->CreateDataSet("BDT","data_BDT_ada"+names[i],50);
-            //l.rooContainer->CreateDataSet("BDT","data_high_BDT_ada"+names[i],50);
-            //l.rooContainer->CreateDataSet("BDT","bkg_low_BDT_ada"+names[i],50);
+            l.rooContainer->CreateDataSet("BDT","data_high_BDT_ada"+names[i],50);
+
+            l.rooContainer->CreateDataSet("BDT","bkg_low_BDT_ada"+names[i],50);
             l.rooContainer->CreateDataSet("BDT","bkg_BDT_ada"+names[i],50);
-            //l.rooContainer->CreateDataSet("BDT","bkg_high_BDT_ada"+names[i],50);
+            l.rooContainer->CreateDataSet("BDT","bkg_high_BDT_ada"+names[i],50);
+
             l.rooContainer->CreateDataSet("BDT","sig_BDT_ada"+names[i] ,50);    
 
-            //l.rooContainer->CreateDataSet("BDT","data_low_BDT_grad"+names[i],50);
+            //Gradiant Boost
+            l.rooContainer->CreateDataSet("BDT","data_low_BDT_grad"+names[i],50);
             l.rooContainer->CreateDataSet("BDT","data_BDT_grad"+names[i],50);
-            //l.rooContainer->CreateDataSet("BDT","data_high_BDT_grad"+names[i],50);
-            //l.rooContainer->CreateDataSet("BDT","bkg_low_BDT_grad"+names[i],50);
+            l.rooContainer->CreateDataSet("BDT","data_high_BDT_grad"+names[i],50);
+
+            l.rooContainer->CreateDataSet("BDT","bkg_low_BDT_grad"+names[i],50);
             l.rooContainer->CreateDataSet("BDT","bkg_BDT_grad"+names[i],50);
-            //l.rooContainer->CreateDataSet("BDT","bkg_high_BDT_grad"+names[i],50);
+            l.rooContainer->CreateDataSet("BDT","bkg_high_BDT_grad"+names[i],50);
+
             l.rooContainer->CreateDataSet("BDT","sig_BDT_grad"+names[i] ,50);    
 
+            //Invariant Mass Spectra
+            l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass"+names[i],nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
+            l.rooContainer->CreateDataSet("CMS_hgg_mass","bkg_mass"+names[i] ,nDataBins);    	  	
+
+            //TMVA Reader
             tmvaReader_->BookMVA("BDT_ada" +names[i],"weights/TMVAClassification_BDT_ada" +names[i]+".weights.xml");
             tmvaReader_->BookMVA("BDT_grad"+names[i],"weights/TMVAClassification_BDT_grad"+names[i]+".weights.xml");
         }
@@ -658,7 +683,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 	bool CorrectVertex;
 	// FIXME pass smeared R9
-	int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+	int category = 0;//l.gge Society says thDiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
 	int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 	if( cur_type != 0 && doMCSmearing ) {
 	    float pth = Higgs.Pt();
@@ -757,99 +782,75 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             // FIXME 
             if (cur_type == 0 ){//data
                 for (int i = 0; i<nMasses;i++){
-                    if( mass<(masses[i]*0.93) || mass>(masses[i]*1.07)  ) continue;
 
                     _pho1_ptOverM = lead_p4.Pt()/masses[i];
                     _pho2_ptOverM = sublead_p4.Pt()/masses[i];
                     _delta_MOverM = (mass-masses[i])/masses[i];
                     _H_ptOverM    = (Higgs.Pt()/masses[i]);
 
-                    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
-                    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
+                    if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
+                        l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
+                        float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
+                        float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
 
-                    l.FillHist("delta_MOverM"+names[i],0, _delta_MOverM, evweight);
-                    l.FillHist("pho1_eta"+names[i],0, _pho1_eta, evweight);
-                    l.FillHist("pho2_eta"+names[i],0, _pho2_eta, evweight);
-                    l.FillHist("pho1_ptOverM"+names[i],0, _pho1_ptOverM, evweight);
-                    l.FillHist("pho2_ptOverM"+names[i],0, _pho2_ptOverM, evweight);
-                    l.FillHist("log_H_pt"+names[i],0, _log_H_pt, evweight);
-                    l.FillHist("H_eta"+names[i],0, _H_eta, evweight);
-                    l.FillHist("d_phi"+names[i],0, _d_phi, evweight);
-                    l.FillHist("max_eta"+names[i],0, _max_eta, evweight);
-                    l.FillHist("min_r9"+names[i],0, _min_r9, evweight);
+                        if( mass>(masses[i]*0.93) && mass<(masses[i]*1.07)){//Signal mass window cut
+                            l.FillHist("delta_MOverM"+names[i],0, _delta_MOverM, evweight);
+                            l.FillHist("pho1_eta"+names[i],0, _pho1_eta, evweight);
+                            l.FillHist("pho2_eta"+names[i],0, _pho2_eta, evweight);
+                            l.FillHist("pho1_ptOverM"+names[i],0, _pho1_ptOverM, evweight);
+                            l.FillHist("pho2_ptOverM"+names[i],0, _pho2_ptOverM, evweight);
+                            l.FillHist("log_H_pt"+names[i],0, _log_H_pt, evweight);
+                            l.FillHist("H_eta"+names[i],0, _H_eta, evweight);
+                            l.FillHist("d_phi"+names[i],0, _d_phi, evweight);
+                            l.FillHist("max_eta"+names[i],0, _max_eta, evweight);
+                            l.FillHist("min_r9"+names[i],0, _min_r9, evweight);
 
-                    l.rooContainer->InputDataPoint("data_BDT_ada"+names[i],category,bdt_ada,evweight);
-                    l.FillHist("BDT_ada"+names[i],0, bdt_ada, evweight);
+                            l.rooContainer->InputDataPoint("data_BDT_ada"+names[i],category,bdt_ada,evweight);
+                            l.FillHist("BDT_ada"+names[i],0, bdt_ada, evweight);
 
-                    l.rooContainer->InputDataPoint("data_BDT_grad"+names[i] ,category,bdt_grad,evweight);
-                    l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
+                            l.rooContainer->InputDataPoint("data_BDT_grad"+names[i] ,category,bdt_grad,evweight);
+                            l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
+                        }
+                    }
                 }
             }
-            //TODO fill sidebands
             else if (cur_type>0){//
-                // sprintf(name,"_%d",i);
-    //            bool lead_is_prompt=false;
-    //            bool sublead_is_prompt=false;
-
-                //loop over gen particles
-    //            for(int igp=0; igp<l.gp_n; ++igp) {
-    //
-    //                int id = l.gp_pdgid[igp];
-    //                int mother = l.gp_mother[igp];
-    //                int motherid = l.gp_pdgid[mother];
-    //
-    //                //requre tha gent particle is a photon whose mother is gluon or a
-    //                //quark
-    //                if ( id==22 && mother>-1 && (motherid==21 || abs(motherid)<=8 ) ) {
-    //                    TLorentzVector *gp_p4 = (TLorentzVector*)l.gp_p4->At(igp);
-    //                    if ( gp_p4->DeltaR(lead_p4) < 0.3) lead_is_prompt = true;
-    //                    if ( gp_p4->DeltaR(sublead_p4) < 0.3) sublead_is_prompt = true;
-    //                }
-    //            }
                 for (int i = 0; i<nMasses;i++){
-                    if( mass<(masses[i]*0.93) || mass>(masses[i]*1.07)  ) continue;
 
                     _pho1_ptOverM = lead_p4.Pt()/masses[i];
                     _pho2_ptOverM = sublead_p4.Pt()/masses[i];
                     _delta_MOverM = (mass-masses[i])/masses[i];
                     _H_ptOverM    = (Higgs.Pt()/masses[i]);
 
-                    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
-                    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
+                    if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
+                        l.rooContainer->InputDataPoint("bkg_mass"+names[i],category,mass,evweight);
+                        float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
+                        float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
 
-                    l.FillHist("delta_MOverM"+names[i],0, _delta_MOverM, evweight);
-                    l.FillHist("pho1_eta"+names[i],0, _pho1_eta, evweight);
-                    l.FillHist("pho2_eta"+names[i],0, _pho2_eta, evweight);
-                    l.FillHist("pho1_ptOverM"+names[i],0, _pho1_ptOverM, evweight);
-                    l.FillHist("pho2_ptOverM"+names[i],0, _pho2_ptOverM, evweight);
-                    l.FillHist("log_H_pt"+names[i],0, _log_H_pt, evweight);
-                    l.FillHist("H_eta"+names[i],0, _H_eta, evweight);
-                    l.FillHist("d_phi"+names[i],0, _d_phi, evweight);
-                    l.FillHist("max_eta"+names[i],0, _max_eta, evweight);
-                    l.FillHist("min_r9"+names[i],0, _min_r9, evweight);
+                        if( mass>(masses[i]*0.93) && mass<(masses[i]*1.07)){//Signal mass window cut
+                            l.FillHist("delta_MOverM"+names[i],0, _delta_MOverM, evweight);
+                            l.FillHist("pho1_eta"+names[i],0, _pho1_eta, evweight);
+                            l.FillHist("pho2_eta"+names[i],0, _pho2_eta, evweight);
+                            l.FillHist("pho1_ptOverM"+names[i],0, _pho1_ptOverM, evweight);
+                            l.FillHist("pho2_ptOverM"+names[i],0, _pho2_ptOverM, evweight);
+                            l.FillHist("log_H_pt"+names[i],0, _log_H_pt, evweight);
+                            l.FillHist("H_eta"+names[i],0, _H_eta, evweight);
+                            l.FillHist("d_phi"+names[i],0, _d_phi, evweight);
+                            l.FillHist("max_eta"+names[i],0, _max_eta, evweight);
+                            l.FillHist("min_r9"+names[i],0, _min_r9, evweight);
 
-                    //if (lead_is_prompt && sublead_is_prompt) {
-                        l.rooContainer->InputDataPoint("bkg_BDT_ada"+names[i],category,bdt_ada,evweight);
-                        l.FillHist("BDT_ada"+names[i],0, bdt_ada, evweight);
-                        l.rooContainer->InputDataPoint("bkg_BDT_grad"+names[i] ,category,bdt_grad,evweight);
-                        l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
-                    //}
-                    //else if ((lead_is_prompt  && !sublead_is_prompt) ||
-                    //         (!lead_is_prompt &&  sublead_is_prompt)) {
-                    //    l.rooContainer->InputDataPoint("bkg_gj_BDT_ada"+names[i],category,bdt_ada,evweight);
-                    //    l.FillHist("BDT_ada"+names[i],0, bdt_ada, evweight);
-                    //    l.rooContainer->InputDataPoint("bkg_gj_BDT_grad"+names[i] ,category,bdt_grad,evweight);
-                    //    l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
-                    //}
-                    //else { 
-                    //    l.rooContainer->InputDataPoint("bkg_jj_BDT_ada"+names[i],category,bdt_ada,evweight);
-                    //    l.FillHist("BDT_ada"+names[i],0, bdt_ada, evweight);
-                    //    l.rooContainer->InputDataPoint("bkg_jj_BDT_grad"+names[i] ,category,bdt_grad,evweight);
-                    //    l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
-                    //}//end jj/gj/gg if
+                            l.rooContainer->InputDataPoint("bkg_BDT_ada"+names[i],category,bdt_ada,evweight);
+                            l.FillHist("BDT_ada"+names[i],0, bdt_ada, evweight);
+                            l.rooContainer->InputDataPoint("bkg_BDT_grad"+names[i] ,category,bdt_grad,evweight);
+                            l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
+                        }
+                    }
                 }//end loop over masses
             }//end bkg if
             else { 
+                if( mass>(masses[0]*0.93) && mass<(masses[5]*1.07)  ){
+                    l.rooContainer->InputDataPoint("sig_mass",category,mass,evweight);
+                }
                 //std::cout<<"WTF!!\n";
                 //std::cout<<"cur_type: "<<cur_type<<std::endl;
                 std::string name = "";
@@ -869,30 +870,31 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
                 if (i0>=0){
                     name = names[i0];
-                    if( mass>(masses[i0]*0.93) && mass<(masses[i0]*1.07)  ) {
-                        _pho1_ptOverM = lead_p4.Pt()/masses[i0];
-                        _pho2_ptOverM = sublead_p4.Pt()/masses[i0];
-                        _delta_MOverM = (mass-masses[i0])/masses[i0];
-                        _H_ptOverM    = (Higgs.Pt()/masses[i0]);
+                    _pho1_ptOverM = lead_p4.Pt()/masses[i0];
+                    _pho2_ptOverM = sublead_p4.Pt()/masses[i0];
+                    _delta_MOverM = (mass-masses[i0])/masses[i0];
+                    _H_ptOverM    = (Higgs.Pt()/masses[i0]);
+                    if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
+                        float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i0]);
+                        float bdt_grad = tmvaReader_->EvaluateMVA("BDT_grad"+names[i0]);
 
-                        float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+name );
-                        float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+name );
+                        if( mass>(masses[i0]*0.93) && mass<(masses[i0]*1.07)){//Signal mass window cut
+                            l.FillHist("delta_MOverM"+name,0, _delta_MOverM, evweight);
+                            l.FillHist("pho1_eta"+name,0, _pho1_eta, evweight);
+                            l.FillHist("pho2_eta"+name,0, _pho2_eta, evweight);
+                            l.FillHist("pho1_ptOverM"+name,0, _pho1_ptOverM, evweight);
+                            l.FillHist("pho2_ptOverM"+name,0, _pho2_ptOverM, evweight);
+                            l.FillHist("log_H_pt"+name,0, _log_H_pt, evweight);
+                            l.FillHist("H_eta"+name,0, _H_eta, evweight);
+                            l.FillHist("d_phi"+name,0, _d_phi, evweight);
+                            l.FillHist("max_eta"+name,0, _max_eta, evweight);
+                            l.FillHist("min_r9"+name,0, _min_r9, evweight);
 
-                        l.FillHist("delta_MOverM"+name,0, _delta_MOverM, evweight);
-                        l.FillHist("pho1_eta"+name,0, _pho1_eta, evweight);
-                        l.FillHist("pho2_eta"+name,0, _pho2_eta, evweight);
-                        l.FillHist("pho1_ptOverM"+name,0, _pho1_ptOverM, evweight);
-                        l.FillHist("pho2_ptOverM"+name,0, _pho2_ptOverM, evweight);
-                        l.FillHist("log_H_pt"+name,0, _log_H_pt, evweight);
-                        l.FillHist("H_eta"+name,0, _H_eta, evweight);
-                        l.FillHist("d_phi"+name,0, _d_phi, evweight);
-                        l.FillHist("max_eta"+name,0, _max_eta, evweight);
-                        l.FillHist("min_r9"+name,0, _min_r9, evweight);
-
-                        l.rooContainer->InputDataPoint("sig_BDT_ada"+name,category,bdt_ada,evweight);
-                        l.FillHist("BDT_ada"+name,0, bdt_ada, evweight);
-                        l.rooContainer->InputDataPoint("sig_BDT_grad"+name ,category,bdt_grad,evweight);
-                        l.FillHist("BDT_grad"+name,0, bdt_grad, evweight);
+                            l.rooContainer->InputDataPoint("sig_BDT_ada"+name,category,bdt_ada,evweight);
+                            l.FillHist("BDT_ada"+name,0, bdt_ada, evweight);
+                            l.rooContainer->InputDataPoint("sig_BDT_grad"+name ,category,bdt_grad,evweight);
+                            l.FillHist("BDT_grad"+name,0, bdt_grad, evweight);
+                        }
                     }
                 }
             }//end sig if
@@ -902,12 +904,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	l.FillCounter( "Smeared", evweight );
 	sumaccept += weight;
  	sumsmear += evweight;
-
-       
     }
-   
-   
-   
     if(PADEBUG) 
 	cout<<"myFillHistRed END"<<endl;
 }

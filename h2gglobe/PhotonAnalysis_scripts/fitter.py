@@ -19,7 +19,7 @@ ROOT.gROOT.SetBatch(1)
 
 ROOT.gBenchmark.Start("Analysis");
 
-config_file="datafiles_training.dat"
+config_file="datafiles_mva.dat"
 if options.inputDat:
     config_file = options.inputDat
 
