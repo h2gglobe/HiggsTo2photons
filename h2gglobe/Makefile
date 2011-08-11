@@ -53,11 +53,12 @@ DICTS = LoopAll.h BaseAnalysis.h BaseSmearer.h EnergySmearer.h EfficiencySmearer
 	VertexAnalysis/interface/VertexAlgoParameters.h\
 	PhotonAnalysis/interface/PhotonAnalysis.h\
 	PhotonAnalysis/interface/StatAnalysis.h\
+	PhotonAnalysis/interface/MvaAnalysis.h\
 	RooContainer.h
 
 
 ROOFIT_BASE=$(ROOFITSYS)
-LDFLAGS+=-L$(ROOFIT_BASE)/lib -lRooFitCore
+LDFLAGS+=-L$(ROOFIT_BASE)/lib -lRooFitCore -lTMVA
 CXXFLAGS+=-I$(ROOFIT_BASE)/include 
 
 all: $(LOOPALL)
@@ -100,7 +101,10 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
 	SampleContainer.h \
 	RooContainer.h \
 	Cut.h \
-	VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h PhotonAnalysis/interface/StatAnalysis.h
+	VertexAnalysis/interface/VertexAlgoParameters.h \
+	PhotonAnalysis/interface/PhotonAnalysis.h \
+	PhotonAnalysis/interface/StatAnalysis.h \
+	PhotonAnalysis/interface/MvaAnalysis.h 
 
 	@echo "Generating dictionary $@..."
 	@rootcint -f $@ -c -I$(ROOFIT_BASE)/include $(DICTS)
