@@ -13,7 +13,7 @@ parser.add_option("-r", "--recursive", action="store_true", dest="recursive", de
 
 def cleanfiles(dir):
 	if dir[len(dir)-1:len(dir)]!="/": dir+="/"
-	popen("nsfind "+dir+" -type f | grep .root | xargs -i stager_qry -M {} | grep 'not on disk' | xargs -i stager_get -M {}")
+	popen("nsfind "+dir+" -type f | grep .root | xargs -i stager_qry -M {} | grep 'not on disk' | awk '{print $8}' | xargs -i stager_get -M {}")
 	filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
 	for i in range(len(filename)):
 		filename[i] = filename[i].strip("\n")
