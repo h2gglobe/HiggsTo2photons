@@ -44,31 +44,27 @@ void MvaAnalysis::Term(LoopAll& l)
     }
 
     else{
-        for (int i = 0; i<nMasses;i++){
-            l.rooContainer->FitToData("data_pol_model","data_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
-            l.rooContainer->FitToData("data_pol_model", "bkg_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
-        }
-        //TODO, obtain normalisation from fit.
-        std::vector<double> c_1;
-        c_1.push_back(1.);
-        std::vector<double> c_2; 
-        c_2.push_back(1.);
-
+        //120 GeV
+	int i = 3;
+        l.rooContainer->FitToData("data_pol_model", "data_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
+	std::vector<double> N = l.rooContainer->GetFitNormalisations("data_pol_model", "data_mass"+names[i],masses[i]*0.93,masses[i]*1.07);
         bool scale = false;
-        l.rooContainer->SumBinnedDatasets("data_BDT_sideband_ada_120" ,"data_BDT_ada_105" ,"data_BDT_ada_140" , c_1, c_2,scale);
-        l.rooContainer->SumBinnedDatasets("data_BDT_sideband_grad_120","data_BDT_grad_105","data_BDT_grad_140", c_1, c_2,scale);
-        l.rooContainer->SumBinnedDatasets("bkg_BDT_sideband_ada_120" ,"bkg_BDT_ada_105" ,"bkg_BDT_ada_140" , c_1, c_2,scale);
-        l.rooContainer->SumBinnedDatasets("bkg_BDT_sideband_grad_120","bkg_BDT_grad_105","bkg_BDT_grad_140", c_1, c_2,scale);
+        l.rooContainer->SumBinnedDatasets("data_BDT_sideband_ada_120" ,"data_BDT_ada_105" ,"data_BDT_ada_140" , N, N, scale);
+        l.rooContainer->SumBinnedDatasets("data_BDT_sideband_grad_120","data_BDT_grad_105","data_BDT_grad_140", N, N, scale);
 
-        std::string outputfilename = (std::string) l.histFileName;  
-        //l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","data_pol_model");
+        l.rooContainer->FitToData("bkg_pol_model", "bkg_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
+	std::vector<double> N_mc = l.rooContainer->GetFitNormalisations("bkg_pol_model", "bkg_mass"+names[i],masses[i]*0.93,masses[i]*1.07);
+        l.rooContainer->SumBinnedDatasets("bkg_BDT_sideband_ada_120" ,"bkg_BDT_ada_105" ,"bkg_BDT_ada_140" , N_mc, N_mc ,scale);
+        l.rooContainer->SumBinnedDatasets("bkg_BDT_sideband_grad_120","bkg_BDT_grad_105","bkg_BDT_grad_140", N_mc, N_mc ,scale);
 
-        //for (int i = 0; i<nMasses;i++){
-            //jonTree_[i]->Write(("jon"+names[i]).c_str());
-        //}
-        outputfilename = "BDT_ada_" + (std::string) l.histFileName;  
+        std::string outputfilename = "BDT_ada_"+(std::string) l.histFileName;  
+        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_ada_120" ,"sig_BDT_ada_120" ,"bkg_BDT_ada_120");
+        outputfilename = "BDT_grad_"+(std::string) l.histFileName;  
+        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_grad_120","sig_BDT_grad_120","bkg_BDT_grad_120");
+
+//        outputfilename = "BDT_ada_" + (std::string) l.histFileName;  
 //        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_ada","sig_BDT_ada","bkg_gg_BDT_ada","bkg_gj_BDT_ada","bkg_jj_BDT_ada");
-        outputfilename = "BDT_grad_" + (std::string) l.histFileName;  
+//        outputfilename = "BDT_grad_" + (std::string) l.histFileName;  
 //        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_grad","sig_BDT_grad","bkg_gg_BDT_grad","bkg_gj_BDT_grad","bkg_jj_BDT_grad");
     }
     //std::string outputfilename = (std::string) l.histFileName;
@@ -403,8 +399,12 @@ void MvaAnalysis::Init(LoopAll& l)
     std::vector<std::string> data_pol_pars(2,"p");	 
     data_pol_pars[0] = "modpol0";
     data_pol_pars[1] = "modpol1";
-    l.rooContainer->AddGenericPdf("data_pol_model",
-	  "0","CMS_hgg_mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
+    l.rooContainer->AddGenericPdf("data_pol_model", "0","CMS_hgg_mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
+
+    std::vector<std::string> bkg_pol_pars(2,"p");	 
+    bkg_pol_pars[0] = "modpol0";
+    bkg_pol_pars[1] = "modpol1";
+    l.rooContainer->AddGenericPdf("bkg_pol_model", "0","CMS_hgg_mass",bkg_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
         
     // -----------------------------------------------------
     // Make some data sets from the observables to fill in the event loop		  
