@@ -12,7 +12,7 @@
 /*
   Does post-reco fixes to ECAL photon energy and estimates resolution.
   This can run outside of the usual CMS software framework but requires 
-  access to a file 'PhotonFix.dat' which must be in the same directory as 
+  access to a file 'EcalGaps.dat' which must be in the same directory as 
   that used to run.
 
   To run independently of CMSSW use PhotonFix.h directly - go to 
@@ -24,10 +24,7 @@
   
   The string gives the reco version used. Valid strings are 
   "3_8", "3_11", "4_2" and "Nominal", where the latter gives no correction 
-  to the energy and a nominal resolution value. There is also "4_2e" which 
-  provides corrections for electrons which are reconstructed as photons (to
-  aid with testing the performance of these corrections in data).
-
+  to the energy and a nominal resolution value.
 
   Make objects using
     PhotonFixCMS a(p);
