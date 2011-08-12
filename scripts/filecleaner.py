@@ -8,16 +8,20 @@ parser = OptionParser()
 parser.add_option("-c", "--clean", action="store_true", dest="clean", default=False, help="Remove Corrupted File")
 parser.add_option("-d", "--duplicate", action="store_true", dest="duplicate", default=False, help="Remove Duplicate Job Submissions")
 parser.add_option("-p", "--path", dest="directory", help="The data directory on CASTOR", metavar="DIR")
-parser.add_option("-r", "--recursive", action="store_true", dest="recursive", default=False, help="Transfers files in sub directories")
+parser.add_option("-r", "--recursive", action="store_true", dest="recursive", default=False, help="Clean files in sub directories")
 (options, args) = parser.parse_args()
 
 def cleanfiles(dir):
-	if dir[len(dir)-1:len(dir)]!="/": dir+="/" 
+	if dir[len(dir)-1:len(dir)]!="/": dir+="/"
+	popen("nsfind "+dir+" -type f | grep .root | xargs -i stager_qry -M {} | grep 'not on disk' | xargs -i stager_get -M {}")
 	filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
 	for i in range(len(filename)):
 		filename[i] = filename[i].strip("\n")
 		print "Checking File: %s" %(dir+filename[i])
 		testfile = TFile.Open("rfio:"+dir+filename[i])
+		if testfile==NULL:
+			print "Warning: File %s is a NULL pointer" %(dir+filename[i])
+			continue
 		if testfile.IsZombie():
 			newfilename = filename[i].replace(".root",".resubmit")
 			print "Moving corrupted file %s to %s" %(filename[i], newfilename)
