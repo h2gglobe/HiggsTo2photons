@@ -229,7 +229,12 @@ for run in runselection:
         elif ("events_per_job" in line and json == ""):
             file_out.write("events_per_job = "+str(events_job)+"\n")
         elif ("lumi_mask" in line and json != ""):
-            file_out.write("lumi_mask = ../../../scripts/"+str(json)+"\n")
+            if json.startswith('/'):
+                # absolute path specified
+                file_out.write("lumi_mask = "+str(json)+"\n")
+            else:
+                # relative path specified
+                file_out.write("lumi_mask = ../../../scripts/"+str(json)+"\n")
         elif ("lumis_per_job" in line and json != ""):
             file_out.write("lumis_per_job = "+str(lumis_per_job)+"\n")
         elif ("total_number_of_lumis" in line and json != ""):
