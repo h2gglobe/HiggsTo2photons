@@ -415,12 +415,12 @@ std::vector<double> RooContainer::GetFitNormalisations(std::string pdf_name, std
      bool multi_pdf;
      RooAbsPdf *pdf_ptr;
 
-     std::map<std::string,RooExtendPdf>::iterator exp = m_exp_.find(pdf_name);
+     std::map<std::string,RooExtendPdf>::iterator exp = m_exp_.find(getcatName(pdf_name,cat));
 
      if (exp != m_exp_.end()) {
       pdf_ptr = &m_exp_[pdf_name];
      } else {
-      std::map<std::string,RooAddPdf>::iterator pdf  = m_pdf_.find(pdf_name);
+      std::map<std::string,RooAddPdf>::iterator pdf  = m_pdf_.find(getcatName(pdf_name,cat));
      if (pdf != m_pdf_.end()) {
       multi_pdf = true;
       pdf_ptr = &m_pdf_[pdf_name];
@@ -1767,22 +1767,30 @@ void RooContainer::setArgSetParameters(RooArgSet* params,std::vector<double> &va
 double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,bool multi_pdf){
 
   double normalisation = 0;
+        cout<<"Testa"<<endl;
   if (multi_pdf){
+        cout<<"Testb"<<endl;
 
      std::map<std::string,std::vector<RooRealVar*> >::iterator it = m_comp_pdf_norm_.find(pdf_name);
+        cout<<"Testc"<<endl;
      // get the values which correspond to normalisations of each component pdf
      for ( std::vector<RooRealVar*>::iterator it_r = (it->second).begin() ; it_r!=(it->second).end();it_r++){
 	normalisation += (*it_r)->getVal();
+        cout<<"Testd"<<endl;
      }
   }
 
   else{
     normalisation = m_real_var_[pdf_name].getVal();
+        cout<<"Teste"<<endl;
   }
 
-  obs->setRange(hist_name.c_str(),r1,r2);
-  RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range(hist_name.c_str()));
+  obs->setRange("rngeNorm",r1,r2);
+        cout<<"Testf"<<endl;
+  RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
+        cout<<"Testg"<<endl;
   normalisation *= integral->getVal();
+        cout<<"Testh"<<endl;
 
   return normalisation;
 }

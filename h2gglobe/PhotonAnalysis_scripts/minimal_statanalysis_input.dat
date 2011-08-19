@@ -98,6 +98,7 @@ Vertex selection
 ->
 vtx_std_sel
 vtx_std_ranked_list
+vtx_std_dxdydz 
 
 ->
 di-photons

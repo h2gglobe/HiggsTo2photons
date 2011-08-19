@@ -45,22 +45,44 @@ void MvaAnalysis::Term(LoopAll& l)
 
     else{
         //120 GeV
-	int i = 3;
-        l.rooContainer->FitToData("data_pol_model", "data_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
-	std::vector<double> N = l.rooContainer->GetFitNormalisations("data_pol_model", "data_mass"+names[i],masses[i]*0.93,masses[i]*1.07);
+        int i = 3;
+        l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
+        cout<<"Test1"<<endl;
+        std::vector<double> N = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i], "data_mass"+names[i],masses[i]*1.07,massMax);
+        //std::vector<double> N = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i], "data_mass"+names[i],masses[i]*0.93,masses[i]*1.07);
+        cout<<"Test2"<<endl;
         bool scale = false;
+        cout<<"Test3"<<endl;
         l.rooContainer->SumBinnedDatasets("data_BDT_sideband_ada_120" ,"data_BDT_ada_105" ,"data_BDT_ada_140" , N, N, scale);
+        cout<<"Test4"<<endl;
         l.rooContainer->SumBinnedDatasets("data_BDT_sideband_grad_120","data_BDT_grad_105","data_BDT_grad_140", N, N, scale);
+        cout<<"Test5"<<endl;
+        l.rooContainer->SumBinnedDatasets("data_BDT_jonsideband_ada_120" ,"data_low_BDT_ada_120" ,"data_high_BDT_ada_120" , N, N, scale);
+        cout<<"Test6"<<endl;
+        l.rooContainer->SumBinnedDatasets("data_BDT_jonsideband_grad_120","data_low_BDT_grad_120","data_high_BDT_grad_120", N, N, scale);
+        cout<<"Test7"<<endl;
 
-        l.rooContainer->FitToData("bkg_pol_model", "bkg_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
-	std::vector<double> N_mc = l.rooContainer->GetFitNormalisations("bkg_pol_model", "bkg_mass"+names[i],masses[i]*0.93,masses[i]*1.07);
-        l.rooContainer->SumBinnedDatasets("bkg_BDT_sideband_ada_120" ,"bkg_BDT_ada_105" ,"bkg_BDT_ada_140" , N_mc, N_mc ,scale);
-        l.rooContainer->SumBinnedDatasets("bkg_BDT_sideband_grad_120","bkg_BDT_grad_105","bkg_BDT_grad_140", N_mc, N_mc ,scale);
-
-        std::string outputfilename = "BDT_ada_"+(std::string) l.histFileName;  
-        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_ada_120" ,"sig_BDT_ada_120" ,"bkg_BDT_ada_120");
-        outputfilename = "BDT_grad_"+(std::string) l.histFileName;  
-        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_grad_120","sig_BDT_grad_120","bkg_BDT_grad_120");
+//        l.rooContainer->FitToData("bkg_pol_model"+names[i], "bkg_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
+//        cout<<"Test8"<<endl;
+//        std::vector<double> N_mc = l.rooContainer->GetFitNormalisations("bkg_pol_model"+names[i], "bkg_mass"+names[i],masses[i]*0.93,masses[i]*1.07);
+//        cout<<"Test9"<<endl;
+//        l.rooContainer->SumBinnedDatasets("bkg_BDT_sideband_ada_120" ,"bkg_BDT_ada_105" ,"bkg_BDT_ada_140" , N_mc, N_mc ,scale);
+//        cout<<"Test10"<<endl;
+//        l.rooContainer->SumBinnedDatasets("bkg_BDT_sideband_grad_120","bkg_BDT_grad_105","bkg_BDT_grad_140", N_mc, N_mc ,scale);
+//        cout<<"Test11"<<endl;
+//        l.rooContainer->SumBinnedDatasets("bkg_BDT_jonsideband_ada_120" ,"bkg_low_BDT_ada_120" ,"bkg_high_BDT_ada_120", N_mc,N_mc,scale);
+//        cout<<"Test12"<<endl;
+//        l.rooContainer->SumBinnedDatasets("bkg_BDT_jonsideband_grad_120","bkg_low_BDT_grad_120","bkg_high_BDT_grad_120",N_mc,N_mc,scale);
+//        cout<<"Test13"<<endl;
+//
+//        std::string outputfilename = "BDT_ada_"+(std::string) l.histFileName;  
+//        cout<<"Test14"<<endl;
+//        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_ada_120" ,"sig_BDT_ada_120" ,"bkg_BDT_ada_120");
+//        cout<<"Test15"<<endl;
+//        outputfilename = "BDT_grad_"+(std::string) l.histFileName;  
+//        cout<<"Test16"<<endl;
+//        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_grad_120","sig_BDT_grad_120","bkg_BDT_grad_120");
+//        cout<<"Test17"<<endl;
 
 //        outputfilename = "BDT_ada_" + (std::string) l.histFileName;  
 //        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_ada","sig_BDT_ada","bkg_gg_BDT_ada","bkg_gj_BDT_ada","bkg_jj_BDT_ada");
@@ -396,15 +418,23 @@ void MvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
     l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
 
-    std::vector<std::string> data_pol_pars(2,"p");	 
-    data_pol_pars[0] = "modpol0";
-    data_pol_pars[1] = "modpol1";
-    l.rooContainer->AddGenericPdf("data_pol_model", "0","CMS_hgg_mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
+    cout<<"test1"<<endl;
+    for (int i = 0; i<nMasses;i++){
+        cout<<"test2"<<endl;
+        std::vector<std::string> data_pol_pars(2,"p");	 
+        data_pol_pars[0] = "modpol0";
+        data_pol_pars[1] = "modpol1";
+        cout<<"test3"<<endl;
+        l.rooContainer->AddGenericPdf("data_pol_model"+names[i], "0","CMS_hgg_mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
 
-    std::vector<std::string> bkg_pol_pars(2,"p");	 
-    bkg_pol_pars[0] = "modpol0";
-    bkg_pol_pars[1] = "modpol1";
-    l.rooContainer->AddGenericPdf("bkg_pol_model", "0","CMS_hgg_mass",bkg_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
+        std::vector<std::string> bkg_pol_pars(2,"p");	 
+        cout<<"test4"<<endl;
+        bkg_pol_pars[0] = "modpol0";
+        bkg_pol_pars[1] = "modpol1";
+        cout<<"test5"<<endl;
+        l.rooContainer->AddGenericPdf("bkg_pol_model"+names[i], "0","CMS_hgg_mass",bkg_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
+    }
+    cout<<"test6"<<endl;
         
     // -----------------------------------------------------
     // Make some data sets from the observables to fill in the event loop		  
@@ -703,6 +733,21 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
       
 	assert( evweight >= 0. ); 
 
+	double lead_photonResolution = GetPhotonResolution(l,diphoton_index.first);
+	double sublead_photonResolution = GetPhotonResolution(l,diphoton_index.second);
+	double angle_resolution = GetAngleResolutionCorrVtx(l,diphoton_index.first,diphoton_index.second,diphoton_id);
+	
+	// returns massResolution assuming no error on vertex (i.e. just from Paul's stuff)
+	double massResolutionEonly = 0.5*mass*TMath::Sqrt((lead_photonResolution*lead_photonResolution)/(lead_p4.E()*lead_p4.E())
+					 +(sublead_photonResolution*sublead_photonResolution)/(sublead_p4.E()*sublead_p4.E()));
+  
+	double alpha = lead_p4.Angle(sublead_p4.Vect());
+
+	// returns massResolution with vertex error (at the moment only assumes correct vertex)
+	double massResolution = 0.5*mass*TMath::Sqrt((lead_photonResolution*lead_photonResolution)/(lead_p4.E()*lead_p4.E())
+		+(sublead_photonResolution*sublead_photonResolution)/(sublead_p4.E()*sublead_p4.E())
+		+((angle_resolution*angle_resolution)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
+
 //	if( mass>=massMin && mass<=massMax  ) {
         //Variables to be output to TMVA_input.root and vairbales used in training
         //TODO Correct variables to 10 inmportant ones
@@ -778,8 +823,6 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             }
         }
         else{
-            // 4 categories used for the limit setting.... 2 r9, 2 Eta
-            // FIXME 
             if (cur_type == 0 ){//data
                 for (int i = 0; i<nMasses;i++){
 
@@ -810,6 +853,38 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
                             l.rooContainer->InputDataPoint("data_BDT_grad"+names[i] ,category,bdt_grad,evweight);
                             l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
+                        }
+                        else if (3==i){//120 GeV 
+                            // This is for Jon's idea of using the BDT trained
+                            // in then central region in the sidebands to obtian
+                            // the background model
+                            //Ideally we would work out the side bands for each
+                            //mass point, but we're not at that point at the
+                            //moment so we just do it for 120
+                            if( mass>(masses[0]*0.93) && mass<(masses[0]*1.07)){//Lower Window 105GeV
+                                _pho1_ptOverM = lead_p4.Pt()/masses[0];
+                                _pho2_ptOverM = sublead_p4.Pt()/masses[0];
+                                _delta_MOverM = (mass-masses[0])/masses[0];
+                                _H_ptOverM    = (Higgs.Pt()/masses[0]);
+                                if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
+                                    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
+                                    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
+                                    l.rooContainer->InputDataPoint("data_low_BDT_ada"+names[i] ,category,bdt_ada,evweight);
+                                    l.rooContainer->InputDataPoint("data_low_BDT_grad"+names[i],category,bdt_grad,evweight);
+                                }
+                            }
+                            else if( mass>(masses[5]*0.93) && mass<(masses[5]*1.07)){//Higher Window 140GeV
+                                _pho1_ptOverM = lead_p4.Pt()/masses[5];
+                                _pho2_ptOverM = sublead_p4.Pt()/masses[5];
+                                _delta_MOverM = (mass-masses[5])/masses[5];
+                                _H_ptOverM    = (Higgs.Pt()/masses[5]);
+                                if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
+                                    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
+                                    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
+                                    l.rooContainer->InputDataPoint("data_high_BDT_ada"+names[i] ,category,bdt_ada,evweight);
+                                    l.rooContainer->InputDataPoint("data_high_BDT_grad"+names[i],category,bdt_grad,evweight);
+                                }
+                            }
                         }
                     }
                 }
@@ -848,11 +923,6 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 }//end loop over masses
             }//end bkg if
             else { 
-                if( mass>(masses[0]*0.93) && mass<(masses[5]*1.07)  ){
-                    l.rooContainer->InputDataPoint("sig_mass",category,mass,evweight);
-                }
-                //std::cout<<"WTF!!\n";
-                //std::cout<<"cur_type: "<<cur_type<<std::endl;
                 std::string name = "";
                 int i0 = -1;
                 if (cur_type == -13 || cur_type == -14 ||  cur_type == -15 || cur_type == -16){//110 
@@ -966,5 +1036,105 @@ double MvaAnalysis::GetDifferentialKfactor(double gPT, int Mass)
   else return kfactorHistograms[nMasses-1]->GetBinContent(kfactorHistograms[nMasses-1]->FindBin(gPT));
 */
 }
+
+
+double MvaAnalysis::GetPhotonResolution(LoopAll &l,int photon_index){
+
+	// Relevant information
+	TLorentzVector *p4    = (TLorentzVector*) (l.pho_p4->At(photon_index));
+	TVector3 *sc_xyz = (TVector3*) (l.sc_xyz->At(l.pho_scind[photon_index]));
+	double r9 	      = l.pho_r9[photon_index];
+
+  //Make the PhotonFix Classes:
+	PhotonFix photonFixer(p4->E(),sc_xyz->Eta(),sc_xyz->Phi(),r9);
+	double photonResolution = photonFixer.sigmaEnergy();
+	double photonEnergy 	= photonFixer.fixedEnergy();
+	// Get the photon-category sigma
+	int phoCat = l.PhotonCategory(photon_index,nR9Categories,nEtaCategories);
+  	std::string myCategory="";
+  	if (eSmearPars.categoryType=="2CatR9_EBEE" )
+    	{
+      	  if (phoCat==0 || phoCat==1)	myCategory+="EB";
+      	  else	myCategory+="EE";
+      
+          if (phoCat==0 || phoCat==2)   myCategory+="HighR9";
+      	  else	myCategory+="LowR9";
+    	}
+  	else if (eSmearPars.categoryType=="EBEE")
+    	{
+      	  if (phoCat==0 || phoCat==1)	myCategory+="EB";
+      	  else	myCategory+="EE";
+    	} 
+	// Smearing is applied ON TOP of PhotonFix corrections -> must scale that energy to get addistional resolutions
+	double categoryResolution = eSmearPars.smearing_sigma[myCategory]*photonEnergy;	
+	return TMath::Sqrt(categoryResolution*categoryResolution + photonResolution*photonResolution);
+}
+
+double MvaAnalysis::GetAngleResolutionCorrVtx(LoopAll &l, int lead_index, int sublead_index, int diphoton_index){
+  
+  TVector3 *vtx_dxdydz = (TVector3*)l.vtx_std_dxdydz->At(l.dipho_vtxind[diphoton_index]);
+  double dz = vtx_dxdydz->z();
+  
+  return PropagateDz(l,lead_index,sublead_index,diphoton_index,dz);
+ 
+}
+
+double MvaAnalysis::GetAngleResolutionWrongVtx(LoopAll &l, int lead_index, int sublead_index, int diphoton_index){
+  
+  double dz = TMath::Sqrt(2.)*5.8;
+  return PropagateDz(l,lead_index,sublead_index,diphoton_index,dz);
+}
+
+// propaget vertex resolution to angular resolution
+double MvaAnalysis::PropagateDz(LoopAll &l, int lead_index, int sublead_index, int diphoton_index, double dz){
+
+  TLorentzVector *p4_lead = (TLorentzVector*)(l.pho_p4->At(lead_index));
+  TLorentzVector *p4_sublead = (TLorentzVector*)(l.pho_p4->At(sublead_index));
+  double alpha = p4_lead->Angle(p4_sublead->Vect());
+  if (alpha!= p4_sublead->Angle(p4_lead->Vect())) std::cout << "Error: Angle between photons not consistent" << std::endl;
+  
+  TVector3 *lead_sc_pos = (TVector3*)(l.sc_xyz->At(l.pho_scind[lead_index]));
+  TVector3 *sublead_sc_pos = (TVector3*)(l.sc_xyz->At(l.pho_scind[sublead_index]));
+  TVector3 *vtx_pos = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_index]);
+  
+  double x1 = lead_sc_pos->X()-vtx_pos->X();
+  double y1 = lead_sc_pos->Y()-vtx_pos->Y();
+  double z1 = lead_sc_pos->Z()-vtx_pos->Z();
+ 
+  double x2 = sublead_sc_pos->X()-vtx_pos->X();
+  double y2 = sublead_sc_pos->Y()-vtx_pos->Y();
+  double z2 = sublead_sc_pos->Z()-vtx_pos->Z();
+ 
+  double r1 = TMath::Sqrt(x1*x1+y1*y1+z1*z1);
+  double r2 = TMath::Sqrt(x2*x2+y2*y2+z2*z2);
+
+  double cos_term = TMath::Cos(p4_lead->Eta()-p4_sublead->Eta());
+  double sech1 = SecH(p4_lead->Eta());
+  double sech2 = SecH(p4_sublead->Eta());
+  double tanh1 = TanH(p4_lead->Eta());
+  double tanh2 = TanH(p4_sublead->Eta());
+
+  double numerator1 = sech1*(sech1*tanh2-tanh1*sech2*cos_term);
+  double numerator2 = sech2*(sech2*tanh1-tanh2*sech1*cos_term);
+  double denominator = 1. - tanh1*tanh2-sech1*sech2*cos_term;
+
+  double ResTerm = (-0.5*dz/denominator)*(numerator1/r1 + numerator2/r2);
+
+  double vertexResolution = ResTerm*2.*(1.-TMath::Cos(alpha))/TMath::Sin(alpha);
+
+  return vertexResolution;
+
+}
+
+// utility funcs for propagating dz
+double MvaAnalysis::SecH(double x){
+  return 1.0/TMath::CosH(x);
+}
+
+double MvaAnalysis::TanH(double x){
+  return TMath::TanH(x);
+}
+
+
 
 

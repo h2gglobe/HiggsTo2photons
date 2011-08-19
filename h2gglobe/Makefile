@@ -52,6 +52,7 @@ LOOPALLO = LoopAll.$(ObjSuf) \
 DICTS = LoopAll.h BaseAnalysis.h BaseSmearer.h EnergySmearer.h EfficiencySmearer.h DiPhoEfficiencySmearer.h EnergySmearer.h KFactorSmearer.h SampleContainer.h\
 	VertexAnalysis/interface/VertexAlgoParameters.h\
 	PhotonAnalysis/interface/PhotonAnalysis.h\
+	PhotonAnalysis/interface/PhotonFix.h\
 	PhotonAnalysis/interface/StatAnalysis.h\
 	PhotonAnalysis/interface/MvaAnalysis.h\
 	RooContainer.h
@@ -103,6 +104,7 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
 	Cut.h \
 	VertexAnalysis/interface/VertexAlgoParameters.h \
 	PhotonAnalysis/interface/PhotonAnalysis.h \
+	PhotonAnalysis/interface/PhotonFix.h \
 	PhotonAnalysis/interface/StatAnalysis.h \
 	PhotonAnalysis/interface/MvaAnalysis.h 
 
