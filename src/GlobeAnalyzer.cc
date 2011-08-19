@@ -651,12 +651,13 @@ void GlobeAnalyzer::fillTree() {
   version = H2G_VERSION;
   type = 0;
 
-  //if (getenv("JOBMAKER") != NULL) 
-  //  jobmaker = new std::string(getenv("JOBMAKER"));
-  //else 
-  //  jobmaker = new std::string("jobmaker unknown");
-
   tree2->Fill();
+  if (doPileup) {
+    TH1D* h = pileup->getHisto(); 
+    Int_t last_bin = h->GetNbinsX();
+    h->SetBinContent(last_bin-1, h->GetBinContent(last_bin)+h->GetBinContent(last_bin-1));
+    h->Write();  
+  }
 }
 
 DEFINE_FWK_MODULE(GlobeAnalyzer);
