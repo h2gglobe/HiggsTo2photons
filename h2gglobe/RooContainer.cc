@@ -418,21 +418,23 @@ std::vector<double> RooContainer::GetFitNormalisations(std::string pdf_name, std
      std::map<std::string,RooExtendPdf>::iterator exp = m_exp_.find(getcatName(pdf_name,cat));
 
      if (exp != m_exp_.end()) {
-      pdf_ptr = &m_exp_[pdf_name];
+      pdf_ptr = &(exp->second);
+      multi_pdf = false;
      } else {
       std::map<std::string,RooAddPdf>::iterator pdf  = m_pdf_.find(getcatName(pdf_name,cat));
      if (pdf != m_pdf_.end()) {
       multi_pdf = true;
-      pdf_ptr = &m_pdf_[pdf_name];
+      pdf_ptr = &(pdf->second);
      }
       else {
         std::cerr << "WARNING!!! -- RooContainer::GetFitNormalisations --  No Pdf named "
 	         << pdf_name << endl;  
       } 
      }
+     std::cout << getcatName(pdf_name,cat)<< std::endl;
      std::string obs_name = data_obs_names_[getcatName(data_name,cat)];
      // Just use a weird name (getcatName(obs_name)) for the histogram since we dont need it
-     normalisations.push_back(getNormalisationFromFit(pdf_name,getcatName(obs_name,cat),pdf_ptr,obs_var->second,r1,r2,multi_pdf));
+     normalisations.push_back(getNormalisationFromFit(getcatName(pdf_name,cat),getcatName(obs_name,cat),pdf_ptr,obs_var->second,r1,r2,multi_pdf));
    }
   }
 
@@ -1779,17 +1781,18 @@ double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hi
         cout<<"Testd"<<endl;
      }
   }
-
   else{
     normalisation = m_real_var_[pdf_name].getVal();
         cout<<"Teste"<<endl;
   }
 
-  obs->setRange("rngeNorm",r1,r2);
+  pdf_ptr->forceNumInt(true);
   cout<<"Testf"<<endl;
+  obs->setRange("rngeNorm",r1,r2);
   pdf_ptr->forceNumInt(true);
   cout<<"Testg1"<<endl;
   RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
+  pdf_ptr->forceNumInt(false);
   cout<<"Testg2"<<endl;
   normalisation *= integral->getVal();
   cout<<"Testh"<<endl;
