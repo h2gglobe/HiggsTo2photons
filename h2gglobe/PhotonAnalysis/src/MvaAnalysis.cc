@@ -77,14 +77,14 @@ void MvaAnalysis::Term(LoopAll& l)
             // if scale = true, the wt is a scale applied ot the histograms other
             // wise it is an absolute normalisation to be applied
             bool scale = false;//true;
-            l.rooContainer->SumBinnedDatasets("data_BDT_jonsideband_ada"+names[i], "data_low_BDT_ada"+names[i],
+            l.rooContainer->SumBinnedDatasets("data_BDT_sideband_ada"+names[i], "data_low_BDT_ada"+names[i],
                                               "data_high_BDT_ada"+names[i], wt_low, wt_high, scale);
-            l.rooContainer->SumBinnedDatasets("data_BDT_jonsideband_grad"+names[i], "data_low_BDT_grad"+names[i],
+            l.rooContainer->SumBinnedDatasets("data_BDT_sideband_grad"+names[i], "data_low_BDT_grad"+names[i],
                                               "data_high_BDT_grad"+names[i], wt_low, wt_high, scale);
             if (3==i){// Alternative method to sum sidebands
-                l.rooContainer->SumBinnedDatasets("data_BDT_sideband_ada"+names[i] ,"data_BDT_ada_105" ,
+                l.rooContainer->SumBinnedDatasets("data_BDT_alt_sideband_ada"+names[i] ,"data_BDT_ada_105" ,
                                                   "data_BDT_ada_140" , wt_low, wt_high, scale);
-                l.rooContainer->SumBinnedDatasets("data_BDT_sideband_grad"+names[i],"data_BDT_grad_105",
+                l.rooContainer->SumBinnedDatasets("data_BDT_alt_sideband_grad"+names[i],"data_BDT_grad_105",
                                                   "data_BDT_grad_140", wt_low, wt_high, scale);
             }
         }
