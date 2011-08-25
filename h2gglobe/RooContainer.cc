@@ -1786,11 +1786,14 @@ double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hi
   }
 
   obs->setRange("rngeNorm",r1,r2);
-        cout<<"Testf"<<endl;
+  cout<<"Testf"<<endl;
+  pdf_ptr->forceNumInt(true);
+  cout<<"Testg1"<<endl;
   RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
-        cout<<"Testg"<<endl;
+  cout<<"Testg2"<<endl;
   normalisation *= integral->getVal();
-        cout<<"Testh"<<endl;
+  cout<<"Testh"<<endl;
+  pdf_ptr->forceNumInt(false);
 
   return normalisation;
 }

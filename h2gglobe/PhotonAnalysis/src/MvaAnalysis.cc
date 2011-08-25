@@ -22,7 +22,7 @@ MvaAnalysis::MvaAnalysis()  :
 
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
-	nMasses  = 6;
+    nMasses  = 6;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -414,25 +414,26 @@ void MvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("ff_XSBR_140",0.005656604+0.003241793);
 
     l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
+    //l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
     l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
-    l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
+    //l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
 
     cout<<"test1"<<endl;
     for (int i = 0; i<nMasses;i++){
+	//Not all pdf types have integrals defined, so break when normalisation is calculated
         cout<<"test2"<<endl;
-        std::vector<std::string> data_pol_pars(2,"p");	 
+        std::vector<std::string> data_pol_pars(1,"p");	 
         data_pol_pars[0] = "modpol0";
-        data_pol_pars[1] = "modpol1";
+//        data_pol_pars[1] = "modpol1";
         cout<<"test3"<<endl;
-        l.rooContainer->AddGenericPdf("data_pol_model"+names[i], "0","CMS_hgg_mass",data_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
+        l.rooContainer->AddGenericPdf("data_pol_model"+names[i], "0","CMS_hgg_mass",data_pol_pars,1);	// >= 71 means RooBernstein of order >= 1
 
-        std::vector<std::string> bkg_pol_pars(2,"p");	 
-        cout<<"test4"<<endl;
-        bkg_pol_pars[0] = "modpol0";
-        bkg_pol_pars[1] = "modpol1";
-        cout<<"test5"<<endl;
-        l.rooContainer->AddGenericPdf("bkg_pol_model"+names[i], "0","CMS_hgg_mass",bkg_pol_pars,72);	// >= 71 means RooBernstein of order >= 1
+        //std::vector<std::string> bkg_pol_pars(2,"p");	 
+        //cout<<"test4"<<endl;
+        //bkg_pol_pars[0] = "modpol0";
+        //bkg_pol_pars[1] = "modpol1";
+        //cout<<"test5"<<endl;
+        //l.rooContainer->AddGenericPdf("bkg_pol_model"+names[i], "0","CMS_hgg_mass",bkg_pol_pars,1);	// >= 71 means RooBernstein of order >= 1
     }
     cout<<"test6"<<endl;
         
@@ -546,7 +547,8 @@ void MvaAnalysis::Init(LoopAll& l)
  		tmvaReader_->AddVariable("pho2_eta", &_pho2_eta);
  		tmvaReader_->AddVariable("pho1_ptOverM", &_pho1_ptOverM);
  		tmvaReader_->AddVariable("pho2_ptOverM", &_pho2_ptOverM);
- 		tmvaReader_->AddVariable("deltaMOverM", &_deltaMOverM);
+ 		//tmvaReader_->AddVariable("deltaMOverM", &_deltaMOverM);
+ 		tmvaReader_->AddVariable("deltaMOverSigmaM", &_deltaMOverM);
 
         for (int i = 0; i<nMasses;i++){
             //Adaptive Boost
@@ -845,6 +847,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
                         if( mass>(masses[i]*0.93) && mass<(masses[i]*1.07)){//Signal mass window cut
                             l.FillHist("deltaMOverM"+names[i],0, _deltaMOverM, evweight);
+                            l.FillHist("deltaMOverSigmaM"+names[i],0, _deltaMOverSigmaM, evweight);
                             l.FillHist("pho1_eta"+names[i],0, _pho1_eta, evweight);
                             l.FillHist("pho2_eta"+names[i],0, _pho2_eta, evweight);
                             l.FillHist("pho1_ptOverM"+names[i],0, _pho1_ptOverM, evweight);
@@ -861,38 +864,38 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                             l.rooContainer->InputDataPoint("data_BDT_grad"+names[i] ,category,bdt_grad,evweight);
                             l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
                         }
-                        else if (3==i){//120 GeV 
-                            // This is for Jon's idea of using the BDT trained
-                            // in then central region in the sidebands to obtian
-                            // the background model
-                            //Ideally we would work out the side bands for each
-                            //mass point, but we're not at that point at the
-                            //moment so we just do it for 120
-                            if( mass>(masses[0]*0.93) && mass<(masses[0]*1.07)){//Lower Window 105GeV
-                                _pho1_ptOverM = lead_p4.Pt()/masses[0];
-                                _pho2_ptOverM = sublead_p4.Pt()/masses[0];
-                                _deltaMOverM = (mass-masses[0])/masses[0];
-                    		_deltaMOverSigmaM = (mass-masses[0])/massResolution;
-                                _H_ptOverM    = (Higgs.Pt()/masses[0]);
-                                if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
-                                    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
-                                    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
-                                    l.rooContainer->InputDataPoint("data_low_BDT_ada"+names[i] ,category,bdt_ada,evweight);
-                                    l.rooContainer->InputDataPoint("data_low_BDT_grad"+names[i],category,bdt_grad,evweight);
-                                }
+                    }
+                    else if (3==i){//120 GeV 
+                        // This is for Jon's idea of using the BDT trained
+                        // in then central region in the sidebands to obtian
+                        // the background model
+                        //Ideally we would work out the side bands for each
+                        //mass point, but we're not at that point at the
+                        //moment so we just do it for 120
+                        if( mass>(masses[0]*0.93) && mass<(masses[0]*1.07)){//Lower Window 105GeV
+                            _pho1_ptOverM = lead_p4.Pt()/masses[0];
+                            _pho2_ptOverM = sublead_p4.Pt()/masses[0];
+                            _deltaMOverM = (mass-masses[0])/masses[0];
+                            _deltaMOverSigmaM = (mass-masses[0])/massResolution;
+                            _H_ptOverM    = (Higgs.Pt()/masses[0]);
+                            if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
+                                float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
+                                float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
+                                l.rooContainer->InputDataPoint("data_low_BDT_ada"+names[i] ,category,bdt_ada,evweight);
+                                l.rooContainer->InputDataPoint("data_low_BDT_grad"+names[i],category,bdt_grad,evweight);
                             }
-                            else if( mass>(masses[5]*0.93) && mass<(masses[5]*1.07)){//Higher Window 140GeV
-                                _pho1_ptOverM = lead_p4.Pt()/masses[5];
-                                _pho2_ptOverM = sublead_p4.Pt()/masses[5];
-                                _deltaMOverM = (mass-masses[5])/masses[5];
-                    		_deltaMOverSigmaM = (mass-masses[5])/massResolution;
-                                _H_ptOverM    = (Higgs.Pt()/masses[5]);
-                                if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
-                                    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
-                                    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
-                                    l.rooContainer->InputDataPoint("data_high_BDT_ada"+names[i] ,category,bdt_ada,evweight);
-                                    l.rooContainer->InputDataPoint("data_high_BDT_grad"+names[i],category,bdt_grad,evweight);
-                                }
+                        }
+                        else if( mass>(masses[5]*0.93) && mass<(masses[5]*1.07)){//Higher Window 140GeV
+                            _pho1_ptOverM = lead_p4.Pt()/masses[5];
+                            _pho2_ptOverM = sublead_p4.Pt()/masses[5];
+                            _deltaMOverM = (mass-masses[5])/masses[5];
+                            _deltaMOverSigmaM = (mass-masses[5])/massResolution;
+                            _H_ptOverM    = (Higgs.Pt()/masses[5]);
+                            if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
+                                float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
+                                float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
+                                l.rooContainer->InputDataPoint("data_high_BDT_ada"+names[i] ,category,bdt_ada,evweight);
+                                l.rooContainer->InputDataPoint("data_high_BDT_grad"+names[i],category,bdt_grad,evweight);
                             }
                         }
                     }
