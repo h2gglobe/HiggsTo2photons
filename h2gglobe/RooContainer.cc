@@ -623,8 +623,8 @@ void RooContainer::sumBinnedDatasets(std::string new_name,std::string data_one,s
 	histOne->Scale(c1);
 	histOne->Add(&(it_two->second),c2);
       } else {
-	histOne->Scale(0.5*(c1/histOne->Integral()));
-	histOne->Add(&(it_two->second),0.5*(c2/((*it_two).second).Integral()));
+	histOne->Scale((c1/histOne->Integral()));
+	histOne->Add(&(it_two->second),(c2/((*it_two).second).Integral()));
       }
 
    m_th1f_.insert(std::pair<std::string,TH1F>(new_name,*histOne));

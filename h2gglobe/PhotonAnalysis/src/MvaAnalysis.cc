@@ -42,72 +42,55 @@ void MvaAnalysis::Term(LoopAll& l)
         }
         mvaFile_->Close();
     }
-
     else{
-        //120 GeV
-        int i = 3;
-        l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
-        cout<<"Test1"<<endl;
-        std::vector<double> N = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i], "data_mass"+names[i],masses[i]*1.07,massMax);
-        //std::vector<double> N = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i], "data_mass"+names[i],masses[i]*0.93,masses[i]*1.07);
-        cout<<"Test2"<<endl;
-        bool scale = false;
-        cout<<"Test3"<<endl;
-        l.rooContainer->SumBinnedDatasets("data_BDT_sideband_ada_120" ,"data_BDT_ada_105" ,"data_BDT_ada_140" , N, N, scale);
-        cout<<"Test4"<<endl;
-        l.rooContainer->SumBinnedDatasets("data_BDT_sideband_grad_120","data_BDT_grad_105","data_BDT_grad_140", N, N, scale);
-        cout<<"Test5"<<endl;
-        l.rooContainer->SumBinnedDatasets("data_BDT_jonsideband_ada_120" ,"data_low_BDT_ada_120" ,"data_high_BDT_ada_120" , N, N, scale);
-        cout<<"Test6"<<endl;
-        l.rooContainer->SumBinnedDatasets("data_BDT_jonsideband_grad_120","data_low_BDT_grad_120","data_high_BDT_grad_120", N, N, scale);
-        cout<<"Test7"<<endl;
+        for (int i = 0; i<nMasses;i++){
+            // define hypothesis masses for the sidebands
+            float signalRegionWidth = 0.07;
+            float mass_hypothesis = masses[i];
+            float mass_hypothesis_low = mass_hypothesis*(1-signalRegionWidth)/(1+signalRegionWidth);
+            float mass_hypothesis_high = mass_hypothesis*(1+signalRegionWidth)/(1-signalRegionWidth);
+            // define the sidebands
+            float sideband_boundaries[4];
+            sideband_boundaries[0] = mass_hypothesis_low*(1-signalRegionWidth);
+            sideband_boundaries[1] = mass_hypothesis*(1-signalRegionWidth);
+            sideband_boundaries[2] = mass_hypothesis*(1+signalRegionWidth);
+            sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
+            
+            // Fit Inv Mass spectra
+            l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
 
-//        l.rooContainer->FitToData("bkg_pol_model"+names[i], "bkg_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
-//        cout<<"Test8"<<endl;
-//        std::vector<double> N_mc = l.rooContainer->GetFitNormalisations("bkg_pol_model"+names[i], "bkg_mass"+names[i],masses[i]*0.93,masses[i]*1.07);
-//        cout<<"Test9"<<endl;
-//        l.rooContainer->SumBinnedDatasets("bkg_BDT_sideband_ada_120" ,"bkg_BDT_ada_105" ,"bkg_BDT_ada_140" , N_mc, N_mc ,scale);
-//        cout<<"Test10"<<endl;
-//        l.rooContainer->SumBinnedDatasets("bkg_BDT_sideband_grad_120","bkg_BDT_grad_105","bkg_BDT_grad_140", N_mc, N_mc ,scale);
-//        cout<<"Test11"<<endl;
-//        l.rooContainer->SumBinnedDatasets("bkg_BDT_jonsideband_ada_120" ,"bkg_low_BDT_ada_120" ,"bkg_high_BDT_ada_120", N_mc,N_mc,scale);
-//        cout<<"Test12"<<endl;
-//        l.rooContainer->SumBinnedDatasets("bkg_BDT_jonsideband_grad_120","bkg_low_BDT_grad_120","bkg_high_BDT_grad_120",N_mc,N_mc,scale);
-//        cout<<"Test13"<<endl;
-//
-//        std::string outputfilename = "BDT_ada_"+(std::string) l.histFileName;  
-//        cout<<"Test14"<<endl;
-//        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_ada_120" ,"sig_BDT_ada_120" ,"bkg_BDT_ada_120");
-//        cout<<"Test15"<<endl;
-//        outputfilename = "BDT_grad_"+(std::string) l.histFileName;  
-//        cout<<"Test16"<<endl;
-//        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_grad_120","sig_BDT_grad_120","bkg_BDT_grad_120");
-//        cout<<"Test17"<<endl;
 
-//        outputfilename = "BDT_ada_" + (std::string) l.histFileName;  
-//        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_ada","sig_BDT_ada","bkg_gg_BDT_ada","bkg_gj_BDT_ada","bkg_jj_BDT_ada");
-//        outputfilename = "BDT_grad_" + (std::string) l.histFileName;  
-//        l.rooContainer->WriteDataCard(outputfilename,"data_BDT_grad","sig_BDT_grad","bkg_gg_BDT_grad","bkg_gj_BDT_grad","bkg_jj_BDT_grad");
+            // Integrate fit to spectra to obtain normalisations
+            std::vector<double> N_sig = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
+                                         "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2]);
+            //std::vector<double> N_low = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
+            //                             "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1]);
+            //std::vector<double> N_high= l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
+            //                             "data_mass"+names[i],sideband_boundaries[2],sideband_boundaries[3]);
+            // Calculate weights to apply to the sidebands
+            std::vector<double> wt_low;
+            std::vector<double> wt_high;
+            for (int i_cat = 0; i_cat<N_sig.size();i_cat++){
+                wt_low.push_back( 0.5*N_sig[i_cat]);///N_low[i_cat]);    
+                wt_high.push_back(0.5*N_sig[i_cat]);///N_high[i_cat]);    
+            }
+            // if scale = true, the wt is a scale applied ot the histograms other
+            // wise it is an absolute normalisation to be applied
+            bool scale = false;//true;
+            l.rooContainer->SumBinnedDatasets("data_BDT_jonsideband_ada"+names[i], "data_low_BDT_ada"+names[i],
+                                              "data_high_BDT_ada"+names[i], wt_low, wt_high, scale);
+            l.rooContainer->SumBinnedDatasets("data_BDT_jonsideband_grad"+names[i], "data_low_BDT_grad"+names[i],
+                                              "data_high_BDT_grad"+names[i], wt_low, wt_high, scale);
+            if (3==i){// Alternative method to sum sidebands
+                l.rooContainer->SumBinnedDatasets("data_BDT_sideband_ada"+names[i] ,"data_BDT_ada_105" ,
+                                                  "data_BDT_ada_140" , wt_low, wt_high, scale);
+                l.rooContainer->SumBinnedDatasets("data_BDT_sideband_grad"+names[i],"data_BDT_grad_105",
+                                                  "data_BDT_grad_140", wt_low, wt_high, scale);
+            }
+        }
     }
-    //std::string outputfilename = (std::string) l.histFileName;
-    // Make Fits to the data-sets and systematic sets
-    //l.rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
-  
-    //l.rooContainer->WriteSpecificCategoryDataCards(outputfilename,"data_mass","sig_mass","data_pol_model");
-    //l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","data_pol_model");
-    // mode 0 as above, 1 if want to bin in sub range from fit,
-
-    // Write the data-card for the Combinations Code, needs the output filename, makes binned analysis DataCard
-    // Assumes the signal datasets will be called signal_name+"_mXXX"
-//    l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","data_pol_model","data_mass",1,50,1); // 1 means systematics from the fit effect only the backgroundi. last digit mode = 1 means this is an internal constraint fit 
-//    l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","bkg_mass_rebinned");
-
-    //eventListText.close();
-
-    //std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
-
 //	kfacFile->Close();
-//	PhotonAnalysis::Term(l);
+	PhotonAnalysis::Term(l);
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -787,38 +770,19 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 
         if (doTraining){
-            if (cur_type > 0 ){//BKG not ZEE
+            if (cur_type > 0 ){// Background 
                 for (int i = 0; i<nMasses;i++) {
                     _pho1_ptOverM = lead_p4.Pt()/masses[i];
                     _pho2_ptOverM = sublead_p4.Pt()/masses[i];
                     _deltaMOverM = (mass-masses[i])/masses[i];
                     _deltaMOverSigmaM = (mass-masses[i])/massResolution;
                     _H_ptOverM    = (Higgs.Pt()/masses[i]);
-                    //TODO set variables that depend on hypth mass
                     backgroundTree_[i]->Fill();
                 } 
             }
-            else { 
-                int i0 = -1; 
-                if (cur_type == -13 || cur_type == -14 ||  cur_type == -15 || cur_type == -16){//110 
-                    i0 = 0;
-                }
-                else if (cur_type == -17 || cur_type == -18 ||  cur_type == -19 || cur_type == -20){//110 
-                    i0 = 1;
-                }
-                else if (cur_type == -21 || cur_type == -22 ||  cur_type == -23 || cur_type == -24){//115 
-                    i0 = 2;
-                }
-                else if (cur_type == -25 || cur_type == -26 ||  cur_type == -27 || cur_type == -28){//120 
-                    i0 = 3;
-                }
-                else if (cur_type == -29 || cur_type == -30 ||  cur_type == -31 || cur_type == -32){//130 
-                    i0 = 4;
-                }
-                else if (cur_type == -33 || cur_type == -34 ||  cur_type == -35 || cur_type == -36){//140 
-                    i0 = 5;
-                }
-                else{
+            else { //Signal 
+                int i0 = SignalType(cur_type); 
+                if (i0<0){
                     cout<<"CAN'T TRAIN ON DATA!\n";
                     return;
                 }
@@ -831,160 +795,112 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             }
         }
         else{
-            if (cur_type == 0 ){//data
-                for (int i = 0; i<nMasses;i++){
+            for (int i = 0; i<nMasses;i++){
+                l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
 
-                    _pho1_ptOverM = lead_p4.Pt()/masses[i];
-                    _pho2_ptOverM = sublead_p4.Pt()/masses[i];
-                    _deltaMOverM = (mass-masses[i])/masses[i];
-                    _deltaMOverSigmaM = (mass-masses[i])/massResolution;
-                    _H_ptOverM    = (Higgs.Pt()/masses[i]);
+                // define hypothesis masses for the sidebands
+                float signalRegionWidth = 0.07;
+                float mass_hypothesis = masses[i];
+                float mass_hypothesis_low = mass_hypothesis*(1-signalRegionWidth)/(1+signalRegionWidth);
+                float mass_hypothesis_high = mass_hypothesis*(1+signalRegionWidth)/(1-signalRegionWidth);
+                // define the sidebands
+                float sideband_boundaries[4];
+                sideband_boundaries[0] = mass_hypothesis_low*(1-signalRegionWidth);
+                sideband_boundaries[1] = mass_hypothesis*(1-signalRegionWidth);
+                sideband_boundaries[2] = mass_hypothesis*(1+signalRegionWidth);
+                sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
 
-                    if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
-                        l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
-                        float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
-                        float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
+                //Signal Window
+                if( mass>sideband_boundaries[1] && mass<sideband_boundaries[2]){//Signal mass window cut
 
-                        if( mass>(masses[i]*0.93) && mass<(masses[i]*1.07)){//Signal mass window cut
-                            l.FillHist("deltaMOverM"+names[i],0, _deltaMOverM, evweight);
-                            l.FillHist("deltaMOverSigmaM"+names[i],0, _deltaMOverSigmaM, evweight);
-                            l.FillHist("pho1_eta"+names[i],0, _pho1_eta, evweight);
-                            l.FillHist("pho2_eta"+names[i],0, _pho2_eta, evweight);
-                            l.FillHist("pho1_ptOverM"+names[i],0, _pho1_ptOverM, evweight);
-                            l.FillHist("pho2_ptOverM"+names[i],0, _pho2_ptOverM, evweight);
-                            l.FillHist("log_H_pt"+names[i],0, _log_H_pt, evweight);
-                            l.FillHist("H_eta"+names[i],0, _H_eta, evweight);
-                            l.FillHist("d_phi"+names[i],0, _d_phi, evweight);
-                            l.FillHist("max_eta"+names[i],0, _max_eta, evweight);
-                            l.FillHist("min_r9"+names[i],0, _min_r9, evweight);
+                    // variables that depends on hypoth mass
+                    _pho1_ptOverM = lead_p4.Pt()/mass_hypothesis;
+                    _pho2_ptOverM = sublead_p4.Pt()/mass_hypothesis;
+                    _deltaMOverM = (mass-masses[i])/mass_hypothesis;
+                    _deltaMOverSigmaM = (mass-mass_hypothesis)/massResolution;
+                    _H_ptOverM    = Higgs.Pt()/mass_hypothesis;
 
-                            l.rooContainer->InputDataPoint("data_BDT_ada"+names[i],category,bdt_ada,evweight);
-                            l.FillHist("BDT_ada"+names[i],0, bdt_ada, evweight);
+                    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
+                    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
 
-                            l.rooContainer->InputDataPoint("data_BDT_grad"+names[i] ,category,bdt_grad,evweight);
-                            l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
+                    if (cur_type == 0 ){//data
+                        l.FillHist("deltaMOverM"+names[i],0, _deltaMOverM, evweight);
+                        l.FillHist("deltaMOverSigmaM"+names[i],0, _deltaMOverSigmaM, evweight);
+                        l.FillHist("pho1_eta"+names[i],0, _pho1_eta, evweight);
+                        l.FillHist("pho2_eta"+names[i],0, _pho2_eta, evweight);
+                        l.FillHist("pho1_ptOverM"+names[i],0, _pho1_ptOverM, evweight);
+                        l.FillHist("pho2_ptOverM"+names[i],0, _pho2_ptOverM, evweight);
+                        l.FillHist("log_H_pt"+names[i],0, _log_H_pt, evweight);
+                        l.FillHist("H_eta"+names[i],0, _H_eta, evweight);
+                        l.FillHist("d_phi"+names[i],0, _d_phi, evweight);
+                        l.FillHist("max_eta"+names[i],0, _max_eta, evweight);
+                        l.FillHist("min_r9"+names[i],0, _min_r9, evweight);
+
+                        l.rooContainer->InputDataPoint("data_BDT_ada"+names[i],category,bdt_ada,evweight);
+                        l.FillHist("BDT_ada"+names[i],0, bdt_ada, evweight);
+
+                        l.rooContainer->InputDataPoint("data_BDT_grad"+names[i] ,category,bdt_grad,evweight);
+                        l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
+                    }
+                    else if (cur_type > 0 ){// background MC
+                        l.rooContainer->InputDataPoint("bkg_BDT_ada"+names[i],category,bdt_ada,evweight);
+                        l.rooContainer->InputDataPoint("bkg_BDT_grad"+names[i] ,category,bdt_grad,evweight);
+                    }
+                    else if (cur_type < 0){// signal MC
+                        // Fill if the current type of MC matches the
+                        // current iteration over the masses 
+                        if (SignalType(cur_type)==1){
+                            l.rooContainer->InputDataPoint("sig_BDT_ada"+names[i],category,bdt_ada,evweight);
+                            l.rooContainer->InputDataPoint("sig_BDT_grad"+names[i] ,category,bdt_grad,evweight);
                         }
                     }
-                    else if (3==i){//120 GeV 
-                        // This is for Jon's idea of using the BDT trained
-                        // in then central region in the sidebands to obtian
-                        // the background model
-                        //Ideally we would work out the side bands for each
-                        //mass point, but we're not at that point at the
-                        //moment so we just do it for 120
-                        if( mass>(masses[0]*0.93) && mass<(masses[0]*1.07)){//Lower Window 105GeV
-                            _pho1_ptOverM = lead_p4.Pt()/masses[0];
-                            _pho2_ptOverM = sublead_p4.Pt()/masses[0];
-                            _deltaMOverM = (mass-masses[0])/masses[0];
-                            _deltaMOverSigmaM = (mass-masses[0])/massResolution;
-                            _H_ptOverM    = (Higgs.Pt()/masses[0]);
-                            if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
-                                float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
-                                float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
-                                l.rooContainer->InputDataPoint("data_low_BDT_ada"+names[i] ,category,bdt_ada,evweight);
-                                l.rooContainer->InputDataPoint("data_low_BDT_grad"+names[i],category,bdt_grad,evweight);
-                            }
-                        }
-                        else if( mass>(masses[5]*0.93) && mass<(masses[5]*1.07)){//Higher Window 140GeV
-                            _pho1_ptOverM = lead_p4.Pt()/masses[5];
-                            _pho2_ptOverM = sublead_p4.Pt()/masses[5];
-                            _deltaMOverM = (mass-masses[5])/masses[5];
-                            _deltaMOverSigmaM = (mass-masses[5])/massResolution;
-                            _H_ptOverM    = (Higgs.Pt()/masses[5]);
-                            if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
-                                float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
-                                float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
-                                l.rooContainer->InputDataPoint("data_high_BDT_ada"+names[i] ,category,bdt_ada,evweight);
-                                l.rooContainer->InputDataPoint("data_high_BDT_grad"+names[i],category,bdt_grad,evweight);
-                            }
-                        }
+                }
+                //Lower Window
+                else if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
+
+                    // variables that depends on hypoth mass
+                    _pho1_ptOverM = lead_p4.Pt()/mass_hypothesis_low;
+                    _pho2_ptOverM = sublead_p4.Pt()/mass_hypothesis_low;
+                    _deltaMOverM = (mass-masses[i])/mass_hypothesis_low;
+                    _deltaMOverSigmaM = (mass-mass_hypothesis_low)/massResolution;
+                    _H_ptOverM    = Higgs.Pt()/mass_hypothesis_low;
+
+                    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
+                    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
+
+                    if (cur_type == 0 ){//data
+                        l.rooContainer->InputDataPoint("data_low_BDT_ada"+names[i] ,category,bdt_ada,evweight);
+                        l.rooContainer->InputDataPoint("data_low_BDT_grad"+names[i],category,bdt_grad,evweight);
+                    }
+                    else if (cur_type > 0 ){// background MC
+                        l.rooContainer->InputDataPoint("bkg_low_BDT_ada"+names[i] ,category,bdt_ada,evweight);
+                        l.rooContainer->InputDataPoint("bkg_low_BDT_grad"+names[i],category,bdt_grad,evweight);
+                    }
+                }
+                //Upper Window
+                else if( mass>sideband_boundaries[2] && mass<sideband_boundaries[3]){//Signal mass window cut
+
+                    // variables that depends on hypoth mass
+                    _pho1_ptOverM = lead_p4.Pt()/mass_hypothesis_high;
+                    _pho2_ptOverM = sublead_p4.Pt()/mass_hypothesis_high;
+                    _deltaMOverM = (mass-masses[i])/mass_hypothesis_high;
+                    _deltaMOverSigmaM = (mass-mass_hypothesis_high)/massResolution;
+                    _H_ptOverM    = Higgs.Pt()/mass_hypothesis_high;
+
+                    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
+                    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
+
+                    if (cur_type == 0 ){//data
+                        l.rooContainer->InputDataPoint("data_high_BDT_ada"+names[i] ,category,bdt_ada,evweight);
+                        l.rooContainer->InputDataPoint("data_high_BDT_grad"+names[i],category,bdt_grad,evweight);
+                    }
+                    else if (cur_type > 0 ){// background MC
+                        l.rooContainer->InputDataPoint("bkg_high_BDT_ada"+names[i] ,category,bdt_ada,evweight);
+                        l.rooContainer->InputDataPoint("bkg_high_BDT_grad"+names[i],category,bdt_grad,evweight);
                     }
                 }
             }
-            else if (cur_type>0){//
-                for (int i = 0; i<nMasses;i++){
-
-                    _pho1_ptOverM = lead_p4.Pt()/masses[i];
-                    _pho2_ptOverM = sublead_p4.Pt()/masses[i];
-                    _deltaMOverM = (mass-masses[i])/masses[i];
-                    _deltaMOverSigmaM = (mass-masses[i])/massResolution;
-                    _H_ptOverM    = (Higgs.Pt()/masses[i]);
-
-                    if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
-                        l.rooContainer->InputDataPoint("bkg_mass"+names[i],category,mass,evweight);
-                        float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
-                        float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
-
-                        if( mass>(masses[i]*0.93) && mass<(masses[i]*1.07)){//Signal mass window cut
-                            l.FillHist("deltaMOverM"+names[i],0, _deltaMOverM, evweight);
-                            l.FillHist("deltaMOverSigmaM"+names[i],0, _deltaMOverSigmaM, evweight);
-                            l.FillHist("pho1_eta"+names[i],0, _pho1_eta, evweight);
-                            l.FillHist("pho2_eta"+names[i],0, _pho2_eta, evweight);
-                            l.FillHist("pho1_ptOverM"+names[i],0, _pho1_ptOverM, evweight);
-                            l.FillHist("pho2_ptOverM"+names[i],0, _pho2_ptOverM, evweight);
-                            l.FillHist("log_H_pt"+names[i],0, _log_H_pt, evweight);
-                            l.FillHist("H_eta"+names[i],0, _H_eta, evweight);
-                            l.FillHist("d_phi"+names[i],0, _d_phi, evweight);
-                            l.FillHist("max_eta"+names[i],0, _max_eta, evweight);
-                            l.FillHist("min_r9"+names[i],0, _min_r9, evweight);
-
-                            l.rooContainer->InputDataPoint("bkg_BDT_ada"+names[i],category,bdt_ada,evweight);
-                            l.FillHist("BDT_ada"+names[i],0, bdt_ada, evweight);
-                            l.rooContainer->InputDataPoint("bkg_BDT_grad"+names[i] ,category,bdt_grad,evweight);
-                            l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
-                        }
-                    }
-                }//end loop over masses
-            }//end bkg if
-            else { 
-                std::string name = "";
-                int i0 = -1;
-                if (cur_type == -13 || cur_type == -14 ||  cur_type == -15 || cur_type == -16){//110 
-                    i0 = 0;}
-                else if (cur_type == -17 || cur_type == -18 ||  cur_type == -19 || cur_type == -20){//110 
-                    i0 = 1;}
-                else if (cur_type == -21 || cur_type == -22 ||  cur_type == -23 || cur_type == -24){//115 
-                    i0 = 2;}
-                else if (cur_type == -25 || cur_type == -26 ||  cur_type == -27 || cur_type == -28){//120 
-                    i0 = 3;}
-                else if (cur_type == -29 || cur_type == -30 ||  cur_type == -31 || cur_type == -32){//130 
-                    i0 = 4;}
-                else if (cur_type == -33 || cur_type == -34 ||  cur_type == -35 || cur_type == -36){//140 
-                    i0 = 5;}
-
-                if (i0>=0){
-                    name = names[i0];
-                    _pho1_ptOverM = lead_p4.Pt()/masses[i0];
-                    _pho2_ptOverM = sublead_p4.Pt()/masses[i0];
-                    _deltaMOverM = (mass-masses[i0])/masses[i0];
-                    _deltaMOverSigmaM = (mass-masses[i0])/massResolution;
-                    _H_ptOverM    = (Higgs.Pt()/masses[i0]);
-                    if(_pho1_ptOverM>0.4 && _pho2_ptOverM>0.3){ //pt cuts scaling with Hypothesis mass
-                        float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i0]);
-                        float bdt_grad = tmvaReader_->EvaluateMVA("BDT_grad"+names[i0]);
-
-                        if( mass>(masses[i0]*0.93) && mass<(masses[i0]*1.07)){//Signal mass window cut
-                            l.FillHist("deltaMOverM"+name,0, _deltaMOverM, evweight);
-                            l.FillHist("deltaMOverSigmaM"+name,0, _deltaMOverSigmaM, evweight);
-                            l.FillHist("pho1_eta"+name,0, _pho1_eta, evweight);
-                            l.FillHist("pho2_eta"+name,0, _pho2_eta, evweight);
-                            l.FillHist("pho1_ptOverM"+name,0, _pho1_ptOverM, evweight);
-                            l.FillHist("pho2_ptOverM"+name,0, _pho2_ptOverM, evweight);
-                            l.FillHist("log_H_pt"+name,0, _log_H_pt, evweight);
-                            l.FillHist("H_eta"+name,0, _H_eta, evweight);
-                            l.FillHist("d_phi"+name,0, _d_phi, evweight);
-                            l.FillHist("max_eta"+name,0, _max_eta, evweight);
-                            l.FillHist("min_r9"+name,0, _min_r9, evweight);
-
-                            l.rooContainer->InputDataPoint("sig_BDT_ada"+name,category,bdt_ada,evweight);
-                            l.FillHist("BDT_ada"+name,0, bdt_ada, evweight);
-                            l.rooContainer->InputDataPoint("sig_BDT_grad"+name ,category,bdt_grad,evweight);
-                            l.FillHist("BDT_grad"+name,0, bdt_grad, evweight);
-                        }
-                    }
-                }
-            }//end sig if
-        }   
+        }
     //}
 	l.FillCounter( "Accepted", weight );
 	l.FillCounter( "Smeared", evweight );
@@ -1152,5 +1068,21 @@ double MvaAnalysis::TanH(double x){
 }
 
 
+int MvaAnalysis::SignalType(int cur_type){
+    int i0 = -1;
+    if (cur_type == -13 || cur_type == -14 ||  cur_type == -15 || cur_type == -16){//110 
+        i0 = 0;}
+    else if (cur_type == -17 || cur_type == -18 ||  cur_type == -19 || cur_type == -20){//110 
+        i0 = 1;}
+    else if (cur_type == -21 || cur_type == -22 ||  cur_type == -23 || cur_type == -24){//115 
+        i0 = 2;}
+    else if (cur_type == -25 || cur_type == -26 ||  cur_type == -27 || cur_type == -28){//120 
+        i0 = 3;}
+    else if (cur_type == -29 || cur_type == -30 ||  cur_type == -31 || cur_type == -32){//130 
+        i0 = 4;}
+    else if (cur_type == -33 || cur_type == -34 ||  cur_type == -35 || cur_type == -36){//140 
+        i0 = 5;}
+    return i0;
+}
 
 

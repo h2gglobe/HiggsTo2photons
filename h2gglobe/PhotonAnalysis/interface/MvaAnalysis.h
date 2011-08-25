@@ -43,6 +43,7 @@ public:
 
 	double SecH(double);
 	double TanH(double);
+	int SignalType(int);
 	
 	// Options
 	bool reRunCiC;
