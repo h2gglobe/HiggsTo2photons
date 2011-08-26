@@ -14,11 +14,6 @@ MvaAnalysis::MvaAnalysis()  :
     name_("MvaAnalysis"),
     vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
 {
-    reRunCiC = false;
-    doMCSmearing = true;
-    massMin = 105*0.93;//100.;
-    massMax = 140*1.07;//;
-    int nDataBins=50;
 
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
@@ -313,9 +308,10 @@ void MvaAnalysis::Init(LoopAll& l)
 	genLevelSmearers_.push_back(kFactorSmearer);
     }
 
-    // Define the number of categories for the statistical analysis and
-    // the systematic sets to be formed
+    // Set Up the MassResolution Calculation Class
+    massResolutionCalculator = new MassResolution(massResolutionFileName);
 
+    // RooContainer stuff
     // FIXME move these params to config file
     //l.rooContainer->SetNCategories(nCategories_);
     l.rooContainer->SetNCategories(1);
@@ -726,6 +722,10 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	float ptHiggs = Higgs.Pt();
       
 	assert( evweight >= 0. ); 
+	// Test The Mass Resolution from MassResolution dont use it yet
+	massResolutionCalculator->Setup(l,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+        std::cout << "Event Mass Resolution" << massResolutionCalculator->massResolution() <<std::endl;
+	////////////////////////////////////////////////////////////////////// 
 
 	double lead_photonResolution = GetPhotonResolution(l,diphoton_index.first);
 	double sublead_photonResolution = GetPhotonResolution(l,diphoton_index.second);
@@ -930,48 +930,6 @@ bool MvaAnalysis::SelectEvents(LoopAll& l, int jentry)
     return true;
 }
 // ----------------------------------------------------------------------------------------------------
-double MvaAnalysis::GetDifferentialKfactor(double gPT, int Mass)
-{
-
-  
-    if (Mass <=110 ) return thm110->GetBinContent(thm110->FindFixBin(gPT));
-    else if (Mass ==120 ) return thm120->GetBinContent(thm120->FindFixBin(gPT));
-    else if (Mass ==130 ) return thm130->GetBinContent(thm130->FindFixBin(gPT));
-    else if (Mass ==140 ) return thm140->GetBinContent(thm140->FindFixBin(gPT));
-    else if (Mass ==115 ) return (0.5*thm110->GetBinContent(thm110->FindFixBin(gPT)) +0.5*thm120->GetBinContent(thm120->FindFixBin(gPT)));
-    return 1.0;
-/*
-  int  genMasses[4] = {110,120,130,140};
-  if (Mass<=genMasses[0] ) return kfactorHistograms[0]->GetBinContent(kfactorHistograms[0]->FindBin(gPT));
-  else if (Mass<genMasses[nMasses-1]) {
-
-  TH1D *hm1,*hm2;
-  double m1=0,m2=0;
-  for (int m=0;m<nMasses;m++){
-  if (Mass<genMasses[m+1]){
-  hm1=kfactorHistograms[m];
-  hm2=kfactorHistograms[m+1];
-  m1 = genMasses[m];
-  m2 = genMasses[m+1];
-  //	cout << "Gen Mass: "<< Mass << " Using "<<m1<< " " << m2<< " Hist name check " << hm1->GetName()<<" " <<hm2->GetName()<<endl;
-  break;
-  }
-  }
-  if ((int)Mass == (int)m1 ){
-  //cout << "Found the appropriate historgam "<<hm1->GetName()<<endl;
-  return hm1->GetBinContent(hm1->FindBin(gPT));
-  } else {
-
-  TH1D *hm = (TH1D*) hm1->Clone("hm");
-  double alpha = ((float) (Mass-m1))/(m2-m1); // make sure ms are not integers
-  hm->Add(hm1,hm2,alpha,(1-alpha));
-  return hm->GetBinContent(hm->GetBinContent(hm->FindBin(gPT)));
-  }
-
-  }
-  else return kfactorHistograms[nMasses-1]->GetBinContent(kfactorHistograms[nMasses-1]->FindBin(gPT));
-*/
-}
 
 
 double MvaAnalysis::GetPhotonResolution(LoopAll &l,int photon_index){

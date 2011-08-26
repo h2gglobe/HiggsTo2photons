@@ -44,6 +44,7 @@ doR9Syst=1
 doKFactorSmear=0
 doKFactorSyst=0
 
+massResolutionFileName=/vols/cms02/h2g/aux/dz_vs_hpt.root
 ->
 Inputs for reweighing
 ->

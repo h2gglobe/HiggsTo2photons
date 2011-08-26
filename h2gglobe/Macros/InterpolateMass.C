@@ -54,7 +54,7 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
   LowerBoundString.ReplaceAll(".0","");
   TString UpperBoundString = dtoa(upperbound);
   UpperBoundString.ReplaceAll(".0","");
-  RooRealVar RooRealMass = *(WorkSpace->var("CMS_hgg_mass"));
+  RooRealVar RooRealMass = *(WorkSpace->var("BDT"));
   
   for (unsigned int k=0; k < InterpolationList.size(); k++) {
 
@@ -128,7 +128,7 @@ void InterpolateMass(double fitmass) {
   for (Int_t j=0; j<HistList->GetSize(); ++j) {
 
     TString HistName(HistList->At(j)->GetName());
-    if (HistName.Contains("115")) InterpolationList.push_back(HistName);
+    if (HistName.Contains("115") and HistName.Contains("sig")) InterpolationList.push_back(HistName);
     if (HistName.Contains("th1f")) {
       TH1F* temphist = (TH1F*) SourceFile->Get(HistName.Data());
       OutputFile->WriteTObject(temphist);
@@ -171,7 +171,7 @@ void InterpolateMassRange(double Min, double Max, double Step, TString SourceFil
   for (Int_t j=0; j<HistList->GetSize(); ++j) {
 
     TString HistName(HistList->At(j)->GetName());
-    if (HistName.Contains("115")) InterpolationList.push_back(HistName);
+    if (HistName.Contains("115")and HistName.Contains("sig")) InterpolationList.push_back(HistName);
     if (HistName.Contains("th1f")) {
       TH1F* temphist = (TH1F*) SourceFile->Get(HistName.Data());
       OutputFile->WriteTObject(temphist);

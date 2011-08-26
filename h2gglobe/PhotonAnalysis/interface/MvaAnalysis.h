@@ -12,6 +12,7 @@
 #include "EfficiencySmearer.h"
 #include "DiPhoEfficiencySmearer.h"
 #include "KFactorSmearer.h"
+#include "MassResolution.h"
 #include "TMVA/Reader.h"
 #include <iostream>
 #include <fstream>
@@ -55,7 +56,6 @@ public:
 	EfficiencySmearer::efficiencySmearingParameters effSmearPars;
 	DiPhoEfficiencySmearer::diPhoEfficiencySmearingParameters diPhoEffSmearPars;
 
-	double GetDifferentialKfactor(double, int);
 	bool  doMCSmearing;
 	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
 	bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear;
@@ -65,9 +65,9 @@ public:
 	float massMin, massMax;
 	int nDataBins;	
 	
+	std::string massResolutionFileName;	
 	std::string kfacHist;
 
-	TH1D *thm110,*thm120,*thm130,*thm140;
 	int nMasses;
 
 	bool doTraining;
@@ -87,6 +87,7 @@ protected:
 	EfficiencySmearer *idEffSmearer, *r9Smearer;
 	DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
 	KFactorSmearer * kFactorSmearer;
+        MassResolution * massResolutionCalculator;
 	
 	std::string name_;
 	float nevents, sumwei, sumaccept, sumsmear, sumev; 
