@@ -5,18 +5,15 @@ Data
 ->
 
 typ=0    ind=0 draw=1  Nam=Data    Dir=/vols/cms02/h2g/ntuples/globe_V10_00_h2gglobe_EPS_V01/PhotonPD_DiPho_160404_166164_rereco_5july2011_EPS  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1.  json=/vols/cms02/h2g/jsons/Cert_160404-163869_May10ReReco_163870-167913_7TeV_PromptReco_Collisions11_JSON.txt 
-->
 typ=0    ind=0 draw=1  Nam=Data    Dir=/vols/cms02/h2g/ntuples/globe_V10_00_h2gglobe_EPS_V01/PhotonPD_DiPho_166346_167913_rereco_5july2011_EPS  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1.  json=/vols/cms02/h2g/jsons/Cert_160404-163869_May10ReReco_163870-167913_7TeV_PromptReco_Collisions11_JSON.txt 
 typ=0    ind=0 draw=1  Nam=Data    Dir=/vols/cms02/h2g/ntuples/globe_V10_00_h2gglobe_EPS_V01/PhotonPD_DiPho_166346_167913_rereco_5july2011_EPS_tail  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1.  json=/vols/cms02/h2g/jsons/Cert_160404-163869_May10ReReco_163870-167913_7TeV_PromptReco_Collisions11_JSON.txt 
 typ=0    ind=0 draw=1  Nam=Data    Fil=/vols/cms02/h2g/ntuples/globe_V10_00_h2gglobe_EPS_V01/remainder.root  tot=1 red=1 lum=1.0e10  xsec=1. kfac=1.0  scal=1.  json=/vols/cms02/h2g/jsons/Cert_160404-163869_May10ReReco_163870-167913_7TeV_PromptReco_Collisions11_JSON.txt 
-->
 
 
 ->
 Signal samples
 ->
 
-->
 typ=-33 ind=1 draw=1  Nam=gluglu_H_gg_140_pu2011 Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_11_07_01_02/Summer11/GluGluToHToGG_M-140_S4  tot=109995 red=0 lum=1000.000000 xsec=0.023532 kfac=1.000000  scal=1.000000
 typ=-34 ind=2 draw=1  Nam=vbf_H_gg_140_pu2011 Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_11_07_01_02/Summer11/VBF_HToGG_M-140_S4        tot=109836 red=0 lum=1000.000000 xsec=0.002041 kfac=1.000000  scal=1.000000
 typ=-35 ind=4 draw=1  Nam=tt_H_gg_140_pu2011 Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_11_07_01_02/Summer11/TTH_HToGG_M-140_S4         tot=22000  red=0 lum=1000.000000 xsec=0.000118 kfac=1.000000  scal=1.000000
@@ -57,7 +54,6 @@ typ=+3    ind=19 draw=1  Nam=GJet Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_
 typ=+7 ind=22 draw=1  Nam=Box25 Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_mc/DiPhotonBox_25To250_S4_v2 tot=518288   red=0   lum=1.e10   xsec=12.37   kfac=1.  scal=1.
 typ=+10 ind=23 draw=1  Nam=DiPhotonJets Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_mc/DiPhotonJets_madgraph tot=1150800   red=0   lum=1.e10  xsec=154.7   kfac=1.  scal=1.
 
-->
 
 ->
 Branches to use

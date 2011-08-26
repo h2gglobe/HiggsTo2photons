@@ -398,7 +398,7 @@ void MvaAnalysis::Init(LoopAll& l)
 
     l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
     //l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
-    l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
+    //l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
     //l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
 
     cout<<"test1"<<endl;
@@ -406,7 +406,7 @@ void MvaAnalysis::Init(LoopAll& l)
 	//Not all pdf types have integrals defined, so break when normalisation is calculated
         cout<<"test2"<<endl;
         std::vector<std::string> data_pol_pars(1,"p");	 
-        data_pol_pars[0] = "modpol0";
+        data_pol_pars[0] = "pol0";
 //        data_pol_pars[1] = "modpol1";
         cout<<"test3"<<endl;
         l.rooContainer->AddGenericPdf("data_pol_model"+names[i], "0","CMS_hgg_mass",data_pol_pars,1);	// >= 71 means RooBernstein of order >= 1
@@ -748,8 +748,6 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         _pho1_eta = lead_p4.Eta();
         _pho2_eta = sublead_p4.Eta();
 
-    //            TBranch *b_deltaMOverM = backgroundTree_[i]->Branch("deltaMOverM", &_deltaMOverM,"deltaMOverM/F");
-
         _mgg = mass;
         _pho1_phi = lead_p4.Phi();
         _pho1_pt = lead_p4.Pt();
@@ -795,6 +793,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             }
         }
         else{
+            // Iterate over each mass point. 
             for (int i = 0; i<nMasses;i++){
                 l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
 
@@ -849,7 +848,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     else if (cur_type < 0){// signal MC
                         // Fill if the current type of MC matches the
                         // current iteration over the masses 
-                        if (SignalType(cur_type)==1){
+                        if (SignalType(cur_type)==i){
                             l.rooContainer->InputDataPoint("sig_BDT_ada"+names[i],category,bdt_ada,evweight);
                             l.rooContainer->InputDataPoint("sig_BDT_grad"+names[i] ,category,bdt_grad,evweight);
                         }
