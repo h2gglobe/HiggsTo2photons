@@ -62,11 +62,11 @@ void MvaAnalysis::Term(LoopAll& l)
 
             // Integrate fit to spectra to obtain normalisations
             std::vector<double> N_sig = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
-                                         "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2]);
+                                         "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
             std::vector<double> N_low = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
-                                         "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1]);
+                                         "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],true);
             std::vector<double> N_high= l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
-                                         "data_mass"+names[i],sideband_boundaries[2],sideband_boundaries[3]);
+                                         "data_mass"+names[i],sideband_boundaries[2],sideband_boundaries[3],true);
             // Calculate weights to apply to the sidebands
             std::vector<double> wt_low;
             std::vector<double> wt_high;
