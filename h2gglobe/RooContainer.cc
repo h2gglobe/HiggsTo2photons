@@ -402,7 +402,7 @@ void RooContainer::Save(){
   ws.Write();
 }
 
-std::vector<double> RooContainer::GetFitNormalisations(std::string pdf_name, std::string data_name, double r1,double r2){
+std::vector<double> RooContainer::GetFitNormalisations(std::string pdf_name, std::string data_name, double r1,double r2, bool external_fit){
  
   std::vector<double> normalisations;
 
@@ -434,7 +434,7 @@ std::vector<double> RooContainer::GetFitNormalisations(std::string pdf_name, std
      std::cout << getcatName(pdf_name,cat)<< std::endl;
      std::string obs_name = data_obs_names_[getcatName(data_name,cat)];
      // Just use a weird name (getcatName(obs_name)) for the histogram since we dont need it
-     normalisations.push_back(getNormalisationFromFit(getcatName(pdf_name,cat),getcatName(obs_name,cat),pdf_ptr,obs_var->second,r1,r2,multi_pdf));
+     normalisations.push_back(getNormalisationFromFit(getcatName(pdf_name,cat),getcatName(obs_name,cat),pdf_ptr,obs_var->second,r1,r2,multi_pdf,external_fit));
    }
   }
 
@@ -1639,11 +1639,11 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
 
 
   // Need to normalize the histogram to integral under the curve
-  // 2 modes - full observable range from fit and histogram (default, no range arguments)
-  // 0 	     - assumes same data as fit to will be used to set limit -> make up some bullshit constraints weaker than the data
-  // 1       - assumes External constraints to data being input, ie actual fit errors will be used
+  bool external_fit;
+  if (mode == 0) external_fit=true;
+  if (mode == 1) external_fit=false;
 
-  double normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf);
+  double normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf,external_fit);
   temp_hist->SetTitle(obs_name.c_str());  // Used later to keep track of the realvar associated, must be a better way to do this ?
 
  //  TH1F *temp_hist_up = (TH1F*)temp_hist->Clone();
@@ -1704,7 +1704,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
       }
 
       setArgSetParameters(rooParameters,new_values);
-      normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf);
+      normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf,external_fit);
 
       std::string hist_sys_name_up = getsysindexName(hist_name,s_name,sys,1);
       temp_hist = (TH1F*) pdf_ptr->createHistogram(Form("th1f_%s",hist_sys_name_up.c_str()),*obs,Binning(nbins,r1,r2));
@@ -1719,7 +1719,7 @@ void RooContainer::generateBinnedPdf(int catNo,std::string hist_nocat_name,std::
       }
 
       setArgSetParameters(rooParameters,new_values);
-      normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf);
+      normalisation = getNormalisationFromFit(pdf_name,hist_name,pdf_ptr,obs,r1,r2,multi_pdf,external_fit);
 
       std::string hist_sys_name_dn = getsysindexName(hist_name,s_name,sys,-1);
       temp_hist = (TH1F*) pdf_ptr->createHistogram(Form("th1f_%s",hist_sys_name_dn.c_str()),*obs,Binning(nbins,r1,r2));
@@ -1766,37 +1766,27 @@ void RooContainer::setArgSetParameters(RooArgSet* params,std::vector<double> &va
   }
 }
 
-double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,bool multi_pdf){
+double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,bool multi_pdf,bool external_range){
 
   double normalisation = 0;
-        cout<<"Testa"<<endl;
   if (multi_pdf){
-        cout<<"Testb"<<endl;
 
      std::map<std::string,std::vector<RooRealVar*> >::iterator it = m_comp_pdf_norm_.find(pdf_name);
-        cout<<"Testc"<<endl;
      // get the values which correspond to normalisations of each component pdf
      for ( std::vector<RooRealVar*>::iterator it_r = (it->second).begin() ; it_r!=(it->second).end();it_r++){
 	normalisation += (*it_r)->getVal();
-        cout<<"Testd"<<endl;
      }
   }
   else{
     normalisation = m_real_var_[pdf_name].getVal();
-        cout<<"Teste"<<endl;
   }
 
-  pdf_ptr->forceNumInt(true);
-  cout<<"Testf"<<endl;
   obs->setRange("rngeNorm",r1,r2);
   pdf_ptr->forceNumInt(true);
-  cout<<"Testg1"<<endl;
   RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
   pdf_ptr->forceNumInt(false);
-  cout<<"Testg2"<<endl;
-  normalisation *= integral->getVal();
-  cout<<"Testh"<<endl;
-  pdf_ptr->forceNumInt(false);
+  if (!external_range)  normalisation *= integral->getVal();
+  else normalisation *= integral->getVal()/(1-integral->getVal());
 
   return normalisation;
 }
