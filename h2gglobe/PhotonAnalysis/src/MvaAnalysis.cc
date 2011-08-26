@@ -57,26 +57,31 @@ void MvaAnalysis::Term(LoopAll& l)
             sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
             
             // Fit Inv Mass spectra
-            l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],massMin,masses[i]*0.93,masses[i]*1.07,massMax);
+            l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],massMin,sideband_boundaries[1],sideband_boundaries[2],massMax);
 
 
             // Integrate fit to spectra to obtain normalisations
             std::vector<double> N_sig = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
                                          "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2]);
-            //std::vector<double> N_low = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
-            //                             "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1]);
-            //std::vector<double> N_high= l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
-            //                             "data_mass"+names[i],sideband_boundaries[2],sideband_boundaries[3]);
+            std::vector<double> N_low = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
+                                         "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1]);
+            std::vector<double> N_high= l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
+                                         "data_mass"+names[i],sideband_boundaries[2],sideband_boundaries[3]);
             // Calculate weights to apply to the sidebands
             std::vector<double> wt_low;
             std::vector<double> wt_high;
             for (int i_cat = 0; i_cat<N_sig.size();i_cat++){
-                wt_low.push_back( 0.5*N_sig[i_cat]);///N_low[i_cat]);    
-                wt_high.push_back(0.5*N_sig[i_cat]);///N_high[i_cat]);    
+                cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
+                cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
+                cout<<"N_sig = "<<N_sig[i_cat]<<endl;
+                cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
+                cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
+                wt_low.push_back( 0.5*N_sig[i_cat]/N_low[i_cat]);    
+                wt_high.push_back(0.5*N_sig[i_cat]/N_high[i_cat]);    
             }
             // if scale = true, the wt is a scale applied ot the histograms other
             // wise it is an absolute normalisation to be applied
-            bool scale = false;//true;
+            bool scale = true;
             l.rooContainer->SumBinnedDatasets("data_BDT_sideband_ada"+names[i], "data_low_BDT_ada"+names[i],
                                               "data_high_BDT_ada"+names[i], wt_low, wt_high, scale);
             l.rooContainer->SumBinnedDatasets("data_BDT_sideband_grad"+names[i], "data_low_BDT_grad"+names[i],
