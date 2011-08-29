@@ -76,6 +76,7 @@ public:
 	// Other options
 	bool runStatAnalysis;
         TString puHist, puMap;//name of pileup reweighting histogram
+	bool applyPtoverM;
 	std::string massResolutionFileName;
 
 	enum BkgCategory{promptprompt,promptfake,fakefake};
