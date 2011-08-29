@@ -6,7 +6,6 @@
 #include "PhotonAnalysis.h"
 #include "RooContainer.h"
 #include "VertexAnalysis/interface/HggVertexAnalyzer.h"
-#include "PhotonFix.h"
 
 #include "EnergySmearer.h"
 #include "EfficiencySmearer.h"
@@ -37,13 +36,13 @@ public:
 	virtual bool SelectEvents(LoopAll&, int);
 	virtual void Analysis(LoopAll&, Int_t);
 
-	double GetPhotonResolution(LoopAll &,int);
-	double GetAngleResolutionCorrVtx(LoopAll &,int, int, int);
-	double GetAngleResolutionWrongVtx(LoopAll &, int, int, int);
-	double PropagateDz(LoopAll &, int, int, int, double);
+//	double GetPhotonResolution(LoopAll &,int);
+//	double GetAngleResolutionCorrVtx(LoopAll &,int, int, int);
+//	double GetAngleResolutionWrongVtx(LoopAll &, int, int, int);
+//	double PropagateDz(LoopAll &, int, int, int, double);
 
-	double SecH(double);
-	double TanH(double);
+//	double SecH(double);
+//	double TanH(double);
 	int SignalType(int);
 	
 	// Options

@@ -565,7 +565,7 @@ void MvaAnalysis::Init(LoopAll& l)
         }
     }
 
-    PhotonFix::initialise("Nominal");
+    //PhotonFix::initialise("Nominal");
     /* -----------------------------------------------------------------------------------------
        KFactors Reweighting
        ------------------------------------------------------------------------------------------- */
@@ -721,21 +721,31 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
       
 	assert( evweight >= 0. ); 
 
+/*
 	double lead_photonResolution = GetPhotonResolution(l,diphoton_index.first);
 	double sublead_photonResolution = GetPhotonResolution(l,diphoton_index.second);
 	double angle_resolution = GetAngleResolutionCorrVtx(l,diphoton_index.first,diphoton_index.second,diphoton_id);
+*/
+	
 	
 	// returns massResolution assuming no error on vertex (i.e. just from Paul's stuff)
-	double massResolutionEonly = 0.5*mass*TMath::Sqrt((lead_photonResolution*lead_photonResolution)/(lead_p4.E()*lead_p4.E())
-					 +(sublead_photonResolution*sublead_photonResolution)/(sublead_p4.E()*sublead_p4.E()));
+	//double massResolutionEonly = 0.5*mass*TMath::Sqrt((lead_photonResolution*lead_photonResolution)/(lead_p4.E()*lead_p4.E())
+	//					 +(sublead_photonResolution*sublead_photonResolution)/(sublead_p4.E()*sublead_p4.E()));
   
-	double alpha = lead_p4.Angle(sublead_p4.Vect());
+	//double alpha = lead_p4.Angle(sublead_p4.Vect());
 
 	// returns massResolution with vertex error (at the moment only assumes correct vertex)
-	double massResolution = 0.5*mass*TMath::Sqrt((lead_photonResolution*lead_photonResolution)/(lead_p4.E()*lead_p4.E())
-		+(sublead_photonResolution*sublead_photonResolution)/(sublead_p4.E()*sublead_p4.E())
-		+((angle_resolution*angle_resolution)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
+	//double massResolution = 0.5*mass*TMath::Sqrt((lead_photonResolution*lead_photonResolution)/(lead_p4.E()*lead_p4.E())
+	//	+(sublead_photonResolution*sublead_photonResolution)/(sublead_p4.E()*sublead_p4.E())
+	//	+((angle_resolution*angle_resolution)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
 
+	// Mass Resolution of the Event
+	if (cur_type==0){ // eSmearDataPars
+		massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearDataPars,nR9Categories,nEtaCategories);
+ 	} else { //eSmearPars	
+		massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+	}
+	double massResolution = massResolutionCalculator->massResolution();
 //	if( mass>=massMin && mass<=massMax  ) {
         //Variables to be output to TMVA_input.root and vairbales used in training
         //TODO Correct variables to 10 inmportant ones
@@ -925,6 +935,7 @@ bool MvaAnalysis::SelectEvents(LoopAll& l, int jentry)
 }
 // ----------------------------------------------------------------------------------------------------
 
+/*
 
 double MvaAnalysis::GetPhotonResolution(LoopAll &l,int photon_index){
 
@@ -1023,7 +1034,7 @@ double MvaAnalysis::TanH(double x){
   return TMath::TanH(x);
 }
 
-
+*/
 int MvaAnalysis::SignalType(int cur_type){
     int i0 = -1;
     if (cur_type == -13 || cur_type == -14 ||  cur_type == -15 || cur_type == -16){//110 

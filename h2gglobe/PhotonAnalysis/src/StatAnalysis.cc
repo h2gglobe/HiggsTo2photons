@@ -578,7 +578,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
  	} else { //eSmearPars	
 		massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 	}
-	double eventMassResolution = massResolutionCalculator->GetMassResolution();
+	double massResolution = massResolutionCalculator->massResolution();
 
      
 	assert( evweight >= 0. ); 
