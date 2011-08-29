@@ -260,9 +260,8 @@ void PhotonAnalysis::Init(LoopAll& l)
 	  eCorrSmearer->doCorrections(true); 
 	}
 	
-	if (l.typerun == 2 || l.typerun == 1) {
-	}
-	
+	// MassResolution 
+	massResolutionCalculator = new MassResolution(massResolutionFileName);
     /* -------------------------------------------------------------------------------------------
     Pileup Reweighting
     https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupReweighting

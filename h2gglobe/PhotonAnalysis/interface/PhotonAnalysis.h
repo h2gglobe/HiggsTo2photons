@@ -7,6 +7,7 @@
 
 #include "TriggerSelection.h"
 #include "EnergySmearer.h"
+#include "MassResolution.h"
 
 // ------------------------------------------------------------------------------------
 class PhotonAnalysis : public BaseAnalysis 
@@ -75,6 +76,7 @@ public:
 	// Other options
 	bool runStatAnalysis;
         TString puHist, puMap;//name of pileup reweighting histogram
+	std::string massResolutionFileName;
 
 	enum BkgCategory{promptprompt,promptfake,fakefake};
 	bool keepPP, keepPF, keepFF;
@@ -90,7 +92,9 @@ protected:
 	// Vertex analysis
 	HggVertexAnalyzer vtxAna_;
 	HggVertexFromConversions vtxConv_;
-	
+
+	// Mass Resolution
+	MassResolution *massResolutionCalculator;	
 	std::map<int, vector<double> > weights;
 	int trigCounter_;
 

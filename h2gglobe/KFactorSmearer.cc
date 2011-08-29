@@ -42,7 +42,15 @@ bool KFactorSmearer::smearEvent( float & weight, const TLorentzVector & p4, cons
   else if (sample_type == -33) genMassPoint=140;
   else if (sample_type == -37) genMassPoint=125;
   else if (sample_type == -41) genMassPoint=135;
-  else if (sample_type <=-45) assert(0);   // this is the case of non-existing sample
+  else if (sample_type == -45) genMassPoint=145;
+  else if (sample_type == -49) genMassPoint=150;
+  else if (sample_type == -53) genMassPoint=120;  // FIXME  No KFactors for 121 or 123 so using closest neighbors  - this is 121
+  else if (sample_type == -57) genMassPoint=125;  // this is 123
+  else if (sample_type == -61) genMassPoint=150;  // FIXME  this is mass=155; remapped into 150: no kfactors currently available for 155;
+  else if (sample_type == -65) genMassPoint=150;  // FIXME  this is mass=160; remapped into 150: no kfactors currently available for 160;
+  else if (sample_type == -69) genMassPoint=105;  // FIXME  this is mass=100; remapped into 105: no kfactors currently available for 100;
+
+  else if (sample_type <=-62) assert(0);   // this is the case of non-existing sample
   else    return true;                     // this is the case of backgrounds
 
   double kWeight = getWeight( p4, nPu, genMassPoint, syst_shift );
@@ -66,6 +74,8 @@ bool KFactorSmearer::init()
   readMassPoint(130, upId, downId);
   readMassPoint(135, upId, downId);
   readMassPoint(140, upId, downId);
+  readMassPoint(145, upId, downId);
+  readMassPoint(150, upId, downId);
 
   theKFactorFile_->Close();
 
@@ -74,7 +84,7 @@ bool KFactorSmearer::init()
 
 double KFactorSmearer::getKFactor(int genMassPoint, int id, double gPT  ) const {
 
-  if(genMassPoint==105 || genMassPoint==110 || genMassPoint==115 || genMassPoint==120 || genMassPoint==125 || genMassPoint==130 || genMassPoint==135 || genMassPoint==140 ) {
+  if(genMassPoint==105 || genMassPoint==110 || genMassPoint==115 || genMassPoint==120 || genMassPoint==125 || genMassPoint==130 || genMassPoint==135 || genMassPoint==140 || genMassPoint==145 ||genMassPoint==150 ||genMassPoint==121 ||genMassPoint==123 ) {
     const TH1* tmp = kFactorSmearers_.find(genMassPoint)->second[id]; 
     return tmp->GetBinContent(tmp->FindFixBin(gPT));
   }

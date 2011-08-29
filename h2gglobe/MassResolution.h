@@ -63,7 +63,7 @@ class MassResolution {
     MassResolution();
     MassResolution(std::string);
 
-    void Setup(LoopAll&,int,int,int,double,double,EnergySmearer::energySmearingParameters,int,int);
+    void Setup(LoopAll&,TLorentzVector *,TLorentzVector *,int,int,int,double,double,EnergySmearer::energySmearingParameters,int,int);
 
     double leadPhotonResolution();
     double subleadPhotonResolution();

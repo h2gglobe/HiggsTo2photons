@@ -308,8 +308,6 @@ void MvaAnalysis::Init(LoopAll& l)
 	genLevelSmearers_.push_back(kFactorSmearer);
     }
 
-    // Set Up the MassResolution Calculation Class
-    massResolutionCalculator = new MassResolution(massResolutionFileName);
 
     // RooContainer stuff
     // FIXME move these params to config file
@@ -722,10 +720,6 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	float ptHiggs = Higgs.Pt();
       
 	assert( evweight >= 0. ); 
-	// Test The Mass Resolution from MassResolution dont use it yet
-	massResolutionCalculator->Setup(l,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-        std::cout << "Event Mass Resolution" << massResolutionCalculator->massResolution() <<std::endl;
-	////////////////////////////////////////////////////////////////////// 
 
 	double lead_photonResolution = GetPhotonResolution(l,diphoton_index.first);
 	double sublead_photonResolution = GetPhotonResolution(l,diphoton_index.second);

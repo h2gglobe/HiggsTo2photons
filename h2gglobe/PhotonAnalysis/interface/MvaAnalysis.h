@@ -65,7 +65,6 @@ public:
 	float massMin, massMax;
 	int nDataBins;	
 	
-	std::string massResolutionFileName;	
 	std::string kfacHist;
 
 	int nMasses;
@@ -87,7 +86,6 @@ protected:
 	EfficiencySmearer *idEffSmearer, *r9Smearer;
 	DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
 	KFactorSmearer * kFactorSmearer;
-        MassResolution * massResolutionCalculator;
 	
 	std::string name_;
 	float nevents, sumwei, sumaccept, sumsmear, sumev; 

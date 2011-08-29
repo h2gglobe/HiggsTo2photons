@@ -23,18 +23,18 @@ MassResolution::MassResolution(std::string fileName){
   dz_file->Close();
 }
 
-void MassResolution::Setup(LoopAll &l, int lead_index, int sublead_index, int diphoton_index, double higgsPt, double higgsM, EnergySmearer::energySmearingParameters eSmearPars, int nR9Categories, int nEtaCategories){
+void MassResolution::Setup(LoopAll &l, TLorentzVector *in_lead_p4, TLorentzVector *in_sublead_p4, int lead_index, int sublead_index, int diphoton_index, double higgsPt, double higgsM, EnergySmearer::energySmearingParameters eSmearPars, int nR9Categories, int nEtaCategories){
 
-  lead_p4 = (TLorentzVector*)l.pho_p4->At(lead_index);
-  sublead_p4 = (TLorentzVector*)l.pho_p4->At(sublead_index);
+  lead_p4 = in_lead_p4;
+  sublead_p4 = in_sublead_p4;
   lead_sc_pos = (TVector3*)(l.sc_xyz->At(l.pho_scind[lead_index]));
   sublead_sc_pos = (TVector3*)(l.sc_xyz->At(l.pho_scind[sublead_index]));
   vertex = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_index]);
   vtx_dxdydz = (TVector3*)l.vtx_std_dxdydz->At(l.dipho_vtxind[diphoton_index]);
   lead_Eres = l.pho_residCorrResn[lead_index];
   sublead_Eres = l.pho_residCorrResn[sublead_index];
-	lead_r9 = l.pho_r9[lead_index];
-  sublead_r9 = l.pho_r9[sublead_index];
+//	lead_r9 = l.pho_r9[lead_index];
+// sublead_r9 = l.pho_r9[sublead_index];
 	lead_phoCat = l.PhotonCategory(lead_index,nR9Categories,nEtaCategories);
 	sublead_phoCat = l.PhotonCategory(sublead_index,nR9Categories,nEtaCategories);
   _eSmearPars = eSmearPars;
