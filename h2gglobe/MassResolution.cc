@@ -11,13 +11,16 @@
 See MassResolution.h for instructions
 */
 
-MassResolution::MassResolution(std::string fileName){
-  dz_file = TFile::Open(fileName.c_str());
+MassResolution::MassResolution(){
+  dz_file = TFile::Open("../PhotonAnalysis/data/dz_vs_hpt.root");
   dz_plot = (TGraph*)dz_file->Get("dz_vs_hpt");
   dz_file->Close();
 }
 
-MassResolution::~MassResolution(){
+MassResolution::MassResolution(std::string fileName){
+  dz_file = TFile::Open(fileName.c_str());
+  dz_plot = (TGraph*)dz_file->Get("dz_vs_hpt");
+  dz_file->Close();
 }
 
 void MassResolution::Setup(LoopAll &l, int lead_index, int sublead_index, int diphoton_index, double higgsPt, double higgsM, EnergySmearer::energySmearingParameters eSmearPars, int nR9Categories, int nEtaCategories){
@@ -54,6 +57,33 @@ double MassResolution::massResolution(){
 
 }
 
+// return the mass resolution given correct vertex
+double MassResolution::massResolutionCorrVtx(){
+  
+  double lead_E = lead_p4->E();
+  double sublead_E = sublead_p4->E();
+  double alpha = lead_p4->Angle(sublead_p4->Vect());
+  double lead_sig = leadPhotonResolution();
+  double sublead_sig = subleadPhotonResolution();
+  double alpha_sig = angleResolutionCorrVtx();
+  
+  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
+
+}
+// return the mass resolution wrong vertex
+double MassResolution::massResolutionWrongVtx(){
+  
+  double lead_E = lead_p4->E();
+  double sublead_E = sublead_p4->E();
+  double alpha = lead_p4->Angle(sublead_p4->Vect());
+  double lead_sig = leadPhotonResolution();
+  double sublead_sig = subleadPhotonResolution();
+  double alpha_sig = angleResolutionWrongVtx();
+  
+  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
+
+}
+
 // return energy contribution to mass resolution only
 double MassResolution::massResolutionEonly() {
 
@@ -74,6 +104,44 @@ double MassResolution::massResolutionAonly() {
   return 0.5*higgsMass*(alpha_sig*TMath::Sin(alpha)/(1.-TMath::Cos(alpha)));
 }
 
+// return energy contribution with no smearing to mass resolution only
+double MassResolution::massResolutionEonlyNoSmear() {
+
+  double lead_E = lead_p4->E();
+  double sublead_E = sublead_p4->E();
+  double lead_sig = leadPhotonResolutionNoSmear();
+  double sublead_sig = subleadPhotonResolutionNoSmear();
+
+  return 0.5*higgsMass*TMath::Sqrt((lead_sig*lead_sig)/(lead_E*lead_E)+(sublead_sig*sublead_sig)/(sublead_E*sublead_E));
+}
+
+// return the mass resolution given correct vertex with no smearing
+double MassResolution::massResolutionCorrVtxNoSmear(){
+  
+  double lead_E = lead_p4->E();
+  double sublead_E = sublead_p4->E();
+  double alpha = lead_p4->Angle(sublead_p4->Vect());
+  double lead_sig = leadPhotonResolutionNoSmear();
+  double sublead_sig = subleadPhotonResolutionNoSmear();
+  double alpha_sig = angleResolutionCorrVtx();
+  
+  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
+
+}
+// return the mass resolution wrong vertex with smearing
+double MassResolution::massResolutionWrongVtxNoSmear(){
+  
+  double lead_E = lead_p4->E();
+  double sublead_E = sublead_p4->E();
+  double alpha = lead_p4->Angle(sublead_p4->Vect());
+  double lead_sig = leadPhotonResolutionNoSmear();
+  double sublead_sig = subleadPhotonResolutionNoSmear();
+  double alpha_sig = angleResolutionWrongVtx();
+  
+  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
+
+}
+
 // return angle resolution given the vertex choice is correct
 double MassResolution::angleResolutionCorrVtx() {
   return propagateDz(dzResolutionCorrVtx());
@@ -87,6 +155,14 @@ double MassResolution::angleResolutionWrongVtx() {
 // return angle resolution given a convolution of correct/wrong vertex as func of higgsPt
 double MassResolution::angleResolution() {
   return propagateDz(dzResolution());
+}
+// return lead photon resolution without smearing
+double MassResolution::leadPhotonResolutionNoSmear() {
+  return lead_Eres;
+}
+// return sublead photon resolution without smearing
+double MassResolution::subleadPhotonResolutionNoSmear() {
+  return sublead_Eres;
 }
 // return lead photon resolution 
 double MassResolution::leadPhotonResolution() {

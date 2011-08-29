@@ -50,22 +50,27 @@
 #include "TF1.h"
 #include "math.h"
 
+#include "BaseAnalysis.h"
+#include "BaseSmearer.h"
 //#include "PhotonAnalysis.h"
 #include "LoopAll.h"
 #include "EnergySmearer.h"
-
+#include "RooContainer.h"
 
 class MassResolution {
 
   public:
+    MassResolution();
     MassResolution(std::string);
-    ~MassResolution();
 
     void Setup(LoopAll&,int,int,int,double,double,EnergySmearer::energySmearingParameters,int,int);
 
     double leadPhotonResolution();
     double subleadPhotonResolution();
     double getPhotonResolution(double,double,double,int);
+    
+    double leadPhotonResolutionNoSmear();
+    double subleadPhotonResolutionNoSmear();
     
     double angleResolution();
     double angleResolutionCorrVtx();
@@ -76,8 +81,13 @@ class MassResolution {
     double dzResolutionWrongVtx();
     
     double massResolution();
+    double massResolutionCorrVtx();
+    double massResolutionWrongVtx();
     double massResolutionEonly();
     double massResolutionAonly();
+    double massResolutionEonlyNoSmear();
+    double massResolutionCorrVtxNoSmear();
+    double massResolutionWrongVtxNoSmear();
 
     //double getEffectiveSigma(TF1*, int);
     double propagateDz(double);
