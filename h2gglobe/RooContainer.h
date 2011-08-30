@@ -101,6 +101,7 @@ class RooContainer {
    void GenerateBinnedPdf(std::string,std::string,std::string,int,int,int,double x1=-999,double x2=-999);
    void CombineBinnedDatasets(std::string,std::string, double fraction=-1);
    std::vector<double> GetFitNormalisations(std::string,std::string,double,double,bool external_fit=false);
+   std::vector< std::pair<double,double> > GetFitNormalisationsAndErrors(std::string,std::string,double,double,bool external_fit=false);
 
    void Save();
 
@@ -146,6 +147,7 @@ class RooContainer {
    void setAllParametersConstant();
 
    double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
+   std::pair<double,double> getNormalisationAndErrorFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
 
    void getArgSetParameters(RooArgSet*,std::vector<double> &);
    void setArgSetParameters(RooArgSet*,std::vector<double> &);

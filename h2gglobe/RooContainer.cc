@@ -401,7 +401,45 @@ void RooContainer::Save(){
 
   ws.Write();
 }
+std::vector< std::pair<double,double> > RooContainer::GetFitNormalisationsAndErrors(std::string pdf_name, std::string data_name, double r1,double r2, bool external_fit){
+ 
+  std::vector< std::pair< double,double> > normalisations;
 
+  for (int cat=0;cat<ncat;cat++){
+   std::map<std::string,RooRealVar*>::iterator obs_var = m_data_var_ptr_.find(getcatName(data_name,cat));
+   if (obs_var == m_data_var_ptr_.end()) {
+    std::cerr << "WARNING!!! -- RooContainer::GetFitNormalisations --  No Dataset named "
+	      << data_name << std::endl;
+   } else {
+     bool multi_pdf;
+     RooAbsPdf *pdf_ptr;
+
+     std::map<std::string,RooExtendPdf>::iterator exp = m_exp_.find(getcatName(pdf_name,cat));
+
+     if (exp != m_exp_.end()) {
+      pdf_ptr = &(exp->second);
+      multi_pdf = false;
+     } else {
+      std::map<std::string,RooAddPdf>::iterator pdf  = m_pdf_.find(getcatName(pdf_name,cat));
+     if (pdf != m_pdf_.end()) {
+      multi_pdf = true;
+      pdf_ptr = &(pdf->second);
+     }
+      else {
+        std::cerr << "WARNING!!! -- RooContainer::GetFitNormalisations --  No Pdf named "
+	         << pdf_name << endl;  
+      } 
+     }
+     std::cout << getcatName(pdf_name,cat)<< std::endl;
+     std::string obs_name = data_obs_names_[getcatName(data_name,cat)];
+     // Just use a weird name (getcatName(obs_name)) for the histogram since we dont need it
+     normalisations.push_back(getNormalisationAndErrorFromFit(getcatName(pdf_name,cat),getcatName(obs_name,cat),pdf_ptr,obs_var->second,r1,r2,multi_pdf,external_fit));
+   }
+  }
+
+  return normalisations;
+
+}
 std::vector<double> RooContainer::GetFitNormalisations(std::string pdf_name, std::string data_name, double r1,double r2, bool external_fit){
  
   std::vector<double> normalisations;
@@ -1766,6 +1804,45 @@ void RooContainer::setArgSetParameters(RooArgSet* params,std::vector<double> &va
   }
 }
 
+std::pair<double,double> RooContainer::getNormalisationAndErrorFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,bool multi_pdf,bool external_range){
+
+  double normalisation = 0;
+  if (multi_pdf){
+
+     std::map<std::string,std::vector<RooRealVar*> >::iterator it = m_comp_pdf_norm_.find(pdf_name);
+     // get the values which correspond to normalisations of each component pdf
+     for ( std::vector<RooRealVar*>::iterator it_r = (it->second).begin() ; it_r!=(it->second).end();it_r++){
+	normalisation += (*it_r)->getVal();
+     }
+  }
+  else{
+    normalisation = m_real_var_[pdf_name].getVal();
+  }
+
+  std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name <<std::endl;
+  obs->setRange("rngeNorm",r1,r2);
+  pdf_ptr->forceNumInt(true);
+  RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
+  pdf_ptr->forceNumInt(false);
+  double integralValue = integral->getVal();
+  double normError = TMath::Sqrt(normalisation);
+  double integralError = integral->getPropagatedError(*fit_results_[pdf_name]);
+
+  double result = 0;
+  if (!external_range) {
+	 result = normalisation*integralValue;
+  }
+  else{
+	 result = normalisation*integralValue/(1-integralValue);	
+	 integralError *= 1./((1-integralValue)*(1-integralValue));
+  }
+
+  double fullError = result*TMath::Sqrt((normError*normError)/(normalisation*normalisation) + (integralError*integralError)/(integralValue*integralValue));
+  std::cout << "	Pdf Integral and Error From Latest Fit - " << integralValue << "+/-" << integralError << std::endl;
+  std::cout << "	Normalisation and Error - " << result << "+/-" << fullError << std::endl;
+  return std::pair<double,double>(result,fullError);
+}
+
 double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,bool multi_pdf,bool external_range){
 
   double normalisation = 0;
@@ -1781,14 +1858,21 @@ double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hi
     normalisation = m_real_var_[pdf_name].getVal();
   }
 
+  std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name <<std::endl;
   obs->setRange("rngeNorm",r1,r2);
   pdf_ptr->forceNumInt(true);
   RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
   pdf_ptr->forceNumInt(false);
-  if (!external_range)  normalisation *= integral->getVal();
-  else normalisation *= integral->getVal()/(1-integral->getVal());
+  double integralValue = integral->getVal();
 
-  return normalisation;
+  double result = 0;
+  if (!external_range) {
+	 result = normalisation*integralValue;
+  }
+  else{
+	 result = normalisation*integralValue/(1-integralValue);	
+  }
+  return result;
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::writeRooDataHist(std::string name, TH1F *hist){
