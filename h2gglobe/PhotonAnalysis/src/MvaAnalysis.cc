@@ -17,7 +17,7 @@ MvaAnalysis::MvaAnalysis()  :
 
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
-    nMasses  = 6;
+    nMasses  = 12;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -32,8 +32,8 @@ void MvaAnalysis::Term(LoopAll& l)
 	if (doTraining){
         for (int i = 0; i<nMasses;i++){
             mvaFile_->cd();
-            signalTree_[i]->Write(("sig"+names[i]).c_str());
-            backgroundTree_[i]->Write(("bkg"+names[i]).c_str());
+            if (0<signalTree_[i]->GetEntries()    ) signalTree_[i]->Write(("sig"+names[i]).c_str());
+            if (0<backgroundTree_[i]->GetEntries()) backgroundTree_[i]->Write(("bkg"+names[i]).c_str());
         }
         mvaFile_->Close();
     }
@@ -52,16 +52,17 @@ void MvaAnalysis::Term(LoopAll& l)
             sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
             
             // Fit Inv Mass spectra
-            l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],massMin,sideband_boundaries[1],sideband_boundaries[2],massMax);
+            l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1]
+                                                                                     ,sideband_boundaries[2],sideband_boundaries[3]);
 
 
             // Integrate fit to spectra to obtain normalisations
             std::vector<double> N_sig = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
                                          "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
-            std::vector<double> N_low = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
-                                         "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],true);
-            std::vector<double> N_high= l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
-                                         "data_mass"+names[i],sideband_boundaries[2],sideband_boundaries[3],true);
+            //std::vector<double> N_low = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
+            //                             "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],true);
+            //std::vector<double> N_high= l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
+            //                             "data_mass"+names[i],sideband_boundaries[2],sideband_boundaries[3],true);
             // Calculate weights to apply to the sidebands
             std::vector<double> wt_low;
             std::vector<double> wt_high;
@@ -71,12 +72,12 @@ void MvaAnalysis::Term(LoopAll& l)
                 cout<<"N_sig = "<<N_sig[i_cat]<<endl;
                 cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
                 cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
-                wt_low.push_back( 0.5*N_sig[i_cat]/N_low[i_cat]);    
-                wt_high.push_back(0.5*N_sig[i_cat]/N_high[i_cat]);    
+                wt_low.push_back( 0.5*N_sig[i_cat]);///N_low[i_cat]);    
+                wt_high.push_back(0.5*N_sig[i_cat]);///N_high[i_cat]);    
             }
             // if scale = true, the wt is a scale applied ot the histograms other
             // wise it is an absolute normalisation to be applied
-            bool scale = true;
+            bool scale = false;//true;
             l.rooContainer->SumBinnedDatasets("data_BDT_sideband_ada"+names[i], "data_low_BDT_ada"+names[i],
                                               "data_high_BDT_ada"+names[i], wt_low, wt_high, scale);
             l.rooContainer->SumBinnedDatasets("data_BDT_sideband_grad"+names[i], "data_low_BDT_grad"+names[i],
@@ -114,11 +115,29 @@ void MvaAnalysis::Init(LoopAll& l)
     names[3]="_120";
     masses[3] = 120.;
 
-    names[4]="_130";
-    masses[4] = 130.;
+    names[4]="_125";
+    masses[4] = 125.;
 
-    names[5]="_140";
-    masses[5] = 140.;
+    names[5]="_130";
+    masses[5] = 130.;
+
+    names[6]="_135";
+    masses[6] = 135.;
+
+    names[7]="_140";
+    masses[7] = 140.;
+
+    names[8]="_145";
+    masses[8] = 145.;
+
+    names[9]="_150";
+    masses[9] = 150.;
+
+    names[10]="_121";
+    masses[10] = 121.;
+
+    names[11]="_123";
+    masses[11] = 123.;
 
     std::string outputfilename = (std::string) l.histFileName;
     eventListText.open(Form("%s_ascii_events.txt",outputfilename.c_str()));
@@ -230,6 +249,10 @@ void MvaAnalysis::Init(LoopAll& l)
     diPhoEffSmearPars.n_categories = 8;
     diPhoEffSmearPars.efficiency_file = efficiencyFile;
 
+    if( doEcorrectionSmear ) {
+        // instance of this smearer done in PhotonAnalysis
+        photonSmearers_.push_back(eCorrSmearer);
+    }
     if( doEscaleSmear ) {
         // Moved to PhotonAnalysis GF 
 	//// energy scale systematics to MC
@@ -375,7 +398,7 @@ void MvaAnalysis::Init(LoopAll& l)
 
     // Create observables for shape-analysis with ranges
     // l.rooContainer->AddObservable("mass" ,100.,150.);
-    l.rooContainer->AddObservable("CMS_hgg_mass" ,massMin,massMax);
+    l.rooContainer->AddObservable("CMS_hgg_mass",0.93*masses[0],1.07*masses[9]);
 
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
 
@@ -450,7 +473,7 @@ void MvaAnalysis::Init(LoopAll& l)
 //    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m140",-1);	
 	
 	if (doTraining){
-	    TString outfileName( "TMVA_input.root" );
+	    TString outfileName( "TMVA_input_" + (std::string) l.histFileName);
         mvaFile_ = TFile::Open( outfileName, "RECREATE" );
         mvaFile_->cd();
         for (int i = 0; i<nMasses;i++){
@@ -513,9 +536,6 @@ void MvaAnalysis::Init(LoopAll& l)
     }
     else{
 
-//[14:44:49 BST] Nicholas Wardle: ok, i think all you have to do is to only make 1
-//Observable called BDT since it has the same range for each guy and then create
-//multiple datasets from that
         l.rooContainer->AddObservable("BDT" ,-1.,1.);
 
         //Set up TMVA reader
@@ -1037,7 +1057,7 @@ double MvaAnalysis::TanH(double x){
 */
 int MvaAnalysis::SignalType(int cur_type){
     int i0 = -1;
-    if (cur_type == -13 || cur_type == -14 ||  cur_type == -15 || cur_type == -16){//110 
+    if (cur_type == -13 || cur_type == -14 ||  cur_type == -15 || cur_type == -16){//105 
         i0 = 0;}
     else if (cur_type == -17 || cur_type == -18 ||  cur_type == -19 || cur_type == -20){//110 
         i0 = 1;}
@@ -1045,10 +1065,22 @@ int MvaAnalysis::SignalType(int cur_type){
         i0 = 2;}
     else if (cur_type == -25 || cur_type == -26 ||  cur_type == -27 || cur_type == -28){//120 
         i0 = 3;}
-    else if (cur_type == -29 || cur_type == -30 ||  cur_type == -31 || cur_type == -32){//130 
+    else if (cur_type == -37 || cur_type == -38 ||  cur_type == -39 || cur_type == -40){//125 
         i0 = 4;}
-    else if (cur_type == -33 || cur_type == -34 ||  cur_type == -35 || cur_type == -36){//140 
+    else if (cur_type == -29 || cur_type == -30 ||  cur_type == -31 || cur_type == -32){//130 
         i0 = 5;}
+    else if (cur_type == -41 || cur_type == -42 ||  cur_type == -43 || cur_type == -44){//135 
+        i0 = 6;}
+    else if (cur_type == -33 || cur_type == -34 ||  cur_type == -35 || cur_type == -36){//140 
+        i0 = 7;}
+    else if (cur_type == -45 || cur_type == -46 ||  cur_type == -47 || cur_type == -48){//145 
+        i0 = 8;}
+    else if (cur_type == -49 || cur_type == -50 ||  cur_type == -51 || cur_type == -52){//150 
+        i0 = 9;}
+    else if (cur_type == -53 || cur_type == -54 ||  cur_type == -55 || cur_type == -56){//121 
+        i0 = 10;}
+    else if (cur_type == -57 || cur_type == -58 ||  cur_type == -59 || cur_type == -60){//123 
+        i0 = 11;}
     return i0;
 }
 

@@ -70,8 +70,8 @@ public:
 
 	bool doTraining;
 	//int nMassPt;
-	std::string names[6];
-	double masses[6];
+	std::string names[12];
+	double masses[12];
 
 protected:
 	std::vector<BaseSmearer *> photonSmearers_;
@@ -133,8 +133,8 @@ protected:
 	
     	TMVA::Reader * tmvaReader_;
 //        TMVA::Factory* tmvaFactory_[5] ;
-	TTree * signalTree_[6];
-	TTree * backgroundTree_[6];
+	TTree * signalTree_[12];
+	TTree * backgroundTree_[12];
 	TFile * mvaFile_;
 	
 };
