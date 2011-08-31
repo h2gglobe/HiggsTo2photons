@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# @(#)root/tmva $Id: MVAClassification.py,v 1.1.2.2 2011/08/24 09:22:25 mjarvis Exp $
+# @(#)root/tmva $Id: MVAClassification.py,v 1.1.2.3 2011/08/30 15:40:34 mjarvis Exp $
 # ------------------------------------------------------------------------------
 # based on TMVA Python script: TMVAClassification.py
 # ------------------------------------------------------------------------------
@@ -180,8 +180,8 @@ def main():
 
     # Apply additional cuts on the signal and background sample. 
     # example for cut: mycut = TCut( "abs(var1)<0.5 && abs(var2-0.5)<1" )
-    mycutSig = TCut( "mgg<="+str(mass*1.07)+" && mgg>="+str(mass*0.93) + " && pho1_pt/"+str(mass) + ">0.4 && pho2_pt/"+str(mass)+">0.3" )#
-    mycutBkg = TCut( "mgg<="+str(mass*1.07)+" && mgg>="+str(mass*0.93) + " && pho1_pt/"+str(mass) + ">0.4 && pho2_pt/"+str(mass)+">0.3" )#
+    mycutSig = TCut( "mgg<="+str(mass*1.07)+" && mgg>="+str(mass*0.93))#
+    mycutBkg = TCut( "mgg<="+str(mass*1.07)+" && mgg>="+str(mass*0.93))#
     
     # Here, the relevant variables are copied over in new, slim trees that are
     # used for TMVA training and testing

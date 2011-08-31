@@ -31,10 +31,19 @@ void MvaAnalysis::Term(LoopAll& l)
 
 	if (doTraining){
         for (int i = 0; i<nMasses;i++){
+            //cout<<"~~Mass = "<<names[i]<<endl;
+            //cout<<"test cd"<<endl;
             mvaFile_->cd();
-            if (0<signalTree_[i]->GetEntries()    ) signalTree_[i]->Write(("sig"+names[i]).c_str());
-            if (0<backgroundTree_[i]->GetEntries()) backgroundTree_[i]->Write(("bkg"+names[i]).c_str());
+            if (0<signalTree_[i]->GetEntries()    ){
+                 //cout<<"test signal: "<<signalTree_[i]->GetEntries()<<endl;
+                 signalTree_[i]->Write(("sig"+names[i]).c_str());
+            }
+            if (0<backgroundTree_[i]->GetEntries()){
+                 //cout<<"test background: "<<backgroundTree_[i]->GetEntries()<<endl;
+                 backgroundTree_[i]->Write(("bkg"+names[i]).c_str());
+            }
         }
+        //cout<<"test close"<<endl;
         mvaFile_->Close();
     }
     else{
@@ -55,25 +64,23 @@ void MvaAnalysis::Term(LoopAll& l)
             l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1]
                                                                                      ,sideband_boundaries[2],sideband_boundaries[3]);
 
-
             // Integrate fit to spectra to obtain normalisations
-            std::vector<double> N_sig = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
+            std::vector<std::pair<double,double> > N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_pol_model"+names[i],
                                          "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
             //std::vector<double> N_low = l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
             //                             "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],true);
             //std::vector<double> N_high= l.rooContainer->GetFitNormalisations("data_pol_model"+names[i],
             //                             "data_mass"+names[i],sideband_boundaries[2],sideband_boundaries[3],true);
+            
+            l.rooContainer->AddNormalisationSystematics("bkg_norm",N_sig, 1);
+
             // Calculate weights to apply to the sidebands
             std::vector<double> wt_low;
             std::vector<double> wt_high;
             for (int i_cat = 0; i_cat<N_sig.size();i_cat++){
-                cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
-                cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
-                cout<<"N_sig = "<<N_sig[i_cat]<<endl;
-                cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
-                cout<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"<<endl;
-                wt_low.push_back( 0.5*N_sig[i_cat]);///N_low[i_cat]);    
-                wt_high.push_back(0.5*N_sig[i_cat]);///N_high[i_cat]);    
+                cout<<"N_sig = "<<N_sig[i_cat].first<<endl;
+                wt_low.push_back( 0.5*N_sig[i_cat].first);///N_low[i_cat]);    
+                wt_high.push_back(0.5*N_sig[i_cat].first);///N_high[i_cat]);    
             }
             // if scale = true, the wt is a scale applied ot the histograms other
             // wise it is an absolute normalisation to be applied
@@ -89,6 +96,9 @@ void MvaAnalysis::Term(LoopAll& l)
                                                   "data_BDT_grad_140", wt_low, wt_high, scale);
             }
         }
+        //
+        l.rooContainer->WriteDataCard((std::string) l.histFileName+"_ada","data_BDT_ada","sig_BDT_ada","data_BDT_sideband_ada");
+        l.rooContainer->WriteDataCard((std::string) l.histFileName+"_grad","data_BDT_grad","sig_BDT_grad","data_BDT_sideband_grad");
     }
 //	kfacFile->Close();
 	PhotonAnalysis::Term(l);
