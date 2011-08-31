@@ -523,11 +523,19 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		}
 		pweight *= sweight;
 	    }
-	} else if( doEscaleSmear && cur_type == 0 ) {          // if it's data
-	    float sweight = 1.;
-	    eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
-	    pweight *= sweight;
+	} else if(cur_type == 0 ) {          // if it's data
+ 	    if (doEscaleSmear){
+	      float sweight = 1.; 
+	      eScaleDataSmearer->smearPhoton(phoInfo,sweight,l.run,0.);
+	      pweight *= sweight;
+	    }
+	    if (doEcorrectionSmear){
+	      float sweight = 1.; 
+	      eCorrSmearer->smearPhoton(phoInfo,sweight,l.run,0.);     // This Smearer is the same as for MC so can just re-use it
+	      pweight *= sweight;	
+	    }
 	}
+
 	smeared_pho_energy[ipho] = phoInfo.energy();
 	smeared_pho_r9[ipho] = phoInfo.r9();
 	smeared_pho_weight[ipho] = pweight;
