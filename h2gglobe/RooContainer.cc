@@ -15,6 +15,34 @@ void RooContainer::SetNCategories(int n){
 void RooContainer::AddGlobalSystematic(std::string name,double val_sig, double val_bkg){
   global_systematics_[name] = std::pair<double,double>(val_sig,val_bkg);
 }
+void RooContainer::AddNormalisationSystematics(std::string name,std::vector<std::pair<double,double> > vals, int type){
+
+  if (vals.size() != ncat) {
+	std::cerr << "WARNING! -- RooContainer::AddNormalisationsSystematics -- expected input of errors"
+		  << "to be equal in size to number of categories=" << ncat << std::endl;
+	
+  } else {
+  	std::vector<std::pair<double,double> > sys;
+  	if (type ==-1){ // Signal Systematics
+		for (int cat=0;cat<ncat;cat++){	
+			double value = (1+vals[cat].second)/vals[cat].first;
+			sys.push_back(std::pair<double,double> (value,1.0));
+		}
+    	} else if (type ==1){ // Signal Systematics
+		for (int cat=0;cat<ncat;cat++){	
+			double value = (1+vals[cat].second)/vals[cat].first;
+			sys.push_back(std::pair<double,double> (1.0,value));
+		}
+    	} else if (type ==0){ // Signal Systematics
+		for (int cat=0;cat<ncat;cat++){	
+			double value = (1+vals[cat].second)/vals[cat].first;
+			sys.push_back(std::pair<double,double> (value,value));
+		}
+    	} else std::cerr << "WARNING! -- RooContainer::AddNormalisationsSystematics -- type not understood " 
+			<< type << endl;
+ 	normalisation_systematics_[name] = sys;
+  }
+}
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::SaveSystematicsData(){
    save_systematics_data = true;
@@ -834,6 +862,13 @@ void RooContainer::writeSpecificCategoryDataCard(int cat,std::string filename,st
    }
 
   
+   // Write Category Normalisations 
+   for (std::map<std::string,std::vector < std::pair< double,double> > >::iterator it_n_sys = normalisation_systematics_.begin();it_n_sys!=normalisation_systematics_.end(); it_n_sys++){
+     file << it_n_sys->first << " lnN ";
+     file << ((*it_n_sys).second[cat].first) << " " << ((*it_n_sys).second[cat].first) << " ";	
+     file <<endl;
+
+   }
     
    double sigmaUnitInv = 1./(sigmaRange/nsigmas);
    for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){ 
@@ -957,8 +992,17 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
      file <<endl;
    }
 
+   // Write Category Normalisations 
+   for (std::map<std::string,std::vector < std::pair< double,double> > >::iterator it_n_sys = normalisation_systematics_.begin();it_n_sys!=normalisation_systematics_.end(); it_n_sys++){
+     file << it_n_sys->first << " lnN ";
+     for (int cat=0;cat<ncat;cat++) file << ((*it_n_sys).second[cat].first) << " " << ((*it_n_sys).second[cat].first) << " ";	
+     file <<endl;
+
+   }
+
+
   
-    
+   // Finally Shape Systematics    
    double sigmaUnitInv = 1./(sigmaRange/nsigmas);
    for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){ 
     

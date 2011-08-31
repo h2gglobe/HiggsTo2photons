@@ -57,6 +57,7 @@ class RooContainer {
     ~RooContainer(){};
     void SetNCategories(int);
     void AddGlobalSystematic(std::string,double,double);
+    void AddNormalisationSystematics(std::string,std::vector<std::pair<double,double> >, int);
     void SaveSystematicsData();
     void MakeSystematicStudy(std::vector<std::string>,std::vector<int>);
     void AddObservable(std::string,double,double);
@@ -154,6 +155,7 @@ class RooContainer {
 
    std::map<std::string,int> systematics_;
    std::map<std::string,std::pair<double,double> > global_systematics_;
+   std::map<std::string,std::vector <std::pair<double,double> > > normalisation_systematics_;
    std::map<std::string,int>::iterator it_sys;
 
    std::string getweightName(std::string);   
