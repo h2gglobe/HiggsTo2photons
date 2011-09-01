@@ -409,7 +409,15 @@ void MvaAnalysis::Init(LoopAll& l)
 
     // Create observables for shape-analysis with ranges
     // l.rooContainer->AddObservable("mass" ,100.,150.);
-    l.rooContainer->AddObservable("CMS_hgg_mass",0.93*masses[0],1.07*masses[9]);
+    //mass low is centre of lowest sideband for lowest test mass
+    //mass hgih is centre of hgihest sideband for hgihest test mass
+    float mass_low = masses[0]*(1-signalRegionWidth)/(1+signalRegionWidth);
+    float mass_high = masses[9]*(1+signalRegionWidth)/(1-signalRegionWidth);
+    float mass_boundaries[2];
+    mass_boundaries[0] = mass_low*(1-signalRegionWidth);
+    mass_boundaries[1] = mass_high*(1+signalRegionWidth);
+
+    l.rooContainer->AddObservable("CMS_hgg_mass",mass_boundaries[0],mass_boundaries[1]);
 
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
 
@@ -845,7 +853,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             // Iterate over each mass point. 
             for (int i = 0; i<nMasses;i++){
                 if (i==8) continue;
-                l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
+                if (cur_type == 0) l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
 
                 // define hypothesis masses for the sidebands
                 float mass_hypothesis = masses[i];
