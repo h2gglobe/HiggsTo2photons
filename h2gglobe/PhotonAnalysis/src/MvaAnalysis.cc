@@ -48,7 +48,15 @@ void MvaAnalysis::Term(LoopAll& l)
         mvaFile_->Close();
     }
     else{
-        for (int i = 0; i<nMasses;i++){
+        float mass_low = masses[2]*(1-signalRegionWidth)/(1+signalRegionWidth);
+//NOTE THE UGLY FIX HERE TO IGNORE THE POINTS 105 and 110
+        float mass_high = masses[9]*(1+signalRegionWidth)/(1-signalRegionWidth);
+        float mass_boundaries[2];
+        mass_boundaries[0] = mass_low*(1-signalRegionWidth);
+        mass_boundaries[1] = mass_high*(1+signalRegionWidth);
+
+        l.rooContainer->AddObservable("CMS_hgg_mass",mass_boundaries[0],mass_boundaries[1]);
+        for (int i = 2; i<nMasses;i++){
             if (i==8) continue;
             // define hypothesis masses for the sidebands
             float mass_hypothesis = masses[i];
@@ -62,8 +70,8 @@ void MvaAnalysis::Term(LoopAll& l)
             sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
             
             // Fit Inv Mass spectra
-            l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1]
-                                                                                     ,sideband_boundaries[2],sideband_boundaries[3]);
+            l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],mass_boundaries[0],sideband_boundaries[1]
+                                                                                     ,sideband_boundaries[2],mass_boundaries[3]);
 
             // Integrate fit to spectra to obtain normalisations
             std::vector<std::pair<double,double> > N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_pol_model"+names[i],
@@ -411,7 +419,8 @@ void MvaAnalysis::Init(LoopAll& l)
     // l.rooContainer->AddObservable("mass" ,100.,150.);
     //mass low is centre of lowest sideband for lowest test mass
     //mass hgih is centre of hgihest sideband for hgihest test mass
-    float mass_low = masses[0]*(1-signalRegionWidth)/(1+signalRegionWidth);
+    float mass_low = masses[2]*(1-signalRegionWidth)/(1+signalRegionWidth);
+//NOTE THE UGLY FIX HERE TO IGNORE THE POINTS 105 and 110
     float mass_high = masses[9]*(1+signalRegionWidth)/(1-signalRegionWidth);
     float mass_boundaries[2];
     mass_boundaries[0] = mass_low*(1-signalRegionWidth);
@@ -443,7 +452,7 @@ void MvaAnalysis::Init(LoopAll& l)
     //l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
 
     cout<<"test1"<<endl;
-    for (int i = 0; i<nMasses;i++){
+    for (int i = 2; i<nMasses;i++){
 	//Not all pdf types have integrals defined, so break when normalisation is calculated
         cout<<"test2"<<endl;
         std::vector<std::string> data_pol_pars(1,"p");	 
@@ -571,7 +580,7 @@ void MvaAnalysis::Init(LoopAll& l)
  	    tmvaReader_->AddVariable("deltaMOverM", &_deltaMOverM);
  		//tmvaReader_->AddVariable("deltaMOverSigmaM", &_deltaMOverSigmaM);
 
-        for (int i = 0; i<nMasses;i++){
+        for (int i = 2; i<nMasses;i++){
             if (i==8) continue;//Not available yet
             //Adaptive Boost
             l.rooContainer->CreateDataSet("BDT","data_low_BDT_ada"+names[i],50);
@@ -851,7 +860,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         }
         else{
             // Iterate over each mass point. 
-            for (int i = 0; i<nMasses;i++){
+            for (int i = 2; i<nMasses;i++){
                 if (i==8) continue;
                 if (cur_type == 0) l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
 
@@ -917,7 +926,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     // variables that depends on hypoth mass
                     _pho1_ptOverM = lead_p4.Pt()/mass_hypothesis_low;
                     _pho2_ptOverM = sublead_p4.Pt()/mass_hypothesis_low;
-                    _deltaMOverM = (mass-masses[i])/mass_hypothesis_low;
+                    _deltaMOverM = (mass-mass_hypothesis_low)/mass_hypothesis_low;
                     _deltaMOverSigmaM = (mass-mass_hypothesis_low)/massResolution;
                     _H_ptOverM    = Higgs.Pt()/mass_hypothesis_low;
 
@@ -939,7 +948,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     // variables that depends on hypoth mass
                     _pho1_ptOverM = lead_p4.Pt()/mass_hypothesis_high;
                     _pho2_ptOverM = sublead_p4.Pt()/mass_hypothesis_high;
-                    _deltaMOverM = (mass-masses[i])/mass_hypothesis_high;
+                    _deltaMOverM = (mass-mass_hypothesis_high)/mass_hypothesis_high;
                     _deltaMOverSigmaM = (mass-mass_hypothesis_high)/massResolution;
                     _H_ptOverM    = Higgs.Pt()/mass_hypothesis_high;
 
