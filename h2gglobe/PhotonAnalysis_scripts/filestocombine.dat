@@ -1,29 +1,20 @@
-intL=1092. histfile=CMS-HGG_merged.root output=shifo.root
+intL=1658. histfile=CMS-HGG_1658pb.root output=shifo.root
 
 ->
 put here files to merge
 doesnt matter what the type etc is
+Fil=CMS-HGG_1650pb_0.root
+Fil=CMS-HGG_1650pb_1.root
+Fil=CMS-HGG_1650pb_2.root
+Fil=CMS-HGG_1650pb_3.root
+Fil=CMS-HGG_1650pb_4.root
+Fil=CMS-HGG_1650pb_5.root
+Fil=CMS-HGG_1650pb_6.root
+Fil=CMS-HGG_1650pb_7.root
+Fil=CMS-HGG_1650pb_8.root
+Fil=CMS-HGG_1650pb_9.root
 ->
-Fil=CMS-HGG_1092pb_0.root
-Fil=CMS-HGG_1092pb_1.root
-Fil=CMS-HGG_1092pb_2.root
-Fil=CMS-HGG_1092pb_3.root
-Fil=CMS-HGG_1092pb_4.root
-Fil=CMS-HGG_1092pb_5.root
-Fil=CMS-HGG_1092pb_6.root
-Fil=CMS-HGG_1092pb_7.root
-Fil=CMS-HGG_1092pb_8.root
-Fil=CMS-HGG_1092pb_9.root
-Fil=CMS-HGG_1092pb_10.root
-Fil=CMS-HGG_1092pb_11.root
-Fil=CMS-HGG_1092pb_12.root
-Fil=CMS-HGG_1092pb_13.root
-Fil=CMS-HGG_1092pb_14.root
-Fil=CMS-HGG_1092pb_15.root
-Fil=CMS-HGG_1092pb_16.root
-Fil=CMS-HGG_1092pb_17.root
-Fil=CMS-HGG_1092pb_18.root
-Fil=CMS-HGG_1092pb_19.root
+Dir=cms-hgg-files
 
 
 ->
@@ -45,4 +36,4 @@ syntax:
 
 analyzer PhotonAnalysis photonanalysis.dat	
 ->
-analyzer MvaAnalysis photonanalysis.dat mvaanalysis.dat
+analyzer StatAnalysis photonanalysis.dat statanalysis.dat

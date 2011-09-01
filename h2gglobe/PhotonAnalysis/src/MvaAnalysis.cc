@@ -18,6 +18,7 @@ MvaAnalysis::MvaAnalysis()  :
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
     nMasses  = 12;
+    signalRegionWidth = 0.07;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -48,8 +49,8 @@ void MvaAnalysis::Term(LoopAll& l)
     }
     else{
         for (int i = 0; i<nMasses;i++){
+            if (i==8) continue;
             // define hypothesis masses for the sidebands
-            float signalRegionWidth = 0.07;
             float mass_hypothesis = masses[i];
             float mass_hypothesis_low = mass_hypothesis*(1-signalRegionWidth)/(1+signalRegionWidth);
             float mass_hypothesis_high = mass_hypothesis*(1+signalRegionWidth)/(1-signalRegionWidth);
@@ -559,10 +560,11 @@ void MvaAnalysis::Init(LoopAll& l)
  		tmvaReader_->AddVariable("pho2_eta", &_pho2_eta);
  		tmvaReader_->AddVariable("pho1_ptOverM", &_pho1_ptOverM);
  		tmvaReader_->AddVariable("pho2_ptOverM", &_pho2_ptOverM);
- 		//tmvaReader_->AddVariable("deltaMOverM", &_deltaMOverM);
- 		tmvaReader_->AddVariable("deltaMOverSigmaM", &_deltaMOverM);
+ 	    tmvaReader_->AddVariable("deltaMOverM", &_deltaMOverM);
+ 		//tmvaReader_->AddVariable("deltaMOverSigmaM", &_deltaMOverSigmaM);
 
         for (int i = 0; i<nMasses;i++){
+            if (i==8) continue;//Not available yet
             //Adaptive Boost
             l.rooContainer->CreateDataSet("BDT","data_low_BDT_ada"+names[i],50);
             l.rooContainer->CreateDataSet("BDT","data_BDT_ada"+names[i],50);
@@ -842,10 +844,10 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         else{
             // Iterate over each mass point. 
             for (int i = 0; i<nMasses;i++){
+                if (i==8) continue;
                 l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
 
                 // define hypothesis masses for the sidebands
-                float signalRegionWidth = 0.07;
                 float mass_hypothesis = masses[i];
                 float mass_hypothesis_low = mass_hypothesis*(1-signalRegionWidth)/(1+signalRegionWidth);
                 float mass_hypothesis_high = mass_hypothesis*(1+signalRegionWidth)/(1-signalRegionWidth);
@@ -955,6 +957,85 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     }
     if(PADEBUG) 
 	cout<<"myFillHistRed END"<<endl;
+
+
+//    if( cur_type != 0 && doMCSmearing ) { 
+//	// fill steps for syst uncertainty study
+//	float systStep = systRange / (float)nSystSteps;
+//	// di-photon smearers systematics
+//	if (diphoton_id > -1 ) {
+//	       
+//	    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+//	    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+//	    TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
+//
+//        _log_H_pt =  log10( Higgs.Pt());
+//        _H_eta = fabs(Higgs.Eta());
+//        _d_phi = fabs(lead_p4.DeltaPhi(sublead_p4));
+//        _max_eta = max(fabs(lead_p4.Eta()),fabs(sublead_p4.Eta()));
+//        _min_r9  = min(lead_r9,sublead_r9);
+//        _pho1_eta = lead_p4.Eta();
+//        _pho2_eta = sublead_p4.Eta();
+//
+//        _mgg = mass;
+//        _pho1_phi = lead_p4.Phi();
+//        _pho1_pt = lead_p4.Pt();
+//        _pho1_r9 = lead_r9;
+//
+//        _pho2_phi = sublead_p4.Phi();
+//        _pho2_pt = sublead_p4.Pt();
+//        _pho2_r9 = sublead_r9;
+//
+//        _H_pt = Higgs.Pt();
+//        _Ht = lead_p4.Pt()+sublead_p4.Pt();
+//
+//        _d_eta = lead_p4.Eta()-sublead_p4.Eta();
+//        _mod_d_eta = fabs(lead_p4.Eta()-sublead_p4.Eta());
+//        _cos_theta_star = fabs(lead_p4.E()-sublead_p4.E())/Higgs.P();
+//
+//        _wt= evweight;
+//
+//         // Iterate over each mass point. 
+//        for (int i = 0; i<nMasses;i++){
+//            float mass_hypothesis = masses[i];
+//
+//            _pho1_ptOverM = lead_p4.Pt()/mass_hypothesis;
+//            _pho2_ptOverM = sublead_p4.Pt()/mass_hypothesis;
+//            _deltaMOverM = (mass-masses[i])/mass_hypothesis;
+//            _deltaMOverSigmaM = (mass-mass_hypothesis)/massResolution;
+//            _H_ptOverM    = Higgs.Pt()/mass_hypothesis;
+//
+//	        //iterate ove each systematic effect 
+//    	    for(std::vector<BaseGenLevelSmearer*>::iterator si=systGenLevelSmearers_.begin(); si!=systGenLevelSmearers_.end(); si++){
+//     		    std::vector<double> mass_errors;
+//		        std::vector<double> weights;
+//		        std::vector<int>    categories;
+//	            //iterate over each step within the systematic effect 
+//		        for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
+//		            if( syst_shift == 0. ) { continue; } // skip the central value
+//		            TLorentzVector Higgs = lead_p4 + sublead_p4; 	
+//                    int category = 0;//l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,nPtCategories);
+//                    double genLevWeightSyst=1; 
+//                    for(std::vector<BaseGenLevelSmearer *>::iterator sj=genLevelSmearers_.begin(); sj!= genLevelSmearers_.end(); ++sj ) {
+//                        float swei=1.;
+//                        if( *si == *sj ) { 
+//                            (*si)->smearEvent(swei, gP4, l.pu_n, cur_type, syst_shift );
+//                        } else {
+//                            (*sj)->smearEvent(swei, gP4, l.pu_n, cur_type, 0. );
+//                        }
+//                        genLevWeightSyst *= swei;
+//                    }
+//		            float mass = Higgs.M();
+//                    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
+//                    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
+//		            categories.push_back(category);
+//		            mass_errors.push_back(mass);
+//		            weights.push_back(evweight);
+//		        }// end loop on systematics steps
+//		        if (cur_type == -13|| cur_type == -14 || cur_type == -15|| cur_type == -16)
+//		            l.rooContainer->InputSystematicSet("sig_mass_m105",(*si)->name(),categories,mass_errors,weights);
+//	        } // end loop on smearers 
+        
 }
 
 // ----------------------------------------------------------------------------------------------------

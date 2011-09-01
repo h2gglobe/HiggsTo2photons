@@ -63,6 +63,7 @@ public:
 	int   nEtaCategories, nR9Categories, nPtCategories;
 	float massMin, massMax;
 	int nDataBins;	
+        float signalRegionWidth;
 	
 	std::string kfacHist;
 
