@@ -117,6 +117,7 @@ protected:
 	float _pho2_ptOverM; 
 	float _sigmaMOverM;
 	float _deltaMOverM; 
+	float _deltaMOverSigmaM; 
 	float _mgg;          
 	float _pho1_phi;     
 	float _pho1_pt;      
