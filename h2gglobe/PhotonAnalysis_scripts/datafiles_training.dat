@@ -1,4 +1,4 @@
-intL=1092. histfile=CMS-HGG_1092pb.root output=shifo.root
+intL=1658. histfile=CMS-HGG_1658pb.root output=shifo.root
 
 
 ->
@@ -15,9 +15,7 @@ typ=-54 ind=2 draw=1  Nam=vbf_H_gg_121_pu2011     Dir=/vols/cms02/h2g/ntuples/h2
 typ=-56 ind=4 draw=1  Nam=wz_H_gg_121_pu2011      Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/WH_ZH_HToGG_M-121    red=0 lum=1000.000000  xsec=0.002234914 kfac=1.000000  scal=1.000000
 typ=-55 ind=3 draw=1  Nam=tt_H_gg_121_pu2011      Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/TTH_HToGG_M-121      red=0 lum=1000.000000  xsec=0.0002151068 kfac=1.000000  scal=1.000000
 
-->
 typ=-49 ind=1 draw=1  Nam=gluglu_H_gg_150_pu2011  Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/GluGluToHToGG_M-150  red=0 lum=1000.000000  xsec=0.01428 kfac=1.000000  scal=1.000000
-->
 typ=-49 ind=1 draw=1  Nam=gluglu_H_gg_150_pu2011  Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/GluGluToHToGG_M-145  red=0 lum=1000.000000  xsec=0.01428 kfac=1.000000  scal=1.000000
 typ=-50 ind=2 draw=1  Nam=vbf_H_gg_150_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/VBF_HToGG_M-150      red=0 lum=1000.000000  xsec=0.001307912 kfac=1.000000  scal=1.000000
 typ=-52 ind=4 draw=1  Nam=wz_H_gg_150_pu2011      Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/WH_ZH_HToGG_M-150    red=0 lum=1000.000000  xsec=0.000641104 kfac=1.000000  scal=1.000000
@@ -52,7 +50,9 @@ typ=-40 ind=27 draw=1  Nam=wz_H_gg_125_pu2011     Dir=/vols/cms02/h2g/ntuples/h2
 typ=-39 ind=28 draw=1  Nam=tt_H_gg_125_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/TTH_HToGG_M-125      red=0 lum=1000.000000  xsec=0.0001977186 kfac=1.000000  scal=1.000000
 
 typ=-25 ind=9 draw=1   Nam=gluglu_H_gg_120_pu2011 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/GluGluToHToGG_M-120  red=0 lum=1000.000000  xsec=0.0374175 kfac=1.000000  scal=1.000000
+->
 typ=-26 ind=10 draw=1  Nam=vbf_H_gg_120_pu2011    Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/VBF_HToGG_M-120      red=0 lum=1000.000000  xsec=0.00285525 kfac=1.000000  scal=1.000000
+->
 typ=-28 ind=11 draw=1  Nam=wz_H_gg_120_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/WH_ZH_HToGG_M-120    red=0 lum=1000.000000  xsec=0.002285775 kfac=1.000000  scal=1.000000
 typ=-27 ind=12 draw=1  Nam=tt_H_gg_120_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/TTH_HToGG_M-120      red=0 lum=1000.000000  xsec=0.00021951 kfac=1.000000  scal=1.000000
                                                         
@@ -71,60 +71,17 @@ typ=-14 ind=22 draw=1  Nam=vbf_H_gg_105_pu2011 	  Dir=/vols/cms02/h2g/ntuples/h2
 typ=-16 ind=23 draw=1  Nam=wz_H_gg_105_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/WH_ZH_HToGG_M-105    red=0 lum=1000.000000  xsec=0.002781962 kfac=1.000000  scal=1.000000
 typ=-15 ind=24 draw=1  Nam=tt_H_gg_105_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/TTH_HToGG_M-105      red=0 lum=1000.000000  xsec=0.000255074 kfac=1.000000  scal=1.000000
 
-->
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/DiPhotonBox_Pt-10To25
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/DiPhotonBox_Pt-25To250
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/DiPhotonBox_Pt-250
 
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/DiPhotonBorn_Pt-10To25
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/DiPhotonBorn_Pt-25To250
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/DiPhotonBorn_Pt-250
+typ=+1    ind=11 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_ff tot=6094670   red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
+typ=+1    ind=12 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_pf tot=6094670   red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
+typ=+1    ind=13 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_pp tot=6094670   red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
 
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/GJet_Pt-20_doubleEMEnriched_TuneZ2_pp
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/GJet_Pt-20_doubleEMEnriched_TuneZ2_pf
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/GJet_Pt-20_doubleEMEnriched_TuneZ2_ff
+typ=+3 ind=17 draw=1  Nam=GJet Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/GJet_Pt-20_doubleEMEnriched_TuneZ2_ff tot=1182075 red=0 lum=1.e10 xsec=493.44 kfac=1.  scal=1.
+typ=+3 ind=18 draw=1  Nam=GJet Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/GJet_Pt-20_doubleEMEnriched_TuneZ2_pf tot=1182075 red=0 lum=1.e10 xsec=493.44 kfac=1.  scal=1.
+typ=+3 ind=19 draw=1  Nam=GJet Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/GJet_Pt-20_doubleEMEnriched_TuneZ2_pp tot=1182075 red=0 lum=1.e10 xsec=493.44 kfac=1.  scal=1.
 
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/DiPhotonJets
-
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/DYToEE_M-20_CT10_TuneZ2
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/DYToEE_M-10To20_CT10_TuneZ2
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/DYJetsToLL_TuneZ2_M-50
-
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_ff
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S3_START42_V11/QCD_Pt-40_doubleEMEnriched_TuneZ2_pp
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S3_START42_V11/QCD_Pt-40_doubleEMEnriched_TuneZ2_pf
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S3_START42_V11/QCD_Pt-40_doubleEMEnriched_TuneZ2_ff
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_pp
-/pnfs/hep.ph.ic.ac.uk/data/cms/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_pf
-->
-
-
-->
-typ=+1    ind=11 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_mc/QCD30to40_S3_ff tot=6094670   red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
-typ=+1    ind=12 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_mc/QCD30to40_S3_pf tot=6094670   red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
-typ=+1    ind=13 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_mc/QCD30to40_S3_pp tot=6094670   red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
-->
-typ=+1    ind=11 draw=1  Nam=QCD30 DcDir=/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_ff red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
-typ=+1    ind=12 draw=1  Nam=QCD30 DcDir=/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_pf red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
-typ=+1    ind=13 draw=1  Nam=QCD30 DcDir=/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_pp red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
-
-
-->
-typ=+3 ind=17 draw=1  Nam=GJet Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_mc/GJet_Pt20_2011PU_ff tot=1182075 red=0 lum=1.e10 xsec=493.44 kfac=1.  scal=1.
-typ=+3 ind=18 draw=1  Nam=GJet Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_mc/GJet_Pt20_2011PU_pf tot=1182075 red=0 lum=1.e10 xsec=493.44 kfac=1.  scal=1.
-typ=+3 ind=19 draw=1  Nam=GJet Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_mc/GJet_Pt20_2011PU_pp tot=1182075 red=0 lum=1.e10 xsec=493.44 kfac=1.  scal=1.
-->
-typ=+3    ind=17 draw=1  Nam=GJet DcDir=/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/GJet_Pt-20_doubleEMEnriched_TuneZ2_ff red=0 lum=1.e10  xsec=493.44   kfac=1.  scal=1.
-typ=+3    ind=18 draw=1  Nam=GJet DcDir=/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/GJet_Pt-20_doubleEMEnriched_TuneZ2_pf red=0 lum=1.e10  xsec=493.44   kfac=1.  scal=1.
-typ=+3    ind=19 draw=1  Nam=GJet DcDir=/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/GJet_Pt-20_doubleEMEnriched_TuneZ2_pp red=0 lum=1.e10  xsec=493.44   kfac=1.  scal=1.
-
-
-->
-typ=+7 ind=22 draw=1  Nam=Box25 Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_mc/DiPhotonBox_25To250_S4_v2 tot=518288   red=0   lum=1.e10   xsec=12.37   kfac=1.  scal=1.
-typ=+10 ind=23 draw=1  Nam=DiPhotonJets Dir=/vols/cms02/h2g/ntuples/Jul2_globe_V09_00_pm_mc/DiPhotonJets_madgraph tot=1150800   red=0   lum=1.e10  xsec=154.7   kfac=1.  scal=1.
-->
-typ=+7 ind=22 draw=1  Nam=Box25 DcDir=/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/DiPhotonBox_Pt-25To250 tot=518288 red=0 lum=1.e10 xsec=12.37 kfac=1. scal=1.
-typ=+10 ind=23 draw=1  Nam=DiPhotonJets DcDir=/store/group/higgs/h2g/h2gglobe_ntuples/reduced/Summer11-PU_S4_START42_V11/DiPhotonJets tot=1150800   red=0   lum=1.e10  xsec=154.7   kfac=1.  scal=1.
+typ=+7 ind=22 draw=1  Nam=Box25 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/DiPhotonBox_Pt-25To250 tot=518288   red=0   lum=1.e10   xsec=12.37   kfac=1.  scal=1.
+typ=+10 ind=23 draw=1  Nam=DiPhotonJets Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/DiPhotonJets tot=1150800   red=0   lum=1.e10  xsec=154.7   kfac=1.  scal=1.
 
 
 ->

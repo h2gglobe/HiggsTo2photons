@@ -509,7 +509,7 @@ void MvaAnalysis::Init(LoopAll& l)
             TBranch *s_pho1_ptOverM = signalTree_[i]->Branch("pho1_ptOverM", &_pho1_ptOverM , "pho1_ptOverM/F");;
             TBranch *s_pho2_ptOverM = signalTree_[i]->Branch("pho2_ptOverM", &_pho2_ptOverM , "pho2_ptOverM/F");;
             TBranch *s_deltaMOverM = signalTree_[i]->Branch("deltaMOverM", &_deltaMOverM,"deltaMOverM/F");
-            TBranch *s_deltaMOverSigmaM = signalTree_[i]->Branch("deltaMOverSigmaM", &_deltaMOverSigmaM,"deltaMOverSigmaM/F");
+            TBranch *s_sigmaMOverM = signalTree_[i]->Branch("sigmaMOverM", &_sigmaMOverM,"sigmaMOverM/F");
             TBranch *s_mgg          = signalTree_[i]->Branch("mgg", &_mgg, "mgg/F");
             TBranch *s_pho1_phi     = signalTree_[i]->Branch("pho1_phi", &_pho1_phi , "pho1_phi/F");
             TBranch *s_pho1_pt      = signalTree_[i]->Branch("pho1_pt", &_pho1_pt , "pho1_pt/F");;
@@ -537,7 +537,7 @@ void MvaAnalysis::Init(LoopAll& l)
             TBranch *b_pho1_ptOverM = backgroundTree_[i]->Branch("pho1_ptOverM", &_pho1_ptOverM , "pho1_ptOverM/F");;
             TBranch *b_pho2_ptOverM = backgroundTree_[i]->Branch("pho2_ptOverM", &_pho2_ptOverM , "pho2_ptOverM/F");;
             TBranch *b_deltaMOverM = backgroundTree_[i]->Branch("deltaMOverM", &_deltaMOverM,"deltaMOverM/F");
-            TBranch *b_deltaMOverSigmaM = backgroundTree_[i]->Branch("deltaMOverSigmaM", &_deltaMOverSigmaM,"deltaMOverSigmaM/F");
+            TBranch *b_sigmaMOverM = backgroundTree_[i]->Branch("sigmaMOverM", &_sigmaMOverM,"sigmaMOverM/F");
             TBranch *b_mgg          = backgroundTree_[i]->Branch("mgg", &_mgg, "mgg/F");
             TBranch *b_pho1_phi     = backgroundTree_[i]->Branch("pho1_phi", &_pho1_phi , "pho1_phi/F");
             TBranch *b_pho1_pt      = backgroundTree_[i]->Branch("pho1_pt", &_pho1_pt , "pho1_pt/F");;
@@ -569,7 +569,7 @@ void MvaAnalysis::Init(LoopAll& l)
  		tmvaReader_->AddVariable("pho1_ptOverM", &_pho1_ptOverM);
  		tmvaReader_->AddVariable("pho2_ptOverM", &_pho2_ptOverM);
  	    tmvaReader_->AddVariable("deltaMOverM", &_deltaMOverM);
- 		//tmvaReader_->AddVariable("deltaMOverSigmaM", &_deltaMOverSigmaM);
+ 		//tmvaReader_->AddVariable("sigmaMOverM", &_sigmaMOverM);
 
         for (int i = 2; i<nMasses;i++){  // We are ignoring masses 105 and 110 for now
             if (i==8) continue;//Not available yet
@@ -835,7 +835,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     _pho1_ptOverM = lead_p4.Pt()/masses[i];
                     _pho2_ptOverM = sublead_p4.Pt()/masses[i];
                     _deltaMOverM = (mass-masses[i])/masses[i];
-                    _deltaMOverSigmaM = (mass-masses[i])/massResolution;
+                    _sigmaMOverM = massResolution/mass;
                     _H_ptOverM    = (Higgs.Pt()/masses[i]);
                     backgroundTree_[i]->Fill();
                 } 
@@ -849,7 +849,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 _pho1_ptOverM = lead_p4.Pt()/masses[i0];
                 _pho2_ptOverM = sublead_p4.Pt()/masses[i0];
                 _deltaMOverM = (mass-masses[i0])/masses[i0];
-                _deltaMOverSigmaM = (mass-masses[i0])/massResolution;
+                _sigmaMOverM = massResolution/mass;
                 _H_ptOverM    = (Higgs.Pt()/masses[i0]);
                 signalTree_[i0]->Fill();
             }
@@ -877,8 +877,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     // variables that depends on hypoth mass
                     _pho1_ptOverM = lead_p4.Pt()/mass_hypothesis;
                     _pho2_ptOverM = sublead_p4.Pt()/mass_hypothesis;
-                    _deltaMOverM = (mass-masses[i])/mass_hypothesis;
-                    _deltaMOverSigmaM = (mass-mass_hypothesis)/massResolution;
+                    _deltaMOverM = (mass-mass_hypothesis)/mass_hypothesis;
+                    _sigmaMOverM = massResolution/mass;
                     _H_ptOverM    = Higgs.Pt()/mass_hypothesis;
 
                     float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
@@ -886,7 +886,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
                     if (cur_type == 0 ){//data
                         l.FillHist("deltaMOverM"+names[i],0, _deltaMOverM, evweight);
-                        l.FillHist("deltaMOverSigmaM"+names[i],0, _deltaMOverSigmaM, evweight);
+                        l.FillHist("sigmaMOverM"+names[i],0, _sigmaMOverM, evweight);
                         l.FillHist("pho1_eta"+names[i],0, _pho1_eta, evweight);
                         l.FillHist("pho2_eta"+names[i],0, _pho2_eta, evweight);
                         l.FillHist("pho1_ptOverM"+names[i],0, _pho1_ptOverM, evweight);
@@ -923,7 +923,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     _pho1_ptOverM = lead_p4.Pt()/mass_hypothesis_low;
                     _pho2_ptOverM = sublead_p4.Pt()/mass_hypothesis_low;
                     _deltaMOverM = (mass-mass_hypothesis_low)/mass_hypothesis_low;
-                    _deltaMOverSigmaM = (mass-mass_hypothesis_low)/massResolution;
+                    _sigmaMOverM = massResolution/mass;
                     _H_ptOverM    = Higgs.Pt()/mass_hypothesis_low;
 
                     float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
@@ -945,7 +945,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     _pho1_ptOverM = lead_p4.Pt()/mass_hypothesis_high;
                     _pho2_ptOverM = sublead_p4.Pt()/mass_hypothesis_high;
                     _deltaMOverM = (mass-mass_hypothesis_high)/mass_hypothesis_high;
-                    _deltaMOverSigmaM = (mass-mass_hypothesis_high)/massResolution;
+                    _sigmaMOverM = (mass-mass_hypothesis_low)/massResolution;
                     _H_ptOverM    = Higgs.Pt()/mass_hypothesis_high;
 
                     float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );

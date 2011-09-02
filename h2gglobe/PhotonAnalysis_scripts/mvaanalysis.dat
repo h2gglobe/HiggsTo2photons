@@ -14,7 +14,7 @@ nPtCategories=1
 doTriggerSelection=1
 reRunCiC=0
 
-doTraining=0
+doTraining=1
 
 ->
 Turn on-off all smearings 
