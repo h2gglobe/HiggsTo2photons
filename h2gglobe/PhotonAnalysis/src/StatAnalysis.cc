@@ -433,6 +433,9 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     if(PADEBUG) 
 	cout << "Analysis START; cur_type is: " << l.itype[l.current] <<endl;
    
+    //remove process ID 18 from gamma+jet to avoid double counting with born+box
+    if (l.itype[l.current]==3 && l.process_id==18) return;
+
     int cur_type = l.itype[l.current];
     float weight = l.sampleContainer[l.current_sample_index].weight;
     l.FillCounter( "Processed", 1. );
@@ -581,11 +584,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	float ptHiggs = Higgs.Pt();
  
 	// Mass Resolution of the Event
-	if (cur_type==0){ // eSmearDataPars
-		massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearDataPars,nR9Categories,nEtaCategories);
- 	} else { //eSmearPars	
-		massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-	}
+	massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 	double massResolution = massResolutionCalculator->massResolution();
 
      
@@ -616,7 +615,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		l.FillHist("pho_eta",0,sublead_p4.Eta(), evweight);
 		l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
 		l.FillHist("pho_r9",0, sublead_r9, evweight);
-		l.FillHist("pho1_r9",0, sublead_r9, evweight);
+		l.FillHist("pho2_r9",0, sublead_r9, evweight);
 		
 		l.FillHist("mass",category+1, Higgs.M(), evweight);
 		l.FillHist("pt",category+1, Higgs.Pt(), evweight);
@@ -634,7 +633,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		l.FillHist("pho_eta",category+1,sublead_p4.Eta(), evweight);
 		l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
 		l.FillHist("pho_r9",category+1, sublead_r9, evweight);
-		l.FillHist("pho1_r9",category+1, sublead_r9, evweight);
+		l.FillHist("pho2_r9",category+1, sublead_r9, evweight);
 		
 		l.FillHist("pho_n",category+1,l.pho_n, evweight);
 	}
