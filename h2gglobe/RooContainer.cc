@@ -25,22 +25,24 @@ void RooContainer::AddNormalisationSystematics(std::string name,std::vector<std:
   	std::vector<std::pair<double,double> > sys;
   	if (type ==-1){ // Signal Systematics
 		for (int cat=0;cat<ncat;cat++){	
-			double value = (1+vals[cat].second)/vals[cat].first;
+			double value = 1.+(vals[cat].second)/vals[cat].first;
+			std::cout << "In RooContainer -- " << value << std::endl;
 			sys.push_back(std::pair<double,double> (value,1.0));
 		}
-    	} else if (type ==1){ // Signal Systematics
+    	} else if (type ==1){ // Background Systematics
 		for (int cat=0;cat<ncat;cat++){	
-			double value = (1+vals[cat].second)/vals[cat].first;
+			double value = 1.+(vals[cat].second)/vals[cat].first;
+			std::cout << "In RooContainer -- " << value << std::endl;
 			sys.push_back(std::pair<double,double> (1.0,value));
 		}
-    	} else if (type ==0){ // Signal Systematics
+    	} else if (type ==0){ // Both
 		for (int cat=0;cat<ncat;cat++){	
-			double value = (1+vals[cat].second)/vals[cat].first;
+			double value = 1.+(vals[cat].second)/vals[cat].first;
 			sys.push_back(std::pair<double,double> (value,value));
 		}
     	} else std::cerr << "WARNING! -- RooContainer::AddNormalisationsSystematics -- type not understood " 
 			<< type << endl;
- 	normalisation_systematics_[name] = sys;
+ 	normalisation_systematics_.insert(std::pair <std::string,std::vector <std::pair< double, double > > > (name,sys));
   }
 }
 // ----------------------------------------------------------------------------------------------------
@@ -865,7 +867,7 @@ void RooContainer::writeSpecificCategoryDataCard(int cat,std::string filename,st
    // Write Category Normalisations 
    for (std::map<std::string,std::vector < std::pair< double,double> > >::iterator it_n_sys = normalisation_systematics_.begin();it_n_sys!=normalisation_systematics_.end(); it_n_sys++){
      file << it_n_sys->first << " lnN ";
-     file << ((*it_n_sys).second[cat].first) << " " << ((*it_n_sys).second[cat].first) << " ";	
+     file << (((*it_n_sys).second)[cat].first) << " " << (((*it_n_sys).second)[cat].second) << " ";	
      file <<endl;
 
    }
@@ -995,7 +997,7 @@ void RooContainer::WriteDataCard(std::string filename,std::string data_name
    // Write Category Normalisations 
    for (std::map<std::string,std::vector < std::pair< double,double> > >::iterator it_n_sys = normalisation_systematics_.begin();it_n_sys!=normalisation_systematics_.end(); it_n_sys++){
      file << it_n_sys->first << " lnN ";
-     for (int cat=0;cat<ncat;cat++) file << ((*it_n_sys).second[cat].first) << " " << ((*it_n_sys).second[cat].first) << " ";	
+     for (int cat=0;cat<ncat;cat++) file << ((*it_n_sys).second[cat].first) << " " << ((*it_n_sys).second[cat].second) << " ";	
      file <<endl;
 
    }
@@ -1537,33 +1539,46 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 
      if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){ // Full Range Fit
         real_var->setRange("rnge",x_min,x_max);
-        fit_result = (it_pdf->second).fitTo(it_data->second,Range("rnge"),RooFit::Save(true));
+        fit_result = (it_pdf->second).fitTo(it_data->second,Range("rnge"),RooFit::Extended(true),RooFit::Save(true));
         mode = 0;
      } else if (x3 < -990 && x4 < -990){ // Single window fit
       if (x1 < x_min || x2 > x_max){
         std::cerr << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!! " 
 		  << std::endl;
-        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),"r");
+        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),RooFit::Extended(true),"r");
         std::cerr << " Fitted To Full Range -- WARNING!!" 
 		  << std::endl;
         mode = 0;
       } else {
         real_var->setRange("rnge",x1,x2);
-        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),"r");
+        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),RooFit::Extended(true),"r");
         mode = 1;
       }
      } else {
       if (x1 < x_min || x4 > x_max){ // Excluded window fit
         std::cerr << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!!" 
 		  << std::endl;
-        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),"rq");
+        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),RooFit::Extended(true),"rq");
         std::cerr << " Fitted To Full Range -- WARNING!!" 
 		  << std::endl;
         mode = 0;
       } else {
         real_var->setRange("rnge1",x1,x2);
         real_var->setRange("rnge2",x3,x4);
-        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),"r");
+        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),"r");
+	// Not sure what to do with combined PDF in terms of getting Nevents correct with multiple ranges
+	// idea is to sum over all components and then scale by sum / sum entries
+	double nEntries = (it_data->second).sumEntries(0,"rnge1") + (it_data->second).sumEntries(0,"rnge2");
+	double sumComp = 0;
+	for (std::vector<RooRealVar*>::iterator it_comp_norm = m_comp_pdf_norm_[name_func].begin();it_comp_norm != m_comp_pdf_norm_[name_func].end();it_comp_norm++)
+	  {
+		sumComp += (*it_comp_norm)->getVal();
+	  }
+	for (std::vector<RooRealVar*>::iterator it_comp_norm = m_comp_pdf_norm_[name_func].begin();it_comp_norm != m_comp_pdf_norm_[name_func].end();it_comp_norm++)
+	  {
+		(*it_comp_norm)->setVal(nEntries/sumComp);
+	  }
+	
         mode = 2;
       }
      }
@@ -1573,33 +1588,34 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
       if (it_exp != m_exp_.end()){
        if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){
         real_var->setRange("rnge",x_min,x_max);
-        fit_result = (it_exp->second).fitTo(it_data->second,Range("rnge"),RooFit::Save(true),"r");
+        fit_result = (it_exp->second).fitTo(it_data->second,Range("rnge"),RooFit::Save(true),RooFit::Extended(true),"r");
         mode = 0;
       } else if (x3 < -990 && x4 < -990){ // Single window fit
         if (x1 < x_min || x2 > x_max){
           std::cerr << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!!" 
 		    << std::endl;
-          fit_result = (it_exp->second).fitTo(it_data->second,RooFit::Save(true));
+          fit_result = (it_exp->second).fitTo(it_data->second,RooFit::Extended(true),RooFit::Save(true));
           std::cerr << " Fitted To Full Range -- WARNING!!" 
 		    << std::endl;
           mode = 0;
         } else {
          real_var->setRange("rnge",x1,x2);
-         fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),"r");
+         fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),RooFit::Extended(true),"r");
          mode = 1;
         }	
        } else {
         if (x1 < x_min || x4 > x_max){
           std::cerr << "RooContianer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!!" 
 		    << std::endl;
-          fit_result = (it_exp->second).fitTo((it_data->second),RooFit::Save(true),"rq");
+          fit_result = (it_exp->second).fitTo((it_data->second),RooFit::Save(true),RooFit::Extended(true),"rq");
           std::cerr << " Fitted To Full Range -- WARNING!!" 
 		    << std::endl;
           mode = 0;
         } else {
           real_var->setRange("rnge1",x1,x2);
           real_var->setRange("rnge2",x3,x4);
-          fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),"rq");
+          fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),"rq");
+	  m_real_var_[name_func].setVal((it_data->second).sumEntries(0,"rnge1") + (it_data->second).sumEntries(0,"rnge2"));
           mode = 2;
         }
        }
@@ -1867,7 +1883,6 @@ std::pair<double,double> RooContainer::getNormalisationAndErrorFromFit(std::stri
   obs->setRange("rngeNorm",r1,r2);
   pdf_ptr->forceNumInt(true);
   RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
-  pdf_ptr->forceNumInt(false);
   double integralValue = integral->getVal();
   double normError = TMath::Sqrt(normalisation);
   double integralError = integral->getPropagatedError(*fit_results_[pdf_name]);
@@ -1884,6 +1899,7 @@ std::pair<double,double> RooContainer::getNormalisationAndErrorFromFit(std::stri
   double fullError = result*TMath::Sqrt((normError*normError)/(normalisation*normalisation) + (integralError*integralError)/(integralValue*integralValue));
   std::cout << "	Pdf Integral and Error From Latest Fit - " << integralValue << "+/-" << integralError << std::endl;
   std::cout << "	Normalisation and Error - " << result << "+/-" << fullError << std::endl;
+  pdf_ptr->forceNumInt(false);
   return std::pair<double,double>(result,fullError);
 }
 

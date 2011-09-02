@@ -74,6 +74,8 @@ public:
 	std::string names[12];
 	double masses[12];
 
+	std::string mvaWeightsFolder;
+
 protected:
 	std::vector<BaseSmearer *> photonSmearers_;
 	std::vector<BaseSmearer *> systPhotonSmearers_;

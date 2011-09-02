@@ -260,6 +260,13 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->sigmaRange = systRange;
     // RooContainer does not support steps different from 1 sigma
     //assert( ((float)nSystSteps) == systRange );
+    if( doEcorrectionSmear && doEcorrectionSyst ) {
+        // instance of this smearer done in PhotonAnalysis
+        systPhotonSmearers_.push_back(eCorrSmearer);
+	std::vector<std::string> sys(1,eCorrSmearer->name());
+	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
+	l.rooContainer->MakeSystematicStudy(sys,sys_t);
+    }
     if( doEscaleSmear && doEscaleSyst ) {
 	systPhotonSmearers_.push_back( eScaleSmearer );
 	std::vector<std::string> sys(1,eScaleSmearer->name());
@@ -275,13 +282,6 @@ void StatAnalysis::Init(LoopAll& l)
     if( doPhotonIdEffSmear && doPhotonIdEffSyst ) {
 	systPhotonSmearers_.push_back( idEffSmearer );
 	std::vector<std::string> sys(1,idEffSmearer->name());
-	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
-	l.rooContainer->MakeSystematicStudy(sys,sys_t);
-    }
-    if( doEcorrectionSmear && doEcorrectionSyst ) {
-        // instance of this smearer done in PhotonAnalysis
-        systPhotonSmearers_.push_back(eCorrSmearer);
-	std::vector<std::string> sys(1,eCorrSmearer->name());
 	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 	l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }

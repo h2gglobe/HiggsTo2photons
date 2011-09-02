@@ -30,7 +30,7 @@ doEscaleSyst=1
 doEresolSmear=1
 doEresolSyst=1
 
-doEcorrectionSmear=1
+doEcorrectionSmear=0
 doEcorrectionSyst=0
 
 doPhotonIdEffSyst=1
@@ -57,7 +57,7 @@ kfacHist=/vols/cms02/h2g/aux/KFactors_AllScales.root
 efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v13.root
 puHist=/vols/cms02/h2g/aux/lp.json.weights.root
 puMap=pu_weights_map.dat
-
+mvaWeightsFolder=/vols/cms02/h2g/weights/
 ->
 run-dependent corrections are now taken from energy_scale_offsets.dat;
 GF, aug12: Escale shift taken from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/371.html
