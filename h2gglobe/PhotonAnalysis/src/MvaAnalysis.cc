@@ -782,11 +782,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	//	+((angle_resolution*angle_resolution)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
 
 	// Mass Resolution of the Event
-	if (cur_type==0){ // eSmearDataPars
-		massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearDataPars,nR9Categories,nEtaCategories);
- 	} else { //eSmearPars	
-		massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-	}
+	massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
 	double massResolution = massResolutionCalculator->massResolution();
 
