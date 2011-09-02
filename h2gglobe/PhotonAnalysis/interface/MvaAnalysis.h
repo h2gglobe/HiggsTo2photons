@@ -44,6 +44,8 @@ public:
 //	double SecH(double);
 //	double TanH(double);
 	int SignalType(int);
+	void SetBDTInputVariables();
+	void SetBDTInputVariables(TLorentzVector*, TLorentzVector*, double, double, double, double, double);
 	
 	// Options
 	bool reRunCiC;

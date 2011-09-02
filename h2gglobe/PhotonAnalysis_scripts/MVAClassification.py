@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# @(#)root/tmva $Id: MVAClassification.py,v 1.1.2.4 2011/08/31 15:35:06 mjarvis Exp $
+# @(#)root/tmva $Id: MVAClassification.py,v 1.1.2.5 2011/09/01 20:26:14 mjarvis Exp $
 # ------------------------------------------------------------------------------
 # based on TMVA Python script: TMVAClassification.py
 # ------------------------------------------------------------------------------
@@ -139,8 +139,9 @@ def main():
     factory.AddVariable( "pho2_eta","#eta^{sublead}", "", 'F' );
     factory.AddVariable( "pho1_ptOverM", "P_{T}^{lead} / M_{H}", "", 'F' );
     factory.AddVariable( "pho2_ptOverM", "P_{T}^{sublead} / M_{H}", "", 'F' );
-    #factory.AddVariable( "deltaMOverM","#DeltaM / M_Hypth.",  'F' )
+    #factory.AddVariable( "deltaMOverM","#DeltaM / M_{Hypth}.",  'F' )
     factory.AddVariable( "deltaMOverSigmaM","#DeltaM / #sigma M",  'F' )
+    #factory.AddVariable( "sigmaMOverM","#sigmaM / M",  'F' )
 
     #factory.AddVariable( "mgg","M_{gg}", "GeV", 'F' );
     #factory.AddVariable( "pho1_ptOverM","P_{T}^{lead}/M_{gg}", "", 'F' );
