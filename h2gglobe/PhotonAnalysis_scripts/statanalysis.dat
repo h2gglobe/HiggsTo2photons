@@ -29,7 +29,7 @@ doEresolSmear=1
 doEresolSyst=1
 
 doEcorrectionSmear=1
-doEcorrectionSyst=0
+doEcorrectionSyst=1
 
 doPhotonIdEffSyst=1
 doPhotonIdEffSmear=1
@@ -78,3 +78,4 @@ smearing_sigma_error_EBHighR9=0.23e-2
 smearing_sigma_error_EBLowR9=0.42e-2
 smearing_sigma_error_EEHighR9=0.51e-2
 smearing_sigma_error_EELowR9=0.38e-2
+

@@ -31,7 +31,7 @@ doEresolSmear=1
 doEresolSyst=1
 
 doEcorrectionSmear=1
-doEcorrectionSyst=0
+doEcorrectionSyst=1
 
 doPhotonIdEffSyst=1
 doPhotonIdEffSmear=1
