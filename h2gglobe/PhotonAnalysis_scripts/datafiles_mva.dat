@@ -88,17 +88,18 @@ typ=-16 ind=23 draw=1  Nam=wz_H_gg_105_pu2011     Dir=/vols/cms02/h2g/ntuples/h2
 typ=-15 ind=24 draw=1  Nam=tt_H_gg_105_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/TTH_HToGG_M-105      red=0 lum=1000.000000  xsec=0.000255074 kfac=1.000000  scal=1.000000
 
 
-typ=+1    ind=11 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_ff tot=6094670   red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
-typ=+1    ind=12 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_pf tot=6094670   red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
-typ=+1    ind=13 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_pp tot=6094670   red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
+typ=+1    ind=11 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_ff    red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
+typ=+1    ind=12 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_pf    red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
 
-typ=+3 ind=17 draw=1  Nam=GJet Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/GJet_Pt-20_doubleEMEnriched_TuneZ2_ff tot=1182075 red=0 lum=1.e10 xsec=493.44 kfac=1.  scal=1.
+typ=+2    ind=13 draw=1  Nam=QCD40 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S3_START42_V11/QCD_Pt-40_doubleEMEnriched_TuneZ2_ff    red=0   lum=1.e10 xsec=40392.   kfac=1.  scal=1.
+typ=+2    ind=14 draw=1  Nam=QCD40 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S3_START42_V11/QCD_Pt-40_doubleEMEnriched_TuneZ2_pf    red=0   lum=1.e10 xsec=40392.   kfac=1.  scal=1.
+
 typ=+3 ind=18 draw=1  Nam=GJet Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/GJet_Pt-20_doubleEMEnriched_TuneZ2_pf tot=1182075 red=0 lum=1.e10 xsec=493.44 kfac=1.  scal=1.
-typ=+3 ind=19 draw=1  Nam=GJet Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/GJet_Pt-20_doubleEMEnriched_TuneZ2_pp tot=1182075 red=0 lum=1.e10 xsec=493.44 kfac=1.  scal=1.
 
-typ=+7 ind=22 draw=1  Nam=Box25 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/DiPhotonBox_Pt-25To250 tot=518288   red=0   lum=1.e10   xsec=12.37   kfac=1.  scal=1.
-typ=+10 ind=23 draw=1  Nam=DiPhotonJets Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/DiPhotonJets tot=1150800   red=0   lum=1.e10  xsec=154.7   kfac=1.  scal=1.
+typ=+5 ind=22 draw=1  Nam=Box25 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/DiPhotonBox_Pt-25To250    red=0   lum=1.e10   xsec=12.37   kfac=1.  scal=1.
+typ=+4 ind=23 draw=1  Nam=DiPhotonJets Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/DiPhotonJets    red=0   lum=1.e10  xsec=154.7   kfac=1.  scal=1.
 
+typ=+6    ind=24 draw=1  Nam=DYJetsToLL  Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/DYJetsToLL_TuneZ2_M-50    red=0   lum=1.e10  xsec=2321.   kfac=1.  scal=1.
 
 ->
 Branches to use
