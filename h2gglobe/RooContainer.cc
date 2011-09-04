@@ -25,19 +25,21 @@ void RooContainer::AddNormalisationSystematics(std::string name,std::vector<std:
   	std::vector<std::pair<double,double> > sys;
   	if (type ==-1){ // Signal Systematics
 		for (int cat=0;cat<ncat;cat++){	
-			double value = 1.+(vals[cat].second)/vals[cat].first;
+			double value = 1.+(vals[cat].second/vals[cat].first);
 			std::cout << "In RooContainer -- " << value << std::endl;
+			std::cout << "In RooContainer values -- " << vals[cat].first << " " << vals[cat].second <<std::endl;
 			sys.push_back(std::pair<double,double> (value,1.0));
 		}
     	} else if (type ==1){ // Background Systematics
 		for (int cat=0;cat<ncat;cat++){	
-			double value = 1.+(vals[cat].second)/vals[cat].first;
+			double value = 1.+(vals[cat].second/vals[cat].first);
 			std::cout << "In RooContainer -- " << value << std::endl;
+			std::cout << "In RooContainer values -- " << vals[cat].first << " " << vals[cat].second <<std::endl;
 			sys.push_back(std::pair<double,double> (1.0,value));
 		}
     	} else if (type ==0){ // Both
 		for (int cat=0;cat<ncat;cat++){	
-			double value = 1.+(vals[cat].second)/vals[cat].first;
+			double value = 1.+(vals[cat].second/vals[cat].first);
 			sys.push_back(std::pair<double,double> (value,value));
 		}
     	} else std::cerr << "WARNING! -- RooContainer::AddNormalisationsSystematics -- type not understood " 
@@ -1591,6 +1593,7 @@ void RooContainer::createDataSet(std::string name,std::string data_name,int nbin
       number_of_bins = nbins;
       
       TH1F tmp_hist(Form("th1f_%s",data_name.c_str()),name.c_str(),number_of_bins,r1,r2);
+      tmp_hist.Sumw2();
       tmp_hist.GetYaxis()->SetTitle(Form("Events / (%.3f)",tmp_hist.GetBinWidth(1)));
       m_th1f_[data_name] = tmp_hist;
 
@@ -1681,6 +1684,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 	for (std::vector<RooRealVar*>::iterator it_comp_norm = m_comp_pdf_norm_[name_func].begin();it_comp_norm != m_comp_pdf_norm_[name_func].end();it_comp_norm++)
 	  {
 		(*it_comp_norm)->setVal(nEntries/sumComp);
+		(*it_comp_norm)->setError(TMath::Sqrt((*it_comp_norm)->getVal()));
 	  }
 	
         mode = 2;
@@ -1720,7 +1724,9 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
           real_var->setRange("rnge1",x1,x2);
           real_var->setRange("rnge2",x3,x4);
           fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),"rq");
-	  m_real_var_[name_func].setVal((it_data->second).sumEntries(0,"rnge1") + (it_data->second).sumEntries(0,"rnge2"));
+	  double newNorm =(it_data->second).sumEntries(0,"rnge1") + (it_data->second).sumEntries(0,"rnge2");
+	  m_real_var_[name_func].setVal(newNorm);
+	  m_real_var_[name_func].setError(TMath::Sqrt(newNorm));
           mode = 2;
         }
        }

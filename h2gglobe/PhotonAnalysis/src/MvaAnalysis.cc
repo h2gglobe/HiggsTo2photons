@@ -67,16 +67,21 @@ void MvaAnalysis::Term(LoopAll& l)
             sideband_boundaries[1] = mass_hypothesis*(1-signalRegionWidth);
             sideband_boundaries[2] = mass_hypothesis*(1+signalRegionWidth);
             sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
-            
-            // Fit Inv Mass spectra
-            l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],165);
 
+            // Fit Inv Mass spectra
+	    if (mass_hypothesis != 115)
+              l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
+	    else 
+              l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
+	    
+        //    l.rooContainer->FitToData("data_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
+            //l.rooContainer->FitToData("data_model"+names[i], "data_mass"+names[i],95,185);
             // Integrate fit to spectra to obtain normalisations
             std::vector<std::pair<double,double> > N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_pol_model"+names[i],
                                         "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
             
 	    cout << "The VEctor in the MvaAnalysis - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
-            l.rooContainer->AddNormalisationSystematics("bkg_norm",N_sig, 1);
+            l.rooContainer->AddNormalisationSystematics("bkg_norm"+names[i],N_sig, 1);
 
             // Calculate weights to apply to the sidebands
             std::vector<double> wt_low;
@@ -99,6 +104,19 @@ void MvaAnalysis::Term(LoopAll& l)
 //               l.rooContainer->SumBinnedDatasets("data_BDT_alt_sideband_grad"+names[i],"data_BDT_grad_105",
 //                                                  "data_BDT_grad_140", wt_low, wt_high, scale);
 //            }
+	    std::vector <std::vector<double> > optimizedGradBins;
+	    if (mass_hypothesis >=130) optimizedGradBins =  l.rooContainer->OptimizedBinning("data_BDT_sideband_grad"+names[i],15,true);
+	    else optimizedGradBins =  l.rooContainer->OptimizedBinning("data_BDT_sideband_grad"+names[i],15,true);
+
+	    l.rooContainer->RebinBinnedDataset("bkg_grad"+names[i],"data_BDT_sideband_grad"+names[i],optimizedGradBins,false);
+	    l.rooContainer->RebinBinnedDataset("data_grad"+names[i],"data_BDT_grad"+names[i],optimizedGradBins,false);
+	    l.rooContainer->RebinBinnedDataset("sig_grad"+names[i],"sig_BDT_grad"+names[i],optimizedGradBins,true);
+
+	    std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->OptimizedBinning("data_BDT_sideband_ada"+names[i],20,false);
+	    l.rooContainer->RebinBinnedDataset("bkg_ada"+names[i],"data_BDT_sideband_ada"+names[i],optimizedAdaBins,false);
+	    l.rooContainer->RebinBinnedDataset("data_ada"+names[i],"data_BDT_ada"+names[i],optimizedAdaBins,false);
+	    l.rooContainer->RebinBinnedDataset("sig_ada"+names[i],"sig_BDT_ada"+names[i],optimizedAdaBins,true);
+
             l.rooContainer->WriteDataCard((std::string) l.histFileName+"_ada"+names[i],"data_BDT_ada"+names[i],"sig_BDT_ada"+names[i],"data_BDT_sideband_ada"+names[i]);
             l.rooContainer->WriteDataCard((std::string) l.histFileName+"_grad"+names[i],"data_BDT_grad"+names[i],"sig_BDT_grad"+names[i],"data_BDT_sideband_grad"+names[i]);
         }
@@ -417,7 +435,7 @@ void MvaAnalysis::Init(LoopAll& l)
     mass_boundaries[0] = mass_low*(1-signalRegionWidth);
     mass_boundaries[1] = mass_high*(1+signalRegionWidth);
 
-    l.rooContainer->AddObservable("CMS_hgg_mass",95,165);
+    l.rooContainer->AddObservable("CMS_hgg_mass",95,185);
 
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
 
@@ -438,6 +456,7 @@ void MvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("ff_XSBR_140",0.005656604+0.003241793);
 
     l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
     //l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
     //l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
     //l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
@@ -447,6 +466,14 @@ void MvaAnalysis::Init(LoopAll& l)
         std::vector<std::string> data_pol_pars(1,"p");	 
         data_pol_pars[0] = "pol0";
         l.rooContainer->AddGenericPdf("data_pol_model"+names[i], "0","CMS_hgg_mass",data_pol_pars,1);	
+ //       std::vector<std::string> data_pol1_pars(1,"p");	 
+ //       data_pol1_pars[0] = "pol1";
+//        l.rooContainer->AddGenericPdf("data_pol1_model"+names[i], "0","CMS_hgg_mass",data_pol1_pars,1,0.2,0.,0.99);
+
+//	std::vector<std::string> components_data(2,"c");
+//	components_data[0]="data_pol_model"+names[i];	
+//	components_data[1]="data_pol1_model"+names[i];	
+//	l.rooContainer->ComposePdf("data_model"+names[i],"pol1+pol2",components_data,false);
     }
         
     // -----------------------------------------------------
@@ -564,27 +591,28 @@ void MvaAnalysis::Init(LoopAll& l)
 
         for (int i = 2; i<nMasses;i++){  // We are ignoring masses 105 and 110 for now
             if (i==8) continue;//Not available yet
+	    int nBDTbins = 150;
             //Adaptive Boost
-            l.rooContainer->CreateDataSet("BDT","data_low_BDT_ada"+names[i]  ,60);
-            l.rooContainer->CreateDataSet("BDT","data_BDT_ada"+names[i]	     ,60);
-            l.rooContainer->CreateDataSet("BDT","data_high_BDT_ada"+names[i] ,60);
+            l.rooContainer->CreateDataSet("BDT","data_low_BDT_ada"+names[i]  ,nBDTbins);
+            l.rooContainer->CreateDataSet("BDT","data_BDT_ada"+names[i]	     ,nBDTbins);
+            l.rooContainer->CreateDataSet("BDT","data_high_BDT_ada"+names[i] ,nBDTbins);
 
-            l.rooContainer->CreateDataSet("BDT","bkg_low_BDT_ada"+names[i]   ,60);
-            l.rooContainer->CreateDataSet("BDT","bkg_BDT_ada"+names[i]       ,60);
-            l.rooContainer->CreateDataSet("BDT","bkg_high_BDT_ada"+names[i]  ,60);
+            l.rooContainer->CreateDataSet("BDT","bkg_low_BDT_ada"+names[i]   ,nBDTbins);
+            l.rooContainer->CreateDataSet("BDT","bkg_BDT_ada"+names[i]       ,nBDTbins);
+            l.rooContainer->CreateDataSet("BDT","bkg_high_BDT_ada"+names[i]  ,nBDTbins);
 
-            l.rooContainer->CreateDataSet("BDT","sig_BDT_ada"+names[i]       ,60);    
+            l.rooContainer->CreateDataSet("BDT","sig_BDT_ada"+names[i]       ,nBDTbins);    
 
             //Gradiant Boost
-            l.rooContainer->CreateDataSet("BDT","data_low_BDT_grad"+names[i] ,60);
-            l.rooContainer->CreateDataSet("BDT","data_BDT_grad"+names[i]     ,60);
-            l.rooContainer->CreateDataSet("BDT","data_high_BDT_grad"+names[i],60);
+            l.rooContainer->CreateDataSet("BDT","data_low_BDT_grad"+names[i] ,nBDTbins);
+            l.rooContainer->CreateDataSet("BDT","data_BDT_grad"+names[i]     ,nBDTbins);
+            l.rooContainer->CreateDataSet("BDT","data_high_BDT_grad"+names[i],nBDTbins);
 
-            l.rooContainer->CreateDataSet("BDT","bkg_low_BDT_grad"+names[i]  ,60);
-            l.rooContainer->CreateDataSet("BDT","bkg_BDT_grad"+names[i]      ,60);
-            l.rooContainer->CreateDataSet("BDT","bkg_high_BDT_grad"+names[i] ,60);
+            l.rooContainer->CreateDataSet("BDT","bkg_low_BDT_grad"+names[i]  ,nBDTbins);
+            l.rooContainer->CreateDataSet("BDT","bkg_BDT_grad"+names[i]      ,nBDTbins);
+            l.rooContainer->CreateDataSet("BDT","bkg_high_BDT_grad"+names[i] ,nBDTbins);
 
-            l.rooContainer->CreateDataSet("BDT","sig_BDT_grad"+names[i]      ,60);    
+            l.rooContainer->CreateDataSet("BDT","sig_BDT_grad"+names[i]      ,nBDTbins);    
 
             //Invariant Mass Spectra
             l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass"+names[i],nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
