@@ -1369,6 +1369,106 @@ void RooContainer::convolutePdf(std::string name, std::string f_pdf, std::string
 }
 */
 // ----------------------------------------------------------------------------------------------------
+std::vector<std::vector<double> > RooContainer::OptimizedBinning(std::string datasetname, int nTargetBins,bool revise_target){
+
+	std::vector<std::vector<double> > return_bins;
+	for (int cat=0;cat<ncat;cat++){
+	   std::map<std::string,TH1F>::iterator it_th=m_th1f_.find(getcatName(datasetname,cat));
+	   if (it_th!=m_th1f_.end()){
+		return_bins.push_back(optimizedBinning(&(it_th->second),nTargetBins,revise_target));
+
+	   } else {
+		std::cerr << "WARNING ! -- RooContainer::OptimizedBinning -- No such binned dataset as " << datasetname << std::endl;
+	   }
+	}
+
+	return return_bins;
+
+}
+// ----------------------------------------------------------------------------------------------------
+std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool revise_target){
+	// Return a set of bins which are "smoother" 
+
+	int nBins = hb->GetNbinsX();
+	std::vector<double> binEdges;
+	binEdges.push_back(hb->GetBinLowEdge(1));
+
+	double targetNumbers = hb->Integral()/nTargetBins;
+	int i=1;
+	while (i<=nBins){
+		targetNumbers = hb->Integral(i,nBins)/nTargetBins;
+		std::cout << i <<std::endl;
+		double sumBin=hb->GetBinContent(i);
+		double highEdge=hb->GetBinLowEdge(i+1);
+
+		bool carryOn = sumBin <= targetNumbers;
+		while ( carryOn){
+			if (i<nBins){
+			  sumBin+=hb->GetBinContent(i+1);
+			  highEdge = hb->GetBinLowEdge(i+1);
+			  carryOn =(sumBin <targetNumbers && i<=nBins);
+			  i++;
+			} else {
+			  highEdge = hb->GetBinLowEdge(i+1);
+			  carryOn=false;
+			}
+		}
+	        binEdges.push_back(highEdge);
+		i++;
+	}
+	return binEdges;
+
+}
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::RebinBinnedDataset(std::string name,std::vector <std::vector<double> > catBinEdges, bool systematics){
+
+	for (int cat=0;cat<ncat;cat++){
+	  std::string catName = getcatName(name,cat);
+	  std::map<std::string,TH1F>::iterator it = m_th1f_.find(catName);
+	  if (it!=m_th1f_.end())
+		rebinBinnedDataset(catName,&(it->second),catBinEdges[cat]);
+	  else {
+		std::cerr << "WARNING -- RooContainer::RebinBinnedDataset -- No Such Binned Dataset as "
+			  << getcatName(name,cat);
+	  }
+
+	  if (systematics){
+		for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){ 
+		  for (int sys=1;sys<=nsigmas;sys++){
+		     std::string sysDName = getsysindexName(catName,it_sys->first,sys,-1);
+		     std::string sysUName = getsysindexName(catName,it_sys->first,sys,1);
+		     std::map<std::string,TH1F>::iterator itD = m_th1f_.find(sysDName);
+		     std::map<std::string,TH1F>::iterator itU = m_th1f_.find(sysUName);
+		     if (itD!=m_th1f_.end()) {
+			rebinBinnedDataset(sysDName,&(itD->second),catBinEdges[cat]);
+			rebinBinnedDataset(sysUName,&(itU->second),catBinEdges[cat]);
+		     }	
+		  }
+	        }
+	  }
+
+	}
+}
+// ----------------------------------------------------------------------------------------------------
+
+void RooContainer::rebinBinnedDataset(std::string name, TH1F *hb,std::vector<double> binEdges){
+
+	double *arrBins = new double[binEdges.size()];
+	int j=0;
+	for (std::vector<double>::iterator it=binEdges.begin();it!=binEdges.end();it++){
+		cout << *it << endl;
+		arrBins[j]=*it;
+		j++;
+		
+	}
+	//const char *h_name = (const char *) hb->GetName;
+	//const char *title  = (const char *) hb->GetTitle;
+	
+	TH1F *hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,hb->GetName(),arrBins);
+	m_th1f_[name]=*hbnew;
+	
+}
+// ----------------------------------------------------------------------------------------------------
 void RooContainer::composePdf(std::string name, std::string  composition
 			     ,std::vector<std::string> & formula,bool use_extended){
 
@@ -1523,6 +1623,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
     }
 
     RooFitResult *fit_result = new RooFitResult;
+    RooAbsPdf *pdf_ptr;
     // Look in the composed pdf before checking the standards
     std::map<std::string ,RooAddPdf>::iterator it_pdf = m_pdf_.find(name_func);
     std::map<std::string ,RooExtendPdf>::iterator it_exp = m_exp_.find(name_func);
@@ -1536,7 +1637,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 
     if (it_pdf != m_pdf_.end()){
       use_composed_pdf = true;
-
+      pdf_ptr = &(it_pdf->second);
      if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){ // Full Range Fit
         real_var->setRange("rnge",x_min,x_max);
         fit_result = (it_pdf->second).fitTo(it_data->second,Range("rnge"),RooFit::Extended(true),RooFit::Save(true));
@@ -1586,6 +1687,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 
     else {
       if (it_exp != m_exp_.end()){
+      pdf_ptr = &(it_exp->second);
        if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){
         real_var->setRange("rnge",x_min,x_max);
         fit_result = (it_exp->second).fitTo(it_data->second,Range("rnge"),RooFit::Save(true),RooFit::Extended(true),"r");
@@ -1623,6 +1725,15 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
       else
 	std::cerr << "WARNING -- RooContainer::FitToData -- No Pdf Found Named "
 	 	  << name_func << std::endl;
+    }
+
+    // keep hold of outer range from latest fit
+    if (mode==0 or mode==1){
+  	RooAbsReal* integral = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge"));
+      	latestFitRangeIntegral_[name_func] = integral->getVal();
+    } else {
+  	RooAbsReal* integral = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge1","rnge2"));
+      	latestFitRangeIntegral_[name_func] = integral->getVal();
     }
 
     RooPlot *xframe = (*real_var).frame(x_min,x_max);
@@ -1879,27 +1990,25 @@ std::pair<double,double> RooContainer::getNormalisationAndErrorFromFit(std::stri
     normalisation = m_real_var_[pdf_name].getVal();
   }
 
-  std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name <<std::endl;
+  // find integral over latest fit range, then we know N*pdf()
+  double K = normalisation/latestFitRangeIntegral_[pdf_name];
+
+  std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name << " in range " << r1 << " -> " << r2 <<std::endl;
   obs->setRange("rngeNorm",r1,r2);
-  pdf_ptr->forceNumInt(true);
+//  pdf_ptr->forceNumInt(true);
   RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
+//  RooAbsReal* integralFull = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
+
   double integralValue = integral->getVal();
-  double normError = TMath::Sqrt(normalisation);
   double integralError = integral->getPropagatedError(*fit_results_[pdf_name]);
 
-  double result = 0;
-  if (!external_range) {
-	 result = normalisation*integralValue;
-  }
-  else{
-	 result = normalisation*integralValue/(1-integralValue);	
-	 integralError *= 1./((1-integralValue)*(1-integralValue));
-  }
+  double result    = K*integralValue;
+  double fullError = K*integralError;
 
-  double fullError = result*TMath::Sqrt((normError*normError)/(normalisation*normalisation) + (integralError*integralError)/(integralValue*integralValue));
+  std::cout << "	Integral Normalisation in Fitted region  - " << latestFitRangeIntegral_[pdf_name]<< std::endl;
   std::cout << "	Pdf Integral and Error From Latest Fit - " << integralValue << "+/-" << integralError << std::endl;
   std::cout << "	Normalisation and Error - " << result << "+/-" << fullError << std::endl;
-  pdf_ptr->forceNumInt(false);
+//  pdf_ptr->forceNumInt(false);
   return std::pair<double,double>(result,fullError);
 }
 
@@ -1918,20 +2027,18 @@ double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hi
     normalisation = m_real_var_[pdf_name].getVal();
   }
 
-  std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name <<std::endl;
-  obs->setRange("rngeNorm",r1,r2);
-  pdf_ptr->forceNumInt(true);
-  RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
-  pdf_ptr->forceNumInt(false);
-  double integralValue = integral->getVal();
+  double K = normalisation/latestFitRangeIntegral_[pdf_name];
 
-  double result = 0;
-  if (!external_range) {
-	 result = normalisation*integralValue;
-  }
-  else{
-	 result = normalisation*integralValue/(1-integralValue);	
-  }
+  std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name << " in range " << r1 << " -> " << r2 <<std::endl;
+  obs->setRange("rngeNorm",r1,r2);
+//  pdf_ptr->forceNumInt(true);
+  RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
+//  RooAbsReal* integralFull = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
+
+  double integralValue = integral->getVal();
+  double result    = K*integralValue;
+
+//  pdf_ptr->forceNumInt(false);
   return result;
 }
 // ----------------------------------------------------------------------------------------------------

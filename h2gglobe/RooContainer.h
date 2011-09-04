@@ -8,6 +8,7 @@
 #include "TLatex.h"
 #include "TH1F.h"
 #include "TAxis.h"
+#include "TString.h"
 #include "TMath.h"
 #include "TMatrixDSym.h"
 #include "TMatrixD.h"
@@ -97,6 +98,8 @@ class RooContainer {
    void InputSystematicSet(std::string s_name, std::string sys_name, std::vector<int> cats
 			   ,std::vector<double> x, std::vector<double> weights=std::vector<double>(0));
 
+   void RebinBinnedDataset(std::string,std::vector <std::vector<double> >, bool);
+   std::vector<std::vector<double> >OptimizedBinning(std::string,int,bool);
    void WriteDataCard(std::string,std::string,std::string,std::string);
    void WriteSpecificCategoryDataCards(std::string,std::string,std::string,std::string);
    void GenerateBinnedPdf(std::string,std::string,std::string,int,int,int,double x1=-999,double x2=-999);
@@ -146,6 +149,8 @@ class RooContainer {
    void writeSpecificCategoryDataCard(int,std::string,std::string,std::string,std::string);
    void removeDuplicateElements(std::vector<RooAbsPdf*> &);
    void setAllParametersConstant();
+   void rebinBinnedDataset(std::string,TH1F *,std::vector<double>);
+   std::vector<double> optimizedBinning(TH1F *,int,bool);
 
    double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
    std::pair<double,double> getNormalisationAndErrorFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
@@ -192,6 +197,7 @@ class RooContainer {
    std::map<std::string,double> inits_;
    std::map<RooPlot*,double> fit_res_;
    std::map<std::string,RooFitResult*> fit_results_;
+   std::map<std::string,double > latestFitRangeIntegral_;
 
    RooWorkspace ws;   
    
