@@ -1396,8 +1396,7 @@ std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool
 	double targetNumbers = hb->Integral()/nTargetBins;
 	int i=1;
 	while (i<=nBins){
-		targetNumbers = hb->Integral(i,nBins)/nTargetBins;
-		std::cout << i <<std::endl;
+		if (revise_target) targetNumbers = hb->Integral(i,nBins)/nTargetBins;
 		double sumBin=hb->GetBinContent(i);
 		double highEdge=hb->GetBinLowEdge(i+1);
 
@@ -1420,13 +1419,14 @@ std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool
 
 }
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::RebinBinnedDataset(std::string name,std::vector <std::vector<double> > catBinEdges, bool systematics){
+void RooContainer::RebinBinnedDataset(std::string new_name,std::string name,std::vector <std::vector<double> > catBinEdges, bool systematics){
 
 	for (int cat=0;cat<ncat;cat++){
 	  std::string catName = getcatName(name,cat);
+	  std::string catNewName = getcatName(new_name,cat);
 	  std::map<std::string,TH1F>::iterator it = m_th1f_.find(catName);
 	  if (it!=m_th1f_.end())
-		rebinBinnedDataset(catName,&(it->second),catBinEdges[cat]);
+		rebinBinnedDataset(catNewName,catName,&(it->second),catBinEdges[cat]);
 	  else {
 		std::cerr << "WARNING -- RooContainer::RebinBinnedDataset -- No Such Binned Dataset as "
 			  << getcatName(name,cat);
@@ -1437,11 +1437,13 @@ void RooContainer::RebinBinnedDataset(std::string name,std::vector <std::vector<
 		  for (int sys=1;sys<=nsigmas;sys++){
 		     std::string sysDName = getsysindexName(catName,it_sys->first,sys,-1);
 		     std::string sysUName = getsysindexName(catName,it_sys->first,sys,1);
+		     std::string sysDNewName = getsysindexName(catNewName,it_sys->first,sys,-1);
+		     std::string sysUNewName = getsysindexName(catNewName,it_sys->first,sys,1);
 		     std::map<std::string,TH1F>::iterator itD = m_th1f_.find(sysDName);
 		     std::map<std::string,TH1F>::iterator itU = m_th1f_.find(sysUName);
 		     if (itD!=m_th1f_.end()) {
-			rebinBinnedDataset(sysDName,&(itD->second),catBinEdges[cat]);
-			rebinBinnedDataset(sysUName,&(itU->second),catBinEdges[cat]);
+			rebinBinnedDataset(sysDNewName,sysDName,&(itD->second),catBinEdges[cat]);
+			rebinBinnedDataset(sysUNewName,sysUName,&(itU->second),catBinEdges[cat]);
 		     }	
 		  }
 	        }
@@ -1451,12 +1453,11 @@ void RooContainer::RebinBinnedDataset(std::string name,std::vector <std::vector<
 }
 // ----------------------------------------------------------------------------------------------------
 
-void RooContainer::rebinBinnedDataset(std::string name, TH1F *hb,std::vector<double> binEdges){
+void RooContainer::rebinBinnedDataset(std::string new_name,std::string name, TH1F *hb,std::vector<double> binEdges){
 
 	double *arrBins = new double[binEdges.size()];
 	int j=0;
 	for (std::vector<double>::iterator it=binEdges.begin();it!=binEdges.end();it++){
-		cout << *it << endl;
 		arrBins[j]=*it;
 		j++;
 		
@@ -1465,7 +1466,9 @@ void RooContainer::rebinBinnedDataset(std::string name, TH1F *hb,std::vector<dou
 	//const char *title  = (const char *) hb->GetTitle;
 	
 	TH1F *hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,hb->GetName(),arrBins);
-	m_th1f_[name]=*hbnew;
+	hbnew->SetName(Form("th1f_%s",new_name.c_str()));
+	hbnew->SetTitle(hb->GetTitle());
+	m_th1f_[new_name]=*hbnew;
 	
 }
 // ----------------------------------------------------------------------------------------------------
@@ -1732,8 +1735,9 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
   	RooAbsReal* integral = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge"));
       	latestFitRangeIntegral_[name_func] = integral->getVal();
     } else {
-  	RooAbsReal* integral = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge1","rnge2"));
-      	latestFitRangeIntegral_[name_func] = integral->getVal();
+  	RooAbsReal* integral1 = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge1"));
+  	RooAbsReal* integral2 = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge2"));
+      	latestFitRangeIntegral_[name_func] = integral1->getVal()+integral2->getVal();
     }
 
     RooPlot *xframe = (*real_var).frame(x_min,x_max);

@@ -98,7 +98,7 @@ class RooContainer {
    void InputSystematicSet(std::string s_name, std::string sys_name, std::vector<int> cats
 			   ,std::vector<double> x, std::vector<double> weights=std::vector<double>(0));
 
-   void RebinBinnedDataset(std::string,std::vector <std::vector<double> >, bool);
+   void RebinBinnedDataset(std::string,std::string,std::vector <std::vector<double> >, bool);
    std::vector<std::vector<double> >OptimizedBinning(std::string,int,bool);
    void WriteDataCard(std::string,std::string,std::string,std::string);
    void WriteSpecificCategoryDataCards(std::string,std::string,std::string,std::string);
@@ -149,7 +149,7 @@ class RooContainer {
    void writeSpecificCategoryDataCard(int,std::string,std::string,std::string,std::string);
    void removeDuplicateElements(std::vector<RooAbsPdf*> &);
    void setAllParametersConstant();
-   void rebinBinnedDataset(std::string,TH1F *,std::vector<double>);
+   void rebinBinnedDataset(std::string,std::string,TH1F *,std::vector<double>);
    std::vector<double> optimizedBinning(TH1F *,int,bool);
 
    double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
