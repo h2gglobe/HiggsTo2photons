@@ -560,7 +560,7 @@ void MvaAnalysis::Init(LoopAll& l)
  		tmvaReader_->AddVariable("pho2_ptOverM", &_pho2_ptOverM);
  	    tmvaReader_->AddVariable("deltaMOverM", &_deltaMOverM);
  	    //tmvaReader_->AddVariable("deltaMOverSigmaM", &_deltaMOverSigmaM);
- 		//tmvaReader_->AddVariable("sigmaMOverM", &_sigmaMOverM);
+ 		tmvaReader_->AddVariable("sigmaMOverM", &_sigmaMOverM);
 
         for (int i = 2; i<nMasses;i++){  // We are ignoring masses 105 and 110 for now
             if (i==8) continue;//Not available yet

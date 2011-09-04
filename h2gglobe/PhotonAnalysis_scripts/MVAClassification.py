@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# @(#)root/tmva $Id: MVAClassification.py,v 1.1.2.5 2011/09/01 20:26:14 mjarvis Exp $
+# @(#)root/tmva $Id: MVAClassification.py,v 1.1.2.6 2011/09/02 14:27:03 mjarvis Exp $
 # ------------------------------------------------------------------------------
 # based on TMVA Python script: TMVAClassification.py
 # ------------------------------------------------------------------------------
@@ -139,9 +139,9 @@ def main():
     factory.AddVariable( "pho2_eta","#eta^{sublead}", "", 'F' );
     factory.AddVariable( "pho1_ptOverM", "P_{T}^{lead} / M_{H}", "", 'F' );
     factory.AddVariable( "pho2_ptOverM", "P_{T}^{sublead} / M_{H}", "", 'F' );
-    #factory.AddVariable( "deltaMOverM","#DeltaM / M_{Hypth}.",  'F' )
-    factory.AddVariable( "deltaMOverSigmaM","#DeltaM / #sigma M",  'F' )
-    #factory.AddVariable( "sigmaMOverM","#sigmaM / M",  'F' )
+    factory.AddVariable( "deltaMOverM","#DeltaM / M_{Hypth}.",  'F' )
+    #factory.AddVariable( "deltaMOverSigmaM","#DeltaM / #sigma M",  'F' )
+    factory.AddVariable( "sigmaMOverM","#sigmaM / M",  'F' )
 
     #factory.AddVariable( "mgg","M_{gg}", "GeV", 'F' );
     #factory.AddVariable( "pho1_ptOverM","P_{T}^{lead}/M_{gg}", "", 'F' );
@@ -150,16 +150,12 @@ def main():
     #factory.AddVariable( "pho2_ptOverM","P_{T}^{sublead}/M_{gg}", "", 'F' );
     #factory.AddVariable( "pho2_r9","r9", "", 'F' );
 
-
-
     #factory.AddVariable( "cos_theta_star","cos(#theta)*", "", 'F' );
-
 
     #Composite variables
 
     # Read input data
-    #if gSystem.AccessPathName( infname ) != 0: gSystem.Exec( "wget
-#http://root.cern.ch/files/" + infname )
+    #if gSystem.AccessPathName( infname ) != 0: gSystem.Exec( "wget #http://root.cern.ch/files/" + infname )
         
     input = TFile.Open( infname )
 
@@ -199,13 +195,25 @@ def main():
     if "BDT" in mlist:
         factory.BookMethod( TMVA.Types.kBDT, "BDT_ada"+mass_str,"!H:!V:NTrees=500:nEventsMin=150:MaxDepth=4:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning")
         factory.BookMethod( TMVA.Types.kBDT, "BDT_grad"+mass_str,"!H:!V:NTrees=500:nEventsMin=150:MaxDepth=4:BoostType=Grad:Shrinkage=0.30:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning:UseBaggedGrad:GradBaggingFraction=0.6")
+    #tree_list = [128,256,512,1024]
+    #depth_list= [3,4,5,6,7,8]
+    #prune_list = ["NoPruning","CostComplexity"]
+    #for tree in tree_list:
+    #    for depth in depth_list:
+    #        for prune in prune_list:
+    #            factory.BookMethod( TMVA.Types.kBDT, "BDT_ada"+mass_str+"_"+str(tree)+"_"+str(depth)+"_"+prune,"!H:!V:NTrees="+str(tree)+":nEventsMin=150:MaxDepth="+str(depth)+":BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=-1:PruneMethod="+str(prune))
+    #            factory.BookMethod( TMVA.Types.kBDT, "BDT_grad"+mass_str+"_"+str(tree)+"_"+str(depth)+"_"+prune,"!H:!V:NTrees="+str(tree)+":nEventsMin=150:MaxDepth="+str(depth)+":BoostType=Grad:Shrinkage=0.30:SeparationType=GiniIndex:nCuts=20:PruneMethod="+str(prune)+":UseBaggedGrad:GradBaggingFraction=0.6")
+            
 
+
+    #   factory.BookMethod( TMVA.Types.kBDT, "BDT_ada7_50"+mass_str,"!H:!V:NTrees=50:nEventsMin=150:MaxDepth=7:BoostType=AdaBoo st:AdaBoostBeta=.5:SeparationType=GiniIndex:PruneMethod=CostComplexity:PruneStrength=-1") 
 
     # --------------------------------------------------------------------------------------------------
             
     # ---- Now you can tell the factory to train, test, and evaluate the MVAs. 
 
     # Train MVAs
+    #factory.OptimizeAllMethods()
     factory.TrainAllMethods()
     # Test MVAs
     factory.TestAllMethods()

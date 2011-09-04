@@ -14,7 +14,7 @@ nPtCategories=1
 doTriggerSelection=1
 reRunCiC=0
 
-doTraining=1
+doTraining=0
 
 ->
 Turn on-off all smearings 
@@ -57,7 +57,7 @@ kfacHist=/vols/cms02/h2g/aux/KFactors_AllScales.root
 efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v13.root
 puHist=/vols/cms02/h2g/aux/lp.json.weights.root
 puMap=pu_weights_map.dat
-mvaWeightsFolder=/vols/cms02/h2g/weights/
+mvaWeightsFolder=/vols/cms02/h2g/weights/wt_4Sept/
 ->
 run-dependent corrections are now taken from energy_scale_offsets.dat;
 GF, aug12: Escale shift taken from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/371.html
