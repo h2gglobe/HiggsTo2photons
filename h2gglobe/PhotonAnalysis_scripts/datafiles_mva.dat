@@ -31,7 +31,10 @@ typ=-54 ind=2 draw=1  Nam=vbf_H_gg_121_pu2011     Dir=/vols/cms02/h2g/ntuples/h2
 typ=-56 ind=4 draw=1  Nam=wz_H_gg_121_pu2011      Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/WH_ZH_HToGG_M-121    red=0 lum=1000.000000  xsec=0.002234914 kfac=1.000000  scal=1.000000
 typ=-55 ind=3 draw=1  Nam=tt_H_gg_121_pu2011      Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/TTH_HToGG_M-121      red=0 lum=1000.000000  xsec=0.0002151068 kfac=1.000000  scal=1.000000
 
+->
 typ=-49 ind=1 draw=1  Nam=gluglu_H_gg_150_pu2011  Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/GluGluToHToGG_M-150  red=0 lum=1000.000000  xsec=0.01428 kfac=1.000000  scal=1.000000
+->
+
 typ=-49 ind=1 draw=1  Nam=gluglu_H_gg_150_pu2011  Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/GluGluToHToGG_M-145  red=0 lum=1000.000000  xsec=0.01428 kfac=1.000000  scal=1.000000
 typ=-50 ind=2 draw=1  Nam=vbf_H_gg_150_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/VBF_HToGG_M-150      red=0 lum=1000.000000  xsec=0.001307912 kfac=1.000000  scal=1.000000
 typ=-52 ind=4 draw=1  Nam=wz_H_gg_150_pu2011      Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/WH_ZH_HToGG_M-150    red=0 lum=1000.000000  xsec=0.000641104 kfac=1.000000  scal=1.000000
@@ -87,6 +90,8 @@ typ=-14 ind=22 draw=1  Nam=vbf_H_gg_105_pu2011 	  Dir=/vols/cms02/h2g/ntuples/h2
 typ=-16 ind=23 draw=1  Nam=wz_H_gg_105_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/WH_ZH_HToGG_M-105    red=0 lum=1000.000000  xsec=0.002781962 kfac=1.000000  scal=1.000000
 typ=-15 ind=24 draw=1  Nam=tt_H_gg_105_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/TTH_HToGG_M-105      red=0 lum=1000.000000  xsec=0.000255074 kfac=1.000000  scal=1.000000
 
+->
+No need to run over background just yet
 
 typ=+1    ind=11 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_ff    red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
 typ=+1    ind=12 draw=1  Nam=QCD30 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S3_START42_V11/QCD_Pt-30to40_doubleEMEnriched_TuneZ2_pf    red=0   lum=1.e10 xsec=9614.   kfac=1.  scal=1.
@@ -100,7 +105,7 @@ typ=+5 ind=22 draw=1  Nam=Box25 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_redu
 typ=+4 ind=23 draw=1  Nam=DiPhotonJets Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/DiPhotonJets    red=0   lum=1.e10  xsec=154.7   kfac=1.  scal=1.
 
 typ=+6    ind=24 draw=1  Nam=DYJetsToLL  Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_00_reduction_08_09/Summer11-PU_S4_START42_V11/DYJetsToLL_TuneZ2_M-50    red=0   lum=1.e10  xsec=2321.   kfac=1.  scal=1.
-
+->
 ->
 Branches to use
 ->
