@@ -273,11 +273,10 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_seed_outoftimechi2",&pho_seed_outoftimechi2,"pho_seed_outoftimechi2[pho_n]/F");
   tree->Branch("pho_seed_chi2",&pho_seed_chi2,"pho_seed_chi2[pho_n]/F");
   tree->Branch("pho_seed_recoflag",&pho_seed_recoflag,"pho_seed_recoflag[pho_n]/F");
-  tree->Branch("pho_isconv", &pho_isconv, "pho_isconv[pho_n]/I");
 
+  tree->Branch("pho_isconv", &pho_isconv, "pho_isconv[pho_n]/I");
   tree->Branch("pho_residCorrEnergy", &pho_residCorrEnergy, "pho_residCorrEnergy[pho_n]/F");
   tree->Branch("pho_residCorrResn", &pho_residCorrResn, "pho_residCorrResn[pho_n]/F");
-
   tree->Branch("pho_id", &pho_id, "pho_id[pho_n]/I");
   
   pho_conv_vtx = new TClonesArray("TVector3", MAX_PHOTONS);

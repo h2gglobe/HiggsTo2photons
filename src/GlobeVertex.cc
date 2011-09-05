@@ -76,21 +76,13 @@ void GlobeVertex::defineBranch(TTree* tree) {
 
 bool GlobeVertex::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     
-  if (debug_level > 99)
-    std::cout << "GlobeVertex: start 1: "<< std::endl;
   
   edm::Handle<reco::VertexCollection> vtxH;
   iEvent.getByLabel(vertexColl, vtxH);
   
-  if (debug_level > 99)
-    std::cout << "GlobeVertex: start 2: "<< std::endl;
-  
   edm::Handle<reco::TrackCollection> tkH;
   iEvent.getByLabel(trackColl, tkH);
   
-  if (debug_level > 99)
-    std::cout << "GlobeVertex: start 3: "<< std::endl;
-
   edm::Handle<reco::BeamSpot> bsH;
   iEvent.getByLabel(bsColl,bsH);
 
@@ -113,7 +105,6 @@ bool GlobeVertex::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   bs_z0Error = bsH->z0Error();
   bs_sigmaZ0Error = bsH->sigmaZ0Error();
 
-
   if (debug_level > 9)
     std::cout << "GlobeVertex: Vertex collection size: "<< vtxH->size() << std::endl;
   
@@ -125,7 +116,7 @@ bool GlobeVertex::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     
     reco::VertexRef vtx(vtxH, i);
-    // Any cut on vertex?? gCUT ??  
+
     new((*vtx_xyz)[vtx_n]) TVector3();
     ((TVector3 *) vtx_xyz->At(vtx_n))->SetXYZ(vtx->x(), vtx->y(), vtx->z());
     
@@ -169,7 +160,7 @@ bool GlobeVertex::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           }
           index++;
         }
-        if( ! ismatched ) {
+        if(!ismatched) {
           temp.push_back(-9999);
           temp_float.push_back(-9999);
         }

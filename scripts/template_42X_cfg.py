@@ -9,12 +9,15 @@ flagSkimDiphoton = 'OFF'
 flagVLPreSelection = 'OFF'
 flagNoSkim = 'OFF'
 flagMMgSkim = 'OFF'
+flagSkimworz = 'OFF'
+flagSkim1El = 'OFF'
+
 
 #ADDITIONAL OPTIONS
 flagAOD = 'ON'
 jobMaker = 'jobmaker unknown'
 
-if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON') ^ (flagVLPreSelection is 'ON'))):
+if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON') ^ (flagVLPreSelection is 'ON') ^ (flagSkim1El is 'ON') ^ (flagSkimworz is 'ON'))):
   print "You must skim or not skim... these are your options"
   exit(-1)
 
@@ -116,8 +119,22 @@ process.dummySelector = cms.EDFilter("CandViewCountFilter",
                                      minNumber = cms.uint32(0)
                                      )
 
+process.goodElectronsOver5 = cms.EDFilter("GsfElectronSelector",
+                                          filter = cms.bool(True),
+                                          src = cms.InputTag("gsfElectrons"),
+                                          cut = cms.string('superCluster().rawEnergy()*sin((2*atan(exp(superCluster().eta())))) > 5.')
+                                          )
 
+process.superClusterMerger =  cms.EDProducer("EgammaSuperClusterMerger",
+                                             src = cms.VInputTag(cms.InputTag('correctedHybridSuperClusters'),
+                                                                 cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'))
+                                             )
 
+process.goodSCOver5 = cms.EDFilter("SuperClusterSelector",
+                                   filter = cms.bool(True),
+                                   src = cms.InputTag("superClusterMerger"),
+                                   cut = cms.string('rawEnergy()*sin((2*atan(exp(eta())))) > 5.')
+                                   )
 
 #process.goodEvents = cms.Sequence(process.noScraping * process.primaryVertexFilter)
 #process.pathToCheck = cms.Sequence(process.L10and34 *process.noScraping*process.primaryVertexFilter*process.HFCoincidence*process.L140or41)
@@ -137,10 +154,19 @@ elif flagNoSkim == 'ON':
 elif flagMMgSkim == 'ON':
   process.eventFilter1 = cms.Sequence(process.diMuonSelSeq*process.photonReReco)
   process.eventFilter2 = cms.Sequence(process.diMuonSelSeq*process.photonReReco)
+elif flagSkimworz == 'ON':
+  process.load('HiggsAnalysis.HiggsTo2photons.eidFilter_cfi')
+  process.load('HiggsAnalysis.HiggsTo2photons.invariantMassFilter_cfi')
+  process.eventFilter1 = cms.Sequence(process.goodElectronsOver5*process.superClusterMerger*process.goodSCOver5*process.invariantMassFilter*process.electronIdentificationFilter)
+  process.eventFilter2= cms.Sequence(process.goodElectronsOver5*process.superClusterMerger*process.goodSCOver5*process.invariantMassFilter*process.electronIdentificationFilter)
+elif flagSkim1El == 'ON':
+  process.eventFilter1 = cms.Sequence(process.goodElectronsOver5)
+  process.eventFilter2 = cms.Sequence(process.goodElectronsOver5)
 
 
 process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
 process.h2ganalyzer.Debug_Level = 0
+
 
 ##-------------------- Import the JEC services -----------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
@@ -150,7 +176,6 @@ process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(doRhoFastjet = True)
 process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 
-
 # event counters
 process.processedEvents = cms.EDProducer("EventCountProducer")
 process.eventCounters = cms.Sequence(process.processedEvents)
@@ -159,8 +184,8 @@ process.h2ganalyzer.globalCounters.extend(['processedEvents'])
 # PFIsolation photons
 process.load("HiggsAnalysis.HiggsTo2photons.pfIsolation_cff")
 
-
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
+
 if flagAOD is 'ON':
   process.p11 = cms.Path( process.eventCounters*process.eventFilter1*
                           process.pfBasedPhotonIsoSequence*
@@ -231,7 +256,6 @@ else:
   process.h2ganalyzer.BarrelBasicClusterColl = cms.InputTag("")
   process.h2ganalyzer.BarrelBasicClusterShapeColl = cms.InputTag("multi5x5BasicClusters","multi5x5BarrelShapeAssoc")
   process.h2ganalyzer.JetTrackAssociationColl_algo3 = cms.InputTag("kt4JetTracksAssociatorAtVertex")
-
 
 
 process.h2ganalyzer.doL1 = True

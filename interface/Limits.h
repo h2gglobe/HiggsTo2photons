@@ -1,7 +1,7 @@
 #ifndef LIMITS_H
 #define LIMITS_H
 
-#define H2G_VERSION 9
+#define H2G_VERSION 12
 
 #define MAX_PARAMETERS 500
 #define MAX_GENERATOR 10000
@@ -39,7 +39,7 @@
 #define MAX_HCALHITS 3500 
 
 #define MAX_L1 8 
-#define MAX_HLT 100
+#define MAX_HLT 200
 
 #define MAX_TRACKS 1500
 #define MAX_TKRECHITS 10000
