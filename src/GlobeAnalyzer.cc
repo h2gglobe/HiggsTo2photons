@@ -606,7 +606,17 @@ void GlobeAnalyzer::beginJob() {
 void GlobeAnalyzer::endJob() { 
 
   fillTree();
-  file->Write();
+  file->cd();
+  if (doPileup) {
+    TH1D* h = pileup->getHisto(); 
+    Int_t last_bin = h->GetNbinsX();
+    h->SetBinContent(last_bin-1, h->GetBinContent(last_bin)+h->GetBinContent(last_bin-1));
+    h->Write();  
+  }
+
+  tree->Write();
+  tree2->Write();
+
   file->Close();
 }
 
@@ -652,12 +662,6 @@ void GlobeAnalyzer::fillTree() {
   type = 0;
 
   tree2->Fill();
-  if (doPileup) {
-    TH1D* h = pileup->getHisto(); 
-    Int_t last_bin = h->GetNbinsX();
-    h->SetBinContent(last_bin-1, h->GetBinContent(last_bin)+h->GetBinContent(last_bin-1));
-    h->Write();  
-  }
 }
 
 DEFINE_FWK_MODULE(GlobeAnalyzer);
