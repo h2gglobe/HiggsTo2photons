@@ -51,7 +51,7 @@ Inputs for reweighing
 - phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
 - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 ->
-kfacHist=/vols/cms02/h2g/aux/KFactors_AllScales.root
+kfacHist=/vols/cms02/h2g/aux/KFactors_AllScales_interpolated.root
 efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v13.root
 puHist=/vols/cms02/h2g/aux/lp.json.weights.root
 puMap=pu_weights_map.dat
