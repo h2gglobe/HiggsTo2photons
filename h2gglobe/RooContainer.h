@@ -99,7 +99,7 @@ class RooContainer {
 			   ,std::vector<double> x, std::vector<double> weights=std::vector<double>(0));
 
    void RebinBinnedDataset(std::string,std::string,std::vector <std::vector<double> >, bool);
-   std::vector<std::vector<double> >OptimizedBinning(std::string,int,bool);
+   std::vector<std::vector<double> >OptimizedBinning(std::string,int,bool,bool use_n_entries=false);
    void WriteDataCard(std::string,std::string,std::string,std::string);
    void WriteSpecificCategoryDataCards(std::string,std::string,std::string,std::string);
    void GenerateBinnedPdf(std::string,std::string,std::string,int,int,int,double x1=-999,double x2=-999);
@@ -150,7 +150,7 @@ class RooContainer {
    void removeDuplicateElements(std::vector<RooAbsPdf*> &);
    void setAllParametersConstant();
    void rebinBinnedDataset(std::string,std::string,TH1F *,std::vector<double>);
-   std::vector<double> optimizedBinning(TH1F *,int,bool);
+   std::vector<double> optimizedBinning(TH1F *,int,bool,bool);
 
    double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
    std::pair<double,double> getNormalisationAndErrorFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
