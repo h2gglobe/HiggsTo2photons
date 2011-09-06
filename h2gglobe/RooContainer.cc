@@ -414,6 +414,8 @@ void RooContainer::Save(){
   for (std::map<std::string,RooDataSet>::iterator it_data = data_.begin()
       ;it_data!=data_.end();it_data++)	{
 
+
+//Leave This Out for Now! + put is back
 	ws.import(it_data->second);
   }
 
@@ -1371,13 +1373,13 @@ void RooContainer::convolutePdf(std::string name, std::string f_pdf, std::string
 }
 */
 // ----------------------------------------------------------------------------------------------------
-std::vector<std::vector<double> > RooContainer::OptimizedBinning(std::string datasetname, int nTargetBins,bool revise_target){
+std::vector<std::vector<double> > RooContainer::OptimizedBinning(std::string datasetname, int nTargetBins,bool revise_target,bool use_n_entries){
 
 	std::vector<std::vector<double> > return_bins;
 	for (int cat=0;cat<ncat;cat++){
 	   std::map<std::string,TH1F>::iterator it_th=m_th1f_.find(getcatName(datasetname,cat));
 	   if (it_th!=m_th1f_.end()){
-		return_bins.push_back(optimizedBinning(&(it_th->second),nTargetBins,revise_target));
+		return_bins.push_back(optimizedBinning(&(it_th->second),nTargetBins,revise_target,use_n_entries));
 
 	   } else {
 		std::cerr << "WARNING ! -- RooContainer::OptimizedBinning -- No such binned dataset as " << datasetname << std::endl;
@@ -1388,18 +1390,23 @@ std::vector<std::vector<double> > RooContainer::OptimizedBinning(std::string dat
 
 }
 // ----------------------------------------------------------------------------------------------------
-std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool revise_target){
+std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool revise_target, bool use_n_target){
 	// Return a set of bins which are "smoother" 
 
+	if (revise_target) use_n_target = false;  // geometric algo always use revised number of bins, not number of entries
 	int nBins = hb->GetNbinsX();
 	std::vector<double> binEdges;
 	binEdges.push_back(hb->GetBinLowEdge(1));
 
-	double targetNumbers = hb->Integral()/nTargetBins;
+	double targetNumbers;
+	if (use_n_target) targetNumbers = nTargetBins; 
+	else targetNumbers = hb->Integral()/nTargetBins;
+
+	double sumBin = 0;
 	int i=1;
 	while (i<=nBins){
 		if (revise_target) targetNumbers = hb->Integral(i,nBins)/nTargetBins;
-		double sumBin=hb->GetBinContent(i);
+		sumBin=hb->GetBinContent(i);
 		double highEdge=hb->GetBinLowEdge(i+1);
 
 		bool carryOn = sumBin <= targetNumbers;
@@ -1417,6 +1424,7 @@ std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool
 	        binEdges.push_back(highEdge);
 		i++;
 	}
+        if (sumBin < 10) binEdges.erase(binEdges.end()-2);
 	return binEdges;
 
 }
