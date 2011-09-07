@@ -231,6 +231,7 @@ void LoopAll::MergeContainers(){
 		rooContainer->AppendDataSet(*it_data,dataExtra);	
 	}
 
+	delete work;
 	std::cout << "Finished Combining File - " << (*it) << std::endl;
 
 	(*it_file)->Close();
