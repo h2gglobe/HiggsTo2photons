@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# @(#)root/tmva $Id: MVAClassification.py,v 1.1.2.6 2011/09/02 14:27:03 mjarvis Exp $
+# @(#)root/tmva $Id: MVAClassification.py,v 1.1.2.7 2011/09/04 16:32:58 mjarvis Exp $
 # ------------------------------------------------------------------------------
 # based on TMVA Python script: TMVAClassification.py
 # ------------------------------------------------------------------------------
