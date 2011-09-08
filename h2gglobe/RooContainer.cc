@@ -1402,6 +1402,14 @@ std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool
 	if (use_n_target) targetNumbers = nTargetBins; 
 	else targetNumbers = hb->Integral()/nTargetBins;
 
+	if (hb->Integral() < 2*targetNumbers){
+		std::cout << "RooContainer::OptimizedBinning -- Not enough entries in histogram for target numbers calculated - " 
+			  << targetNumbers 
+			  << ", Returning current bin boundaries "  << std::endl;
+		for (int j=2;j<=nBins+1;j++) binEdges.push_back(hb->GetBinLowEdge(j));
+		return binEdges;
+	}
+
 	double sumBin = 0;
 	int i=1;
 	while (i<=nBins){
@@ -1487,6 +1495,9 @@ void RooContainer::composePdf(std::string name, std::string  composition
 
     RooArgList roo_args;
     RooArgList roo_funs;
+    RooArgList normalisationTerms;
+    TString expression = "@0";
+
     std::vector <RooRealVar*> norms;
     double check_sum = 0.;
     int arg_count    = 1;
@@ -1502,6 +1513,9 @@ void RooContainer::composePdf(std::string name, std::string  composition
 	      roo_funs.add((*exp).second);
 	      roo_args.add(m_real_var_[(*it_fun)]);
               norms.push_back(&m_real_var_[(*it_fun)]);
+	      normalisationTerms.add(m_real_var_[(*it_fun)]);
+	      expression+=Form("+@%d",arg_count);
+	      arg_count++;
 	      std::cout << "RooContainer::ComposePdf -- Including Extended Pdf " 
 		        << *it_fun << std::endl;
 
@@ -1556,6 +1570,8 @@ void RooContainer::composePdf(std::string name, std::string  composition
       RooAddPdf temp(name.c_str(),composition.c_str(),roo_funs,roo_args);
       m_gen_.insert(std::pair<std::string,RooAbsPdf*>(name,&temp));
       m_pdf_.insert(pair<std::string,RooAddPdf>(name,temp));
+      RooFormulaVar tmpSum(Form("pdf_%s_norm",name.c_str()),name.c_str(),expression.Data(),normalisationTerms);
+      m_form_var_.insert(pair<std::string,RooFormulaVar >(name,tmpSum));
       m_comp_pdf_norm_[name] = norms;
     }
 
@@ -1996,32 +2012,36 @@ void RooContainer::setArgSetParameters(RooArgSet* params,std::vector<double> &va
 std::pair<double,double> RooContainer::getNormalisationAndErrorFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,bool multi_pdf,bool external_range){
 
   double normalisation = 0;
+  RooAbsReal* normalisationVar;
   if (multi_pdf){
 
-     std::map<std::string,std::vector<RooRealVar*> >::iterator it = m_comp_pdf_norm_.find(pdf_name);
+//     std::map<std::string,std::vector<RooRealVar*> >::iterator it = m_comp_pdf_norm_.find(pdf_name);
      // get the values which correspond to normalisations of each component pdf
-     for ( std::vector<RooRealVar*>::iterator it_r = (it->second).begin() ; it_r!=(it->second).end();it_r++){
-	normalisation += (*it_r)->getVal();
-     }
+//     for ( std::vector<RooRealVar*>::iterator it_r = (it->second).begin() ; it_r!=(it->second).end();it_r++){
+	
+	normalisationVar = &m_form_var_[pdf_name];
+ //   }
   }
   else{
-    normalisation = m_real_var_[pdf_name].getVal();
+    normalisationVar = &m_real_var_[pdf_name];
   }
 
-  // find integral over latest fit range, then we know N*pdf()
-  double K = normalisation/latestFitRangeIntegral_[pdf_name];
+  normalisation = normalisationVar->getVal();
+  // find integral over latest fit range, then we know N*pdf() modifier.
+  double K = 1.0/latestFitRangeIntegral_[pdf_name];
 
   std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name << " in range " << r1 << " -> " << r2 <<std::endl;
   obs->setRange("rngeNorm",r1,r2);
 //  pdf_ptr->forceNumInt(true);
   RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
 //  RooAbsReal* integralFull = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
+  RooFormulaVar normIntVar("normIntVar","normIntVar","@0*@1",RooArgSet(*normalisationVar,*integral));
 
   double integralValue = integral->getVal();
   double integralError = integral->getPropagatedError(*fit_results_[pdf_name]);
 
-  double result    = K*integralValue;
-  double fullError = K*integralError;
+  double result    = K*normIntVar.getVal();
+  double fullError = K*normIntVar.getPropagatedError(*fit_results_[pdf_name]);
 
   std::cout << "	Integral Normalisation in Fitted region  - " << latestFitRangeIntegral_[pdf_name]<< std::endl;
   std::cout << "	Pdf Integral and Error From Latest Fit - " << integralValue << "+/-" << integralError << std::endl;
