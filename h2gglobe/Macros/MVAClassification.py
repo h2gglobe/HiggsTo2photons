@@ -19,6 +19,13 @@ DEFAULT_TREESIG  = "sig"
 DEFAULT_TREEBKG  = "bkg"
 DEFAULT_METHODS  = "BDT"
 DEFAULT_MASS     = 120
+DEFAULT_TREES    = 128
+DEFAULT_DEPTH    = 4
+DEFAULT_PRUNE    = "NoPruning"
+DEFAULT_NODES    = 16
+#tree_list = [128,256]
+#depth_list= [4,8,16,32,64,128]
+#prune_list = ["NoPruning","CostComplexity"]
 
 # Print usage help
 def usage():
@@ -26,6 +33,10 @@ def usage():
     print "Usage: python %s [options]" % sys.argv[0]
     print "  -m | --methods    : gives methods to be run (default: '%s')" % DEFAULT_METHODS  
     print "  -M | --mass       : gives Higgs Mass to train (default: '%i')" % DEFAULT_MASS  
+    print "  -T | --trees      : gives number of trees to train (default: '%i')" % DEFAULT_TREES  
+    print "  -D | --depth      : gives max depth to trees (default: '%i')" % DEFAULT_DEPTH  
+    print "  -P | --pruning    : gives pruning method (default: '%i')" % DEFAULT_PRUNE  
+    print "  -N | --nodes       : gives max nodes (default: '%i')" % DEFAULT_NODES  
     print "  -i | --inputfile  : name of input ROOT file (default: '%s')" % DEFAULT_INFNAME
     print "  -o | --outputfile : name of output ROOT file containing results (default: '%s')" % DEFAULT_OUTFNAME
     print "  -t | --inputtrees : input ROOT Trees for signal and background (default: '%s %s')" % (DEFAULT_TREESIG, DEFAULT_TREEBKG)
@@ -39,8 +50,8 @@ def main():
 
     try:
         # retrive command line options
-        shortopts  = "m:M:i:t:o:vh?"
-        longopts   = ["methods=","mass=", "inputfile=", "inputtrees=", "outputfile=",
+        shortopts  = "m:M:T:D:P:N:i:t:o:vh?"
+        longopts   = ["methods=","mass=","trees=","depth=","pruning=","nodes=" "inputfile=", "inputtrees=", "outputfile=",
 "verbose", "help", "usage"]
         opts, args = getopt.getopt( sys.argv[1:], shortopts, longopts )
 
@@ -53,6 +64,10 @@ def main():
     infname     = DEFAULT_INFNAME
     methods     = DEFAULT_METHODS
     mass        = DEFAULT_MASS
+    tree        = DEFAULT_TREES
+    depth       = DEFAULT_DEPTH
+    prune       = DEFAULT_PRUNE
+    nodes       = DEFAULT_NODES
     outfname    = DEFAULT_OUTFNAME
     treeNameSig = DEFAULT_TREESIG
     treeNameBkg = DEFAULT_TREEBKG
@@ -65,6 +80,14 @@ def main():
             methods = a
         elif o in ("-M", "--mass"):
             mass = int(a)
+        elif o in ("-T", "--tree"):
+            tree = int(a)
+        elif o in ("-D", "--depth"):
+            depth = int(a)
+        elif o in ("-P", "--prune"):
+            prune = str(a)
+        elif o in ("-N", "--nodes"):
+            nodes = int(a)
         elif o in ("-i", "--inputfile"):
             infname = a
         elif o in ("-o", "--outputfile"):
@@ -84,7 +107,7 @@ def main():
             verbose = True
 
     mass_str    = "_"+str(mass)
-    outfname    = outfname + mass_str + ".root"
+    outfname    = outfname+mass_str+"_"+str(tree)+"_"+str(depth)+"_"+str(prune)+"_"+str(nodes)+".root"
     treeNameSig = treeNameSig + mass_str  
     treeNameBkg = treeNameBkg + mass_str  
 
@@ -192,17 +215,17 @@ def main():
     # ---- Book MVA methods
 
     # Boosted Decision Trees
-    if "BDT" in mlist:
-        factory.BookMethod( TMVA.Types.kBDT, "BDT_ada"+mass_str,"!H:!V:NTrees=500:nEventsMin=150:MaxDepth=4:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning")
-        factory.BookMethod( TMVA.Types.kBDT, "BDT_grad"+mass_str,"!H:!V:NTrees=500:nEventsMin=150:MaxDepth=4:BoostType=Grad:Shrinkage=0.30:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning:UseBaggedGrad:GradBaggingFraction=0.6")
-    #tree_list = [128,256,512,1024]
-    #depth_list= [3,4,5,6,7,8]
+    #if "BDT" in mlist:
+    #    factory.BookMethod( TMVA.Types.kBDT, "BDT_ada"+mass_str,"!H:!V:NTrees=512:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning")
+    #    factory.BookMethod( TMVA.Types.kBDT, "BDT_grad"+mass_str,"!H:!V:NTrees=128:nEventsMin=150:MaxDepth=6:BoostType=Grad:Shrinkage=0.30:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning:UseBaggedGrad:GradBaggingFraction=0.6")
+    #tree_list = [128,256]
+    #depth_list= [4,8,16,32,64,128]
     #prune_list = ["NoPruning","CostComplexity"]
     #for tree in tree_list:
     #    for depth in depth_list:
     #        for prune in prune_list:
     #            factory.BookMethod( TMVA.Types.kBDT, "BDT_ada"+mass_str+"_"+str(tree)+"_"+str(depth)+"_"+prune,"!H:!V:NTrees="+str(tree)+":nEventsMin=150:MaxDepth="+str(depth)+":BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=-1:PruneMethod="+str(prune))
-    #            factory.BookMethod( TMVA.Types.kBDT, "BDT_grad"+mass_str+"_"+str(tree)+"_"+str(depth)+"_"+prune,"!H:!V:NTrees="+str(tree)+":nEventsMin=150:MaxDepth="+str(depth)+":BoostType=Grad:Shrinkage=0.30:SeparationType=GiniIndex:nCuts=20:PruneMethod="+str(prune)+":UseBaggedGrad:GradBaggingFraction=0.6")
+    factory.BookMethod(TMVA.Types.kBDT,"BDT_grad"+mass_str+"_"+str(tree)+"_"+str(depth)+"_"+prune,"!H:!V:NTrees="+str(tree)+":nEventsMin=150:MaxDepth="+str(depth)+":BoostType=Grad:Shrinkage=0.30:SeparationType=GiniIndex:nCuts=200:PruneMethod="+str(prune)+":UseBaggedGrad:GradBaggingFraction=0.6:NNodesMax="+str(nodes))
             
 
 
