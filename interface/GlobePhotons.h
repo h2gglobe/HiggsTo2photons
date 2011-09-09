@@ -153,8 +153,8 @@ class GlobePhotons {
   Float_t pho_pfiso_photon04_noveto[MAX_PHOTONS];
   std::vector<std::vector<float> >* pho_pfiso_mycharged03;
   std::vector<std::vector<float> >* pho_pfiso_mycharged04;
-  std::vector<std::vector<float> >* pho_pfiso_mycharged03_noveto;
-  std::vector<std::vector<float> >* pho_pfiso_mycharged04_noveto;
+  //std::vector<std::vector<float> >* pho_pfiso_mycharged03_noveto;
+  //std::vector<std::vector<float> >* pho_pfiso_mycharged04_noveto;
 
   Float_t pho_ecalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcalsumetconedr04[MAX_PHOTONS];
