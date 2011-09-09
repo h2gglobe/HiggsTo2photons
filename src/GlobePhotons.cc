@@ -92,8 +92,8 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 
   pho_pfiso_mycharged03 = new std::vector<std::vector<float> >();
   pho_pfiso_mycharged04 = new std::vector<std::vector<float> >();
-  pho_pfiso_mycharged03_noveto = new std::vector<std::vector<float> >();
-  pho_pfiso_mycharged04_noveto = new std::vector<std::vector<float> >();
+  //pho_pfiso_mycharged03_noveto = new std::vector<std::vector<float> >();
+  //pho_pfiso_mycharged04_noveto = new std::vector<std::vector<float> >();
 
 }
 
@@ -192,8 +192,8 @@ void GlobePhotons::defineBranch(TTree* tree) {
 
   tree->Branch("pho_pfiso_mycharged03", "std::vector<std::vector<float> >", &pho_pfiso_mycharged03);
   tree->Branch("pho_pfiso_mycharged04", "std::vector<std::vector<float> >", &pho_pfiso_mycharged04);
-  tree->Branch("pho_pfiso_mycharged03_noveto", "std::vector<std::vector<float> >", &pho_pfiso_mycharged03_noveto);
-  tree->Branch("pho_pfiso_mycharged04_noveto", "std::vector<std::vector<float> >", &pho_pfiso_mycharged04_noveto);
+  //tree->Branch("pho_pfiso_mycharged03_noveto", "std::vector<std::vector<float> >", &pho_pfiso_mycharged03_noveto);
+  //tree->Branch("pho_pfiso_mycharged04_noveto", "std::vector<std::vector<float> >", &pho_pfiso_mycharged04_noveto);
 
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
@@ -412,8 +412,8 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   pho_conv_vertexcorrected_p4->Clear();
   pho_pfiso_mycharged03->clear();
   pho_pfiso_mycharged04->clear();
-  pho_pfiso_mycharged03_noveto->clear();
-  pho_pfiso_mycharged04_noveto->clear();
+  //pho_pfiso_mycharged03_noveto->clear();
+  //pho_pfiso_mycharged04_noveto->clear();
 
   pho_n = 0;
 
@@ -635,11 +635,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_pfiso_neutral04[pho_n] = (*isolationValues04[2])[pfCandidate];
       pho_pfiso_photon04_noveto[pho_n]  = (*isolationValues04[3])[pfCandidate];
       
+      //if (localPho->pt() < 25.) {
+      std::cout << "Pt: " << localPho->pt() << std::endl;
       pho_pfiso_mycharged03->push_back(pfTkIsoWithVertex(pfCandidate, pfCollection.product(), 0.3, 0.02)); 
       pho_pfiso_mycharged04->push_back(pfTkIsoWithVertex(pfCandidate, pfCollection.product(), 0.4, 0.02)); 
-
-      pho_pfiso_mycharged03_noveto->push_back(pfTkIsoWithVertex(pfCandidate, pfCollection.product(), 0.3, 0)); 
-      pho_pfiso_mycharged04_noveto->push_back(pfTkIsoWithVertex(pfCandidate, pfCollection.product(), 0.4, 0)); 
+	//}
 				       
     } else {
       math::XYZVector vCand(localPho->caloPosition().x(), localPho->caloPosition().y(), localPho->caloPosition().z());
@@ -651,11 +651,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_pfiso_neutral04[pho_n] = pfHcalIso(vCand, pfCollection.product(), 0.4, 0.00);
       pho_pfiso_photon04_noveto[pho_n] = pfEcalIso(vCand, pfCollection.product(), 0.4, 0.045, 0.0, 0.0, 0.08, 0.1);
 
+      //if (localPho->pt() < 25.) {
+      std::cout << "Pt: " << localPho->pt()<< std::endl;
       pho_pfiso_mycharged03->push_back(pfTkIsoWithVertex(vCand, pfCollection.product(), 0.3, 0.02)); 
       pho_pfiso_mycharged04->push_back(pfTkIsoWithVertex(vCand, pfCollection.product(), 0.4, 0.02)); 
-
-      pho_pfiso_mycharged03_noveto->push_back(pfTkIsoWithVertex(vCand, pfCollection.product(), 0.3, 0.02)); 
-      pho_pfiso_mycharged04_noveto->push_back(pfTkIsoWithVertex(vCand, pfCollection.product(), 0.4, 0.02)); 
+	//}
     }
 
     pho_ecalsumetconedr04[pho_n] = localPho->ecalRecHitSumEtConeDR04();
@@ -731,7 +731,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
         reco::Vertex vtx=conv->conversionVertex();
 
-        //std::cout<<"Marco Conv vtx: R, x, y, z "<<vtx.position().R()<<" "<<vtx.x()<<" "<<vtx.y()<<" "<<vtx.z()<<" "<<vtx.chi2()<<std::endl;
         ((TVector3 *)pho_conv_vtx->At(pho_n))->SetXYZ(vtx.x(), vtx.y(), vtx.z());
         ((TVector3 *)pho_conv_pair_momentum->At(pho_n))->SetXYZ(conv->pairMomentum().x(), conv->pairMomentum().y(), conv->pairMomentum().z());
         ((TVector3 *)pho_conv_refitted_momentum->At(pho_n))->SetXYZ(conv->refittedPairMomentum().x(), conv->refittedPairMomentum().y(), conv->refittedPairMomentum().z());
@@ -1068,18 +1067,25 @@ std::vector<float> GlobePhotons::pfTkIsoWithVertex(const reco::PFCandidatePtr ca
 	continue;
       
       float dz = fabs(pfc.vz() - vtx->z());
-      if (dz > 10)
+      if (dz > 1.0)
 	continue;
       
+      double dxy = ( -(pfc.vx() - vtx->x())*pfc.py() + (pfc.vy() - vtx->y())*pfc.px()) / pfc.pt();
+      if(fabs(dxy) > 0.1)
+	continue;
+
       math::XYZVector pvi(pfc.momentum());
       float dR = deltaR(vCand.Eta(), vCand.Phi(), pvi.Eta(), pvi.Phi());
-      
+
       if(dR > dRmax || dR < dRveto)
 	continue;
       
+      std::cout << dR << " " << pfc.pt() << std::endl;
+
       sum += pfc.pt();
     }
-    
+ 
+    std::cout << "SUM: " << ivtx << " " << sum << std::endl;
     result.push_back(sum);
   }
   
@@ -1120,18 +1126,25 @@ std::vector<float> GlobePhotons::pfTkIsoWithVertex(math::XYZVector cand, const r
 	continue;
       
       float dz = fabs(pfc.vz() - vtx->z());
-      if (dz > 10)
+      if (dz > 1.)
 	continue;
-      
+
+      double dxy = ( -(pfc.vx() - vtx->x())*pfc.py() + (pfc.vy() - vtx->y())*pfc.px()) / pfc.pt();
+      if(fabs(dxy) > 0.1)
+	continue;
+
       math::XYZVector pvi(pfc.momentum());
       float dR = deltaR(vCand.Eta(), vCand.Phi(), pvi.Eta(), pvi.Phi());
       
       if(dR > dRmax || dR < dRveto)
 	continue;
-      
+
+      std::cout << dR << " " << pfc.pt() << std::endl;
+
       sum += pfc.pt();
     }
-    
+
+    std::cout << "SUM: " << ivtx << " " << sum << std::endl;    
     result.push_back(sum);
   }
   
