@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# @(#)root/tmva $Id: MVAClassification.py,v 1.1.2.7 2011/09/04 16:32:58 mjarvis Exp $
+# @(#)root/tmva $Id: MVAClassification.py,v 1.1.2.2 2011/09/09 11:39:09 mjarvis Exp $
 # ------------------------------------------------------------------------------
 # based on TMVA Python script: TMVAClassification.py
 # ------------------------------------------------------------------------------
@@ -23,6 +23,7 @@ DEFAULT_TREES    = 128
 DEFAULT_DEPTH    = 4
 DEFAULT_PRUNE    = "NoPruning"
 DEFAULT_NODES    = 16
+DEFAULT_ADA      = 1.
 #tree_list = [128,256]
 #depth_list= [4,8,16,32,64,128]
 #prune_list = ["NoPruning","CostComplexity"]
@@ -50,8 +51,8 @@ def main():
 
     try:
         # retrive command line options
-        shortopts  = "m:M:T:D:P:N:i:t:o:vh?"
-        longopts   = ["methods=","mass=","trees=","depth=","pruning=","nodes=" "inputfile=", "inputtrees=", "outputfile=",
+        shortopts  = "m:M:T:D:P:N:A:i:t:o:vh?"
+        longopts   = ["methods=","mass=","trees=","depth=","pruning=","nodes=","ada=", "inputfile=", "inputtrees=", "outputfile=",
 "verbose", "help", "usage"]
         opts, args = getopt.getopt( sys.argv[1:], shortopts, longopts )
 
@@ -68,6 +69,7 @@ def main():
     depth       = DEFAULT_DEPTH
     prune       = DEFAULT_PRUNE
     nodes       = DEFAULT_NODES
+    ada         = DEFAULT_ADA
     outfname    = DEFAULT_OUTFNAME
     treeNameSig = DEFAULT_TREESIG
     treeNameBkg = DEFAULT_TREEBKG
@@ -88,6 +90,8 @@ def main():
             prune = str(a)
         elif o in ("-N", "--nodes"):
             nodes = int(a)
+        elif o in ("-A", "--ada"):
+            ada = float(a)
         elif o in ("-i", "--inputfile"):
             infname = a
         elif o in ("-o", "--outputfile"):
@@ -107,7 +111,7 @@ def main():
             verbose = True
 
     mass_str    = "_"+str(mass)
-    outfname    = outfname+mass_str+"_"+str(tree)+"_"+str(depth)+"_"+str(prune)+"_"+str(nodes)+".root"
+    outfname    = outfname+"_ada"+mass_str+"_"+str(tree)+"_"+str(depth)+"_"+str(prune)+"_"+str(ada)+".root"
     treeNameSig = treeNameSig + mass_str  
     treeNameBkg = treeNameBkg + mass_str  
 
@@ -145,9 +149,7 @@ def main():
     # more factory options)
     # All TMVA output can be suppressed by removing the "!" (not) in 
     # front of the "Silent" argument in the option string
-    factory = TMVA.Factory( "TMVAClassification", outputFile, 
-                            "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification"
-)
+    factory = TMVA.Factory( "TMVAClassification", outputFile, "!V:!Silent:Color:DrawProgressBar:Transformations=I;D;P;G,D:AnalysisType=Classification")
 
     # Set verbosity
     factory.SetVerbose( verbose )
@@ -211,9 +213,7 @@ def main():
     factory.PrepareTrainingAndTestTree( mycutSig, mycutBkg,
                                         "nTrain_Signal=0:nTrain_Background=0:SplitMode=Random:NormMode=NumEvents:!V"
 )
-
     # ---- Book MVA methods
-
     # Boosted Decision Trees
     #if "BDT" in mlist:
     #    factory.BookMethod( TMVA.Types.kBDT, "BDT_ada"+mass_str,"!H:!V:NTrees=512:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning")
@@ -225,7 +225,8 @@ def main():
     #    for depth in depth_list:
     #        for prune in prune_list:
     #            factory.BookMethod( TMVA.Types.kBDT, "BDT_ada"+mass_str+"_"+str(tree)+"_"+str(depth)+"_"+prune,"!H:!V:NTrees="+str(tree)+":nEventsMin=150:MaxDepth="+str(depth)+":BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=-1:PruneMethod="+str(prune))
-    factory.BookMethod(TMVA.Types.kBDT,"BDT_grad"+mass_str+"_"+str(tree)+"_"+str(depth)+"_"+prune,"!H:!V:NTrees="+str(tree)+":nEventsMin=150:MaxDepth="+str(depth)+":BoostType=Grad:Shrinkage=0.30:SeparationType=GiniIndex:nCuts=200:PruneMethod="+str(prune)+":UseBaggedGrad:GradBaggingFraction=0.6:NNodesMax="+str(nodes))
+    #factory.BookMethod(TMVA.Types.kBDT,"BDT_grad"+mass_str+"_"+str(tree)+"_"+str(depth)+"_"+prune,"!H:!V:NTrees="+str(tree)+":nEventsMin=150:MaxDepth="+str(depth)+":BoostType=Grad:Shrinkage=0.30:SeparationType=GiniIndex:nCuts=200:PruneMethod="+str(prune)+":UseBaggedGrad:GradBaggingFraction=0.6:NNodesMax="+str(nodes))
+    factory.BookMethod(TMVA.Types.kBDT, "BDT_ada"+mass_str+"_"+str(tree)+"_"+str(depth)+"_"+prune+"_"+str(ada),"!H:!V:NTrees="+str(tree)+":nEventsMin=150:MaxDepth="+str(depth)+":BoostType=AdaBoost:AdaBoostBeta="+str(ada)+":SeparationType=GiniIndex:nCuts=-1:PruneMethod="+str(prune))
             
 
 
