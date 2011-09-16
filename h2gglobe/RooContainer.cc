@@ -67,6 +67,7 @@ void RooContainer::AddConstant(std::string name,double init){
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::AddObservable(std::string name,double xmin,double xmax){
     addRealVar(name,xmin,xmax);
+    m_real_var_[name].setRange("FullObservableRange",xmin,xmax);
     addRealVar(getweightName(name),0.,1.0e6);
 }
 
@@ -415,7 +416,6 @@ void RooContainer::Save(){
       ;it_data!=data_.end();it_data++)	{
 
 
-//Leave This Out for Now! + put is back
 	ws.import(it_data->second);
   }
 
@@ -1076,8 +1076,6 @@ void RooContainer::addRealVar(std::string name ,double xmin,double xmax){
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::addRealVar(std::string name ,double init,double xmin,double xmax){
   RooRealVar temp(name.c_str(),name.c_str(),init,xmin,xmax);
- // temp.removeRange();
-  temp.setRange(-10.,10.);
   m_real_var_.insert(pair<std::string,RooRealVar>(name,temp));
   std::cout << "RooContainer::AddRealVar -- Appended the variable " 
 	    << name <<std::endl;
@@ -1334,7 +1332,7 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
      RooRealVar temp_var(Form("pdf_%s_norm",name.c_str()),name.c_str(),norm_guess,norm_min,norm_max);
      m_real_var_.insert(std::pair<std::string,RooRealVar>(name,temp_var));
 
-     RooExtendPdf temp(name.c_str(),name.c_str(),*temp_1,m_real_var_[name]);
+     RooExtendPdf temp(name.c_str(),name.c_str(),*temp_1,m_real_var_[name],"FullObervableRange");
      m_exp_.insert(std::pair<std::string,RooExtendPdf>(name,temp));
 
      std::cout << "RooContainer::AddGenericPdf -- Made extended PDF " 
@@ -1373,13 +1371,14 @@ void RooContainer::convolutePdf(std::string name, std::string f_pdf, std::string
 }
 */
 // ----------------------------------------------------------------------------------------------------
-std::vector<std::vector<double> > RooContainer::OptimizedBinning(std::string datasetname, int nTargetBins,bool revise_target,bool use_n_entries){
+std::vector<std::vector<double> > RooContainer::OptimizedBinning(std::string datasetname, int nTargetBins,bool revise_target,bool use_n_entries,int direction){
 
 	std::vector<std::vector<double> > return_bins;
 	for (int cat=0;cat<ncat;cat++){
 	   std::map<std::string,TH1F>::iterator it_th=m_th1f_.find(getcatName(datasetname,cat));
 	   if (it_th!=m_th1f_.end()){
-		return_bins.push_back(optimizedBinning(&(it_th->second),nTargetBins,revise_target,use_n_entries));
+		if (direction!=-1) return_bins.push_back(optimizedReverseBinning(&(it_th->second),nTargetBins,revise_target,use_n_entries));
+		else return_bins.push_back(optimizedBinning(&(it_th->second),nTargetBins,revise_target,use_n_entries));
 
 	   } else {
 		std::cerr << "WARNING ! -- RooContainer::OptimizedBinning -- No such binned dataset as " << datasetname << std::endl;
@@ -1393,7 +1392,14 @@ std::vector<std::vector<double> > RooContainer::OptimizedBinning(std::string dat
 std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool revise_target, bool use_n_target){
 	// Return a set of bins which are "smoother" 
 
-	if (revise_target) use_n_target = false;  // geometric algo always use revised number of bins, not number of entries
+	if (revise_target) {
+		if (use_n_target){
+		   std::cerr << "WARNING -- RooContainer::OptimizedBinning -- Can't use number of Entries as target in revised binning algo " << std::endl; 
+		   use_n_target = false;  // geometric algo always use revised number of bins, not number of entries
+		
+		}
+	}
+
 	int nBins = hb->GetNbinsX();
 	std::vector<double> binEdges;
 	binEdges.push_back(hb->GetBinLowEdge(1));
@@ -1421,7 +1427,7 @@ std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool
 		while ( carryOn){
 			if (i<nBins){
 			  sumBin+=hb->GetBinContent(i+1);
-			  highEdge = hb->GetBinLowEdge(i+1);
+			  highEdge = hb->GetBinLowEdge(i+2);
 			  carryOn =(sumBin <targetNumbers && i<=nBins);
 			  i++;
 			} else {
@@ -1433,6 +1439,61 @@ std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool
 		i++;
 	}
         if (sumBin < 10) binEdges.erase(binEdges.end()-2);
+	return binEdges;
+
+}
+// ----------------------------------------------------------------------------------------------------
+std::vector<double> RooContainer::optimizedReverseBinning(TH1F *hb,int nTargetBins,bool revise_target, bool use_n_target){
+	// Return a set of bins which are "smoother" 
+
+	if (revise_target) {
+		if (use_n_target){
+		   std::cerr << "WARNING -- RooContainer::OptimizedBinning -- Can't use number of Entries as target in revised binning algo " << std::endl; 
+		   use_n_target = false;  // geometric algo always use revised number of bins, not number of entries
+		
+		}
+	}
+
+	int nBins = hb->GetNbinsX();
+	std::vector<double> binEdges;
+	binEdges.push_back(hb->GetBinLowEdge(nBins+1));
+
+	double targetNumbers;
+	if (use_n_target) targetNumbers = nTargetBins; 
+	else targetNumbers = hb->Integral()/nTargetBins;
+
+	if (hb->Integral() < 2*targetNumbers){
+		std::cout << "RooContainer::OptimizedBinning -- Not enough entries in histogram for target numbers calculated - " 
+			  << targetNumbers 
+			  << ", Returning current bin boundaries "  << std::endl;
+		for (int j=nBins;j>=1;j--) binEdges.push_back(hb->GetBinLowEdge(j));
+		return binEdges;
+	}
+
+	double sumBin = 0;
+	int i=nBins;
+	while (i>=1){
+		if (revise_target) targetNumbers = hb->Integral(1,i)/nTargetBins;
+		sumBin=hb->GetBinContent(i);
+		double highEdge=hb->GetBinLowEdge(i);
+
+		bool carryOn = sumBin <= targetNumbers;
+		while ( carryOn){
+			if (i>1){
+			  sumBin+=hb->GetBinContent(i-1);
+			  highEdge = hb->GetBinLowEdge(i-1);
+			  carryOn =(sumBin <targetNumbers && i>=1);
+			  i--;
+			} else {
+			  highEdge = hb->GetBinLowEdge(i);
+			  carryOn=false;
+			}
+		}
+	        binEdges.push_back(highEdge);
+		i--;
+	}
+        if (sumBin < 10) binEdges.erase(binEdges.end()-2);
+	reverse(binEdges.begin(),binEdges.end());
 	return binEdges;
 
 }
@@ -1485,6 +1546,7 @@ void RooContainer::rebinBinnedDataset(std::string new_name,std::string name, TH1
 	
 	TH1F *hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,hb->GetName(),arrBins);
 	hbnew->SetName(Form("th1f_%s",new_name.c_str()));
+	//cout << "title for new re-binned histogream - " << hb->GetTitle()<<endl; 
 	hbnew->SetTitle(hb->GetTitle());
 	m_th1f_[new_name]=*hbnew;
 	
@@ -1514,10 +1576,10 @@ void RooContainer::composePdf(std::string name, std::string  composition
 	      roo_args.add(m_real_var_[(*it_fun)]);
               norms.push_back(&m_real_var_[(*it_fun)]);
 	      normalisationTerms.add(m_real_var_[(*it_fun)]);
-	      expression+=Form("+@%d",arg_count);
-	      arg_count++;
+              if (arg_count < (int)formula.size()) expression+=Form("+@%d",arg_count);
 	      std::cout << "RooContainer::ComposePdf -- Including Extended Pdf " 
 		        << *it_fun << std::endl;
+	      arg_count++;
 
 	    } else {
       	      std::cerr << "WARNING -- RooContainer::ComposePdf -- No Pdf Found Named " 
@@ -1534,8 +1596,12 @@ void RooContainer::composePdf(std::string name, std::string  composition
 
               if (arg_count < (int)formula.size()){
 
-	        roo_args.add(m_real_var_[(*it_fun)]);
-	        check_sum += m_real_var_[*it_fun].getVal();
+	        RooRealVar *functionNormValue = &m_real_var_[(*it_fun)];
+	        addRealVar(Form("frac_%s",(*it_fun).c_str()),functionNormValue->getVal(),functionNormValue->getMin(),functionNormValue->getMax());
+	        RooRealVar *fractionVar = &m_real_var_[Form("frac_%s",(*it_fun).c_str())];
+	        roo_args.add(*fractionVar);
+	        check_sum += fractionVar->getVal();
+		//fractionVar->removeRange();
 	        arg_count++;
 	      }
 	      std::cout << "RooContainer::ComposePdf -- Including Pdf " 
@@ -1556,7 +1622,8 @@ void RooContainer::composePdf(std::string name, std::string  composition
 	      return;
 	} else {
 
-    	  RooAddPdf *temp = new RooAddPdf(Form("pdf_%s",name.c_str()),composition.c_str(),roo_funs,roo_args);
+    	  RooAddPdf *temp = new RooAddPdf(Form("pdf_%s",name.c_str()),composition.c_str(),roo_funs,roo_args,true);
+	  //temp->fixCoefRange("FullObservableRange");
      	  RooRealVar temp_var(Form("pdf_%s_norm",name.c_str()),name.c_str(),100.,0.0,1e6);
      	  m_real_var_.insert(std::pair<std::string,RooRealVar>(name,temp_var));
           m_gen_.insert(std::pair<std::string,RooAbsPdf*>(name,temp));
@@ -1570,6 +1637,7 @@ void RooContainer::composePdf(std::string name, std::string  composition
       RooAddPdf temp(name.c_str(),composition.c_str(),roo_funs,roo_args);
       m_gen_.insert(std::pair<std::string,RooAbsPdf*>(name,&temp));
       m_pdf_.insert(pair<std::string,RooAddPdf>(name,temp));
+      cerr << "EXPRESSSION - " << expression.Data()<<endl;;
       RooFormulaVar tmpSum(Form("pdf_%s_norm",name.c_str()),name.c_str(),expression.Data(),normalisationTerms);
       m_form_var_.insert(pair<std::string,RooFormulaVar >(name,tmpSum));
       m_comp_pdf_norm_[name] = norms;
@@ -1669,34 +1737,38 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
       use_composed_pdf = true;
       pdf_ptr = &(it_pdf->second);
      if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){ // Full Range Fit
+     //   real_var->setRange("FullObservableRange",x_min,x_max);
         real_var->setRange("rnge",x_min,x_max);
-        fit_result = (it_pdf->second).fitTo(it_data->second,Range("rnge"),RooFit::Extended(true),RooFit::Save(true));
+        fit_result = (it_pdf->second).fitTo(it_data->second,Range("rnge"),RooFit::Extended(true),RooFit::Save(true),RooFit::Strategy(2));
         mode = 0;
      } else if (x3 < -990 && x4 < -990){ // Single window fit
       if (x1 < x_min || x2 > x_max){
+     //   real_var->setRange("FullObservableRange",x_min,x_max);
         std::cerr << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!! " 
 		  << std::endl;
-        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),RooFit::Extended(true),"r");
+        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
         std::cerr << " Fitted To Full Range -- WARNING!!" 
 		  << std::endl;
         mode = 0;
       } else {
+      //  real_var->setRange("FullObservableRange",x_min,x_max);
         real_var->setRange("rnge",x1,x2);
-        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),RooFit::Extended(true),"r");
+        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
         mode = 1;
       }
      } else {
       if (x1 < x_min || x4 > x_max){ // Excluded window fit
         std::cerr << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!!" 
 		  << std::endl;
-        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),RooFit::Extended(true),"rq");
+        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
         std::cerr << " Fitted To Full Range -- WARNING!!" 
 		  << std::endl;
         mode = 0;
       } else {
+      //  real_var->setRange("FullObservableRange",x2,x3);
         real_var->setRange("rnge1",x1,x2);
         real_var->setRange("rnge2",x3,x4);
-        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),"r");
+        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
 	// Not sure what to do with combined PDF in terms of getting Nevents correct with multiple ranges
 	// idea is to sum over all components and then scale by sum / sum entries
 	double nEntries = (it_data->second).sumEntries(0,"rnge1") + (it_data->second).sumEntries(0,"rnge2");
@@ -1720,34 +1792,39 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
       if (it_exp != m_exp_.end()){
       pdf_ptr = &(it_exp->second);
        if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){
+     //   real_var->setRange("FullObservableRange",x_min,x_max);
         real_var->setRange("rnge",x_min,x_max);
-        fit_result = (it_exp->second).fitTo(it_data->second,Range("rnge"),RooFit::Save(true),RooFit::Extended(true),"r");
+        fit_result = (it_exp->second).fitTo(it_data->second,Range("rnge"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
         mode = 0;
       } else if (x3 < -990 && x4 < -990){ // Single window fit
         if (x1 < x_min || x2 > x_max){
+     //     real_var->setRange("FullObservableRange",x_min,x_max);
           std::cerr << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!!" 
 		    << std::endl;
-          fit_result = (it_exp->second).fitTo(it_data->second,RooFit::Extended(true),RooFit::Save(true));
+          fit_result = (it_exp->second).fitTo(it_data->second,RooFit::Extended(true),RooFit::Save(true),RooFit::Strategy(2));
           std::cerr << " Fitted To Full Range -- WARNING!!" 
 		    << std::endl;
           mode = 0;
         } else {
+     //    real_var->setRange("FullObservableRange",x_min,x_max);
          real_var->setRange("rnge",x1,x2);
-         fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),RooFit::Extended(true),"r");
+         fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
          mode = 1;
         }	
        } else {
         if (x1 < x_min || x4 > x_max){
+     //     real_var->setRange("FullObservableRange",x_min,x_max);
           std::cerr << "RooContianer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!!" 
 		    << std::endl;
-          fit_result = (it_exp->second).fitTo((it_data->second),RooFit::Save(true),RooFit::Extended(true),"rq");
+          fit_result = (it_exp->second).fitTo((it_data->second),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
           std::cerr << " Fitted To Full Range -- WARNING!!" 
 		    << std::endl;
           mode = 0;
         } else {
+        //  real_var->setRange("FullObservableRange",x1,x4);
           real_var->setRange("rnge1",x1,x2);
           real_var->setRange("rnge2",x3,x4);
-          fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),"rq");
+          fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
 	  double newNorm =(it_data->second).sumEntries(0,"rnge1") + (it_data->second).sumEntries(0,"rnge2");
 	  m_real_var_[name_func].setVal(newNorm);
 	  m_real_var_[name_func].setError(TMath::Sqrt(newNorm));
@@ -1763,11 +1840,15 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
     // keep hold of outer range from latest fit
     if (mode==0 or mode==1){
   	RooAbsReal* integral = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge"));
-      	latestFitRangeIntegral_[name_func] = integral->getVal();
+      	latestFitRangeIntegral_[name_func] = integral;
     } else {
   	RooAbsReal* integral1 = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge1"));
   	RooAbsReal* integral2 = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge2"));
-      	latestFitRangeIntegral_[name_func] = integral1->getVal()+integral2->getVal();
+	RooFormulaVar *integral = new RooFormulaVar("sum","sum","@0+@1",RooArgSet(*integral1,*integral2));
+	DUMP_[Form("partial_1_%s",name_func.c_str())]=integral1;
+	DUMP_[Form("partial_2_%s",name_func.c_str())]=integral2;
+
+      	latestFitRangeIntegral_[name_func] = integral;
     }
 
     RooPlot *xframe = (*real_var).frame(x_min,x_max);
@@ -1791,7 +1872,12 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
     }
 
     else {
+//	(it_exp->second).plotOn(xframe,LineColor(kYellow),RooFit::VisualizeError(*fit_result,1),RooFit::FillColor(kYellow),RooFit::MoveToBack());
 	(it_exp->second).plotOn(xframe,LineColor(4));
+	if (mode==2){
+          real_var->setRange("rnge",x2,x3);
+	  (it_exp->second).plotOn(xframe,LineColor(4),LineStyle(2),Range("rnge"));
+	}
 	(it_exp->second).paramOn(xframe);
     	pdf_saves_.push_back(&(it_exp->second));
         n_pars=(it_exp->second).getParameters(it_data->second)->getSize() -1 ;
@@ -1804,6 +1890,12 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
       xframe->SetName(Form("%s_%s_%.1f_%.1f",name_func.c_str(),name_data.c_str(),x1,x2));
     else	        // sideband fit
       xframe->SetName(Form("%s_%s_%.1f_%.1f_%.1f_%.1f",name_func.c_str(),name_data.c_str(),x1,x2,x3,x4));
+
+    if (fit_result->covQual() != 3) {
+      std::cerr << " WARNING!!! -- RooContainer::FitToData -- Fit result covariance quality POOR from fit of " 
+	   	<< name_func << " to "
+	   	<< name_data << std::endl;
+    }
 
     fit_res_.insert(std::pair<RooPlot*,double>(xframe,chi_square));
     fit_results_[name_func]=(fit_result); // keep a record of the last fit of a pdf
@@ -2028,26 +2120,34 @@ std::pair<double,double> RooContainer::getNormalisationAndErrorFromFit(std::stri
 
   normalisation = normalisationVar->getVal();
   // find integral over latest fit range, then we know N*pdf() modifier.
-  double K = 1.0/latestFitRangeIntegral_[pdf_name];
+  //RooFormulaVar K("K","K","1.0/@1",RooArgSetlatestFitRangeIntegral_[pdf_name];
 
   std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name << " in range " << r1 << " -> " << r2 <<std::endl;
   obs->setRange("rngeNorm",r1,r2);
 //  pdf_ptr->forceNumInt(true);
   RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
 //  RooAbsReal* integralFull = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
-  RooFormulaVar normIntVar("normIntVar","normIntVar","@0*@1",RooArgSet(*normalisationVar,*integral));
+  RooFormulaVar normIntVar("normIntVar","normIntVar","@0*@1/@2",RooArgSet(*normalisationVar,*integral,*latestFitRangeIntegral_[pdf_name]));
+  //if (!external_range){
+  //RooFormulaVar normIntVar("normIntVar","normIntVar","@0*@1/",RooArgSet(*normalisationVar,*integral));
 
   double integralValue = integral->getVal();
   double integralError = integral->getPropagatedError(*fit_results_[pdf_name]);
 
-  double result    = K*normIntVar.getVal();
-  double fullError = K*normIntVar.getPropagatedError(*fit_results_[pdf_name]);
+  double result    = normIntVar.getVal();
+  double fullError = normIntVar.getPropagatedError(*fit_results_[pdf_name]);
 
-  std::cout << "	Integral Normalisation in Fitted region  - " << latestFitRangeIntegral_[pdf_name]<< std::endl;
   std::cout << "	Pdf Integral and Error From Latest Fit - " << integralValue << "+/-" << integralError << std::endl;
-  std::cout << "	Normalisation and Error - " << result << "+/-" << fullError << std::endl;
-//  pdf_ptr->forceNumInt(false);
+  std::cout << "	Full (extended term) Norm - " << normalisationVar->getVal()  << std::endl;
+  std::cout << "	Normalisation In Range and Error - " << result << "+/-" << fullError << std::endl;
   return std::pair<double,double>(result,fullError);
+
+ // } else {
+ // 	double result    = normalisationVar->getVal();
+ // 	double fullError = normalisationVar->getPropagatedError(*fit_results_[pdf_name]);
+ // 	std::cout << "	Normalisation and Error - " << result << "+/-" << fullError << std::endl;
+ // 	return std::pair<double,double>(result,fullError);
+ // }
 }
 
 double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,bool multi_pdf,bool external_range){
@@ -2065,7 +2165,7 @@ double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hi
     normalisation = m_real_var_[pdf_name].getVal();
   }
 
-  double K = normalisation/latestFitRangeIntegral_[pdf_name];
+  double K = normalisation/latestFitRangeIntegral_[pdf_name]->getVal();
 
   std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name << " in range " << r1 << " -> " << r2 <<std::endl;
   obs->setRange("rngeNorm",r1,r2);
@@ -2082,9 +2182,10 @@ double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hi
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::writeRooDataHist(std::string name, TH1F *hist){
 
-  RooDataHist tmp(Form("roohist_%s",name.c_str()),name.c_str(),RooArgList(m_real_var_[hist->GetTitle()]),hist);
+  // Having some problems with the RooDataHists right now in the MVA code, stick to the TH1's, also importing is very slow
+  //RooDataHist tmp(Form("roohist_%s",name.c_str()),name.c_str(),RooArgList(m_real_var_[hist->GetTitle()]),RooFit::Import(*hist,false));
+  //ws.import(tmp);
 
-  ws.import(tmp);
   hist->Write();
 }
 

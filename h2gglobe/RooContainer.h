@@ -48,6 +48,7 @@
 #include <map>
 #include <set>
 #include <vector>
+#include <algorithm>
 
 class RooContainer {
 
@@ -99,7 +100,7 @@ class RooContainer {
 			   ,std::vector<double> x, std::vector<double> weights=std::vector<double>(0));
 
    void RebinBinnedDataset(std::string,std::string,std::vector <std::vector<double> >, bool);
-   std::vector<std::vector<double> >OptimizedBinning(std::string,int,bool,bool use_n_entries=false);
+   std::vector<std::vector<double> >OptimizedBinning(std::string,int,bool,bool,int direction=1);
    void WriteDataCard(std::string,std::string,std::string,std::string);
    void WriteSpecificCategoryDataCards(std::string,std::string,std::string,std::string);
    void GenerateBinnedPdf(std::string,std::string,std::string,int,int,int,double x1=-999,double x2=-999);
@@ -151,6 +152,7 @@ class RooContainer {
    void setAllParametersConstant();
    void rebinBinnedDataset(std::string,std::string,TH1F *,std::vector<double>);
    std::vector<double> optimizedBinning(TH1F *,int,bool,bool);
+   std::vector<double> optimizedReverseBinning(TH1F *,int,bool,bool);
 
    double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
    std::pair<double,double> getNormalisationAndErrorFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
@@ -197,7 +199,8 @@ class RooContainer {
    std::map<std::string,double> inits_;
    std::map<RooPlot*,double> fit_res_;
    std::map<std::string,RooFitResult*> fit_results_;
-   std::map<std::string,double > latestFitRangeIntegral_;
+   std::map<std::string,RooAbsReal* > latestFitRangeIntegral_;
+   std::map<std::string,RooAbsReal* > DUMP_;
 
    RooWorkspace ws;   
    
