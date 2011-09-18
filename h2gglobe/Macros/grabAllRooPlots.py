@@ -18,18 +18,22 @@ F = ROOT.TFile(fileName)
 keys = F.GetListOfKeys()
 plots = []
 
+if grepmode: print "grepping ", grep
 for K in keys:
 	obj = K.ReadObj()
 	if grepmode:
-	  print "grepping ", grep
 	  if "plot" in obj.GetName() and grep in obj.GetName(): plots.append(obj.Clone())
 	else:
 	  if "plot" in obj.GetName(): plots.append(obj.Clone())
 
-can = ROOT.TCanvas("c","Fit Plots",2000,2000)
 nPlots = len(plots)
-sqrtnPlots = int(nPlots**0.5)+1
-can.Divide(sqrtnPlots,sqrtnPlots)
+
+if (nPlots >1):
+  can = ROOT.TCanvas("c","Fit Plots",2000,2000)
+  sqrtnPlots = int(nPlots**0.5)+1
+  can.Divide(sqrtnPlots,sqrtnPlots)
+else: 
+  can = ROOT.TCanvas("c","Fit Plots",1200,900)
 
 for i,P in enumerate(plots):
   can.cd(i+1)
