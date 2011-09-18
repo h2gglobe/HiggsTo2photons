@@ -63,24 +63,64 @@ void MvaAnalysis::Term(LoopAll& l)
             float mass_hypothesis_high = mass_hypothesis*(1+signalRegionWidth)/(1-signalRegionWidth);
             // define the sidebands
             float sideband_boundaries[4];
-            sideband_boundaries[0] = mass_hypothesis_low*(1-signalRegionWidth);
+            sideband_boundaries[0] = 95 > mass_hypothesis_low*(1-signalRegionWidth) ?  95 : mass_hypothesis_low*(1-signalRegionWidth); // only go as low as 95!
             sideband_boundaries[1] = mass_hypothesis*(1-signalRegionWidth);
             sideband_boundaries[2] = mass_hypothesis*(1+signalRegionWidth);
-            sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
+            sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth); 
 
             // Fit Inv Mass spectra
-	    if (mass_hypothesis != 115)
-              l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
-	    else 
-              l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
+	    //if (mass_hypothesis != 115)
+            //  l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
+	   // else 
+            //  l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
 	    
-        //    l.rooContainer->FitToData("data_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
-            //l.rooContainer->FitToData("data_model"+names[i], "data_mass"+names[i],95,185);
+            //l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
+
+/*
+            l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
+            //l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],95,185);
             // Integrate fit to spectra to obtain normalisations
             std::vector<std::pair<double,double> > N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_pol_model"+names[i],
                                         "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
             
-	    cout << "The VEctor in the MvaAnalysis - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
+	    cout << mass_hypothesis <<" - exp  Normalisation - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
+
+            //l.rooContainer->FitToData("data_exp2_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
+            l.rooContainer->FitToData("data_exp2_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
+            //l.rooContainer->FitToData("data_exp2_model"+names[i], "data_mass"+names[i],95,185);
+            N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_exp2_model"+names[i],
+                                        "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
+            
+	    cout << mass_hypothesis <<" - 2*exp Normalisation - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
+
+           // l.rooContainer->FitToData("data_exp3_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
+            l.rooContainer->FitToData("data_exp3_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
+            //l.rooContainer->FitToData("data_exp3_model"+names[i], "data_mass"+names[i],95,185);
+            N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_exp3_model"+names[i],
+                                        "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
+            
+	    cout << mass_hypothesis <<" - 3*exp Normalisation - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
+*/
+            l.rooContainer->FitToData("data_pow_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
+            //l.rooContainer->FitToData("data_pow_model"+names[i], "data_mass"+names[i],95,185);
+            std::vector<std::pair<double,double> > N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_pow_model"+names[i],
+                                        "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
+            
+	    cout << mass_hypothesis <<" - pow Normalisation - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
+/*
+            l.rooContainer->FitToData("data_lau_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
+            //l.rooContainer->FitToData("data_lau_model"+names[i], "data_mass"+names[i],95,185);
+            N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_lau_model"+names[i],
+                                        "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
+            
+	    cout << mass_hypothesis <<" - lau Normalisation - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
+            //l.rooContainer->FitToData("data_poly_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
+            ///N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_poly_model"+names[i],
+             //                           "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
+            
+	    //cout << mass_hypothesis <<" - 2nd order pol Normalisation - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
+
+*/
             l.rooContainer->AddNormalisationSystematics("bkg_norm"+names[i],N_sig, 1);
 
             // Calculate weights to apply to the sidebands
@@ -104,16 +144,25 @@ void MvaAnalysis::Term(LoopAll& l)
 //               l.rooContainer->SumBinnedDatasets("data_BDT_alt_sideband_grad"+names[i],"data_BDT_grad_105",
 //                                                  "data_BDT_grad_140", wt_low, wt_high, scale);
 //            }
-	    std::vector <std::vector<double> > optimizedGradBins;
-	    if (mass_hypothesis >=130) optimizedGradBins =  l.rooContainer->OptimizedBinning("data_BDT_sideband_grad"+names[i],15,true);
-	    else optimizedGradBins =  l.rooContainer->OptimizedBinning("data_BDT_sideband_grad"+names[i],15,true);
+	    std::vector <std::vector<double> > optimizedGradBins; // Need to ompimize binning on MC!
+	    optimizedGradBins =  l.rooContainer->OptimizedBinning("bkg_BDT_grad"+names[i],50,false,true,-1);
 
 	    l.rooContainer->RebinBinnedDataset("bkg_grad"+names[i],"data_BDT_sideband_grad"+names[i],optimizedGradBins,false);
+	    l.rooContainer->RebinBinnedDataset("bkg_high_grad"+names[i],"data_high_BDT_grad"+names[i],optimizedGradBins,false);
+	    l.rooContainer->RebinBinnedDataset("bkg_low_grad"+names[i],"data_low_BDT_grad"+names[i],optimizedGradBins,false);
+	    l.rooContainer->RebinBinnedDataset("bkg_mc_grad"+names[i],"bkg_BDT_grad"+names[i],optimizedGradBins,false);
+	    l.rooContainer->RebinBinnedDataset("bkg_mc_high_grad"+names[i],"bkg_high_BDT_grad"+names[i],optimizedGradBins,false);
+	    l.rooContainer->RebinBinnedDataset("bkg_mc_low_grad"+names[i],"bkg_low_BDT_grad"+names[i],optimizedGradBins,false);
 	    l.rooContainer->RebinBinnedDataset("data_grad"+names[i],"data_BDT_grad"+names[i],optimizedGradBins,false);
 	    l.rooContainer->RebinBinnedDataset("sig_grad"+names[i],"sig_BDT_grad"+names[i],optimizedGradBins,true);
 
-	    std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->OptimizedBinning("data_BDT_sideband_ada"+names[i],20,false);
+	    std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->OptimizedBinning("bkg_BDT_ada"+names[i],50,false,true,-1);
 	    l.rooContainer->RebinBinnedDataset("bkg_ada"+names[i],"data_BDT_sideband_ada"+names[i],optimizedAdaBins,false);
+	    l.rooContainer->RebinBinnedDataset("bkg_high_ada"+names[i],"data_high_BDT_ada"+names[i],optimizedAdaBins,false);
+	    l.rooContainer->RebinBinnedDataset("bkg_low_ada"+names[i],"data_low_BDT_ada"+names[i],optimizedAdaBins,false);
+	    l.rooContainer->RebinBinnedDataset("bkg_mc_ada"+names[i],"bkg_BDT_ada"+names[i],optimizedAdaBins,false);
+	    l.rooContainer->RebinBinnedDataset("bkg_mc_high_ada"+names[i],"bkg_high_BDT_ada"+names[i],optimizedAdaBins,false);
+	    l.rooContainer->RebinBinnedDataset("bkg_mc_low_ada"+names[i],"bkg_low_BDT_ada"+names[i],optimizedAdaBins,false);
 	    l.rooContainer->RebinBinnedDataset("data_ada"+names[i],"data_BDT_ada"+names[i],optimizedAdaBins,false);
 	    l.rooContainer->RebinBinnedDataset("sig_ada"+names[i],"sig_BDT_ada"+names[i],optimizedAdaBins,true);
 
@@ -455,20 +504,98 @@ void MvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("ff_XSBR_130",0.01224394+0.008260946);
     l.rooContainer->AddConstant("ff_XSBR_140",0.005656604+0.003241793);
 
-    l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
-    //l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
-    //l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
-    //l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
-
     for (int i = 2; i<nMasses;i++){
-        //Not all pdf types have integrals defined, so may break when normalisation is calculated
-        std::vector<std::string> data_pol_pars(1,"p");	 
-        data_pol_pars[0] = "pol0";
-        l.rooContainer->AddGenericPdf("data_pol_model"+names[i], "0","CMS_hgg_mass",data_pol_pars,1);	
- //       std::vector<std::string> data_pol1_pars(1,"p");	 
- //       data_pol1_pars[0] = "pol1";
-//        l.rooContainer->AddGenericPdf("data_pol1_model"+names[i], "0","CMS_hgg_mass",data_pol1_pars,1,0.2,0.,0.99);
+
+    l.rooContainer->AddRealVar("mu"+names[i],-0.01,-0.15,0);
+    l.rooContainer->AddRealVar("mu1"+names[i],-0.01,-0.15,0);
+    l.rooContainer->AddRealVar("mu2"+names[i],-0.05,-0.15,0);
+    l.rooContainer->AddRealVar("mu1a"+names[i],-0.01,-0.15,0);
+    l.rooContainer->AddRealVar("mu2a"+names[i],-0.05,-0.15,0);
+    l.rooContainer->AddRealVar("mu3a"+names[i],-0.08,-0.15,0);
+    l.rooContainer->AddRealVar("f2"+names[i],0.3,0.,1.);
+    l.rooContainer->AddRealVar("f2a"+names[i],0.3,0.,1.);
+    l.rooContainer->AddRealVar("f3a"+names[i],0.3,0.,1.);
+    l.rooContainer->AddRealVar("r1"+names[i],-1,-5.,0);
+    l.rooContainer->AddRealVar("f1"+names[i],1.,0.,2.);
+    l.rooContainer->AddRealVar("r2"+names[i],-1,-5.,0);
+    l.rooContainer->AddRealVar("f2"+names[i],1.,0.,2.);
+    l.rooContainer->AddRealVar("pol0"+names[i],1,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol1"+names[i],1,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol2"+names[i],1,-1.5,1.5);
+    //l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
+    l.rooContainer->AddFormulaVar("modpol0"+names[i],"@0*@0","pol0"+names[i]);
+    l.rooContainer->AddFormulaVar("modpol1"+names[i],"@0*@0","pol1"+names[i]);
+
+	// Exponential Model
+        std::vector<std::string> data_exp_pars(1,"p");	 
+        data_exp_pars[0] = "mu"+names[i];
+        l.rooContainer->AddGenericPdf("data_pol_model"+names[i], "0","CMS_hgg_mass",data_exp_pars,1);
+	
+	// 2nd order polynomial model
+        std::vector<std::string> data_pol_pars(2,"p");	 
+        data_pol_pars[0] = "modpol0"+names[i];
+        data_pol_pars[1] = "modpol1"+names[i];
+        //data_pol_pars[2] = "pol2";
+        l.rooContainer->AddGenericPdf("data_poly_model"+names[i], "0","CMS_hgg_mass",data_pol_pars,72);	
+
+	// Double Exponential model  -- The RooAddPdf Way
+        std::vector<std::string> data_exp1_pars(1,"p");	 
+        data_exp1_pars[0] = "mu1"+names[i];
+        l.rooContainer->AddGenericPdf("data_expa_model"+names[i], "0","CMS_hgg_mass",data_exp1_pars,1,0.49,0.0,0.9);
+
+        std::vector<std::string> data_exp2_pars(1,"p");	 
+        data_exp2_pars[0] = "mu2"+names[i];
+        l.rooContainer->AddGenericPdf("data_expb_model"+names[i], "0","CMS_hgg_mass",data_exp2_pars,1,0.49,0.0,0.9);
+
+	std::vector<std::string> components_data(2,"c");
+	components_data[1]="data_expa_model"+names[i];	
+	components_data[0]="data_expb_model"+names[i];	
+	l.rooContainer->ComposePdf("data_exp2_model"+names[i],"exp1+exp2",components_data,false);
+
+	// Double Exponential model  -- The Formula Way
+	/*
+        std::vector<std::string> data_exp1_pars(4,"p");	 
+        data_exp1_pars[0] = "mu1";
+        data_exp1_pars[1] = "f1";
+        data_exp1_pars[2] = "mu2";
+        data_exp1_pars[3] = "f2";
+        l.rooContainer->AddGenericPdf("data_exp2_model"+names[i], "@2*TMath::Exp(@0*@1) + @4*TMath::Exp(@0*@3)","CMS_hgg_mass",data_exp1_pars,0);
+	*/
+	
+
+	// Triple Exponential model
+        std::vector<std::string> data_expa1_pars(1,"p");	 
+        data_expa1_pars[0] = "mu1a"+names[i];
+        l.rooContainer->AddGenericPdf("data_expaa_model"+names[i], "0","CMS_hgg_mass",data_expa1_pars,1,0.33,0.0,0.9);
+
+        std::vector<std::string> data_expa2_pars(1,"p");	 
+        data_expa2_pars[0] = "mu2a"+names[i];
+        l.rooContainer->AddGenericPdf("data_expbb_model"+names[i], "0","CMS_hgg_mass",data_expa2_pars,1,0.29,0.0,0.9);
+
+        std::vector<std::string> data_expa3_pars(1,"p");	 
+        data_expa3_pars[0] = "mu3a"+names[i];
+        l.rooContainer->AddGenericPdf("data_expcc_model"+names[i], "0","CMS_hgg_mass",data_expa3_pars,1,0.29,0.0,0.9);
+
+	std::vector<std::string> components_3data(3,"c");
+	components_3data[2]="data_expaa_model"+names[i];	
+	components_3data[1]="data_expbb_model"+names[i];	
+	components_3data[0]="data_expcc_model"+names[i];	
+	l.rooContainer->ComposePdf("data_exp3_model"+names[i],"exp1+exp2+exp3",components_3data,false);
+
+	// Laurent series
+        std::vector<std::string> data_lau_pars(2,"p");	 
+        data_lau_pars[0] = "f1"+names[i];
+        data_lau_pars[1] = "f2"+names[i];
+        l.rooContainer->AddGenericPdf("data_lau_model"+names[i], "(@1/(@0*@0*@0*@0)) + (@2/(@0*@0*@0*@0*@0)) ","CMS_hgg_mass",data_lau_pars,0);
+
+	// Power law
+        std::vector<std::string> data_pow_pars(1,"p");	 
+        data_pow_pars[0] = "r1"+names[i];
+        //data_pow_pars[1] = "f1";
+        //data_pow_pars[2] = "r2";
+        //data_pow_pars[3] = "f2";
+        //l.rooContainer->AddGenericPdf("data_pow_model"+names[i], "@2*TMath::Power(@0,@1) + @4*TMath::Power(@0,@3)","CMS_hgg_mass",data_pow_pars,0);
+        l.rooContainer->AddGenericPdf("data_pow_model"+names[i], "TMath::Power(@0,@1)","CMS_hgg_mass",data_pow_pars,0);
 
 //	std::vector<std::string> components_data(2,"c");
 //	components_data[0]="data_pol_model"+names[i];	
@@ -587,11 +714,12 @@ void MvaAnalysis::Init(LoopAll& l)
  		tmvaReader_->AddVariable("pho2_ptOverM", &_pho2_ptOverM);
  	    tmvaReader_->AddVariable("deltaMOverM", &_deltaMOverM);
  	    //tmvaReader_->AddVariable("deltaMOverSigmaM", &_deltaMOverSigmaM);
+		// TEST TO SEE DIFFERENCE WITHOUT SIGMA M
  		tmvaReader_->AddVariable("sigmaMOverM", &_sigmaMOverM);
 
         for (int i = 2; i<nMasses;i++){  // We are ignoring masses 105 and 110 for now
             if (i==8) continue;//Not available yet
-	    int nBDTbins = 150;
+	    int nBDTbins = 5000;
             //Adaptive Boost
             l.rooContainer->CreateDataSet("BDT","data_low_BDT_ada"+names[i]  ,nBDTbins);
             l.rooContainer->CreateDataSet("BDT","data_BDT_ada"+names[i]	     ,nBDTbins);
@@ -696,7 +824,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
    
     // do gen-level dependent first (e.g. k-factor); only for signal
     double genLevWeight=1; 
-    if(cur_type!=0){
+    if(cur_type<0){
 	for(std::vector<BaseGenLevelSmearer*>::iterator si=genLevelSmearers_.begin(); si!=genLevelSmearers_.end(); si++){
 	    float genWeight=1;
 	    (*si)->smearEvent( genWeight,gP4, l.pu_n, cur_type, 0. );
@@ -835,7 +963,14 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             // Iterate over each mass point. 
             for (int i = 2; i<nMasses;i++){ //ignoring masses 105 and 110 for now
                 if (i==8) continue;
-                if (cur_type == 0) l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
+		// Injecting a fake signal for tests
+                if (cur_type == 0 || (SignalType(cur_type)==7)) {
+			if (SignalType(cur_type)==7){ //that is the M140
+				//l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight*10);
+			} else {
+				l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
+			}
+		}
 
                 // define hypothesis masses for the sidebands
                 float mass_hypothesis = masses[i];
@@ -855,7 +990,9 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
                     float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
 
-                    if (cur_type == 0 ){//data
+                    if (cur_type == 0 || SignalType(cur_type)==7){//data
+
+			
                         l.FillHist("deltaMOverM"+names[i],0, _deltaMOverM, evweight);
                         l.FillHist("deltaMOverSigmaM"+names[i],0, _deltaMOverSigmaM, evweight);
                         l.FillHist("sigmaMOverM"+names[i],0, _sigmaMOverM, evweight);
@@ -869,17 +1006,22 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                         l.FillHist("max_eta"+names[i],0, _max_eta, evweight);
                         l.FillHist("min_r9"+names[i],0, _min_r9, evweight);
 
-                        l.rooContainer->InputDataPoint("data_BDT_ada"+names[i],category,bdt_ada,evweight);
-                        l.FillHist("BDT_ada"+names[i],0, bdt_ada, evweight);
+			if (SignalType(cur_type)==7){ //M140
+                         // l.rooContainer->InputDataPoint("data_BDT_ada"+names[i],category,bdt_ada,evweight*10);
+                         // l.rooContainer->InputDataPoint("data_BDT_grad"+names[i] ,category,bdt_grad,evweight*10);
+			} else {
+                          l.rooContainer->InputDataPoint("data_BDT_ada"+names[i],category,bdt_ada,evweight);
+                          l.rooContainer->InputDataPoint("data_BDT_grad"+names[i] ,category,bdt_grad,evweight);
+			}
 
-                        l.rooContainer->InputDataPoint("data_BDT_grad"+names[i] ,category,bdt_grad,evweight);
+                        l.FillHist("BDT_ada"+names[i],0, bdt_ada, evweight);
                         l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
                     }
-                    else if (cur_type > 0 ){// background MC
+                    if (cur_type > 0 ){// background MC
                         l.rooContainer->InputDataPoint("bkg_BDT_ada"+names[i],category,bdt_ada,evweight);
                         l.rooContainer->InputDataPoint("bkg_BDT_grad"+names[i] ,category,bdt_grad,evweight);
                     }
-                    else if (cur_type < 0){// signal MC
+                    if (cur_type < 0){// signal MC
                         // Fill if the current type of MC matches the
                         // current iteration over the masses 
                         if (SignalType(cur_type)==i){
@@ -893,11 +1035,16 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_low,evweight);
                     float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
                     float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
-                    if (cur_type == 0 ){//data
-                        l.rooContainer->InputDataPoint("data_low_BDT_ada"+names[i] ,category,bdt_ada,evweight);
-                        l.rooContainer->InputDataPoint("data_low_BDT_grad"+names[i],category,bdt_grad,evweight);
+                    if (cur_type == 0 || SignalType(cur_type)==7){//data
+			if (SignalType(cur_type)==7){ //M140
+                         // l.rooContainer->InputDataPoint("data_low_BDT_ada"+names[i],category,bdt_ada,evweight*10);
+                         // l.rooContainer->InputDataPoint("data_low_BDT_grad"+names[i] ,category,bdt_grad,evweight*10);
+			} else {
+                          l.rooContainer->InputDataPoint("data_low_BDT_ada"+names[i],category,bdt_ada,evweight);
+                          l.rooContainer->InputDataPoint("data_low_BDT_grad"+names[i] ,category,bdt_grad,evweight);
+			}
                     }
-                    else if (cur_type > 0 ){// background MC
+                    if (cur_type > 0 ){// background MC
                         l.rooContainer->InputDataPoint("bkg_low_BDT_ada"+names[i] ,category,bdt_ada,evweight);
                         l.rooContainer->InputDataPoint("bkg_low_BDT_grad"+names[i],category,bdt_grad,evweight);
                     }
@@ -907,11 +1054,16 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_high,evweight);
                     float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
                     float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
-                    if (cur_type == 0 ){//data
-                        l.rooContainer->InputDataPoint("data_high_BDT_ada"+names[i] ,category,bdt_ada,evweight);
-                        l.rooContainer->InputDataPoint("data_high_BDT_grad"+names[i],category,bdt_grad,evweight);
+                    if (cur_type == 0 || SignalType(cur_type)==7){//data
+			if (SignalType(cur_type)==7){ //M130
+                       //  l.rooContainer->InputDataPoint("data_high_BDT_ada"+names[i],category,bdt_ada,evweight*10);
+                       //  l.rooContainer->InputDataPoint("data_high_BDT_grad"+names[i] ,category,bdt_grad,evweight*10);
+			} else {
+                          l.rooContainer->InputDataPoint("data_high_BDT_ada"+names[i],category,bdt_ada,evweight);
+                          l.rooContainer->InputDataPoint("data_high_BDT_grad"+names[i] ,category,bdt_grad,evweight);
+			}
                     }
-                    else if (cur_type > 0 ){// background MC
+                    if (cur_type > 0 ){// background MC
                         l.rooContainer->InputDataPoint("bkg_high_BDT_ada"+names[i] ,category,bdt_ada,evweight);
                         l.rooContainer->InputDataPoint("bkg_high_BDT_grad"+names[i],category,bdt_grad,evweight);
                     }
