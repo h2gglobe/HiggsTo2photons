@@ -1377,8 +1377,8 @@ std::vector<std::vector<double> > RooContainer::OptimizedBinning(std::string dat
 	for (int cat=0;cat<ncat;cat++){
 	   std::map<std::string,TH1F>::iterator it_th=m_th1f_.find(getcatName(datasetname,cat));
 	   if (it_th!=m_th1f_.end()){
-		if (direction!=-1) return_bins.push_back(optimizedReverseBinning(&(it_th->second),nTargetBins,revise_target,use_n_entries));
-		else return_bins.push_back(optimizedBinning(&(it_th->second),nTargetBins,revise_target,use_n_entries));
+		if (direction!=-1) return_bins.push_back(optimizedBinning(&(it_th->second),nTargetBins,revise_target,use_n_entries));
+		else return_bins.push_back(optimizedReverseBinning(&(it_th->second),nTargetBins,revise_target,use_n_entries));
 
 	   } else {
 		std::cerr << "WARNING ! -- RooContainer::OptimizedBinning -- No such binned dataset as " << datasetname << std::endl;
@@ -1470,6 +1470,7 @@ std::vector<double> RooContainer::optimizedReverseBinning(TH1F *hb,int nTargetBi
 		return binEdges;
 	}
 
+	std::cout << "RooContainer::optimizedBinning -- Performing Reverse Optimize Binning" <<std::endl;
 	double sumBin = 0;
 	int i=nBins;
 	while (i>=1){
@@ -1773,14 +1774,16 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 	// idea is to sum over all components and then scale by sum / sum entries
 	double nEntries = (it_data->second).sumEntries(0,"rnge1") + (it_data->second).sumEntries(0,"rnge2");
 	double sumComp = 0;
+//	for (std::vector<RooRealVar*>::iterator it_comp_norm = m_comp_pdf_norm_[name_func].begin();it_comp_norm != m_comp_pdf_norm_[name_func].end();it_comp_norm++)
+//	  {
+//		sumComp += (*it_comp_norm)->getVal();
+//	  }
 	for (std::vector<RooRealVar*>::iterator it_comp_norm = m_comp_pdf_norm_[name_func].begin();it_comp_norm != m_comp_pdf_norm_[name_func].end();it_comp_norm++)
 	  {
-		sumComp += (*it_comp_norm)->getVal();
-	  }
-	for (std::vector<RooRealVar*>::iterator it_comp_norm = m_comp_pdf_norm_[name_func].begin();it_comp_norm != m_comp_pdf_norm_[name_func].end();it_comp_norm++)
-	  {
-		(*it_comp_norm)->setVal(nEntries/sumComp);
-		(*it_comp_norm)->setError(TMath::Sqrt((*it_comp_norm)->getVal()));
+//		(*it_comp_norm)->setVal(nEntries/sumComp);
+//		(*it_comp_norm)->setError(TMath::Sqrt((*it_comp_norm)->getVal()));
+		(*it_comp_norm)->setVal(2*(*it_comp_norm)->getVal());
+		(*it_comp_norm)->setError(2*(*it_comp_norm)->getError());
 	  }
 	
         mode = 2;
@@ -1825,9 +1828,15 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
           real_var->setRange("rnge1",x1,x2);
           real_var->setRange("rnge2",x3,x4);
           fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
+
+	  // This Fix just counts events in the sideband and uses that for Normalisation purposes
 	  double newNorm =(it_data->second).sumEntries(0,"rnge1") + (it_data->second).sumEntries(0,"rnge2");
 	  m_real_var_[name_func].setVal(newNorm);
 	  m_real_var_[name_func].setError(TMath::Sqrt(newNorm));
+
+	  // This Fix is to take account of there being 2 NLL for the 2 range fit
+//	  m_real_var_[name_func].setVal(2*m_real_var_[name_func].getVal());
+//	  m_real_var_[name_func].setError(2*m_real_var_[name_func].getError());
           mode = 2;
         }
        }
@@ -1844,7 +1853,12 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
     } else {
   	RooAbsReal* integral1 = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge1"));
   	RooAbsReal* integral2 = pdf_ptr->createIntegral(*real_var,NormSet(*real_var),Range("rnge2"));
+//  	RooAbsReal* integral1 = pdf_ptr->createIntegral(*real_var,Range("rnge1"));
+//  	RooAbsReal* integral2 = pdf_ptr->createIntegral(*real_var,Range("rnge2"));
 	RooFormulaVar *integral = new RooFormulaVar("sum","sum","@0+@1",RooArgSet(*integral1,*integral2));
+	
+        real_var->setRange("rnge",x2,x3);
+	cout << "Number of Events in signal region = " << (it_data->second).sumEntries(0,"rnge") <<endl;
 	DUMP_[Form("partial_1_%s",name_func.c_str())]=integral1;
 	DUMP_[Form("partial_2_%s",name_func.c_str())]=integral2;
 
@@ -1876,7 +1890,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 	(it_exp->second).plotOn(xframe,LineColor(4));
 	if (mode==2){
           real_var->setRange("rnge",x2,x3);
-	  (it_exp->second).plotOn(xframe,LineColor(4),LineStyle(2),Range("rnge"));
+	  (it_exp->second).plotOn(xframe,LineColor(2),LineStyle(3),Range("rnge"));
 	}
 	(it_exp->second).paramOn(xframe);
     	pdf_saves_.push_back(&(it_exp->second));
@@ -2139,6 +2153,8 @@ std::pair<double,double> RooContainer::getNormalisationAndErrorFromFit(std::stri
 
   std::cout << "	Pdf Integral and Error From Latest Fit - " << integralValue << "+/-" << integralError << std::endl;
   std::cout << "	Full (extended term) Norm - " << normalisationVar->getVal()  << std::endl;
+  std::cout << "	Integral Of latest Fit - " << latestFitRangeIntegral_[pdf_name]->getVal()  << std::endl;
+  std::cout << "	Pdf Get Norm - " << pdf_ptr->getNorm()  << std::endl;
   std::cout << "	Normalisation In Range and Error - " << result << "+/-" << fullError << std::endl;
   return std::pair<double,double>(result,fullError);
 
