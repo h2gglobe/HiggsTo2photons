@@ -49,7 +49,7 @@ void MvaAnalysis::Term(LoopAll& l)
     }
     else{
         float mass_low = masses[2]*(1-signalRegionWidth)/(1+signalRegionWidth);
-//NOTE THE UGLY FIX HERE TO IGNORE THE POINTS 105 and 110
+        //NOTE THE UGLY FIX HERE TO IGNORE THE POINTS 105 and 110
         float mass_high = masses[9]*(1+signalRegionWidth)/(1-signalRegionWidth);
         float mass_boundaries[2];
         mass_boundaries[0] = mass_low*(1-signalRegionWidth);
@@ -68,59 +68,11 @@ void MvaAnalysis::Term(LoopAll& l)
             sideband_boundaries[2] = mass_hypothesis*(1+signalRegionWidth);
             sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth); 
 
-            // Fit Inv Mass spectra
-	    //if (mass_hypothesis != 115)
-            //  l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
-	   // else 
-            //  l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
-	    
-            //l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
-
-/*
-            l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
-            //l.rooContainer->FitToData("data_pol_model"+names[i], "data_mass"+names[i],95,185);
-            // Integrate fit to spectra to obtain normalisations
-            std::vector<std::pair<double,double> > N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_pol_model"+names[i],
-                                        "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
-            
-	    cout << mass_hypothesis <<" - exp  Normalisation - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
-
-            //l.rooContainer->FitToData("data_exp2_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
-            l.rooContainer->FitToData("data_exp2_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
-            //l.rooContainer->FitToData("data_exp2_model"+names[i], "data_mass"+names[i],95,185);
-            N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_exp2_model"+names[i],
-                                        "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
-            
-	    cout << mass_hypothesis <<" - 2*exp Normalisation - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
-
-           // l.rooContainer->FitToData("data_exp3_model"+names[i], "data_mass"+names[i],sideband_boundaries[0],sideband_boundaries[1],sideband_boundaries[2],sideband_boundaries[3]);
-            l.rooContainer->FitToData("data_exp3_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
-            //l.rooContainer->FitToData("data_exp3_model"+names[i], "data_mass"+names[i],95,185);
-            N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_exp3_model"+names[i],
-                                        "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
-            
-	    cout << mass_hypothesis <<" - 3*exp Normalisation - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
-*/
             l.rooContainer->FitToData("data_pow_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
-            //l.rooContainer->FitToData("data_pow_model"+names[i], "data_mass"+names[i],95,185);
             std::vector<std::pair<double,double> > N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_pow_model"+names[i],
                                         "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
             
 	    cout << mass_hypothesis <<" - pow Normalisation - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
-/*
-            l.rooContainer->FitToData("data_lau_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
-            //l.rooContainer->FitToData("data_lau_model"+names[i], "data_mass"+names[i],95,185);
-            N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_lau_model"+names[i],
-                                        "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
-            
-	    cout << mass_hypothesis <<" - lau Normalisation - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
-            //l.rooContainer->FitToData("data_poly_model"+names[i], "data_mass"+names[i],95,sideband_boundaries[1],sideband_boundaries[2],185);
-            ///N_sig = l.rooContainer->GetFitNormalisationsAndErrors("data_poly_model"+names[i],
-             //                           "data_mass"+names[i],sideband_boundaries[1],sideband_boundaries[2],true);
-            
-	    //cout << mass_hypothesis <<" - 2nd order pol Normalisation - " << N_sig[0].first << "+/-" << N_sig[0].second << std::endl;
-
-*/
             l.rooContainer->AddNormalisationSystematics("bkg_norm"+names[i],N_sig, 1);
 
             // Calculate weights to apply to the sidebands
@@ -138,12 +90,7 @@ void MvaAnalysis::Term(LoopAll& l)
                                               "data_high_BDT_ada"+names[i], wt_low, wt_high, scale);
             l.rooContainer->SumBinnedDatasets("data_BDT_sideband_grad"+names[i], "data_low_BDT_grad"+names[i],
                                               "data_high_BDT_grad"+names[i], wt_low, wt_high, scale);
-//            if (3==i){// Alternative method to sum sidebands
-//                l.rooContainer->SumBinnedDatasets("data_BDT_alt_sideband_ada"+names[i] ,"data_BDT_ada_105" ,
-//                                                 "data_BDT_ada_140" , wt_low, wt_high, scale);
-//               l.rooContainer->SumBinnedDatasets("data_BDT_alt_sideband_grad"+names[i],"data_BDT_grad_105",
-//                                                  "data_BDT_grad_140", wt_low, wt_high, scale);
-//            }
+
 	    std::vector <std::vector<double> > optimizedGradBins; // Need to ompimize binning on MC!
 	    optimizedGradBins =  l.rooContainer->OptimizedBinning("bkg_BDT_grad"+names[i],50,false,true,-1);
 
@@ -169,9 +116,7 @@ void MvaAnalysis::Term(LoopAll& l)
             l.rooContainer->WriteDataCard((std::string) l.histFileName+"_ada"+names[i],"data_BDT_ada"+names[i],"sig_BDT_ada"+names[i],"data_BDT_sideband_ada"+names[i]);
             l.rooContainer->WriteDataCard((std::string) l.histFileName+"_grad"+names[i],"data_BDT_grad"+names[i],"sig_BDT_grad"+names[i],"data_BDT_sideband_grad"+names[i]);
         }
-        //
     }
-//	kfacFile->Close();
 	PhotonAnalysis::Term(l);
 }
 
@@ -268,60 +213,6 @@ void MvaAnalysis::Init(LoopAll& l)
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
     
-    //// This is done in PhotonAnalysis now GF
-    //eSmearPars.categoryType = "2CatR9_EBEE";
-    //eSmearPars.byRun = false;
-    //eSmearPars.n_categories = 4;
-    //
-    //// E scale is shifted for data, NOT for MC 
-    //eSmearPars.scale_offset["EBHighR9"] = 0.;
-    //eSmearPars.scale_offset["EBLowR9"]  = 0.;
-    //eSmearPars.scale_offset["EEHighR9"] = 0.;
-    //eSmearPars.scale_offset["EELowR9"]  = 0.;
-    //// E scale systematics are applied to MC, NOT to data
-    //eSmearPars.scale_offset_error["EBHighR9"] = scale_offset_error_EBHighR9;
-    //eSmearPars.scale_offset_error["EBLowR9"]  = scale_offset_error_EBLowR9;
-    //eSmearPars.scale_offset_error["EEHighR9"] = scale_offset_error_EEHighR9;
-    //eSmearPars.scale_offset_error["EELowR9"]  = scale_offset_error_EELowR9;
-    //// E resolution smearing applied to MC 
-    //eSmearPars.smearing_sigma["EBHighR9"] = smearing_sigma_EBHighR9;
-    //eSmearPars.smearing_sigma["EBLowR9"]  = smearing_sigma_EBLowR9;
-    //eSmearPars.smearing_sigma["EEHighR9"] = smearing_sigma_EEHighR9;
-    //eSmearPars.smearing_sigma["EELowR9"]  = smearing_sigma_EELowR9;
-    //// E resolution systematics applied to MC 
-    //eSmearPars.smearing_sigma_error["EBHighR9"] = smearing_sigma_error_EBHighR9;
-    //eSmearPars.smearing_sigma_error["EBLowR9"]  = smearing_sigma_error_EBLowR9;
-    //eSmearPars.smearing_sigma_error["EEHighR9"] = smearing_sigma_error_EEHighR9;
-    //eSmearPars.smearing_sigma_error["EELowR9"]  = smearing_sigma_error_EELowR9;
-    // MC would need Paul's corrections, of its own GF
-
-
-    // This is done in PhotonAnalysis now
-    //// eSmearDataPars.categoryType = "2CatR9_EBEE";
-    //// eSmearDataPars.n_categories = 4;
-    //// 
-    //// // initialize smearer specific to energy shifts in DATA; use opposite of energy scale shift
-    //// eSmearDataPars.scale_offset["EBHighR9"] = -1*scale_offset_EBHighR9;
-    //// eSmearDataPars.scale_offset["EBLowR9"]  = -1*scale_offset_EBLowR9;
-    //// eSmearDataPars.scale_offset["EEHighR9"] = -1*scale_offset_EEHighR9;
-    //// eSmearDataPars.scale_offset["EELowR9"]  = -1*scale_offset_EELowR9;
-    //// // no energy scale systematics applied to data
-    //// eSmearDataPars.scale_offset_error["EBHighR9"] = 0.;
-    //// eSmearDataPars.scale_offset_error["EBLowR9"]  = 0.;
-    //// eSmearDataPars.scale_offset_error["EEHighR9"] = 0.;
-    //// eSmearDataPars.scale_offset_error["EELowR9"]  = 0.;
-    //// // E resolution smearing NOT applied to data 
-    //// eSmearDataPars.smearing_sigma["EBHighR9"] = 0.;
-    //// eSmearDataPars.smearing_sigma["EBLowR9"]  = 0.;
-    //// eSmearDataPars.smearing_sigma["EEHighR9"] = 0.;
-    //// eSmearDataPars.smearing_sigma["EELowR9"]  = 0.;
-    //// // E resolution systematics NOT applied to data 
-    //// eSmearDataPars.smearing_sigma_error["EBHighR9"] = 0.;
-    //// eSmearDataPars.smearing_sigma_error["EBLowR9"]  = 0.;
-    //// eSmearDataPars.smearing_sigma_error["EEHighR9"] = 0.;
-    //// eSmearDataPars.smearing_sigma_error["EELowR9"]  = 0.;
-    // DATA would need Paul's corrections, of its own (different from eSmearPars which is for MC) GF
-
 
     effSmearPars.categoryType = "2CatR9_EBEE";
     effSmearPars.n_categories = 4;
@@ -335,21 +226,7 @@ void MvaAnalysis::Init(LoopAll& l)
         photonSmearers_.push_back(eCorrSmearer);
     }
     if( doEscaleSmear ) {
-        // Moved to PhotonAnalysis GF 
-	//// energy scale systematics to MC
-        //eScaleSmearer = new EnergySmearer( eSmearPars );
-	//eScaleSmearer->name("E_scale");
-	//eScaleSmearer->doEnergy(true);
-	//eScaleSmearer->scaleOrSmear(true);
         photonSmearers_.push_back(eScaleSmearer);
-
-	//// Moved to PhotonAnalysis PM
-	//// // energy scale corrections to Data
-	//// eScaleDataSmearer = new EnergySmearer( eSmearDataPars );
-	//// eScaleDataSmearer->name("E_scale_data");
-	//// eScaleDataSmearer->doEnergy(true);
-	//// eScaleDataSmearer->scaleOrSmear(true);
-	//photonDataSmearers_.push_back(eScaleDataSmearer); // must not be included among MC smearers; will be singled out upon need // GF questions?
     }
     if( doEresolSmear ) {
 	// energy resolution smearing
@@ -478,7 +355,7 @@ void MvaAnalysis::Init(LoopAll& l)
     //mass low is centre of lowest sideband for lowest test mass
     //mass hgih is centre of hgihest sideband for hgihest test mass
     float mass_low = masses[2]*(1-signalRegionWidth)/(1+signalRegionWidth);
-//NOTE THE UGLY FIX HERE TO IGNORE THE POINTS 105 and 110
+    //NOTE THE UGLY FIX HERE TO IGNORE THE POINTS 105 and 110
     float mass_high = masses[9]*(1+signalRegionWidth)/(1-signalRegionWidth);
     float mass_boundaries[2];
     mass_boundaries[0] = mass_low*(1-signalRegionWidth);
@@ -487,22 +364,6 @@ void MvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddObservable("CMS_hgg_mass",95,185);
 
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
-
-    // SM Model
-    //l.rooContainer->AddConstant("XSBR_105",0.0387684+0.00262016+0.003037036);
-    l.rooContainer->AddConstant("XSBR_110",0.0390848+0.00275406+0.002902204);
-    l.rooContainer->AddConstant("XSBR_115",0.0386169+0.00283716+0.002717667);
-    l.rooContainer->AddConstant("XSBR_120",0.0374175+0.00285525+0.002286);
-    l.rooContainer->AddConstant("XSBR_130",0.0319112+0.00260804+0.0019327068);
-    l.rooContainer->AddConstant("XSBR_140",0.0235322+0.00204088+0.0012874228);
-
-    // FF model	
-    l.rooContainer->AddConstant("ff_XSBR_105",0.1514688+0.1608224);
-    l.rooContainer->AddConstant("ff_XSBR_110",0.08323692+0.08023015);
-    l.rooContainer->AddConstant("ff_XSBR_115",0.0481518+0.04212559);
-    l.rooContainer->AddConstant("ff_XSBR_120",0.02927583+0.023436813);
-    l.rooContainer->AddConstant("ff_XSBR_130",0.01224394+0.008260946);
-    l.rooContainer->AddConstant("ff_XSBR_140",0.005656604+0.003241793);
 
     for (int i = 2; i<nMasses;i++){
 
@@ -526,112 +387,74 @@ void MvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddFormulaVar("modpol0"+names[i],"@0*@0","pol0"+names[i]);
     l.rooContainer->AddFormulaVar("modpol1"+names[i],"@0*@0","pol1"+names[i]);
 
-	// Exponential Model
-        std::vector<std::string> data_exp_pars(1,"p");	 
-        data_exp_pars[0] = "mu"+names[i];
-        l.rooContainer->AddGenericPdf("data_pol_model"+names[i], "0","CMS_hgg_mass",data_exp_pars,1);
-	
-	// 2nd order polynomial model
-        std::vector<std::string> data_pol_pars(2,"p");	 
-        data_pol_pars[0] = "modpol0"+names[i];
-        data_pol_pars[1] = "modpol1"+names[i];
-        //data_pol_pars[2] = "pol2";
-        l.rooContainer->AddGenericPdf("data_poly_model"+names[i], "0","CMS_hgg_mass",data_pol_pars,72);	
+    // Exponential Model
+    std::vector<std::string> data_exp_pars(1,"p");	 
+    data_exp_pars[0] = "mu"+names[i];
+    l.rooContainer->AddGenericPdf("data_pol_model"+names[i], "0","CMS_hgg_mass",data_exp_pars,1);
 
-	// Double Exponential model  -- The RooAddPdf Way
-        std::vector<std::string> data_exp1_pars(1,"p");	 
-        data_exp1_pars[0] = "mu1"+names[i];
-        l.rooContainer->AddGenericPdf("data_expa_model"+names[i], "0","CMS_hgg_mass",data_exp1_pars,1,0.49,0.0,0.9);
+    // 2nd order polynomial model
+    std::vector<std::string> data_pol_pars(2,"p");	 
+    data_pol_pars[0] = "modpol0"+names[i];
+    data_pol_pars[1] = "modpol1"+names[i];
+    l.rooContainer->AddGenericPdf("data_poly_model"+names[i], "0","CMS_hgg_mass",data_pol_pars,72);	
 
-        std::vector<std::string> data_exp2_pars(1,"p");	 
-        data_exp2_pars[0] = "mu2"+names[i];
-        l.rooContainer->AddGenericPdf("data_expb_model"+names[i], "0","CMS_hgg_mass",data_exp2_pars,1,0.49,0.0,0.9);
+    // Double Exponential model  -- The RooAddPdf Way
+    std::vector<std::string> data_exp1_pars(1,"p");	 
+    data_exp1_pars[0] = "mu1"+names[i];
+    l.rooContainer->AddGenericPdf("data_expa_model"+names[i], "0","CMS_hgg_mass",data_exp1_pars,1,0.49,0.0,0.9);
 
-	std::vector<std::string> components_data(2,"c");
-	components_data[1]="data_expa_model"+names[i];	
-	components_data[0]="data_expb_model"+names[i];	
-	l.rooContainer->ComposePdf("data_exp2_model"+names[i],"exp1+exp2",components_data,false);
+    std::vector<std::string> data_exp2_pars(1,"p");	 
+    data_exp2_pars[0] = "mu2"+names[i];
+    l.rooContainer->AddGenericPdf("data_expb_model"+names[i], "0","CMS_hgg_mass",data_exp2_pars,1,0.49,0.0,0.9);
 
-	// Double Exponential model  -- The Formula Way
-	/*
-        std::vector<std::string> data_exp1_pars(4,"p");	 
-        data_exp1_pars[0] = "mu1";
-        data_exp1_pars[1] = "f1";
-        data_exp1_pars[2] = "mu2";
-        data_exp1_pars[3] = "f2";
-        l.rooContainer->AddGenericPdf("data_exp2_model"+names[i], "@2*TMath::Exp(@0*@1) + @4*TMath::Exp(@0*@3)","CMS_hgg_mass",data_exp1_pars,0);
-	*/
-	
+    std::vector<std::string> components_data(2,"c");
+    components_data[1]="data_expa_model"+names[i];	
+    components_data[0]="data_expb_model"+names[i];	
+    l.rooContainer->ComposePdf("data_exp2_model"+names[i],"exp1+exp2",components_data,false);
 
-	// Triple Exponential model
-        std::vector<std::string> data_expa1_pars(1,"p");	 
-        data_expa1_pars[0] = "mu1a"+names[i];
-        l.rooContainer->AddGenericPdf("data_expaa_model"+names[i], "0","CMS_hgg_mass",data_expa1_pars,1,0.33,0.0,0.9);
+    // Double Exponential model  -- The Formula Way
+    /*
+    std::vector<std::string> data_exp1_pars(4,"p");	 
+    data_exp1_pars[0] = "mu1";
+    data_exp1_pars[1] = "f1";
+    data_exp1_pars[2] = "mu2";
+    data_exp1_pars[3] = "f2";
+    l.rooContainer->AddGenericPdf("data_exp2_model"+names[i], "@2*TMath::Exp(@0*@1) + @4*TMath::Exp(@0*@3)","CMS_hgg_mass",data_exp1_pars,0);
+    */
 
-        std::vector<std::string> data_expa2_pars(1,"p");	 
-        data_expa2_pars[0] = "mu2a"+names[i];
-        l.rooContainer->AddGenericPdf("data_expbb_model"+names[i], "0","CMS_hgg_mass",data_expa2_pars,1,0.29,0.0,0.9);
 
-        std::vector<std::string> data_expa3_pars(1,"p");	 
-        data_expa3_pars[0] = "mu3a"+names[i];
-        l.rooContainer->AddGenericPdf("data_expcc_model"+names[i], "0","CMS_hgg_mass",data_expa3_pars,1,0.29,0.0,0.9);
+    // Triple Exponential model
+    std::vector<std::string> data_expa1_pars(1,"p");	 
+    data_expa1_pars[0] = "mu1a"+names[i];
+    l.rooContainer->AddGenericPdf("data_expaa_model"+names[i], "0","CMS_hgg_mass",data_expa1_pars,1,0.33,0.0,0.9);
 
-	std::vector<std::string> components_3data(3,"c");
-	components_3data[2]="data_expaa_model"+names[i];	
-	components_3data[1]="data_expbb_model"+names[i];	
-	components_3data[0]="data_expcc_model"+names[i];	
-	l.rooContainer->ComposePdf("data_exp3_model"+names[i],"exp1+exp2+exp3",components_3data,false);
+    std::vector<std::string> data_expa2_pars(1,"p");	 
+    data_expa2_pars[0] = "mu2a"+names[i];
+    l.rooContainer->AddGenericPdf("data_expbb_model"+names[i], "0","CMS_hgg_mass",data_expa2_pars,1,0.29,0.0,0.9);
 
-	// Laurent series
-        std::vector<std::string> data_lau_pars(2,"p");	 
-        data_lau_pars[0] = "f1"+names[i];
-        data_lau_pars[1] = "f2"+names[i];
-        l.rooContainer->AddGenericPdf("data_lau_model"+names[i], "(@1/(@0*@0*@0*@0)) + (@2/(@0*@0*@0*@0*@0)) ","CMS_hgg_mass",data_lau_pars,0);
+    std::vector<std::string> data_expa3_pars(1,"p");	 
+    data_expa3_pars[0] = "mu3a"+names[i];
+    l.rooContainer->AddGenericPdf("data_expcc_model"+names[i], "0","CMS_hgg_mass",data_expa3_pars,1,0.29,0.0,0.9);
 
-	// Power law
-        std::vector<std::string> data_pow_pars(1,"p");	 
-        data_pow_pars[0] = "r1"+names[i];
-        //data_pow_pars[1] = "f1";
-        //data_pow_pars[2] = "r2";
-        //data_pow_pars[3] = "f2";
-        //l.rooContainer->AddGenericPdf("data_pow_model"+names[i], "@2*TMath::Power(@0,@1) + @4*TMath::Power(@0,@3)","CMS_hgg_mass",data_pow_pars,0);
-        l.rooContainer->AddGenericPdf("data_pow_model"+names[i], "TMath::Power(@0,@1)","CMS_hgg_mass",data_pow_pars,0);
+    std::vector<std::string> components_3data(3,"c");
+    components_3data[2]="data_expaa_model"+names[i];	
+    components_3data[1]="data_expbb_model"+names[i];	
+    components_3data[0]="data_expcc_model"+names[i];	
+    l.rooContainer->ComposePdf("data_exp3_model"+names[i],"exp1+exp2+exp3",components_3data,false);
 
-//	std::vector<std::string> components_data(2,"c");
-//	components_data[0]="data_pol_model"+names[i];	
-//	components_data[1]="data_pol1_model"+names[i];	
-//	l.rooContainer->ComposePdf("data_model"+names[i],"pol1+pol2",components_data,false);
+    // Laurent series
+    std::vector<std::string> data_lau_pars(2,"p");	 
+    data_lau_pars[0] = "f1"+names[i];
+    data_lau_pars[1] = "f2"+names[i];
+    l.rooContainer->AddGenericPdf("data_lau_model"+names[i], "(@1/(@0*@0*@0*@0)) + (@2/(@0*@0*@0*@0*@0)) ","CMS_hgg_mass",data_lau_pars,0);
+
+    // Power law
+    std::vector<std::string> data_pow_pars(1,"p");	 
+    data_pow_pars[0] = "r1"+names[i];
+    l.rooContainer->AddGenericPdf("data_pow_model"+names[i], "TMath::Power(@0,@1)","CMS_hgg_mass",data_pow_pars,0);
+
     }
         
-    // -----------------------------------------------------
-    // Make some data sets from the observables to fill in the event loop		  
-    // Binning is for histograms (will also produce unbinned data sets)
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m105",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m110",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m115",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m120",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m130",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_m140",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m105",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m110",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m115",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m120",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m130",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_rv_m140",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m105",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m110",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m115",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m120",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m130",nDataBins);    
-//    l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_mass_wv_m140",nDataBins);    
-//
-//    // Make more data sets to represent systematic shitfs , 
-//    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m105",-1);	
-//    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m110",-1);	
-//    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m115",-1);	
-//    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m120",-1);	
-//    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m130",-1);	
-//    l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_mass_m140",-1);	
 	
 	if (doTraining){
 	    TString outfileName( "TMVA_input_" + (std::string) l.histFileName);
@@ -963,13 +786,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             // Iterate over each mass point. 
             for (int i = 2; i<nMasses;i++){ //ignoring masses 105 and 110 for now
                 if (i==8) continue;
-		// Injecting a fake signal for tests
-                if (cur_type == 0 || (SignalType(cur_type)==7)) {
-			if (SignalType(cur_type)==7){ //that is the M140
-				//l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight*10);
-			} else {
-				l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
-			}
+			l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
 		}
 
                 // define hypothesis masses for the sidebands
@@ -990,7 +807,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
                     float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
 
-                    if (cur_type == 0 || SignalType(cur_type)==7){//data
+                    if (cur_type == 0 ){//data
 
 			
                         l.FillHist("deltaMOverM"+names[i],0, _deltaMOverM, evweight);
@@ -1006,13 +823,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                         l.FillHist("max_eta"+names[i],0, _max_eta, evweight);
                         l.FillHist("min_r9"+names[i],0, _min_r9, evweight);
 
-			if (SignalType(cur_type)==7){ //M140
-                         // l.rooContainer->InputDataPoint("data_BDT_ada"+names[i],category,bdt_ada,evweight*10);
-                         // l.rooContainer->InputDataPoint("data_BDT_grad"+names[i] ,category,bdt_grad,evweight*10);
-			} else {
-                          l.rooContainer->InputDataPoint("data_BDT_ada"+names[i],category,bdt_ada,evweight);
-                          l.rooContainer->InputDataPoint("data_BDT_grad"+names[i] ,category,bdt_grad,evweight);
-			}
+                        l.rooContainer->InputDataPoint("data_BDT_ada"+names[i],category,bdt_ada,evweight);
+                        l.rooContainer->InputDataPoint("data_BDT_grad"+names[i] ,category,bdt_grad,evweight);
 
                         l.FillHist("BDT_ada"+names[i],0, bdt_ada, evweight);
                         l.FillHist("BDT_grad"+names[i],0, bdt_grad, evweight);
@@ -1035,14 +847,9 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_low,evweight);
                     float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
                     float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
-                    if (cur_type == 0 || SignalType(cur_type)==7){//data
-			if (SignalType(cur_type)==7){ //M140
-                         // l.rooContainer->InputDataPoint("data_low_BDT_ada"+names[i],category,bdt_ada,evweight*10);
-                         // l.rooContainer->InputDataPoint("data_low_BDT_grad"+names[i] ,category,bdt_grad,evweight*10);
-			} else {
-                          l.rooContainer->InputDataPoint("data_low_BDT_ada"+names[i],category,bdt_ada,evweight);
-                          l.rooContainer->InputDataPoint("data_low_BDT_grad"+names[i] ,category,bdt_grad,evweight);
-			}
+                    if (cur_type == 0 ){//data
+                         l.rooContainer->InputDataPoint("data_low_BDT_ada"+names[i],category,bdt_ada,evweight);
+                         l.rooContainer->InputDataPoint("data_low_BDT_grad"+names[i] ,category,bdt_grad,evweight);
                     }
                     if (cur_type > 0 ){// background MC
                         l.rooContainer->InputDataPoint("bkg_low_BDT_ada"+names[i] ,category,bdt_ada,evweight);
@@ -1054,14 +861,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_high,evweight);
                     float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
                     float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
-                    if (cur_type == 0 || SignalType(cur_type)==7){//data
-			if (SignalType(cur_type)==7){ //M130
-                       //  l.rooContainer->InputDataPoint("data_high_BDT_ada"+names[i],category,bdt_ada,evweight*10);
-                       //  l.rooContainer->InputDataPoint("data_high_BDT_grad"+names[i] ,category,bdt_grad,evweight*10);
-			} else {
-                          l.rooContainer->InputDataPoint("data_high_BDT_ada"+names[i],category,bdt_ada,evweight);
-                          l.rooContainer->InputDataPoint("data_high_BDT_grad"+names[i] ,category,bdt_grad,evweight);
-			}
+                        l.rooContainer->InputDataPoint("data_high_BDT_ada"+names[i],category,bdt_ada,evweight);
+                        l.rooContainer->InputDataPoint("data_high_BDT_grad"+names[i] ,category,bdt_grad,evweight);
                     }
                     if (cur_type > 0 ){// background MC
                         l.rooContainer->InputDataPoint("bkg_high_BDT_ada"+names[i] ,category,bdt_ada,evweight);
