@@ -77,6 +77,8 @@ public:
 	bool runStatAnalysis;
         TString puHist, puMap;//name of pileup reweighting histogram
 	bool applyPtoverM;
+	float leadEtCut;
+	float subleadEtCut;
 	std::string massResolutionFileName;
 
 	enum BkgCategory{promptprompt,promptfake,fakefake};
@@ -84,7 +86,6 @@ public:
 
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
-	void StatAnalysis(LoopAll &l, int jentry);
 	void loadPuMap(const char * fname, TDirectory * dir);
 	void loadPuWeights(int typid, TDirectory * dir);
 
