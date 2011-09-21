@@ -786,8 +786,10 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             // Iterate over each mass point. 
             for (int i = 2; i<nMasses;i++){ //ignoring masses 105 and 110 for now
                 if (i==8) continue;
-		if (cur_type==0){
+		if (cur_type==0){  // Data
 			l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass);
+		} else if (cur_type>0) // Background MC
+			l.rooContainer->InputDataPoint("bkg_mass"+names[i],category,mass,evweight);
 		}
 
                 // define hypothesis masses for the sidebands
