@@ -786,7 +786,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             // Iterate over each mass point. 
             for (int i = 2; i<nMasses;i++){ //ignoring masses 105 and 110 for now
                 if (i==8) continue;
-			l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass,evweight);
+		if (cur_type==0){
+			l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass);
 		}
 
                 // define hypothesis masses for the sidebands
@@ -851,7 +852,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                          l.rooContainer->InputDataPoint("data_low_BDT_ada"+names[i],category,bdt_ada,evweight);
                          l.rooContainer->InputDataPoint("data_low_BDT_grad"+names[i] ,category,bdt_grad,evweight);
                     }
-                    if (cur_type > 0 ){// background MC
+                    else if (cur_type > 0 ){// background MC
                         l.rooContainer->InputDataPoint("bkg_low_BDT_ada"+names[i] ,category,bdt_ada,evweight);
                         l.rooContainer->InputDataPoint("bkg_low_BDT_grad"+names[i],category,bdt_grad,evweight);
                     }
@@ -861,10 +862,11 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_high,evweight);
                     float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada"+names[i] );
                     float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad"+names[i] );
+                    if (cur_type == 0 ){//data
                         l.rooContainer->InputDataPoint("data_high_BDT_ada"+names[i],category,bdt_ada,evweight);
                         l.rooContainer->InputDataPoint("data_high_BDT_grad"+names[i] ,category,bdt_grad,evweight);
                     }
-                    if (cur_type > 0 ){// background MC
+                    else if (cur_type > 0 ){// background MC
                         l.rooContainer->InputDataPoint("bkg_high_BDT_ada"+names[i] ,category,bdt_ada,evweight);
                         l.rooContainer->InputDataPoint("bkg_high_BDT_grad"+names[i],category,bdt_grad,evweight);
                     }
