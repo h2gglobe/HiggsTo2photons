@@ -788,7 +788,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 if (i==8) continue;
 		if (cur_type==0){  // Data
 			l.rooContainer->InputDataPoint("data_mass"+names[i],category,mass);
-		} else if (cur_type>0) // Background MC
+		} else if (cur_type>0){ // Background MC
 			l.rooContainer->InputDataPoint("bkg_mass"+names[i],category,mass,evweight);
 		}
 
