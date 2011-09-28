@@ -4,11 +4,25 @@ from CommonTools.ParticleFlow.ParticleSelectors.pfCandsForIsolation_cff  import 
 from CommonTools.ParticleFlow.Isolation.pfPhotonIsolation_cff import *
 from CommonTools.ParticleFlow.Isolation.pfPhotonIsolationFromDeposits_cff import *
 
-pfSelectedPhotons = cms.EDFilter(
-    "GenericPFCandidateSelector",
-    src = cms.InputTag("particleFlow"),
-    cut = cms.string("pdgId()==22 && mva_nothing_gamma>0")
+pfSelectedPhotons = cms.EDFilter("GenericPFCandidateSelector",
+                                 src = cms.InputTag("particleFlow"),
+                                 cut = cms.string("pdgId()==22 && mva_nothing_gamma>0")
 )
+
+pfAllPhotons = cms.EDFilter("PdgIdPFCandidateSelector",
+                            src = cms.InputTag("particleFlow"),
+                            pdgId = cms.vint32(22)
+                            )
+
+pfAllChargedHadrons = cms.EDFilter("PdgIdPFCandidateSelector",
+                                   src = cms.InputTag("particleFlow"),
+                                   pdgId = cms.vint32(211,-211,321,-321,999211,2212,-2212)
+                                   )
+
+pfAllNeutralHadrons = cms.EDFilter("PdgIdPFCandidateSelector",
+                                   src = cms.InputTag("particleFlow"),
+                                   pdgId = cms.vint32(111,130,310,2112)
+                                   )
 
 isoValPhotonWithCharged03 = cms.EDProducer(
     "CandIsolatorFromDeposits",
@@ -54,16 +68,14 @@ isoValPhotonWithNeutral03 = cms.EDProducer(
 
 isoValPhotonWithNeutral04 = cms.EDProducer(
     "CandIsolatorFromDeposits",
-    deposits = cms.VPSet(
-    cms.PSet(
-    src = cms.InputTag("isoDepPhotonWithNeutral"),
-    deltaR = cms.double(0.4),
-    weight = cms.string('1'), # 0.3333,
-    vetos = cms.vstring('Threshold(0.5)'),
-    skipDefaultVeto = cms.bool(True),
-    mode = cms.string('sum')
-    )
-    )
+    deposits = cms.VPSet(cms.PSet(src = cms.InputTag("isoDepPhotonWithNeutral"),
+                                  deltaR = cms.double(0.4),
+                                  weight = cms.string('1'), # 0.3333,
+                                  vetos = cms.vstring('Threshold(0.5)'),
+                                  skipDefaultVeto = cms.bool(True),
+                                  mode = cms.string('sum')
+                                  )
+                         )
     )
 
 isoValPhotonWithPhotons03noveto = cms.EDProducer(
@@ -141,15 +153,13 @@ pfPhotonIsoDepositsSequence = cms.Sequence(
 pfPhotonIsolationFromDepositsSequence03 = cms.Sequence(
     isoValPhotonWithCharged03  +
     isoValPhotonWithNeutral03  +
-    isoValPhotonWithPhotons03  +
-    isoValPhotonWithPhotons03noveto
+    isoValPhotonWithPhotons03
 )
 
 pfPhotonIsolationFromDepositsSequence04 = cms.Sequence(
     isoValPhotonWithCharged04  +
     isoValPhotonWithNeutral04  +
-    isoValPhotonWithPhotons04  +
-    isoValPhotonWithPhotons04noveto
+    isoValPhotonWithPhotons04
 )
 
 pfPhotonIsolationSequence = cms.Sequence(
@@ -159,7 +169,9 @@ pfPhotonIsolationSequence = cms.Sequence(
     )
 
 pfBasedPhotonIsoSequence = cms.Sequence(
-    pfCandsForIsolationSequence +
+    pfAllChargedHadrons +
+    pfAllNeutralHadrons + 
+    pfAllPhotons +
     pfSelectedPhotons +
     pfPhotonIsolationSequence
     ) 

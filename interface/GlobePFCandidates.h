@@ -52,6 +52,7 @@ class GlobePFCandidates {
 
   TClonesArray *pfcand_p4;
   TClonesArray *pfcand_poscalo;
+  TClonesArray *pfcand_posvtx;
 
  private:
   GlobeCuts *gCUT;

@@ -36,6 +36,7 @@
 <use   name="SimDataFormats/PileupSummaryInfo"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="RecoEgamma/EgammaTools"/>
+<use   name="RecoEgamma/EgammaElectronAlgos"/>
 <use   name="JetMETCorrections/Objects"/>
 <use   name="hepmc"/>
 <use   name="heppdt"/>
@@ -43,6 +44,3 @@
 <use   name="root"/>
 <use   name="boost"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

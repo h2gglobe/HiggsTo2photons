@@ -26,9 +26,11 @@ void GlobePFCandidates::defineBranch(TTree* tree) {
   
   pfcand_p4 = new TClonesArray("TLorentzVector", MAX_PFCANDS);
   pfcand_poscalo = new TClonesArray("TVector3", MAX_PFCANDS);
+  pfcand_posvtx = new TClonesArray("TVector3", MAX_PFCANDS);
   
   tree->Branch("pfcand_p4", "TClonesArray", &pfcand_p4, 32000, 0);
   tree->Branch("pfcand_poscalo", "TClonesArray", &pfcand_poscalo, 32000, 0);
+  tree->Branch("pfcand_posvtx", "TClonesArray", &pfcand_posvtx, 32000, 0);
 
   tree->Branch("pfcand_n", &pfcand_n, "pfcand_n/I");
   tree->Branch("pfcand_pdgid",&pfcand_pdgid,"pfcand_pdgid[pfcand_n]/I");
@@ -48,7 +50,7 @@ void GlobePFCandidates::defineBranch(TTree* tree) {
   tree->Branch("pfcand_mva_nothing_gamma", &pfcand_mva_nothing_gamma, "pfcand_mva_nothing_gamma[pfcand_n]/F");
   tree->Branch("pfcand_mva_nothing_nh", &pfcand_mva_nothing_nh, "pfcand_mva_nothing_nh[pfcand_n]/F");
   tree->Branch("pfcand_mva_gamma_nh", &pfcand_mva_gamma_nh, "pfcand_mva_gamma_nh[pfcand_n]/F");
-  tree->Branch("pfcand_vz",&pfcand_vz,"pfcand_vz[pfcand_n]/F");
+  //tree->Branch("pfcand_vz",&pfcand_vz,"pfcand_vz[pfcand_n]/F");
   tree->Branch("pfcand_overlappho",&pfcand_overlappho,"pfcand_overlappho[pfcand_n]/i");
   //tree->Branch("pfcand_overlappho",&pfcand_overlappho,"pfcand_overlappho[pfcand_n][pho_n]/I");
 }
@@ -65,6 +67,7 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   pfcand_p4->Clear(); 
   pfcand_poscalo->Clear(); 
+  pfcand_posvtx->Clear(); 
   pfcand_n = 0;
   //pfcandtimespho_n = 0;
 
@@ -91,6 +94,7 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	TVector3* PfCandEcalPos = new TVector3(ipf->positionAtECALEntrance().x(), 
 					       ipf->positionAtECALEntrance().y(), 
 					       ipf->positionAtECALEntrance().z());
+
 	if (PfCandEcalPos->X()!=0 && PfCandEcalPos->Y()!=0 && PfCandEcalPos->Z()!=0){
 	  double dEta = PhoEcalPos->Eta() - PfCandEcalPos->Eta();
 	  double dPhi = PhoEcalPos->Phi() - PfCandEcalPos->Phi();
@@ -117,7 +121,7 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
     pfcand_mva_nothing_gamma[pfcand_n] = ipf->mva_nothing_gamma();
     pfcand_mva_nothing_nh[pfcand_n] = ipf->mva_nothing_nh();
     pfcand_mva_gamma_nh[pfcand_n] = ipf->mva_gamma_nh();
-    pfcand_vz[pfcand_n] = ipf->vz();
+    //pfcand_vz[pfcand_n] = ipf->vz();
 
     new ((*pfcand_p4)[pfcand_n]) TLorentzVector();
     ((TLorentzVector *)pfcand_p4->At(pfcand_n))->SetXYZT(ipf->px(), ipf->py(), ipf->pz(), ipf->energy());
@@ -126,6 +130,11 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
     ((TVector3 *)pfcand_poscalo->At(pfcand_n))->SetXYZ(ipf->positionAtECALEntrance().x(), 
 						       ipf->positionAtECALEntrance().y(), 
 						       ipf->positionAtECALEntrance().z());
+
+    new ((*pfcand_posvtx)[pfcand_n]) TVector3();
+    ((TVector3 *)pfcand_posvtx->At(pfcand_n))->SetXYZ(ipf->vx(), 
+						      ipf->vy(), 
+						      ipf->vz());
 
     pfcand_tkind[pfcand_n] = -1;  
     if (tks != 0 && ipf->trackRef().isNonnull()) {

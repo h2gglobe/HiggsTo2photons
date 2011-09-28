@@ -129,11 +129,6 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           continue;                
         }
                  
-        if(debug_level > 9) {
-          std::cout << "Vtx Pos: (" << vtxPos.X() << "," << vtxPos.Y() << "," << vtxPos.Z() << ")" << std::endl;
-          std::cout << "Vtx Mom: (" << vtxMom.X() << "," << vtxMom.Y() << "," << vtxMom.Z() << ")" << std::endl;
-        }
-	
 	
         if( gCUT->cut(*rh,0,vtxMom.DeltaR(calPos-vtxPos)) ) 
           continue;                   
@@ -173,11 +168,6 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
       
     EcalRecHitRef rh(pEERecHitH, i);
-    if(i<10) {
-      if(debug_level > 0) {
-	std::cout << "Ecal Endc "<<i<<" "<<rh->energy()<<std::endl;
-      }
-    }
       
     DetId id = rh->detid();
     const CaloCellGeometry* this_cell = EE->getGeometry(id);
