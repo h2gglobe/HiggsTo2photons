@@ -94,14 +94,16 @@ void MvaAnalysis::Term(LoopAll& l)
 	    std::vector <std::vector<double> > optimizedGradBins; // Need to ompimize binning on MC!
 	    optimizedGradBins =  l.rooContainer->OptimizedBinning("bkg_BDT_grad"+names[i],50,false,true,-1);
 
-	    l.rooContainer->RebinBinnedDataset("bkg_grad"+names[i],"data_BDT_sideband_grad"+names[i],optimizedGradBins,false);
-	    l.rooContainer->RebinBinnedDataset("bkg_high_grad"+names[i],"data_high_BDT_grad"+names[i],optimizedGradBins,false);
-	    l.rooContainer->RebinBinnedDataset("bkg_low_grad"+names[i],"data_low_BDT_grad"+names[i],optimizedGradBins,false);
-	    l.rooContainer->RebinBinnedDataset("bkg_mc_grad"+names[i],"bkg_BDT_grad"+names[i],optimizedGradBins,false);
-	    l.rooContainer->RebinBinnedDataset("bkg_mc_high_grad"+names[i],"bkg_high_BDT_grad"+names[i],optimizedGradBins,false);
-	    l.rooContainer->RebinBinnedDataset("bkg_mc_low_grad"+names[i],"bkg_low_BDT_grad"+names[i],optimizedGradBins,false);
-	    l.rooContainer->RebinBinnedDataset("data_grad"+names[i],"data_BDT_grad"+names[i],optimizedGradBins,false);
-	    l.rooContainer->RebinBinnedDataset("sig_grad"+names[i],"sig_BDT_grad"+names[i],optimizedGradBins,true);
+      l.rooContainer->RebinBinnedDataset("bkg_grad"+names[i],"data_BDT_sideband_grad"+names[i],optimizedGradBins,false);
+      l.rooContainer->RebinBinnedDataset("bkg_high_grad"+names[i],"data_high_BDT_grad"+names[i],optimizedGradBins,false);
+      l.rooContainer->RebinBinnedDataset("bkg_low_grad"+names[i],"data_low_BDT_grad"+names[i],optimizedGradBins,false);
+      l.rooContainer->RebinBinnedDataset("bkg_mc_grad"+names[i],"bkg_BDT_grad"+names[i],optimizedGradBins,false);
+      l.rooContainer->RebinBinnedDataset("bkg_mc_high_grad"+names[i],"bkg_high_BDT_grad"+names[i],optimizedGradBins,false);
+      l.rooContainer->RebinBinnedDataset("bkg_mc_low_grad"+names[i],"bkg_low_BDT_grad"+names[i],optimizedGradBins,false);
+      l.rooContainer->RebinBinnedDataset("data_grad"+names[i],"data_BDT_grad"+names[i],optimizedGradBins,false);
+      l.rooContainer->RebinBinnedDataset("sig_grad"+names[i],"sig_BDT_grad"+names[i],optimizedGradBins,true);
+      l.rooContainer->RebinBinnedDataset("sig_grad"+names[i]+names[i-1],"sig_BDT_grad"+names[i]+names[i-1],optimizedGradBins,true);
+      l.rooContainer->RebinBinnedDataset("sig_grad"+names[i]+names[i+1],"sig_BDT_grad"+names[i]+names[i+1],optimizedGradBins,true);
 
 	    std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->OptimizedBinning("bkg_BDT_ada"+names[i],50,false,true,-1);
 	    l.rooContainer->RebinBinnedDataset("bkg_ada"+names[i],"data_BDT_sideband_ada"+names[i],optimizedAdaBins,false);
@@ -112,6 +114,8 @@ void MvaAnalysis::Term(LoopAll& l)
 	    l.rooContainer->RebinBinnedDataset("bkg_mc_low_ada"+names[i],"bkg_low_BDT_ada"+names[i],optimizedAdaBins,false);
 	    l.rooContainer->RebinBinnedDataset("data_ada"+names[i],"data_BDT_ada"+names[i],optimizedAdaBins,false);
 	    l.rooContainer->RebinBinnedDataset("sig_ada"+names[i],"sig_BDT_ada"+names[i],optimizedAdaBins,true);
+	    l.rooContainer->RebinBinnedDataset("sig_ada"+names[i]+names[i-1],"sig_BDT_ada"+names[i]+names[i-1],optimizedAdaBins,true);
+	    l.rooContainer->RebinBinnedDataset("sig_ada"+names[i]+names[i+1],"sig_BDT_ada"+names[i]+names[i+1],optimizedAdaBins,true);
 
             l.rooContainer->WriteDataCard((std::string) l.histFileName+"_ada"+names[i],"data_BDT_ada"+names[i],"sig_BDT_ada"+names[i],"data_BDT_sideband_ada"+names[i]);
             l.rooContainer->WriteDataCard((std::string) l.histFileName+"_grad"+names[i],"data_BDT_grad"+names[i],"sig_BDT_grad"+names[i],"data_BDT_sideband_grad"+names[i]);
@@ -543,6 +547,8 @@ void MvaAnalysis::Init(LoopAll& l)
         for (int i = 2; i<nMasses;i++){  // We are ignoring masses 105 and 110 for now
             if (i==8) continue;//Not available yet
 	    int nBDTbins = 5000;
+
+      // Usual datasets
             //Adaptive Boost
             l.rooContainer->CreateDataSet("BDT","data_low_BDT_ada"+names[i]  ,nBDTbins);
             l.rooContainer->CreateDataSet("BDT","data_BDT_ada"+names[i]	     ,nBDTbins);
@@ -563,7 +569,12 @@ void MvaAnalysis::Init(LoopAll& l)
             l.rooContainer->CreateDataSet("BDT","bkg_BDT_grad"+names[i]      ,nBDTbins);
             l.rooContainer->CreateDataSet("BDT","bkg_high_BDT_grad"+names[i] ,nBDTbins);
 
-            l.rooContainer->CreateDataSet("BDT","sig_BDT_grad"+names[i]      ,nBDTbins);    
+            l.rooContainer->CreateDataSet("BDT","sig_BDT_grad"+names[i]      ,nBDTbins);  
+
+        //Signal Interpolation Study
+            // also want mass above and below bdt run through that BDT
+            l.rooContainer->CreateDataSet("BDT","sig_BDT_ada"+names[i]+names[i-1],nBDTbins);
+            l.rooContainer->CreateDataSet("BDT","sig_BDT_grad"+names[i]+names[i+1],nBDTbins);
 
             //Invariant Mass Spectra
             l.rooContainer->CreateDataSet("CMS_hgg_mass","data_mass"+names[i],nDataBins); // (100,110,150) -> for a window, else full obs range is taken 
@@ -572,6 +583,10 @@ void MvaAnalysis::Init(LoopAll& l)
             // Make the signal Systematic Sets
             l.rooContainer->MakeSystematics("BDT","sig_BDT_grad"+names[i] ,-1)	;
             l.rooContainer->MakeSystematics("BDT","sig_BDT_ada"+names[i]  ,-1)	;
+         
+         //Signal interpolation systematics (NICK HELP!)
+            l.rooContainer->MakeSystematics("BDT","sig_BDT_grad"+names[i]+names[i-1] ,-1)	;
+            l.rooContainer->MakeSystematics("BDT","sig_BDT_ada"+names[i]+names[i+1]  ,-1)	;
 
             //TMVA Reader
             tmvaReader_->BookMVA("BDT_ada" +names[i],mvaWeightsFolder+"/TMVAClassification_BDT_ada" +names[i]+".weights.xml");
@@ -843,6 +858,18 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                             l.rooContainer->InputDataPoint("sig_BDT_ada"+names[i],category,bdt_ada,evweight);
                             l.rooContainer->InputDataPoint("sig_BDT_grad"+names[i] ,category,bdt_grad,evweight);
                         }
+                        // fill for mass below
+                        if (SignalType(cur_type)==i-1){
+                            
+                          l.rooContainer->InputDataPoint("sig_int_BDT_ada"+names[i]+names[i-1],category,int_bdt_ada,evweight);
+                          l.rooContainer->InputDataPoint("sig_int_BDT_grad"+names[i]+names[i-1],category,int_bdt_grad,evweight);
+                        }
+                        // fill for mass above
+                        if (SignalType(cur_type)==i+1){
+                            
+                          l.rooContainer->InputDataPoint("sig_int_BDT_ada"+names[i]+names[i+1],category,int_bdt_ada,evweight);
+                          l.rooContainer->InputDataPoint("sig_int_BDT_grad"+names[i]+names[i+1],category,int_bdt_grad,evweight);
+                        }
                     }
                 }
                 //Lower Window
@@ -974,6 +1001,15 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                       l.rooContainer->InputSystematicSet("sig_BDT_ada"+names[i],(*si)->name(),categories,bdt_ada_errors,weights);
                       l.rooContainer->InputSystematicSet("sig_BDT_grad"+names[i],(*si)->name(),categories,bdt_grad_errors,weights);
                  }
+                 // NICK CHECK ME - systematics above and below
+                  if (SignalType(cur_type)==i-1){
+                      l.rooContainer->InputSystematicSet("sig_BDT_ada"+names[i]+names[i-1],(*si)->name(),categories,bdt_ada_errors,weights);
+                      l.rooContainer->InputSystematicSet("sig_BDT_grad"+names[i]+names[i-1],(*si)->name(),categories,bdt_grad_errors,weights);
+                 }
+                  if (SignalType(cur_type)==i+1){
+                      l.rooContainer->InputSystematicSet("sig_BDT_ada"+names[i]+names[i+1],(*si)->name(),categories,bdt_ada_errors,weights);
+                      l.rooContainer->InputSystematicSet("sig_BDT_grad"+names[i]+names[i+1],(*si)->name(),categories,bdt_grad_errors,weights);
+                 }
 	        }
 		// -------------------------------------------------------------------------------------------------------------//
  
@@ -1054,6 +1090,15 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                   if (SignalType(cur_type)==i){
                       l.rooContainer->InputSystematicSet("sig_BDT_ada"+names[i],(*si)->name(),categories,bdt_ada_errors,weights);
                       l.rooContainer->InputSystematicSet("sig_BDT_grad"+names[i],(*si)->name(),categories,bdt_grad_errors,weights);
+                 }
+                 // NICK CHECK ME - systematics above and below
+                  if (SignalType(cur_type)==i-1){
+                      l.rooContainer->InputSystematicSet("sig_BDT_ada"+names[i]+names[i-1],(*si)->name(),categories,bdt_ada_errors,weights);
+                      l.rooContainer->InputSystematicSet("sig_BDT_grad"+names[i]+names[i-1],(*si)->name(),categories,bdt_grad_errors,weights);
+                 }
+                  if (SignalType(cur_type)==i+1){
+                      l.rooContainer->InputSystematicSet("sig_BDT_ada"+names[i]+names[i+1],(*si)->name(),categories,bdt_ada_errors,weights);
+                      l.rooContainer->InputSystematicSet("sig_BDT_grad"+names[i]+names[i+1],(*si)->name(),categories,bdt_grad_errors,weights);
                  }
 	        }
 		// -------------------------------------------------------------------------------------------------------------//
@@ -1185,6 +1230,15 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                   l.rooContainer->InputSystematicSet("sig_BDT_ada"+names[i],(*si)->name(),categories,bdt_ada_errors,weights);
                   l.rooContainer->InputSystematicSet("sig_BDT_grad"+names[i],(*si)->name(),categories,bdt_grad_errors,weights);
               }
+               // NICK CHECK ME - systematics above and below
+                if (SignalType(cur_type)==i-1){
+                    l.rooContainer->InputSystematicSet("sig_BDT_ada"+names[i]+names[i-1],(*si)->name(),categories,bdt_ada_errors,weights);
+                    l.rooContainer->InputSystematicSet("sig_BDT_grad"+names[i]+names[i-1],(*si)->name(),categories,bdt_grad_errors,weights);
+               }
+                if (SignalType(cur_type)==i+1){
+                    l.rooContainer->InputSystematicSet("sig_BDT_ada"+names[i]+names[i+1],(*si)->name(),categories,bdt_ada_errors,weights);
+                    l.rooContainer->InputSystematicSet("sig_BDT_grad"+names[i]+names[i+1],(*si)->name(),categories,bdt_grad_errors,weights);
+               }
 	  }
 	  // -------------------------------------------------------------------------------------------------------------//
  
