@@ -62,10 +62,12 @@ class GlobeElectrons {
   Int_t el_1pxb[MAX_ELECTRONS];
   Int_t el_1pxf[MAX_ELECTRONS];
 
-  Float_t el_h[MAX_ELECTRONS];
   Float_t el_hoe[MAX_ELECTRONS];
   Float_t el_hoed1[MAX_ELECTRONS];
   Float_t el_hoed2[MAX_ELECTRONS];
+  Float_t el_hoe_bc[MAX_ELECTRONS];
+  Float_t el_hoed1_bc[MAX_ELECTRONS];
+  Float_t el_hoed2_bc[MAX_ELECTRONS];
 
   Float_t el_detain[MAX_ELECTRONS];
   Float_t el_dphiin[MAX_ELECTRONS];
@@ -77,16 +79,18 @@ class GlobeElectrons {
   Float_t el_d0err[MAX_ELECTRONS];
   Float_t el_chi2[MAX_ELECTRONS];
   Float_t el_dof[MAX_ELECTRONS];
-  //Float_t el_emax[MAX_ELECTRONS];
   Float_t el_e1x5[MAX_ELECTRONS];
   Float_t el_e5x5[MAX_ELECTRONS];
   Float_t el_sipip[MAX_ELECTRONS];
   Float_t el_sieie[MAX_ELECTRONS];
   Float_t el_sieiesc[MAX_ELECTRONS];
+<<<<<<< GlobeElectrons.h
+=======
   //Float_t el_sieie_nolog[MAX_ELECTRONS];
   //Float_t el_sieiesc_nolog[MAX_ELECTRONS];
   Float_t el_eseffsixix[MAX_ELECTRONS];
   Float_t el_eseffsiyiy[MAX_ELECTRONS];
+>>>>>>> 1.9
 
   Float_t el_e2x5[MAX_ELECTRONS];
   Float_t el_esc[MAX_ELECTRONS];
@@ -103,10 +107,8 @@ class GlobeElectrons {
   Int_t el_losthits[MAX_ELECTRONS];
   Int_t el_validhits[MAX_ELECTRONS];
   Int_t el_hp_expin[MAX_ELECTRONS];
-  Int_t el_hp_expin2[MAX_ELECTRONS];
   Int_t el_hp_expout[MAX_ELECTRONS];
 
-  //Int_t el_sc[MAX_ELECTRONS];
   Int_t el_scind[MAX_ELECTRONS];
   Int_t el_crack[MAX_ELECTRONS];
   Int_t el_tkind[MAX_ELECTRONS];
@@ -114,28 +116,24 @@ class GlobeElectrons {
   
   Int_t el_nambtk[MAX_ELECTRONS];
 
-  //Int_t el_roloose[MAX_ELECTRONS];
-  //Int_t el_rotight[MAX_ELECTRONS];
-  //Int_t el_rohighe[MAX_ELECTRONS];
-  //Int_t el_loose[MAX_ELECTRONS]; 
-  //Int_t el_tight[MAX_ELECTRONS];
-
+  Float_t el_pfiso_myneutral03[MAX_ELECTRONS];
+  Float_t el_pfiso_mycharged03[MAX_ELECTRONS];
+  Float_t el_pfiso_myphoton03[MAX_ELECTRONS];
+  Float_t el_pfiso_myneutral04[MAX_ELECTRONS];
+  Float_t el_pfiso_mycharged04[MAX_ELECTRONS];
+  Float_t el_pfiso_myphoton04[MAX_ELECTRONS];
   Float_t el_pfiso_neutral[MAX_ELECTRONS];
   Float_t el_pfiso_charged[MAX_ELECTRONS];
   Float_t el_pfiso_photon[MAX_ELECTRONS];
   Float_t el_tkiso03[MAX_ELECTRONS];
   Float_t el_ecaliso03[MAX_ELECTRONS];
   Float_t el_hcaliso03[MAX_ELECTRONS];
+  Float_t el_hcaliso03_bc[MAX_ELECTRONS];
   Float_t el_tkiso04[MAX_ELECTRONS];
   Float_t el_ecaliso04[MAX_ELECTRONS];
   Float_t el_hcaliso04[MAX_ELECTRONS];
-  //Bool_t el_3dip_valid[MAX_ELECTRONS];
-  //Float_t el_3dip_x[MAX_ELECTRONS];
-  //Float_t el_3dip_y[MAX_ELECTRONS];
-  //Float_t el_3dip_z[MAX_ELECTRONS];
-  //Float_t el_3dip_xerr[MAX_ELECTRONS];
-  //Float_t el_3dip_yerr[MAX_ELECTRONS];
-  //Float_t el_3dip_zerr[MAX_ELECTRONS];
+  Float_t el_hcaliso04_bc[MAX_ELECTRONS];
+
   Float_t el_mva[MAX_ELECTRONS];
   Bool_t el_ecaldrv[MAX_ELECTRONS];
   Bool_t el_tkdrv[MAX_ELECTRONS];
@@ -160,8 +158,12 @@ class GlobeElectrons {
   bool doFastSim;
   bool doAodSim;
   GlobeCuts *gCUT;
+<<<<<<< GlobeElectrons.h
+  edm::InputTag electronColl, trackColl, trackColl2, vertexColl, beamSpotColl, conversionColl, pfColl;
+=======
   GlobeEcalClusters *gES;
   edm::InputTag electronColl, trackColl, trackColl2, vertexColl, beamSpotColl, conversionColl;
+>>>>>>> 1.9
   std::vector<edm::InputTag> eIDLabels;
 
   int debug_level;

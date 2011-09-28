@@ -9,52 +9,30 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCuts.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeEcalClusters.h"
 
+
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
+#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
+
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
+
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
+
+#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
+
+#include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
+
 #include "TTree.h"
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
-
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
-#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
-#include "DataFormats/EgammaCandidates/interface/Conversion.h"
-#include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
-
-#include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterShapeAssociation.h"
-#include "DataFormats/EgammaReco/interface/ClusterShapeFwd.h"
-#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
-
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollection.h"
-
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-
-#include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
-#include "DataFormats/Math/interface/Point3D.h"
-#include "DataFormats/Candidate/interface/Particle.h"
-
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
-#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterEnergyCorrection.h"
-#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrection.h"
-#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterLocalContCorrection.h"
-
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
-
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-#include "Math/VectorUtil.h"
-#include "DataFormats/Math/interface/LorentzVector.h"
-#include <iostream>
 
 typedef math::XYZTLorentzVector LorentzVector;
 
@@ -62,12 +40,11 @@ class GlobePhotons {
  public:
 
   GlobePhotons(const edm::ParameterSet&, const char* n = "unused");
-  virtual ~GlobePhotons() {};
+  ~GlobePhotons();
 
+  void checkSetup(const edm::EventSetup&);
   void defineBranch(TTree* tree);
   bool analyze(const edm::Event&, const edm::EventSetup&);
-  float hoeCalculator(const reco::BasicCluster*, const CaloGeometry&,
-                      const edm::Event&, const edm::EventSetup&);
 
   int PhotonID(reco::PhotonRef, int, reco::VertexRef, bool, int a = -1);
 
@@ -80,11 +57,17 @@ class GlobePhotons {
   int photonCutLevel4(float, float, float, float, float, float, float, float);
 
   void setPhotonIDThresholds(const edm::ParameterSet&);
+<<<<<<< GlobePhotons.h
+  std::vector<float> pfTkIsoWithVertex(math::XYZVector, const reco::PFCandidateCollection*, float, float, std::vector<reco::PFCandidate::ParticleType>); 
+  float pfEcalIso(math::XYZVector, const reco::PFCandidateCollection*, float, float, float, float, float, float, std::vector<reco::PFCandidate::ParticleType>);
+  float pfHcalIso(math::XYZVector, const reco::PFCandidateCollection*, float, float, std::vector<reco::PFCandidate::ParticleType>);
+=======
   std::vector<float> pfTkIsoWithVertex(const reco::PFCandidatePtr, const reco::PFCandidateCollection*, float, float); 
   std::vector<float> pfTkIsoWithVertex(math::XYZVector, const reco::PFCandidateCollection*, float, float); 
   float pfEcalIso(math::XYZVector, const reco::PFCandidateCollection*, float, float, float, float, float, float);
   float pfHcalIso(math::XYZVector, const reco::PFCandidateCollection*, float, float);
   std::map<DetId, EcalRecHit> rechits_map_;
+>>>>>>> 1.19
 
     // variables
 
@@ -112,9 +95,11 @@ class GlobePhotons {
   Float_t pho_e5x5[MAX_PHOTONS];
   Float_t pho_emaxxtal[MAX_PHOTONS];
   Float_t pho_hoe[MAX_PHOTONS];
-  Float_t pho_h[MAX_PHOTONS];
   Float_t pho_h1oe[MAX_PHOTONS];
   Float_t pho_h2oe[MAX_PHOTONS];
+  Float_t pho_hoe_bc[MAX_PHOTONS];
+  Float_t pho_h1oe_bc[MAX_PHOTONS];
+  Float_t pho_h2oe_bc[MAX_PHOTONS];
   Float_t pho_r1x5[MAX_PHOTONS];
   Float_t pho_r2x5[MAX_PHOTONS];
   Float_t pho_r9[MAX_PHOTONS];
@@ -147,18 +132,19 @@ class GlobePhotons {
   Float_t pho_seed_severity[MAX_PHOTONS];
 
   //isolation variables
+  Float_t pho_pfiso_myneutral03[MAX_PHOTONS];
+  Float_t pho_pfiso_myphoton03[MAX_PHOTONS];  
+  Float_t pho_pfiso_myneutral04[MAX_PHOTONS];
+  Float_t pho_pfiso_myphoton04[MAX_PHOTONS];
+  std::vector<std::vector<float> >* pho_pfiso_mycharged03;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged04;
+
   Float_t pho_pfiso_neutral03[MAX_PHOTONS];
   Float_t pho_pfiso_charged03[MAX_PHOTONS];
   Float_t pho_pfiso_photon03[MAX_PHOTONS];  
-  Float_t pho_pfiso_photon03_noveto[MAX_PHOTONS];
   Float_t pho_pfiso_neutral04[MAX_PHOTONS];
   Float_t pho_pfiso_charged04[MAX_PHOTONS];
-  Float_t pho_pfiso_photon04[MAX_PHOTONS];
-  Float_t pho_pfiso_photon04_noveto[MAX_PHOTONS];
-  std::vector<std::vector<float> >* pho_pfiso_mycharged03;
-  std::vector<std::vector<float> >* pho_pfiso_mycharged04;
-  //std::vector<std::vector<float> >* pho_pfiso_mycharged03_noveto;
-  //std::vector<std::vector<float> >* pho_pfiso_mycharged04_noveto;
+  Float_t pho_pfiso_photon04[MAX_PHOTONS];  
 
   Float_t pho_ecalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcalsumetconedr04[MAX_PHOTONS];
@@ -226,8 +212,6 @@ class GlobePhotons {
   TClonesArray *pho_conv_vertexcorrected_p4;
 
  private:
-  bool sameParticle(const reco::PFCandidate&, const reco::PFCandidate&) const;
-
   const char* nome;
   GlobeCuts *gCUT;
   GlobeEcalClusters *gES;
@@ -295,6 +279,13 @@ class GlobePhotons {
   std::vector<double> cutsubleadhovere[12];
   std::vector<double> cutsubleadr9[12];
   std::vector<double> cutsublead_drtotk[12];
+
+  ElectronHcalHelper *hcalHelper, *hcalHelperPflow;
+
+  CaloGeometry geometry;
+  const EcalSeverityLevelAlgo* sevLevel; 
+  edm::ESHandle<TransientTrackBuilder> theTTkBuilder;
+  ElectronHcalHelper::Configuration hcalCfg, hcalCfgPflow;
 };
 
 #endif

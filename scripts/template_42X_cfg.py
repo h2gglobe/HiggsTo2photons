@@ -188,17 +188,17 @@ process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 
 if flagAOD is 'ON':
   process.p11 = cms.Path( process.eventCounters*process.eventFilter1*
-                          process.pfBasedPhotonIsoSequence*
+                          #process.pfBasedPhotonIsoSequence*
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*process.h2ganalyzerPath)
   process.p12 = cms.Path( process.eventCounters*process.eventFilter2*
-                          process.pfBasedPhotonIsoSequence*
+                          #process.pfBasedPhotonIsoSequence*
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*process.h2ganalyzerPath)
 else:
   process.p11 = cms.Path( process.eventCounters*
                           process.eventFilter1*
-                          process.pfBasedPhotonIsoSequence*
+                          #process.pfBasedPhotonIsoSequence*
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*
                           process.conversionTrackCandidates*
@@ -208,7 +208,7 @@ else:
                           process.h2ganalyzerPath)
   process.p12 = cms.Path( process.eventCounters*
                           process.eventFilter2*
-                          process.pfBasedPhotonIsoSequence*
+                          #process.pfBasedPhotonIsoSequence*
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*
                           process.conversionTrackCandidates*

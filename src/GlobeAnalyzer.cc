@@ -235,8 +235,6 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doAllConversions)
     allConversions->analyze(iEvent, iSetup);
 
-
-
   //ELECTRONS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: std_electrons" << std::endl;
   if (doElectronStd)
