@@ -26,6 +26,9 @@
 
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
+#include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
+#include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
 
 #include "Math/VectorUtil.h"
 #include <iostream>
@@ -53,6 +56,8 @@ protected:
 public:
 
   void e2xNOe5xN(float&, float&, const reco::SuperCluster*, const EcalRecHitCollection*, const CaloSubdetectorTopology*);
+  std::vector<float> getESHits(double X, double Y, double Z, std::map<DetId, EcalRecHit> rechits_map, const CaloGeometry& geometry, CaloSubdetectorTopology *topology_p, int row=0);
+  std::vector<float> getESShape(std::vector<float> ESHits0);
 
   //----------------------------------------
 protected:
