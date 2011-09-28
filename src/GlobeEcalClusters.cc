@@ -74,6 +74,10 @@ void GlobeEcalClusters::defineBranch(TTree* tree) {
   tree->Branch("sc_2xN", &sc_2xN, "sc_2xN[sc_n]/F");
   tree->Branch("sc_5xN", &sc_5xN, "sc_5xN[sc_n]/F");
   tree->Branch("sc_sieie", &sc_sieie, "sc_sieie[sc_n]/F");
+  tree->Branch("sc_sphi", &sc_sphi, "sc_sphi[sc_n]/F");
+  tree->Branch("sc_seta", &sc_seta, "sc_seta[sc_n]/F");
+  tree->Branch("sc_brem", &sc_brem, "sc_brem[sc_n]/F");
+  tree->Branch("sc_r9", &sc_r9, "sc_r9[sc_n]/F");
   tree->Branch("sc_nbc", &sc_nbc, "sc_nbc[sc_n]/I");
   tree->Branch("sc_bcseedind", &sc_bcseedind, "sc_bcseedind[sc_n]/I");
   sprintf (a2, "sc_bcind[sc_n][%d]/I", MAX_SUPERCLUSTER_BASICCLUSTERS);
@@ -300,7 +304,17 @@ GlobeEcalClusters::analyzeBarrelSuperClusters() {
     sc_pre[sc_n]=0;
     //e2xNOe5xN(sc_2xN[sc_n], sc_5xN[sc_n], &(*sc), barrelRecHits, topology_matteo);    
     sc_sieie[sc_n] = sqrt(EcalClusterTools::scLocalCovariances(*(sc), &(*barrelRecHits), &(*topology))[0]);
-    
+
+    // sigma_phi and sigma_eta as defined in reco::SuperCluster
+    sc_sphi[sc_n] = sc->phiWidth();
+    sc_seta[sc_n] = sc->etaWidth();
+    if (sc_seta[sc_n]>0) sc_brem[sc_n] = sc_sphi[sc_n] / sc_seta[sc_n];
+    else sc_brem[sc_n]=-1; // something is not ok with sigma_eta, in this case
+
+    // SC r9
+    if (sc->rawEnergy()>0) sc_r9[sc_n] = EcalClusterTools::e3x3(  *(sc->seed()), &(*endcapRecHits), &(*topology)) / sc->rawEnergy();
+    else sc_r9[sc_n]=-1;
+
     //SEED BC 
     if (debug_level > 10)
       std::cout << sc->clustersSize() << std::endl;
@@ -369,6 +383,16 @@ GlobeEcalClusters::analyzeEndcapSuperClusters()
     sc_2xN[sc_n] = -1; 
     sc_5xN[sc_n] = -1;
     sc_sieie[sc_n] = sqrt(EcalClusterTools::scLocalCovariances(*(sc), &(*endcapRecHits), &(*topology))[0]);
+ 
+    // sigma_phi and sigma_eta as defined in reco::SuperCluster
+    sc_sphi[sc_n] = sc->phiWidth();
+    sc_seta[sc_n] = sc->etaWidth();
+    if (sc_seta[sc_n]>0) sc_brem[sc_n] = sc_sphi[sc_n] / sc_seta[sc_n];
+    else sc_brem[sc_n]=-1; // something is not ok with sigma_eta, in this case
+
+    // SC r9
+    if (sc->rawEnergy()>0) sc_r9[sc_n] = EcalClusterTools::e3x3(  *(sc->seed()), &(*endcapRecHits), &(*topology)) / sc->rawEnergy();
+    else sc_r9[sc_n]=-1;
 
     // get index to seed basic cluster
     for(unsigned int j=0; j<basicClustersEndcapH->size(); ++j) {
