@@ -102,6 +102,7 @@ void MvaAnalysis::Term(LoopAll& l)
       l.rooContainer->RebinBinnedDataset("bkg_mc_low_grad"+names[i],"bkg_low_BDT_grad"+names[i],optimizedGradBins,false);
       l.rooContainer->RebinBinnedDataset("data_grad"+names[i],"data_BDT_grad"+names[i],optimizedGradBins,false);
       l.rooContainer->RebinBinnedDataset("sig_grad"+names[i],"sig_BDT_grad"+names[i],optimizedGradBins,true);
+      // for signal interp
       l.rooContainer->RebinBinnedDataset("sig_grad"+names[i]+names[i-1],"sig_BDT_grad"+names[i]+names[i-1],optimizedGradBins,true);
       l.rooContainer->RebinBinnedDataset("sig_grad"+names[i]+names[i+1],"sig_BDT_grad"+names[i]+names[i+1],optimizedGradBins,true);
 
@@ -114,6 +115,7 @@ void MvaAnalysis::Term(LoopAll& l)
 	    l.rooContainer->RebinBinnedDataset("bkg_mc_low_ada"+names[i],"bkg_low_BDT_ada"+names[i],optimizedAdaBins,false);
 	    l.rooContainer->RebinBinnedDataset("data_ada"+names[i],"data_BDT_ada"+names[i],optimizedAdaBins,false);
 	    l.rooContainer->RebinBinnedDataset("sig_ada"+names[i],"sig_BDT_ada"+names[i],optimizedAdaBins,true);
+      // for signal interp
 	    l.rooContainer->RebinBinnedDataset("sig_ada"+names[i]+names[i-1],"sig_BDT_ada"+names[i]+names[i-1],optimizedAdaBins,true);
 	    l.rooContainer->RebinBinnedDataset("sig_ada"+names[i]+names[i+1],"sig_BDT_ada"+names[i]+names[i+1],optimizedAdaBins,true);
 
@@ -861,14 +863,14 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                         // fill for mass below
                         if (SignalType(cur_type)==i-1){
                             
-                          l.rooContainer->InputDataPoint("sig_int_BDT_ada"+names[i]+names[i-1],category,int_bdt_ada,evweight);
-                          l.rooContainer->InputDataPoint("sig_int_BDT_grad"+names[i]+names[i-1],category,int_bdt_grad,evweight);
+                          l.rooContainer->InputDataPoint("sig_BDT_ada"+names[i]+names[i-1],category,bdt_ada,evweight);
+                          l.rooContainer->InputDataPoint("sig_BDT_grad"+names[i]+names[i-1],category,bdt_grad,evweight);
                         }
                         // fill for mass above
                         if (SignalType(cur_type)==i+1){
                             
-                          l.rooContainer->InputDataPoint("sig_int_BDT_ada"+names[i]+names[i+1],category,int_bdt_ada,evweight);
-                          l.rooContainer->InputDataPoint("sig_int_BDT_grad"+names[i]+names[i+1],category,int_bdt_grad,evweight);
+                          l.rooContainer->InputDataPoint("sig_BDT_ada"+names[i]+names[i+1],category,bdt_ada,evweight);
+                          l.rooContainer->InputDataPoint("sig_BDT_grad"+names[i]+names[i+1],category,bdt_grad,evweight);
                         }
                     }
                 }
