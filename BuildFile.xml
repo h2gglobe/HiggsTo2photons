@@ -6,6 +6,7 @@
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/EcalAlgo"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/EgammaCandidates"/>
