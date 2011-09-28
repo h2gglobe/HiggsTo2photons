@@ -57,17 +57,10 @@ class GlobePhotons {
   int photonCutLevel4(float, float, float, float, float, float, float, float);
 
   void setPhotonIDThresholds(const edm::ParameterSet&);
-<<<<<<< GlobePhotons.h
   std::vector<float> pfTkIsoWithVertex(math::XYZVector, const reco::PFCandidateCollection*, float, float, std::vector<reco::PFCandidate::ParticleType>); 
   float pfEcalIso(math::XYZVector, const reco::PFCandidateCollection*, float, float, float, float, float, float, std::vector<reco::PFCandidate::ParticleType>);
   float pfHcalIso(math::XYZVector, const reco::PFCandidateCollection*, float, float, std::vector<reco::PFCandidate::ParticleType>);
-=======
-  std::vector<float> pfTkIsoWithVertex(const reco::PFCandidatePtr, const reco::PFCandidateCollection*, float, float); 
-  std::vector<float> pfTkIsoWithVertex(math::XYZVector, const reco::PFCandidateCollection*, float, float); 
-  float pfEcalIso(math::XYZVector, const reco::PFCandidateCollection*, float, float, float, float, float, float);
-  float pfHcalIso(math::XYZVector, const reco::PFCandidateCollection*, float, float);
   std::map<DetId, EcalRecHit> rechits_map_;
->>>>>>> 1.19
 
     // variables
 

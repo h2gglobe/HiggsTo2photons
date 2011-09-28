@@ -396,8 +396,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.getByLabel(vtxCollection, hVertex);
   iEvent.getByLabel(tkCollection, tkHandle);
 
-<<<<<<< GlobePhotons.cc
-=======
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
@@ -406,7 +404,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   CaloSubdetectorTopology *topology_p = 0;
   if (geometryES) topology_p = new EcalPreshowerTopology(geoHandle);
 
->>>>>>> 1.30
   // FOR PF ISOLATION
   edm::Handle<reco::PFCandidateCollection> pfCollection;
   iEvent.getByLabel(pfColl, pfCollection);

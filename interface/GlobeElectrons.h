@@ -84,14 +84,8 @@ class GlobeElectrons {
   Float_t el_sipip[MAX_ELECTRONS];
   Float_t el_sieie[MAX_ELECTRONS];
   Float_t el_sieiesc[MAX_ELECTRONS];
-<<<<<<< GlobeElectrons.h
-=======
-  //Float_t el_sieie_nolog[MAX_ELECTRONS];
-  //Float_t el_sieiesc_nolog[MAX_ELECTRONS];
   Float_t el_eseffsixix[MAX_ELECTRONS];
   Float_t el_eseffsiyiy[MAX_ELECTRONS];
->>>>>>> 1.9
-
   Float_t el_e2x5[MAX_ELECTRONS];
   Float_t el_esc[MAX_ELECTRONS];
   Float_t el_eseed[MAX_ELECTRONS];
@@ -158,14 +152,9 @@ class GlobeElectrons {
   bool doFastSim;
   bool doAodSim;
   GlobeCuts *gCUT;
-<<<<<<< GlobeElectrons.h
   edm::InputTag electronColl, trackColl, trackColl2, vertexColl, beamSpotColl, conversionColl, pfColl;
-=======
   GlobeEcalClusters *gES;
-  edm::InputTag electronColl, trackColl, trackColl2, vertexColl, beamSpotColl, conversionColl;
->>>>>>> 1.9
   std::vector<edm::InputTag> eIDLabels;
-
   int debug_level;
 
   // SUPER CLUSTERS

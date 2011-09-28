@@ -142,8 +142,6 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a2, "el_%s_sieiesc[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_sieiesc, a2);
 
-<<<<<<< GlobeElectrons.cc
-=======
   sprintf(a1, "el_%s_eseffsixix", nome);
   sprintf(a2, "el_%s_eseffsixix[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_eseffsixix, a2);
@@ -152,17 +150,6 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a2, "el_%s_eseffsiyiy[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_eseffsiyiy, a2);
 
-  /*
-  sprintf(a1, "el_%s_eseed", nome);
-  sprintf(a2, "el_%s_eseed[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_eseed, a2);
-
-  sprintf(a1, "el_%s_enearbcopin", nome);
-  sprintf(a2, "el_%s_enearbcopin[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_enearbcopin, a2);
-  */
-
->>>>>>> 1.10
   sprintf(a1, "el_%s_eseedopin", nome);
   sprintf(a2, "el_%s_eseedopin[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_eseedopin, a2);
@@ -433,8 +420,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const EcalRecHitCollection *barrelRecHits = pEBRecHitH.product();
   const EcalRecHitCollection *endcapRecHits = pEERecHitH.product();
   
-<<<<<<< GlobeElectrons.cc
-=======
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
@@ -457,26 +442,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
   }
 
-  //Read eID results
-  /*
-  std::vector<edm::Handle<edm::ValueMap<float> > > eIDValueMap(5); 
-  //Robust-Loose 
-  iEvent.getByLabel("eidRobustLoose", eIDValueMap[0]); 
-  const edm::ValueMap<float> & eIDmapRL = *eIDValueMap[0];
-  //Robust-Tight 
-  iEvent.getByLabel("eidRobustTight", eIDValueMap[1]); 
-  const edm::ValueMap<float> & eIDmapRT = *eIDValueMap[1];
-  //Loose 
-  iEvent.getByLabel("eidLoose", eIDValueMap[2]); 
-  const edm::ValueMap<float> & eIDmapL = *eIDValueMap[2];
-  //Tight 
-  iEvent.getByLabel("eidTight", eIDValueMap[3]); 
-  const edm::ValueMap<float> & eIDmapT = *eIDValueMap[3];
-  iEvent.getByLabel("eidRobustHighEnergy", eIDValueMap[4]); 
-  const edm::ValueMap<float> & eIDmapRHE = *eIDValueMap[4];
-  */
-
->>>>>>> 1.10
   el_sc->Clear();
   el_p4->Clear(); 
   el_momvtx->Clear();
@@ -575,10 +540,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_e1x5[el_n] = egsf.e1x5();
 
     el_sieie[el_n] = egsf.sigmaIetaIeta();
-<<<<<<< GlobeElectrons.cc
-    
-=======
-    //el_see[el_n] = egsf.sigmaEtaEta();
 
     // ES variables
     el_eseffsixix[el_n] = 0.;
@@ -590,7 +551,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       el_eseffsiyiy[el_n] = elESShape[1];
     }
 
->>>>>>> 1.10
     el_hoe[el_n] = egsf.hcalOverEcal();
     el_hoed1[el_n] = egsf.hcalDepth1OverEcal();
     el_hoed2[el_n] = egsf.hcalDepth2OverEcal();
