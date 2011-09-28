@@ -33,9 +33,9 @@ if rebin:
   bkgR.SetBinError(i,bkg.GetBinError(i));
   sigR.SetBinError(i,sig.GetBinError(i));
 
-dat = datR.Clone()
-bkg = bkgR.Clone()
-sig = sigR.Clone()
+ dat = datR.Clone()
+ bkg = bkgR.Clone()
+ sig = sigR.Clone()
 
 sigInt = sig.Integral()
 sig.Scale(bkg.Integral()/sig.Integral())
