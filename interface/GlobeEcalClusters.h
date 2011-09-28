@@ -117,7 +117,11 @@ public:
   Float_t sc_2xN[MAX_SUPERCLUSTERS];
   Float_t sc_5xN[MAX_SUPERCLUSTERS];
   Float_t sc_sieie[MAX_SUPERCLUSTERS];
- 
+  Float_t sc_sphi[MAX_SUPERCLUSTERS];
+  Float_t sc_seta[MAX_SUPERCLUSTERS];
+  Float_t sc_brem[MAX_SUPERCLUSTERS];
+  Float_t sc_r9[MAX_SUPERCLUSTERS];
+  
 // BASIC CLUSTERS
   Int_t bc_n;
   Int_t bc_hybrid_n;
