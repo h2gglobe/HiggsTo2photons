@@ -7,6 +7,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCuts.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/GlobeEcalClusters.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
@@ -41,6 +42,7 @@ class GlobeElectrons {
   void initialize_branches(int electron_number);
   float hoeCalculator(const reco::BasicCluster*, const CaloGeometry&,
                       const edm::Event&, const edm::EventSetup&);
+  std::map<DetId, EcalRecHit> rechits_map_;
 
   //bool identify(const reco::GsfElectronRef electron, int type);
   //bool st_identify(const reco::GsfElectronRef electron, int type);
@@ -83,6 +85,8 @@ class GlobeElectrons {
   Float_t el_sieiesc[MAX_ELECTRONS];
   //Float_t el_sieie_nolog[MAX_ELECTRONS];
   //Float_t el_sieiesc_nolog[MAX_ELECTRONS];
+  Float_t el_eseffsixix[MAX_ELECTRONS];
+  Float_t el_eseffsiyiy[MAX_ELECTRONS];
 
   Float_t el_e2x5[MAX_ELECTRONS];
   Float_t el_esc[MAX_ELECTRONS];
@@ -156,6 +160,7 @@ class GlobeElectrons {
   bool doFastSim;
   bool doAodSim;
   GlobeCuts *gCUT;
+  GlobeEcalClusters *gES;
   edm::InputTag electronColl, trackColl, trackColl2, vertexColl, beamSpotColl, conversionColl;
   std::vector<edm::InputTag> eIDLabels;
 
@@ -166,6 +171,7 @@ class GlobeElectrons {
   edm::InputTag endcapSuperClusterColl;  
   edm::InputTag ecalHitEBColl;
   edm::InputTag ecalHitEEColl;
+  edm::InputTag ecalHitESColl;
   edm::InputTag hcalHitColl;
   edm::InputTag dcsTag_;
 };

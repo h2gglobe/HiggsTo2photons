@@ -51,6 +51,7 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 
   ecalHitEBColl = iConfig.getParameter<edm::InputTag>("EcalHitEBColl");
   ecalHitEEColl = iConfig.getParameter<edm::InputTag>("EcalHitEEColl");
+  ecalHitESColl = iConfig.getParameter<edm::InputTag>("EcalHitESColl");
 
   hcalBEColl =  iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
   hcalFColl =  iConfig.getParameter<edm::InputTag>("HcalHitsFColl");
@@ -89,6 +90,7 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
+  gES  = new GlobeEcalClusters(iConfig);
 
   pho_pfiso_mycharged03 = new std::vector<std::vector<float> >();
   pho_pfiso_mycharged04 = new std::vector<std::vector<float> >();
@@ -171,6 +173,8 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_r1x5",&pho_r1x5,"pho_r1x5[pho_n]/F");
   tree->Branch("pho_r2x5",&pho_r2x5,"pho_r2x5[pho_n]/F");
   tree->Branch("pho_r9",&pho_r9,"pho_r9[pho_n]/F");
+  tree->Branch("pho_eseffsixix",&pho_eseffsixix,"pho_eseffsixix[pho_n]/F");
+  tree->Branch("pho_eseffsiyiy",&pho_eseffsiyiy,"pho_eseffsiyiy[pho_n]/F");
   
   // added by Aris
   // pi0 disc
@@ -360,6 +364,10 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
 
+  const CaloSubdetectorGeometry *geometryES = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  CaloSubdetectorTopology *topology_p = 0;
+  if (geometryES) topology_p = new EcalPreshowerTopology(geoHandle);
+
   // FOR PF ISOLATION
   edm::Handle<reco::PFCandidateCollection> pfCollection;
   iEvent.getByLabel(pfColl, pfCollection);
@@ -514,6 +522,20 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByLabel( (localPho->isEB() ? ecalHitEBColl : ecalHitEEColl) ,prechits );
     edm::ESHandle<EcalChannelStatus> chStatus;
     iSetup.get<EcalChannelStatusRcd>().get(chStatus);
+
+    edm::Handle<EcalRecHitCollection> ESRecHits;
+    iEvent.getByLabel(ecalHitESColl , ESRecHits);
+
+    rechits_map_.clear();
+    if (ESRecHits.isValid()) {
+      EcalRecHitCollection::const_iterator it;
+      for (it = ESRecHits->begin(); it != ESRecHits->end(); ++it) {
+        // remove bad ES rechits
+        if (it->recoFlag()==1 || it->recoFlag()==14 || (it->recoFlag()<=10 && it->recoFlag()>=5)) continue;
+        //Make the map of DetID, EcalRecHit pairs
+        rechits_map_.insert(std::make_pair(it->id(), *it));
+      }
+    }
 
     const reco::CaloClusterPtr  seed_clu = localPho->superCluster()->seed();
     EcalRecHitCollection::const_iterator seedcry_rh = prechits->find( id );
@@ -677,6 +699,16 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     bool passelectronveto = !ConversionTools::hasMatchedPromptElectron(localPho->superCluster(), hElectrons, hConversions, thebs.position());
     pho_isconv[pho_n] = int(passelectronveto);
+
+    // ES variables
+    pho_eseffsixix[pho_n] = 0.;
+    pho_eseffsiyiy[pho_n] = 0.;
+    if (ESRecHits.isValid() && (fabs(localPho->superCluster()->eta()) > 1.6 && fabs(localPho->superCluster()->eta()) < 3)) {
+      std::vector<float> phoESHits0 = gES->getESHits(localPho->superCluster()->x(), localPho->superCluster()->y(), localPho->superCluster()->z(), rechits_map_, geometry, topology_p, 0);
+      std::vector<float> phoESShape = gES->getESShape(phoESHits0);
+      pho_eseffsixix[pho_n] = phoESShape[0];
+      pho_eseffsiyiy[pho_n] = phoESShape[1];
+    }
 
     //other variables
     pho_haspixseed[pho_n] = localPho->hasPixelSeed();
