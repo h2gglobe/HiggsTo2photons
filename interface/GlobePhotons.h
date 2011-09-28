@@ -7,6 +7,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCuts.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/GlobeEcalClusters.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -83,6 +84,7 @@ class GlobePhotons {
   std::vector<float> pfTkIsoWithVertex(math::XYZVector, const reco::PFCandidateCollection*, float, float); 
   float pfEcalIso(math::XYZVector, const reco::PFCandidateCollection*, float, float, float, float, float, float);
   float pfHcalIso(math::XYZVector, const reco::PFCandidateCollection*, float, float);
+  std::map<DetId, EcalRecHit> rechits_map_;
 
     // variables
 
@@ -118,6 +120,8 @@ class GlobePhotons {
   Float_t pho_r9[MAX_PHOTONS];
   Float_t pho_zernike20[MAX_PHOTONS];
   Float_t pho_zernike42[MAX_PHOTONS];
+  Float_t pho_eseffsixix[MAX_PHOTONS];
+  Float_t pho_eseffsiyiy[MAX_PHOTONS];
 
 // pi0 disc variable
   Float_t pho_pi0disc[MAX_PHOTONS];
@@ -226,6 +230,7 @@ class GlobePhotons {
 
   const char* nome;
   GlobeCuts *gCUT;
+  GlobeEcalClusters *gES;
   edm::InputTag photonCollStd;
 
   // SUPER CLUSTERS
@@ -239,6 +244,7 @@ class GlobePhotons {
 // ECAL HITS
   edm::InputTag ecalHitEBColl;
   edm::InputTag ecalHitEEColl;
+  edm::InputTag ecalHitESColl;
 // HCAL HITS
   edm::InputTag hcalBEColl;
   edm::InputTag hcalFColl;

@@ -76,12 +76,14 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
   endcapSuperClusterColl = iConfig.getParameter<edm::InputTag>("EndcapSuperClusterColl");
   ecalHitEBColl = iConfig.getParameter<edm::InputTag>("EcalHitEBColl");
   ecalHitEEColl = iConfig.getParameter<edm::InputTag>("EcalHitEEColl");
+  ecalHitESColl = iConfig.getParameter<edm::InputTag>("EcalHitESColl");
   hcalHitColl = iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
 
   eIDLabels = iConfig.getParameter<std::vector<edm::InputTag> >("eIDLabels");
 
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
+  gES  = new GlobeEcalClusters(iConfig);
 }
 
 void GlobeElectrons::defineBranch(TTree* tree) {
@@ -166,6 +168,14 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_sieiesc", nome);
   sprintf(a2, "el_%s_sieiesc[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_sieiesc, a2);
+
+  sprintf(a1, "el_%s_eseffsixix", nome);
+  sprintf(a2, "el_%s_eseffsixix[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_eseffsixix, a2);
+
+  sprintf(a1, "el_%s_eseffsiyiy", nome);
+  sprintf(a2, "el_%s_eseffsiyiy[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_eseffsiyiy, a2);
 
   /*
   sprintf(a1, "el_%s_eseed", nome);
@@ -457,6 +467,24 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
 
+  const CaloSubdetectorGeometry *geometryES = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
+  CaloSubdetectorTopology *topology_p = 0;
+  if (geometryES) topology_p = new EcalPreshowerTopology(geoHandle);
+
+  edm::Handle<EcalRecHitCollection> ESRecHits;
+  iEvent.getByLabel(ecalHitESColl , ESRecHits);
+
+  rechits_map_.clear();
+  if (ESRecHits.isValid()) {
+    EcalRecHitCollection::const_iterator it;
+    for (it = ESRecHits->begin(); it != ESRecHits->end(); ++it) {
+      // remove bad ES rechits
+      if (it->recoFlag()==1 || it->recoFlag()==14 || (it->recoFlag()<=10 && it->recoFlag()>=5)) continue;
+      //Make the map of DetID, EcalRecHit pairs
+      rechits_map_.insert(std::make_pair(it->id(), *it));
+    }
+  }
+
   //Read eID results
   /*
   std::vector<edm::Handle<edm::ValueMap<float> > > eIDValueMap(5); 
@@ -579,6 +607,16 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     el_sieie[el_n] = egsf.sigmaIetaIeta();
     //el_see[el_n] = egsf.sigmaEtaEta();
+
+    // ES variables
+    el_eseffsixix[el_n] = 0.;
+    el_eseffsiyiy[el_n] = 0.;
+    if (ESRecHits.isValid() && (fabs(egsf.superCluster()->eta()) > 1.6 && fabs(egsf.superCluster()->eta()) < 3)) {
+      std::vector<float> elESHits0 = gES->getESHits(egsf.superCluster()->x(), egsf.superCluster()->y(), egsf.superCluster()->z(), rechits_map_, geometry, topology_p, 0);
+      std::vector<float> elESShape = gES->getESShape(elESHits0);
+      el_eseffsixix[el_n] = elESShape[0];
+      el_eseffsiyiy[el_n] = elESShape[1];
+    }
 
     el_hoe[el_n] = egsf.hcalOverEcal();
     el_hoed1[el_n] = egsf.hcalDepth1OverEcal();
