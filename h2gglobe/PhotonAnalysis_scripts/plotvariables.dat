@@ -1,32 +1,135 @@
 default=2
-htyp=0 plot=-1  ncat=9  xbins=160   ybins=0       xmin=80.0  xmax=240.0  ymin=0      ymax=0       name=all_mass
+htyp=0 plot=-1  ncat=9  xbins=110   ybins=0       xmin=80.0  xmax=190.0  ymin=0      ymax=0       name=all_mass
 
 htyp=0 plot=-1  ncat=9  xbins=100    ybins=0       xmin=0.0   xmax=200.0  ymin=0      ymax=0       name=pt
-htyp=0 plot=-1  ncat=9  xbins=51    ybins=0       xmin=-2.55 xmax=2.55  ymin=0     ymax=0      name=eta
-htyp=0 plot=-1  ncat=9  xbins=50   ybins=0       xmin=80.0  xmax=180.0  ymin=0      ymax=0       name=mass
-htyp=0 plot=-1  ncat=9  xbins=50   ybins=0       xmin=-1.0  xmax=1.0  ymin=0      ymax=0       name=helicityAngle
-htyp=0 plot=-1  ncat=9  xbins=50   ybins=0       xmin=0.0  xmax=3.14159  ymin=0      ymax=0       name=decayAngle
+htyp=0 plot=-1  ncat=9  xbins=50    ybins=0       xmin=-7. xmax=7.  ymin=0     ymax=0      name=eta
+htyp=0 plot=-1  ncat=9  xbins=55   ybins=0       xmin=80.0  xmax=190.0  ymin=0      ymax=0       name=mass
 
-htyp=0 plot=-1  ncat=9  xbins=50    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho_pt
+htyp=0 plot=-1  ncat=9  xbins=120    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho_pt
 htyp=0 plot=-1  ncat=9  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho1_pt
 htyp=0 plot=-1  ncat=9  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho2_pt
 
-htyp=0 plot=-1  ncat=9  xbins=51    ybins=0       xmin=-2.55   xmax=2.55  ymin=0      ymax=0       name=pho_eta
-htyp=0 plot=-1  ncat=9  xbins=51    ybins=0       xmin=-2.55   xmax=2.55  ymin=0      ymax=0       name=pho1_eta
-htyp=0 plot=-1  ncat=9  xbins=51    ybins=0       xmin=-2.55   xmax=2.55  ymin=0      ymax=0       name=pho2_eta
+htyp=0 plot=-1  ncat=9  xbins=50    ybins=0       xmin=-2.5   xmax=2.5  ymin=0      ymax=0       name=pho_eta
+htyp=0 plot=-1  ncat=9  xbins=50    ybins=0       xmin=-2.5   xmax=2.5  ymin=0      ymax=0       name=pho1_eta
+htyp=0 plot=-1  ncat=9  xbins=50    ybins=0       xmin=-2.5   xmax=2.5  ymin=0      ymax=0       name=pho2_eta
 
 htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.    xmax=1.     ymin=0      ymax=0       name=pho_r9
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.    xmax=1.     ymin=0      ymax=0       name=pho1_r9
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.    xmax=1.     ymin=0      ymax=0       name=pho2_r9
 
 htyp=0 plot=-1  ncat=9  xbins=10    ybins=0       xmin=0.5   xmax=10.5   ymin=0      ymax=0       name=pho_n
 
-htyp=0 plot=-1  ncat=9  xbins=50   ybins=0    xmin=80.0   xmax=180.0  ymin=0       ymax=0       name=mass_pf
-htyp=0 plot=-1  ncat=9  xbins=50   ybins=0    xmin=80.0   xmax=180.0  ymin=0       ymax=0       name=mass_ff
 
 htyp=0 plot=-1  ncat=5  xbins=45   ybins=0    xmin=25.0    xmax=115.0  ymin=0       ymax=0       name=pho1_pt_presel
 htyp=0 plot=-1  ncat=5  xbins=45   ybins=0    xmin=25.0    xmax=115.0  ymin=0       ymax=0       name=pho2_pt_presel
 htyp=0 plot=-1  ncat=5  xbins=45   ybins=0    xmin=25.0    xmax=115.0  ymin=0       ymax=0       name=pho1_pt_sel
 htyp=0 plot=-1  ncat=5  xbins=45   ybins=0    xmin=25.0    xmax=115.0  ymin=0       ymax=0       name=pho2_pt_sel
-htyp=0 plot=-1  ncat=5  xbins=51   ybins=0    xmin=-2.55  xmax=2.55   ymin=0       ymax=0       name=pho1_eta_presel
-htyp=0 plot=-1  ncat=5  xbins=51   ybins=0    xmin=-2.55  xmax=2.55   ymin=0       ymax=0       name=pho2_eta_presel
-htyp=0 plot=-1  ncat=5  xbins=51   ybins=0    xmin=-2.55  xmax=2.55   ymin=0       ymax=0       name=pho1_eta_sel
-htyp=0 plot=-1  ncat=5  xbins=51   ybins=0    xmin=-2.55  xmax=2.55   ymin=0       ymax=0       name=pho2_eta_sel
+htyp=0 plot=-1  ncat=5  xbins=50   ybins=0    xmin=-2.5  xmax=2.5   ymin=0       ymax=0       name=pho1_eta_presel
+htyp=0 plot=-1  ncat=5  xbins=50   ybins=0    xmin=-2.5  xmax=2.5   ymin=0       ymax=0       name=pho2_eta_presel
+htyp=0 plot=-1  ncat=5  xbins=50   ybins=0    xmin=-2.5  xmax=2.5   ymin=0       ymax=0       name=pho1_eta_sel
+htyp=0 plot=-1  ncat=5  xbins=50   ybins=0    xmin=-2.5  xmax=2.5   ymin=0       ymax=0       name=pho2_eta_sel
+
+
+htyp=0 plot=-1  ncat=9  xbins=100    ybins=0       xmin=-1.0   xmax=4.0  ymin=0      ymax=0       name=logpt
+htyp=0 plot=-1  ncat=9  xbins=100    ybins=0       xmin=0.0   xmax=1.0  ymin=0      ymax=0       name=ptOverM
+htyp=0 plot=-1  ncat=9  xbins=50    ybins=0       xmin=-2.5 xmax=2.5  ymin=0     ymax=0      name=maxeta
+htyp=0 plot=-1  ncat=9  xbins=50   ybins=0       xmin=0.  xmax=1.0  ymin=0      ymax=0       name=helicityAngle
+htyp=0 plot=-1  ncat=9  xbins=50   ybins=0       xmin=0.0  xmax=3.14159  ymin=0      ymax=0       name=deltaPhi
+htyp=0 plot=-1  ncat=9  xbins=60   ybins=0       xmin=-3.0  xmax=3.0  ymin=0      ymax=0       name=deltaEta
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=50.0  xmax=250.  ymin=0      ymax=0       name=ht
+htyp=0 plot=-1  ncat=9  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho1_ptOverM
+htyp=0 plot=-1  ncat=9  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho2_ptOverM
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.5    xmax=1.     ymin=0      ymax=0       name=pho_minr9
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.  xmax=10.  ymin=0      ymax=0       name=sigmaM
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.  xmax=10.  ymin=0      ymax=0       name=sigmaM_Eonly
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.  xmax=0.1  ymin=0      ymax=0       name=sigmaMOverM
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.  xmax=0.1  ymin=0      ymax=0       name=sigmaMOverM_Eonly
+
+htyp=0 plot=-1  ncat=8  xbins=100    ybins=0       xmin=0.0   xmax=200.0  ymin=0      ymax=0       name=pt_mlow
+htyp=0 plot=-1  ncat=8  xbins=100    ybins=0       xmin=-1.0   xmax=4.0  ymin=0      ymax=0       name=logpt_mlow
+htyp=0 plot=-1  ncat=8  xbins=100    ybins=0       xmin=0.0   xmax=1.0  ymin=0      ymax=0       name=ptOverM_mlow
+htyp=0 plot=-1  ncat=8  xbins=50    ybins=0       xmin=-7. xmax=7.  ymin=0     ymax=0      name=eta_mlow
+htyp=0 plot=-1  ncat=8  xbins=50    ybins=0       xmin=-2.5 xmax=2.5  ymin=0     ymax=0      name=maxeta_mlow
+htyp=0 plot=-1  ncat=8  xbins=50   ybins=0       xmin=0.  xmax=1.0  ymin=0      ymax=0       name=helicityAngle_mlow
+htyp=0 plot=-1  ncat=8  xbins=50   ybins=0       xmin=0.0  xmax=3.14159  ymin=0      ymax=0       name=deltaPhi_mlow
+htyp=0 plot=-1  ncat=8  xbins=60   ybins=0       xmin=-3.0  xmax=3.0  ymin=0      ymax=0       name=deltaEta_mlow
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=0.5    xmax=1.     ymin=0      ymax=0       name=pho_minr9_mlow
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho1_pt_mlow
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho2_pt_mlow
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho1_ptOverM_mlow
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho2_ptOverM_mlow
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho1_ptOverMH_mlow
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho2_ptOverMH_mlow
+htyp=0 plot=-1  ncat=8  xbins=50    ybins=0       xmin=-2.5   xmax=2.5  ymin=0      ymax=0       name=pho1_eta_mlow
+htyp=0 plot=-1  ncat=8  xbins=50    ybins=0       xmin=-2.5   xmax=2.5  ymin=0      ymax=0       name=pho2_eta_mlow
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=50.0  xmax=250.  ymin=0      ymax=0       name=ht_mlow
+htyp=0 plot=-1  ncat=8  xbins=70   ybins=0       xmin=-0.07  xmax=0.07  ymin=0      ymax=0       name=deltaMOverMH_mlow
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=0.  xmax=10.  ymin=0      ymax=0       name=sigmaM_mlow
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=0.  xmax=10.  ymin=0      ymax=0       name=sigmaM_Eonly_mlow
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.  xmax=0.1  ymin=0      ymax=0       name=sigmaMOverM_mlow
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.  xmax=0.1  ymin=0      ymax=0       name=sigmaMOverM_Eonly_mlow
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=-10.  xmax=10.  ymin=0      ymax=0       name=deltaMOverSigmaM_mlow
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=-10.  xmax=10.  ymin=0      ymax=0       name=deltaMOverSigmaM_Eonly_mlow
+htyp=0 plot=-1  ncat=8  xbins=160   ybins=0       xmin=-0.004  xmax=0.004  ymin=0      ymax=0       name=deltaMSigmaMOverM2_mlow
+htyp=0 plot=-1  ncat=8  xbins=160   ybins=0       xmin=-0.004  xmax=0.004  ymin=0      ymax=0       name=deltaMSigmaMOverM2_Eonly_mlow
+
+htyp=0 plot=-1  ncat=8  xbins=100    ybins=0       xmin=0.0   xmax=200.0  ymin=0      ymax=0       name=pt_mhigh
+htyp=0 plot=-1  ncat=8  xbins=100    ybins=0       xmin=-1.0   xmax=4.0  ymin=0      ymax=0       name=logpt_mhigh
+htyp=0 plot=-1  ncat=8  xbins=100    ybins=0       xmin=0.0   xmax=1.0  ymin=0      ymax=0       name=ptOverM_mhigh
+htyp=0 plot=-1  ncat=8  xbins=50    ybins=0       xmin=-7. xmax=7.  ymin=0     ymax=0      name=eta_mhigh
+htyp=0 plot=-1  ncat=8  xbins=50    ybins=0       xmin=-2.5 xmax=2.5  ymin=0     ymax=0      name=maxeta_mhigh
+htyp=0 plot=-1  ncat=8  xbins=50   ybins=0       xmin=0.  xmax=1.0  ymin=0      ymax=0       name=helicityAngle_mhigh
+htyp=0 plot=-1  ncat=8  xbins=50   ybins=0       xmin=0.0  xmax=3.14159  ymin=0      ymax=0       name=deltaPhi_mhigh
+htyp=0 plot=-1  ncat=8  xbins=60   ybins=0       xmin=-3.0  xmax=3.0  ymin=0      ymax=0       name=deltaEta_mhigh
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=0.5    xmax=1.     ymin=0      ymax=0       name=pho_minr9_mhigh
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho1_pt_mhigh
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho2_pt_mhigh
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho1_ptOverM_mhigh
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho2_ptOverM_mhigh
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho1_ptOverMH_mhigh
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho2_ptOverMH_mhigh
+htyp=0 plot=-1  ncat=8  xbins=50    ybins=0       xmin=-2.5   xmax=2.5  ymin=0      ymax=0       name=pho1_eta_mhigh
+htyp=0 plot=-1  ncat=8  xbins=50    ybins=0       xmin=-2.5   xmax=2.5  ymin=0      ymax=0       name=pho2_eta_mhigh
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=50.0  xmax=250.  ymin=0      ymax=0       name=ht_mhigh
+htyp=0 plot=-1  ncat=8  xbins=70   ybins=0       xmin=-0.07  xmax=0.07  ymin=0      ymax=0       name=deltaMOverMH_mhigh
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=0.  xmax=10.  ymin=0      ymax=0       name=sigmaM_mhigh
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=0.  xmax=10.  ymin=0      ymax=0       name=sigmaM_Eonly_mhigh
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.  xmax=0.1  ymin=0      ymax=0       name=sigmaMOverM_mhigh
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.  xmax=0.1  ymin=0      ymax=0       name=sigmaMOverM_Eonly_mhigh
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=-10.  xmax=10.  ymin=0      ymax=0       name=deltaMOverSigmaM_mhigh
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=-10.  xmax=10.  ymin=0      ymax=0       name=deltaMOverSigmaM_Eonly_mhigh
+htyp=0 plot=-1  ncat=8  xbins=160   ybins=0       xmin=-0.004  xmax=0.004  ymin=0      ymax=0       name=deltaMSigmaMOverM2_mhigh
+htyp=0 plot=-1  ncat=8  xbins=160   ybins=0       xmin=-0.004  xmax=0.004  ymin=0      ymax=0       name=deltaMSigmaMOverM2_Eonly_mhigh
+
+htyp=0 plot=-1  ncat=8  xbins=100    ybins=0       xmin=0.0   xmax=200.0  ymin=0      ymax=0       name=pt_msig
+htyp=0 plot=-1  ncat=8  xbins=100    ybins=0       xmin=-1.0   xmax=4.0  ymin=0      ymax=0       name=logpt_msig
+htyp=0 plot=-1  ncat=8  xbins=100    ybins=0       xmin=0.0   xmax=1.0  ymin=0      ymax=0       name=ptOverM_msig
+htyp=0 plot=-1  ncat=8  xbins=50    ybins=0       xmin=-7. xmax=7.  ymin=0     ymax=0      name=eta_msig
+htyp=0 plot=-1  ncat=8  xbins=50    ybins=0       xmin=-2.5 xmax=2.5  ymin=0     ymax=0      name=maxeta_msig
+htyp=0 plot=-1  ncat=8  xbins=50   ybins=0       xmin=0.  xmax=1.0  ymin=0      ymax=0       name=helicityAngle_msig
+htyp=0 plot=-1  ncat=8  xbins=50   ybins=0       xmin=0.0  xmax=3.14159  ymin=0      ymax=0       name=deltaPhi_msig
+htyp=0 plot=-1  ncat=8  xbins=60   ybins=0       xmin=-3.0  xmax=3.0  ymin=0      ymax=0       name=deltaEta_msig
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=0.5    xmax=1.     ymin=0      ymax=0       name=pho_minr9_msig
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho1_pt_msig
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=120.0  ymin=0      ymax=0       name=pho2_pt_msig
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho1_ptOverM_msig
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho2_ptOverM_msig
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho1_ptOverMH_msig
+htyp=0 plot=-1  ncat=8  xbins=60    ybins=0       xmin=0.0   xmax=1.2  ymin=0      ymax=0       name=pho2_ptOverMH_msig
+htyp=0 plot=-1  ncat=8  xbins=50    ybins=0       xmin=-2.5   xmax=2.5  ymin=0      ymax=0       name=pho1_eta_msig
+htyp=0 plot=-1  ncat=8  xbins=50    ybins=0       xmin=-2.5   xmax=2.5  ymin=0      ymax=0       name=pho2_eta_msig
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=50.0  xmax=250.  ymin=0      ymax=0       name=ht_msig
+htyp=0 plot=-1  ncat=8  xbins=70   ybins=0       xmin=-0.07  xmax=0.07  ymin=0      ymax=0       name=deltaMOverMH_msig
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=0.  xmax=10.  ymin=0      ymax=0       name=sigmaM_msig
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=0.  xmax=10.  ymin=0      ymax=0       name=sigmaM_Eonly_msig
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.  xmax=0.1  ymin=0      ymax=0       name=sigmaMOverM_msig
+htyp=0 plot=-1  ncat=9  xbins=100   ybins=0       xmin=0.  xmax=0.1  ymin=0      ymax=0       name=sigmaMOverM_Eonly_msig
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=-10.  xmax=10.  ymin=0      ymax=0       name=deltaMOverSigmaM_msig
+htyp=0 plot=-1  ncat=8  xbins=100   ybins=0       xmin=-10.  xmax=10.  ymin=0      ymax=0       name=deltaMOverSigmaM_Eonly_msig
+htyp=0 plot=-1  ncat=8  xbins=160   ybins=0       xmin=-0.004  xmax=0.004  ymin=0      ymax=0       name=deltaMSigmaMOverM2_msig
+htyp=0 plot=-1  ncat=8  xbins=160   ybins=0       xmin=-0.004  xmax=0.004  ymin=0      ymax=0       name=deltaMSigmaMOverM2_Eonly_msig
+
+htyp=1 plot=-1  ncat=9  xbins=45   ybins=55       xmin=100.0  xmax=145.  ymin=70.      ymax=180.       name=ht_vs_m
+htyp=1 plot=-1  ncat=8  xbins=35   ybins=50       xmin=-0.07  xmax=0.07  ymin=-10.      ymax=10.       name=deltaMOverSigmaM_vs_deltaMOverMH
+htyp=1 plot=-1  ncat=8  xbins=50   ybins=50       xmin=0.  xmax=10.  ymin=-10.      ymax=10.       name=deltaMOverSigmaM_vs_sigmaM
+htyp=1 plot=-1  ncat=8  xbins=35   ybins=50       xmin=-0.07  xmax=0.07  ymin=0.      ymax=10.       name=SigmaM_vs_deltaMOverMH

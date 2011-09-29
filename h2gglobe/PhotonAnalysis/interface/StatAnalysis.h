@@ -48,11 +48,13 @@ public:
 	bool  doMCSmearing;
 	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
 	bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear;
+        bool  doSinglePhoIDEfficiency;
 	float systRange;
 	int   nSystSteps;   
 	int   nEtaCategories, nR9Categories, nPtCategories;
 	float massMin, massMax;
 	int nDataBins;	
+	float signalRegionWidth;
 	//float smearing_sigma_EBHighR9       ;
 	//float smearing_sigma_EBLowR9        ;
 	//float smearing_sigma_EEHighR9       ;
