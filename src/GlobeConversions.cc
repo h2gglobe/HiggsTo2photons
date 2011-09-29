@@ -36,6 +36,7 @@ void GlobeConversions::defineBranch(TTree* tree) {
   tree->Branch("conv_dphitrksatvtx",&conv_dphitrksatvtx,"conv_dphitrksatvtx[conv_n]/F");
   tree->Branch("conv_dphitrksatecal",&conv_dphitrksatecal,"conv_dphitrksatecal[conv_n]/F");
   tree->Branch("conv_detatrksatecal",&conv_detatrksatecal,"conv_detatrksatecal[conv_n]/F");
+  tree->Branch("conv_quality",&conv_quality,"conv_quality[conv_n]/I");
   tree->Branch("conv_dxy",&conv_dxy,"conv_dxy[conv_n]/F"); // will not be filled because this will only be available from 420
   tree->Branch("conv_dz",&conv_dz,"conv_dz[conv_n]/F");    // will not be filled because this will only be available from 420
   tree->Branch("conv_lxy",&conv_lxy,"conv_lxy[conv_n]/F"); // will not be filled because this will only be available from 420
@@ -85,8 +86,8 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   if (debug_level > 9) 
     {
-    std::cout << "GlobeConversions: Start analyze" << std::endl;
-  }
+      std::cout << "GlobeConversions: Start analyze" << std::endl;
+    }
   // get collections
   edm::Handle<reco::ConversionCollection> convH;
   iEvent.getByLabel(allConversionsColl, convH);
@@ -154,37 +155,37 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
       if(debug_level>9)std::cout << "GlobeConversions: 0 "<< std::endl;
       for(int isuperClusterType=0; isuperClusterType<3; ++isuperClusterType) {
-	if (isuperClusterType == 0) {
-	  for(reco::SuperClusterCollection::size_type j = 0; j<superClustersHybridH->size(); ++j){
+        if (isuperClusterType == 0) {
+          for(reco::SuperClusterCollection::size_type j = 0; j<superClustersHybridH->size(); ++j){
 	    
-	    reco::SuperClusterRef sc(superClustersHybridH, j);
+            reco::SuperClusterRef sc(superClustersHybridH, j);
 	    
-	    //apply cuts
-	    if(gCUT->cut(*sc))continue;
-	    //passed cuts
-	    if (  sc.id() == localConv.caloCluster()[0].id() && sc.key() == localConv.caloCluster()[0].key() ) {
-	      conv_scind[conv_n] = index;
-	      break;
-	    }
-	    index++;
-	  }
-	}
+            //apply cuts
+            if(gCUT->cut(*sc))continue;
+            //passed cuts
+            if (  sc.id() == localConv.caloCluster()[0].id() && sc.key() == localConv.caloCluster()[0].key() ) {
+              conv_scind[conv_n] = index;
+              break;
+            }
+            index++;
+          }
+        }
 	
-	if (isuperClusterType == 2) {
-	  for(reco::SuperClusterCollection::size_type j = 0; j<superClustersEndcapH->size(); ++j){
+        if (isuperClusterType == 2) {
+          for(reco::SuperClusterCollection::size_type j = 0; j<superClustersEndcapH->size(); ++j){
 	    
-	    reco::SuperClusterRef sc(superClustersEndcapH, j);
-	    //apply cuts
-	    if(gCUT->cut(*sc))continue;
-	    //passed cuts
+            reco::SuperClusterRef sc(superClustersEndcapH, j);
+            //apply cuts
+            if(gCUT->cut(*sc))continue;
+            //passed cuts
 	    
-	    if ( sc.id() == localConv.caloCluster()[0].id() && sc.key() == localConv.caloCluster()[0].key() ) {
-	      conv_scind[conv_n] = index;
-	      break;
-	    }
-	    index++;
-	  }
-	}
+            if ( sc.id() == localConv.caloCluster()[0].id() && sc.key() == localConv.caloCluster()[0].key() ) {
+              conv_scind[conv_n] = index;
+              break;
+            }
+            index++;
+          }
+        }
       }
     }
 
@@ -196,6 +197,7 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     conv_dphitrksatvtx[conv_n]=-999.;
     conv_dphitrksatecal[conv_n]=-999.;
     conv_detatrksatecal[conv_n]=-999.;
+    conv_quality[conv_n]=-999.;
     conv_dxy[conv_n]=-999.;
     conv_dz[conv_n]=-999.;
     conv_lxy[conv_n]=-999.;
@@ -218,8 +220,6 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     conv_vtx_xErr[conv_n]=-999.;
     conv_vtx_yErr[conv_n]=-999.;
     conv_vtx_zErr[conv_n]=-999.;
-
-
 
     ((TVector3 *)conv_vtx->At(conv_n))->SetXYZ(-999, -999, -999);
     ((TVector3 *)conv_pair_momentum->At(conv_n))->SetXYZ(-999, -999, -999);
@@ -250,16 +250,16 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if( localConv.nTracks()) {
       const std::vector<edm::RefToBase<reco::Track> > tracks = localConv.tracks();
       for (unsigned int i=0; i<tracks.size(); i++) {
-	if(i==0) {
-	  conv_tk1_dz[conv_n]=tracks[i]->dz();
-	  conv_tk1_dzerr[conv_n]=tracks[i]->dzError();
-	  conv_ch1ch2[conv_n]=tracks[i]->charge();
-	}
-	else if(i==1) {
-	  conv_tk2_dz[conv_n]=tracks[i]->dz();
-	  conv_tk2_dzerr[conv_n]=tracks[i]->dzError();
-	  conv_ch1ch2[conv_n]*=tracks[i]->charge();
-	}
+        if(i==0) {
+          conv_tk1_dz[conv_n]=tracks[i]->dz();
+          conv_tk1_dzerr[conv_n]=tracks[i]->dzError();
+          conv_ch1ch2[conv_n]=tracks[i]->charge();
+        }
+        else if(i==1) {
+          conv_tk2_dz[conv_n]=tracks[i]->dz();
+          conv_tk2_dzerr[conv_n]=tracks[i]->dzError();
+          conv_ch1ch2[conv_n]*=tracks[i]->charge();
+        }
       }
     }
 
@@ -278,6 +278,12 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     conv_lxy[conv_n]=localConv.lxy();
     conv_lz[conv_n]=localConv.lz();
 
+    int flag=-999;
+    if (localConv.quality(reco::Conversion::arbitratedMerged)) flag= 1;
+    if (localConv.quality(reco::Conversion::generalTracksOnly)) flag =2;
+    if (localConv.quality(reco::Conversion::arbitratedEcalSeeded)) flag=3;
+    conv_quality[conv_n]=flag;
+    
     std::vector<unsigned short> tmp;
     for (unsigned int i=0; i<localConv.nHitsBeforeVtx().size(); ++i) {
       tmp.push_back(static_cast<unsigned short>(localConv.nHitsBeforeVtx()[i]));
@@ -293,9 +299,9 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     
     if(localConv.tracks().size() > 1) {
-        conv_tk2_d0[conv_n]=localConv.tracksSigned_d0()[1];
-        conv_tk2_pout[conv_n]=sqrt(localConv.tracksPout()[1].Mag2());
-        conv_tk2_pin[conv_n]=sqrt(localConv.tracksPin()[1].Mag2());
+      conv_tk2_d0[conv_n]=localConv.tracksSigned_d0()[1];
+      conv_tk2_pout[conv_n]=sqrt(localConv.tracksPout()[1].Mag2());
+      conv_tk2_pin[conv_n]=sqrt(localConv.tracksPin()[1].Mag2());
     }
     
     conv_n++;
@@ -303,7 +309,7 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 
   if(debug_level>9)
-  std::cout << "End Conversion" << std::endl;
+    std::cout << "End Conversion" << std::endl;
 
   return true;
 }
