@@ -1,6 +1,14 @@
 #include "TMath.h"
 #include <iomanip>
 
+/*
+This macro can be executed directly in root to produce a set of plots for 
+mH=120.  A script to generate and execute macros for all mass hypotheses is 
+runBackgroundModelPlots.sh.  This requires that the script 
+make_bkgplot_html.sh is run first in order to create a directory structure 
+and html pages to organize the plots that are produced.
+*/
+
 void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", bool madgraph=true, bool fakes=true, bool data=true) {
 
   int mass_in=120;
