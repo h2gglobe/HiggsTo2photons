@@ -10,7 +10,7 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 #include "HiggsAnalysis/HiggsTo2photons/interface/PhotonFixCMS.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 void GlobePhotons::checkSetup(const edm::EventSetup& iSetup) {
@@ -21,27 +21,18 @@ void GlobePhotons::checkSetup(const edm::EventSetup& iSetup) {
   LocalCorr->init(iSetup);
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
-  //edm::ESHandle<TransientTrackBuilder> theTTkBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theTTkBuilder);
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   geometry = *geoHandle;
 
-  //edm::ESHandle<EcalChannelStatus> chStatus;
-  //iSetup.get<EcalChannelStatusRcd>().get(chStatus);
-
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
   sevLevel = sevlv.product();
-
-  hcalHelper->checkSetup(iSetup);
-  hcalHelperPflow->checkSetup(iSetup);
 }
 
 GlobePhotons::~GlobePhotons() {
-  delete hcalHelper;
-  delete hcalHelperPflow;
 }
 
 GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
@@ -62,8 +53,6 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   ecalHitESColl = iConfig.getParameter<edm::InputTag>("EcalHitESColl");
 
   hcalBEColl =  iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
-  hcalFColl =  iConfig.getParameter<edm::InputTag>("HcalHitsFColl");
-  hcalHoColl =  iConfig.getParameter<edm::InputTag>("HcalHitsHoColl");
 
   convertedPhotonColl =  iConfig.getParameter<edm::InputTag>("ConvertedPhotonColl");
   beamSpotColl =  iConfig.getParameter<edm::InputTag>("BeamSpot");
@@ -73,7 +62,6 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   vtxCollection = iConfig.getParameter<edm::InputTag>("VertexColl_std");
   tkCollection  = iConfig.getParameter<edm::InputTag>("tkColl");
 
-  hcalHitColl = iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
   pfColl = iConfig.getParameter<edm::InputTag>("PFCandidateColl");
 
   edm::ParameterSet isoVals03  = iConfig.getParameter<edm::ParameterSet> ("isolationValues03");
@@ -100,18 +88,6 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 
   pho_pfiso_mycharged03 = new std::vector<std::vector<float> >();
   pho_pfiso_mycharged04 = new std::vector<std::vector<float> >();
-
-  hcalCfg.hOverEConeSize = 0.15;
-  hcalCfg.useTowers = true;
-  hcalCfg.hcalTowers = iConfig.getParameter<edm::InputTag>("CaloTowerColl");
-  hcalCfg.hOverEPtMin = 0;
-  hcalCfgPflow.hOverEConeSize = 0.15;
-  hcalCfgPflow.useTowers = true ;
-  hcalCfgPflow.hcalTowers = iConfig.getParameter<edm::InputTag>("CaloTowerColl");
-  hcalCfgPflow.hOverEPtMin = 0;
-
-  hcalHelper = new ElectronHcalHelper(hcalCfg);
-  hcalHelperPflow = new ElectronHcalHelper(hcalCfgPflow);
 }
 
 void GlobePhotons::setPhotonIDThresholds(const edm::ParameterSet& iConfig) {
@@ -183,12 +159,10 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_hoe",&pho_hoe,"pho_hoe[pho_n]/F");
   tree->Branch("pho_h1oe",&pho_h1oe,"pho_h1oe[pho_n]/F");
   tree->Branch("pho_h2oe",&pho_h2oe,"pho_h2oe[pho_n]/F");
-  tree->Branch("pho_hoe_bc",&pho_hoe_bc,"pho_hoe_bc[pho_n]/F");
-  tree->Branch("pho_h1oe_bc",&pho_h1oe_bc,"pho_h1oe_bc[pho_n]/F");
-  tree->Branch("pho_h2oe_bc",&pho_h2oe_bc,"pho_h2oe_bc[pho_n]/F");
-  tree->Branch("pho_r1x5",&pho_r1x5,"pho_r1x5[pho_n]/F");
-  tree->Branch("pho_r2x5",&pho_r2x5,"pho_r2x5[pho_n]/F");
-  tree->Branch("pho_r9",&pho_r9,"pho_r9[pho_n]/F");
+  tree->Branch("pho_h", &pho_h, "pho_h[pho_n]/F");
+  tree->Branch("pho_r1x5", &pho_r1x5, "pho_r1x5[pho_n]/F");
+  tree->Branch("pho_r2x5", &pho_r2x5, "pho_r2x5[pho_n]/F");
+  tree->Branch("pho_r9", &pho_r9,"pho_r9[pho_n]/F");
   tree->Branch("pho_eseffsixix",&pho_eseffsixix,"pho_eseffsixix[pho_n]/F");
   tree->Branch("pho_eseffsiyiy",&pho_eseffsiyiy,"pho_eseffsiyiy[pho_n]/F");
   
@@ -200,14 +174,6 @@ void GlobePhotons::defineBranch(TTree* tree) {
   ////////
 
   //isolation variables
-  tree->Branch("pho_pfiso_charged03", &pho_pfiso_charged03, "pho_pfiso_charged03[pho_n]/F");
-  tree->Branch("pho_pfiso_neutral03", &pho_pfiso_neutral03, "pho_pfiso_neutral03[pho_n]/F");
-  tree->Branch("pho_pfiso_photon03", &pho_pfiso_photon03, "pho_pfiso_photon03[pho_n]/F");  
-
-  tree->Branch("pho_pfiso_charged04", &pho_pfiso_charged04, "pho_pfiso_charged04[pho_n]/F");
-  tree->Branch("pho_pfiso_neutral04", &pho_pfiso_neutral04, "pho_pfiso_neutral04[pho_n]/F");
-  tree->Branch("pho_pfiso_photon04", &pho_pfiso_photon04, "pho_pfiso_photon04[pho_n]/F");  
-
   tree->Branch("pho_pfiso_myneutral03", &pho_pfiso_myneutral03, "pho_pfiso_myneutral03[pho_n]/F");
   tree->Branch("pho_pfiso_myphoton03", &pho_pfiso_myphoton03, "pho_pfiso_myphoton03[pho_n]/F");  
   tree->Branch("pho_pfiso_myneutral04", &pho_pfiso_myneutral04, "pho_pfiso_myneutral04[pho_n]/F");
@@ -311,39 +277,15 @@ void GlobePhotons::defineBranch(TTree* tree) {
 
 bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  
   if (debug_level > 9) 
     std::cout << "GlobePhotons: Start analyze" << std::endl;
 
   PhotonFixCMS::initialise(iSetup, "4_2");
   checkSetup(iSetup);
-  hcalHelper->readEvent(const_cast<edm::Event &>(iEvent));
-  hcalHelperPflow->readEvent(const_cast<edm::Event &>(iEvent));
 
   // get collections
   edm::Handle<reco::PhotonCollection> phoH;
   iEvent.getByLabel(photonCollStd, phoH);
-
-  edm::Handle<reco::PhotonCollection> phoTempH;
-  iEvent.getByLabel("pfPhotonTranslator", "pfphot", phoTempH);
-
-  edm::Handle<reco::PFCandidateCollection> pfHandle;
-  iEvent.getByLabel("pfSelectedPhotons", pfHandle);
-
-  // ValueMap for PF isolation values 
-  //edm::Handle<edm::ValueMap<edm::Ptr<reco::PFCandidate> > > egammaToPFPhotonsH;    
-  //iEvent.getByLabel("particleFlow", "photons", egammaToPFPhotonsH);
-  //const edm::ValueMap<edm::Ptr<reco::PFCandidate> >& egammaToPFPhotons = *(egammaToPFPhotonsH.product());
-
-  std::vector< edm::Handle< edm::ValueMap<double> > > isolationValues03(inputTagIsoVals03_.size());
-  for (size_t j = 0; j<inputTagIsoVals03_.size(); ++j) {
-    iEvent.getByLabel(inputTagIsoVals03_[j], isolationValues03[j]);
-  }
-  
-  std::vector< edm::Handle< edm::ValueMap<double> > > isolationValues04(inputTagIsoVals04_.size());
-  for (size_t j = 0; j<inputTagIsoVals04_.size(); ++j) {
-    iEvent.getByLabel(inputTagIsoVals04_[j], isolationValues04[j]);
-  }
 
   // take the pi0 rejection info from RECO
   edm::Handle<reco::PhotonPi0DiscriminatorAssociationMap>  map;
@@ -383,22 +325,21 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   const reco::BeamSpot &thebs = *bsHandle.product();
   
   edm::Handle<reco::ConversionCollection> hConversions;
-  iEvent.getByLabel(convertedPhotonColl, hConversions);
-  
-  //edm::Handle<reco::GsfElectronCollection> hElectrons;
+  iEvent.getByLabel(convertedPhotonColl, hConversions);  
   iEvent.getByLabel(electronColl, hElectrons);
+  iEvent.getByLabel(vtxCollection, hVertex);
+  iEvent.getByLabel(tkCollection, tkHandle);
 
   edm::Handle<double> rhoHandle;
   iEvent.getByLabel(rhoCollection, rhoHandle);
   rho = *(rhoHandle.product());
-  
-  //edm::Handle<reco::VertexCollection> vtxHandle;
-  iEvent.getByLabel(vtxCollection, hVertex);
-  iEvent.getByLabel(tkCollection, tkHandle);
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
+
+  edm::Handle< HBHERecHitCollection > hbhe ;
+  iEvent.getByLabel(hcalBEColl, hbhe);
 
   const CaloSubdetectorGeometry *geometryES = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   CaloSubdetectorTopology *topology_p = 0;
@@ -571,17 +512,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_h1oe[pho_n] = localPho->hadronicDepth1OverEm();
     pho_h2oe[pho_n] = localPho->hadronicDepth2OverEm();
 
-    if (!(localPho->isStandardPhoton())) {
-      std::vector<CaloTowerDetId> caloTwId = hcalHelperPflow->hcalTowersBehindClusters(*(localPho->superCluster()));
-      pho_h1oe_bc[pho_n] = hcalHelperPflow->hcalESumDepth1BehindClusters(caloTwId)/localPho->superCluster()->energy();
-      pho_h2oe_bc[pho_n] = hcalHelperPflow->hcalESumDepth2BehindClusters(caloTwId)/localPho->superCluster()->energy();
-      pho_hoe_bc[pho_n]  = pho_h1oe_bc[pho_n] + pho_h2oe_bc[pho_n];
-    } else {
-      std::vector<CaloTowerDetId> caloTwId = hcalHelper->hcalTowersBehindClusters(*(localPho->superCluster()));
-      pho_h1oe_bc[pho_n] = hcalHelper->hcalESumDepth1BehindClusters(caloTwId)/localPho->superCluster()->energy();
-      pho_h2oe_bc[pho_n] = hcalHelper->hcalESumDepth2BehindClusters(caloTwId)/localPho->superCluster()->energy();
-      pho_hoe_bc[pho_n]  = pho_h1oe_bc[pho_n] + pho_h2oe_bc[pho_n];
-    }
+    pho_h[pho_n] = hoeCalculator(&(*(theClus->seed())), geometry, hbhe);
     
     pho_r1x5[pho_n] = localPho->r1x5();
     pho_r2x5[pho_n] = localPho->r2x5();
@@ -688,35 +619,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_trksumpthollowconedr03[pho_n] = localPho->trkSumPtHollowConeDR03();
     pho_ntrksolidconedr03[pho_n] = localPho->nTrkSolidConeDR03();
     pho_ntrkhollowconedr03[pho_n] = localPho->nTrkHollowConeDR03();
-
-    // STD PF ISOLATION
-    pho_pfiso_charged03[pho_n] = -1;
-    pho_pfiso_photon03[pho_n]  = -1;
-    pho_pfiso_neutral03[pho_n] = -1;
-    
-    pho_pfiso_charged04[pho_n] = -1;
-    pho_pfiso_photon04[pho_n]  = -1;
-    pho_pfiso_neutral04[pho_n] = -1;
-
-    for (unsigned int t=0; t<phoTempH->size(); ++t) {
-      reco::PhotonRef phoRef(phoTempH, t);
-      if (phoRef->superCluster() == localPho->superCluster()) {
-	for (unsigned int iPfCand=0; iPfCand<pfHandle->size(); iPfCand++) {
-	  reco::PFCandidatePtr ptr(pfHandle, iPfCand);
-	  if (ptr->superClusterRef() == phoRef->superCluster()) {
-	    pho_pfiso_charged03[pho_n] = (*isolationValues03[0])[ptr];
-	    pho_pfiso_photon03[pho_n]  = (*isolationValues03[1])[ptr];
-	    pho_pfiso_neutral03[pho_n] = (*isolationValues03[2])[ptr];
-
-	    							 
-	    pho_pfiso_charged04[pho_n] = (*isolationValues04[0])[ptr];
-	    pho_pfiso_photon04[pho_n]  = (*isolationValues04[1])[ptr];
-	    pho_pfiso_neutral04[pho_n] = (*isolationValues04[2])[ptr];
-	    break;
-	  } 
-	}
-      }
-    }
 
     bool passelectronveto = !ConversionTools::hasMatchedPromptElectron(localPho->superCluster(), hElectrons, hConversions, thebs.position());
     pho_isconv[pho_n] = int(passelectronveto);

@@ -9,7 +9,6 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCuts.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeEcalClusters.h"
 
-
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
@@ -25,7 +24,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 
-#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
+//#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
@@ -90,9 +89,7 @@ class GlobePhotons {
   Float_t pho_hoe[MAX_PHOTONS];
   Float_t pho_h1oe[MAX_PHOTONS];
   Float_t pho_h2oe[MAX_PHOTONS];
-  Float_t pho_hoe_bc[MAX_PHOTONS];
-  Float_t pho_h1oe_bc[MAX_PHOTONS];
-  Float_t pho_h2oe_bc[MAX_PHOTONS];
+  Float_t pho_h[MAX_PHOTONS];
   Float_t pho_r1x5[MAX_PHOTONS];
   Float_t pho_r2x5[MAX_PHOTONS];
   Float_t pho_r9[MAX_PHOTONS];
@@ -131,13 +128,6 @@ class GlobePhotons {
   Float_t pho_pfiso_myphoton04[MAX_PHOTONS];
   std::vector<std::vector<float> >* pho_pfiso_mycharged03;
   std::vector<std::vector<float> >* pho_pfiso_mycharged04;
-
-  Float_t pho_pfiso_neutral03[MAX_PHOTONS];
-  Float_t pho_pfiso_charged03[MAX_PHOTONS];
-  Float_t pho_pfiso_photon03[MAX_PHOTONS];  
-  Float_t pho_pfiso_neutral04[MAX_PHOTONS];
-  Float_t pho_pfiso_charged04[MAX_PHOTONS];
-  Float_t pho_pfiso_photon04[MAX_PHOTONS];  
 
   Float_t pho_ecalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcalsumetconedr04[MAX_PHOTONS];
@@ -218,14 +208,14 @@ class GlobePhotons {
   edm::InputTag barrelHybridClusterShapeColl; 
   edm::InputTag endcapBasicClusterShapeColl; 
 
-// ECAL HITS
+  // ECAL HITS
   edm::InputTag ecalHitEBColl;
   edm::InputTag ecalHitEEColl;
   edm::InputTag ecalHitESColl;
-// HCAL HITS
+  // HCAL HITS
   edm::InputTag hcalBEColl;
-  edm::InputTag hcalFColl;
-  edm::InputTag hcalHoColl; 
+  //edm::InputTag hcalFColl;
+  //edm::InputTag hcalHoColl; 
 
   edm::InputTag convertedPhotonColl;
   edm::InputTag beamSpotColl;
@@ -234,7 +224,7 @@ class GlobePhotons {
   edm::InputTag rhoCollection;
   edm::InputTag vtxCollection;
   edm::InputTag tkCollection;
-  edm::InputTag hcalHitColl;
+  //edm::InputTag hcalHitColl;
   edm::InputTag pfColl;
   std::vector<edm::InputTag> inputTagIsoVals03_;
   std::vector<edm::InputTag> inputTagIsoVals04_;
@@ -273,12 +263,12 @@ class GlobePhotons {
   std::vector<double> cutsubleadr9[12];
   std::vector<double> cutsublead_drtotk[12];
 
-  ElectronHcalHelper *hcalHelper, *hcalHelperPflow;
+  //ElectronHcalHelper *hcalHelper, *hcalHelperPflow;
 
   CaloGeometry geometry;
   const EcalSeverityLevelAlgo* sevLevel; 
   edm::ESHandle<TransientTrackBuilder> theTTkBuilder;
-  ElectronHcalHelper::Configuration hcalCfg, hcalCfgPflow;
+  //ElectronHcalHelper::Configuration hcalCfg, hcalCfgPflow;
 };
 
 #endif

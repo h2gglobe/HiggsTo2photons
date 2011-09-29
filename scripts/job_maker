@@ -157,7 +157,7 @@ if (flagRECO and flagAOD) or (not flagRECO and not flagAOD):
 for run in runselection:
     job_name = name
         
-    file = open("template_44X_cfg.py")
+    file = open("template_42X_cfg.py")
     lines = file.readlines()
     file.close()
     if os.path.exists("../test/crabTasks")==False:
