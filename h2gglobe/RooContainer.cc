@@ -682,6 +682,14 @@ void RooContainer::SumBinnedDatasets(std::string new_name, std::string data_one,
    }
 }
 // -----------------------------------------------------------------------------------------
+void RooContainer::SumBinnedDatasets(std::string new_name, std::string data_one,std::string data_two,double coefficients_one,double coefficients_two, bool scale){
+
+	for (int cat=0;cat<ncat;cat++){
+	   sumBinnedDatasets(getcatName(new_name,cat),getcatName(data_one,cat),getcatName(data_two,cat),coefficients_one,coefficients_two,scale);
+	}
+	
+}
+// -----------------------------------------------------------------------------------------
 void RooContainer::sumBinnedDatasets(std::string new_name,std::string data_one,std::string data_two,double c1, double c2, bool scale){
 
    std::map<std::string,TH1F>::iterator it_one = m_th1f_.find(data_one);
@@ -1466,7 +1474,7 @@ std::vector<double> RooContainer::optimizedReverseBinning(TH1F *hb,int nTargetBi
 		std::cout << "RooContainer::OptimizedBinning -- Not enough entries in histogram for target numbers calculated - " 
 			  << targetNumbers 
 			  << ", Returning current bin boundaries "  << std::endl;
-		for (int j=nBins;j>=1;j--) binEdges.push_back(hb->GetBinLowEdge(j));
+		for (int j=2;j<=nBins+1;j++) binEdges.push_back(hb->GetBinLowEdge(j));
 		return binEdges;
 	}
 
@@ -1549,6 +1557,10 @@ void RooContainer::rebinBinnedDataset(std::string new_name,std::string name, TH1
 	hbnew->SetName(Form("th1f_%s",new_name.c_str()));
 	//cout << "title for new re-binned histogream - " << hb->GetTitle()<<endl; 
 	hbnew->SetTitle(hb->GetTitle());
+
+	// Just a quick test, mask the last "channel"
+	//hbnew->SetBinContent(hbnew->GetNbinsX(),0);
+	//cout << "DONT DO THIS IN MAIN PROGRAM ----- LINE 1563 rebin setting last bin to 0" <<endl;
 	m_th1f_[new_name]=*hbnew;
 	
 }
@@ -1886,7 +1898,6 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
     }
 
     else {
-//	(it_exp->second).plotOn(xframe,LineColor(kYellow),RooFit::VisualizeError(*fit_result,1),RooFit::FillColor(kYellow),RooFit::MoveToBack());
 	(it_exp->second).plotOn(xframe,LineColor(4));
 	if (mode==2){
           real_var->setRange("rnge",x2,x3);
@@ -1894,7 +1905,9 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 	}
 	(it_exp->second).paramOn(xframe);
     	pdf_saves_.push_back(&(it_exp->second));
-        n_pars=(it_exp->second).getParameters(it_data->second)->getSize() -1 ;
+        //n_pars=(it_exp->second).getParameters(it_data->second)->getSize() -1 ;
+        n_pars=(it_exp->second).getParameters(it_data->second)->getSize();
+	cout << "NPARS_MAN" <<  n_pars<< endl;
     }
 
     double chi_square = xframe->chiSquare(n_pars);
