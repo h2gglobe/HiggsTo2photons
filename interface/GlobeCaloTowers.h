@@ -2,29 +2,24 @@
 #define GLOBECALOTOWERS_H
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCuts.h"
 
-#include "TTree.h"
-#include "TClonesArray.h"
-#include "TLorentzVector.h"
-
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+
+#include "TTree.h"
+#include "TClonesArray.h"
+#include "TLorentzVector.h"
 
 #include <iostream>
 

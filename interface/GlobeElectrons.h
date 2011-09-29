@@ -4,27 +4,17 @@
 #define GLOBEELECTRONS_H
 
 #include "FWCore/Framework/interface/Event.h"
-
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCuts.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeEcalClusters.h"
 
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
-#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
-//#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
-
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -40,13 +30,7 @@ class GlobeElectrons {
   bool analyze(const edm::Event&, const edm::EventSetup&);
   bool analyze_pf(const edm::Event&, const edm::EventSetup&);
   void initialize_branches(int electron_number);
-  float hoeCalculator(const reco::BasicCluster*, const CaloGeometry&,
-                      const edm::Event&, const edm::EventSetup&);
   std::map<DetId, EcalRecHit> rechits_map_;
-
-  //bool identify(const reco::GsfElectronRef electron, int type);
-  //bool st_identify(const reco::GsfElectronRef electron, int type);
-  //int classify(const reco::GsfElectronRef electron);
 
   std::pair<unsigned int, float> sharedHits(const reco::Track& trackA, const reco::Track& trackB);
 
@@ -65,9 +49,7 @@ class GlobeElectrons {
   Float_t el_hoe[MAX_ELECTRONS];
   Float_t el_hoed1[MAX_ELECTRONS];
   Float_t el_hoed2[MAX_ELECTRONS];
-  Float_t el_hoe_bc[MAX_ELECTRONS];
-  Float_t el_hoed1_bc[MAX_ELECTRONS];
-  Float_t el_hoed2_bc[MAX_ELECTRONS];
+  Float_t el_h[MAX_ELECTRONS];
 
   Float_t el_detain[MAX_ELECTRONS];
   Float_t el_dphiin[MAX_ELECTRONS];
@@ -122,11 +104,9 @@ class GlobeElectrons {
   Float_t el_tkiso03[MAX_ELECTRONS];
   Float_t el_ecaliso03[MAX_ELECTRONS];
   Float_t el_hcaliso03[MAX_ELECTRONS];
-  Float_t el_hcaliso03_bc[MAX_ELECTRONS];
   Float_t el_tkiso04[MAX_ELECTRONS];
   Float_t el_ecaliso04[MAX_ELECTRONS];
   Float_t el_hcaliso04[MAX_ELECTRONS];
-  Float_t el_hcaliso04_bc[MAX_ELECTRONS];
 
   Float_t el_mva[MAX_ELECTRONS];
   Bool_t el_ecaldrv[MAX_ELECTRONS];
@@ -164,7 +144,6 @@ class GlobeElectrons {
   edm::InputTag ecalHitEEColl;
   edm::InputTag ecalHitESColl;
   edm::InputTag hcalHitColl;
-  edm::InputTag dcsTag_;
 };
 
 #endif

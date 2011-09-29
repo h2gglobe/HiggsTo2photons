@@ -167,7 +167,8 @@ elif flagSkim1El == 'ON':
 process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
 process.h2ganalyzer.Debug_Level = 0
 
-
+##-------------------- PFNoPU for PF Isolation Electrons -------------
+process.load("CommonTools.ParticleFlow.pfPileUp_cfi")
 ##-------------------- Import the JEC services -----------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 process.ak5PFL1Fastjet.srcRho = cms.InputTag('kt6PFJetsForRhoCorrection','rho')
@@ -188,16 +189,19 @@ process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 
 if flagAOD is 'ON':
   process.p11 = cms.Path( process.eventCounters*process.eventFilter1*
+                          process.pfPileUp *
                           #process.pfBasedPhotonIsoSequence*
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*process.h2ganalyzerPath)
+  
   process.p12 = cms.Path( process.eventCounters*process.eventFilter2*
+                          process.pfPileUp *
                           #process.pfBasedPhotonIsoSequence*
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*process.h2ganalyzerPath)
 else:
-  process.p11 = cms.Path( process.eventCounters*
-                          process.eventFilter1*
+  process.p11 = cms.Path( process.eventCounters*process.eventFilter1*
+                          process.pfPileUp *
                           #process.pfBasedPhotonIsoSequence*
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*
@@ -206,8 +210,9 @@ else:
                           process.preshowerClusterShape*
                           process.piZeroDiscriminators*
                           process.h2ganalyzerPath)
-  process.p12 = cms.Path( process.eventCounters*
-                          process.eventFilter2*
+
+  process.p12 = cms.Path( process.eventCounters*process.eventFilter2*
+                          process.pfPileUp *
                           #process.pfBasedPhotonIsoSequence*
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*
