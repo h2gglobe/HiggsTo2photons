@@ -653,7 +653,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	float helicityAngle = fabs(lead_p4.E()-sublead_p4.E())/Higgs.P();
 	float maxeta = lead_p4.Eta();
 	if (fabs(sublead_p4.Eta())>fabs(lead_p4.Eta())) maxeta = sublead_p4.Eta();
-	float HT = lead_p4.Pt() + sublead_p4.Pt();
 	float mH = Higgs.M();
 
 	// Mass Resolution of the Event
@@ -713,39 +712,29 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 	l.FillHist("pt",0, Higgs.Pt(), evweight);
 	l.FillHist("logpt",0, log10(Higgs.Pt()), evweight);
-	l.FillHist("ptOverM",0, Higgs.Pt()/Higgs.M(), evweight);
 	l.FillHist("eta",0, Higgs.Eta(), evweight);
 	l.FillHist("deltaPhi",0, deltaPhi, evweight);
 	l.FillHist("deltaEta",0, deltaEta, evweight);
 	l.FillHist("helicityAngle",0, helicityAngle, evweight);
 	l.FillHist("pho1_pt",0,lead_p4.Pt(), evweight);
 	l.FillHist("pho2_pt",0,sublead_p4.Pt(), evweight);
-	l.FillHist("pho1_ptOverM",0,lead_p4.Pt()/Higgs.M(), evweight);
-	l.FillHist("pho2_ptOverM",0,sublead_p4.Pt()/Higgs.M(), evweight);
 	l.FillHist("pho1_eta",0,lead_p4.Eta(), evweight);
 	l.FillHist("pho2_eta",0,sublead_p4.Eta(), evweight);
 	l.FillHist("pho_minr9",0,min(l.pho_r9[diphoton_index.first],l.pho_r9[diphoton_index.second]), evweight);
 	l.FillHist("maxeta",0,maxeta, evweight);
-	l.FillHist("ht",0, HT, evweight);
-	l.FillHist2D("ht_vs_m",0, HT, mH, evweight);
 
 	l.FillHist("pt",category+1, Higgs.Pt(), evweight);
 	l.FillHist("logpt",category+1, log10(Higgs.Pt()), evweight);
-	l.FillHist("ptOverM",category+1, Higgs.Pt()/Higgs.M(), evweight);
 	l.FillHist("eta",category+1, Higgs.Eta(), evweight);
 	l.FillHist("deltaPhi",category+1, deltaPhi, evweight);
 	l.FillHist("deltaEta",category+1, deltaEta, evweight);
 	l.FillHist("helicityAngle",category+1, helicityAngle, evweight);
 	l.FillHist("pho1_pt",category+1,lead_p4.Pt(), evweight);
 	l.FillHist("pho2_pt",category+1,sublead_p4.Pt(), evweight);
-	l.FillHist("pho1_ptOverM",category+1,lead_p4.Pt()/Higgs.M(), evweight);
-	l.FillHist("pho2_ptOverM",category+1,sublead_p4.Pt()/Higgs.M(), evweight);
 	l.FillHist("pho1_eta",category+1,lead_p4.Eta(), evweight);
 	l.FillHist("pho2_eta",category+1,sublead_p4.Eta(), evweight);
 	l.FillHist("pho_minr9",category+1,min(l.pho_r9[diphoton_index.first],l.pho_r9[diphoton_index.second]), evweight);
 	l.FillHist("maxeta",category+1,maxeta, evweight);
-	l.FillHist("ht",category+1, HT, evweight);
-	l.FillHist2D("ht_vs_m",category+1, mH, HT, evweight);
 
 	//Fill histograms separately for low and high mass sidebands and for signal region
 
@@ -767,22 +756,19 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 	    l.FillHist("pt_mlow",imass, Higgs.Pt(), evweight);
 	    l.FillHist("logpt_mlow",imass, log10(Higgs.Pt()), evweight);
-	    l.FillHist("ptOverM_mlow",imass, Higgs.Pt()/Higgs.M(), evweight);
+	    l.FillHist("ptOverMH_mlow",imass, Higgs.Pt()/mass_hypothesis_low, evweight);
 	    l.FillHist("eta_mlow",imass, Higgs.Eta(), evweight);
 	    l.FillHist("deltaPhi_mlow",imass, deltaPhi, evweight);
 	    l.FillHist("deltaEta_mlow",imass, deltaEta, evweight);
 	    l.FillHist("helicityAngle_mlow",imass, helicityAngle, evweight);
 	    l.FillHist("pho1_pt_mlow",imass,lead_p4.Pt(), evweight);
 	    l.FillHist("pho2_pt_mlow",imass,sublead_p4.Pt(), evweight);
-	    l.FillHist("pho1_ptOverM_mlow",imass,lead_p4.Pt()/Higgs.M(), evweight);
-	    l.FillHist("pho2_ptOverM_mlow",imass,sublead_p4.Pt()/Higgs.M(), evweight);
 	    l.FillHist("pho1_ptOverMH_mlow",imass,lead_p4.Pt()/mass_hypothesis_low, evweight);
 	    l.FillHist("pho2_ptOverMH_mlow",imass,sublead_p4.Pt()/mass_hypothesis_low, evweight);
 	    l.FillHist("pho1_eta_mlow",imass,lead_p4.Eta(), evweight);
 	    l.FillHist("pho2_eta_mlow",imass,sublead_p4.Eta(), evweight);
 	    l.FillHist("pho_minr9_mlow",imass,min(l.pho_r9[diphoton_index.first],l.pho_r9[diphoton_index.second]), evweight);
 	    l.FillHist("maxeta_mlow",imass,maxeta, evweight);
-	    l.FillHist("ht_mlow",imass, HT, evweight);
 	    l.FillHist("deltaMOverMH_mlow",imass, (Higgs.M()/mass_hypothesis_low)-1., evweight);
 	    l.FillHist("sigmaM_mlow",imass,massResolution, evweight);
 	    l.FillHist("sigmaM_Eonly_mlow",imass,massResolutionEonly, evweight);
@@ -790,29 +776,24 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	    l.FillHist("sigmaMOverM_Eonly_mlow",imass,massResolutionEonly/mH, evweight);
 	    l.FillHist("deltaMOverSigmaM_mlow",imass,(Higgs.M()-mass_hypothesis_low)/massResolution, evweight);
 	    l.FillHist("deltaMOverSigmaM_Eonly_mlow",imass,(Higgs.M()-mass_hypothesis_low)/massResolutionEonly, evweight);
-	    l.FillHist("deltaMSigmaMOverM2_mlow",imass,((Higgs.M()-mass_hypothesis_low)*massResolution)/(mass_hypothesis_low*mH), evweight);
-	    l.FillHist("deltaMSigmaMOverM2_Eonly_mlow",imass,((Higgs.M()-mass_hypothesis_low)*massResolutionEonly)/(mass_hypothesis_low*mH), evweight);
 
 	  } else if (mH>sideband_boundaries[2] && mH<sideband_boundaries[3]) {
 
 	    l.FillHist("pt_mhigh",imass, Higgs.Pt(), evweight);
 	    l.FillHist("logpt_mhigh",imass, log10(Higgs.Pt()), evweight);
-	    l.FillHist("ptOverM_mhigh",imass, Higgs.Pt()/Higgs.M(), evweight);
+	    l.FillHist("ptOverMH_mhigh",imass, Higgs.Pt()/mass_hypothesis_high, evweight);
 	    l.FillHist("eta_mhigh",imass, Higgs.Eta(), evweight);
 	    l.FillHist("deltaPhi_mhigh",imass, deltaPhi, evweight);
 	    l.FillHist("deltaEta_mhigh",imass, deltaEta, evweight);
 	    l.FillHist("helicityAngle_mhigh",imass, helicityAngle, evweight);
 	    l.FillHist("pho1_pt_mhigh",imass,lead_p4.Pt(), evweight);
 	    l.FillHist("pho2_pt_mhigh",imass,sublead_p4.Pt(), evweight);
-	    l.FillHist("pho1_ptOverM_mhigh",imass,lead_p4.Pt()/Higgs.M(), evweight);
-	    l.FillHist("pho2_ptOverM_mhigh",imass,sublead_p4.Pt()/Higgs.M(), evweight);
 	    l.FillHist("pho1_ptOverMH_mhigh",imass,lead_p4.Pt()/mass_hypothesis_high, evweight);
 	    l.FillHist("pho2_ptOverMH_mhigh",imass,sublead_p4.Pt()/mass_hypothesis_high, evweight);
 	    l.FillHist("pho1_eta_mhigh",imass,lead_p4.Eta(), evweight);
 	    l.FillHist("pho2_eta_mhigh",imass,sublead_p4.Eta(), evweight);
 	    l.FillHist("pho_minr9_mhigh",imass,min(l.pho_r9[diphoton_index.first],l.pho_r9[diphoton_index.second]), evweight);
 	    l.FillHist("maxeta_mhigh",imass,maxeta, evweight);
-	    l.FillHist("ht_mhigh",imass, HT, evweight);
 	    l.FillHist("deltaMOverMH_mhigh",imass, (Higgs.M()/mass_hypothesis_high)-1., evweight);
 	    l.FillHist("sigmaM_mhigh",imass,massResolution, evweight);
 	    l.FillHist("sigmaM_Eonly_mhigh",imass,massResolutionEonly, evweight);
@@ -820,29 +801,24 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	    l.FillHist("sigmaMOverM_Eonly_mhigh",imass,massResolutionEonly/mH, evweight);
 	    l.FillHist("deltaMOverSigmaM_mhigh",imass,(Higgs.M()-mass_hypothesis_high)/massResolution, evweight);
 	    l.FillHist("deltaMOverSigmaM_Eonly_mhigh",imass,(Higgs.M()-mass_hypothesis_high)/massResolutionEonly, evweight);
-	    l.FillHist("deltaMSigmaMOverM2_mhigh",imass,((Higgs.M()-mass_hypothesis_high)*massResolution)/(mass_hypothesis_high*mH), evweight);
-	    l.FillHist("deltaMSigmaMOverM2_Eonly_mhigh",imass,((Higgs.M()-mass_hypothesis_high)*massResolutionEonly)/(mass_hypothesis_high*mH), evweight);
 
 	  } else if (mH>=sideband_boundaries[1] && mH<=sideband_boundaries[2]) {
 
 	    l.FillHist("pt_msig",imass, Higgs.Pt(), evweight);
 	    l.FillHist("logpt_msig",imass, log10(Higgs.Pt()), evweight);
-	    l.FillHist("ptOverM_msig",imass, Higgs.Pt()/Higgs.M(), evweight);
+	    l.FillHist("ptOverMH_msig",imass, Higgs.Pt()/mass_hypothesis[imass], evweight);
 	    l.FillHist("eta_msig",imass, Higgs.Eta(), evweight);
 	    l.FillHist("deltaPhi_msig",imass, deltaPhi, evweight);
 	    l.FillHist("deltaEta_msig",imass, deltaEta, evweight);
 	    l.FillHist("helicityAngle_msig",imass, helicityAngle, evweight);
 	    l.FillHist("pho1_pt_msig",imass,lead_p4.Pt(), evweight);
 	    l.FillHist("pho2_pt_msig",imass,sublead_p4.Pt(), evweight);
-	    l.FillHist("pho1_ptOverM_msig",imass,lead_p4.Pt()/Higgs.M(), evweight);
-	    l.FillHist("pho2_ptOverM_msig",imass,sublead_p4.Pt()/Higgs.M(), evweight);
 	    l.FillHist("pho1_ptOverMH_msig",imass,lead_p4.Pt()/mass_hypothesis[imass], evweight);
 	    l.FillHist("pho2_ptOverMH_msig",imass,sublead_p4.Pt()/mass_hypothesis[imass], evweight);
 	    l.FillHist("pho1_eta_msig",imass,lead_p4.Eta(), evweight);
 	    l.FillHist("pho2_eta_msig",imass,sublead_p4.Eta(), evweight);
 	    l.FillHist("pho_minr9_msig",imass,min(l.pho_r9[diphoton_index.first],l.pho_r9[diphoton_index.second]), evweight);
 	    l.FillHist("maxeta_msig",imass,maxeta, evweight);
-	    l.FillHist("ht_msig",imass, HT, evweight);
 	    l.FillHist("deltaMOverMH_msig",imass, (Higgs.M()/mass_hypothesis[imass])-1., evweight);
 	    l.FillHist("sigmaM_msig",imass,massResolution, evweight);
 	    l.FillHist("sigmaM_Eonly_msig",imass,massResolutionEonly, evweight);
@@ -850,12 +826,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	    l.FillHist("sigmaMOverM_Eonly_msig",imass,massResolutionEonly/mH, evweight);
 	    l.FillHist("deltaMOverSigmaM_msig",imass,(Higgs.M()-mass_hypothesis[imass])/massResolution, evweight);
 	    l.FillHist("deltaMOverSigmaM_Eonly_msig",imass,(Higgs.M()-mass_hypothesis[imass])/massResolutionEonly, evweight);
-	    l.FillHist("deltaMSigmaMOverM2_msig",imass,((Higgs.M()-mass_hypothesis[imass])*massResolution)/(mass_hypothesis[imass]*mH), evweight);
-	    l.FillHist("deltaMSigmaMOverM2_Eonly_msig",imass,((Higgs.M()-mass_hypothesis[imass])*massResolutionEonly)/(mass_hypothesis[imass]*mH), evweight);
-
-	    l.FillHist2D("deltaMOverSigmaM_vs_deltaMOverMH",imass, (Higgs.M()/mass_hypothesis[imass])-1., (Higgs.M()-mass_hypothesis[imass])/massResolution, evweight);
-	    l.FillHist2D("deltaMOverSigmaM_vs_sigmaM",imass, massResolution, (Higgs.M()-mass_hypothesis[imass])/massResolution, evweight);
-	    l.FillHist2D("SigmaM_vs_deltaMOverMH",imass, (Higgs.M()/mass_hypothesis[imass])-1., massResolution, evweight);
 
 	    if (imass==2) {
 	      l.FillHist("sigmaM",0,massResolution, evweight);
