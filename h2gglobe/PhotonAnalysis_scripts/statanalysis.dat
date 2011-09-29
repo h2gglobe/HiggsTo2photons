@@ -79,3 +79,5 @@ smearing_sigma_error_EBLowR9=0.42e-2
 smearing_sigma_error_EEHighR9=0.51e-2
 smearing_sigma_error_EELowR9=0.38e-2
 
+doSinglePhoIDEfficiency=0
+signalRegionWidth=0.07
