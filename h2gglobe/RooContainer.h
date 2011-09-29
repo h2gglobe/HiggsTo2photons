@@ -82,6 +82,7 @@ class RooContainer {
    //		      ,double norm_guess=100);
 
    void SumBinnedDatasets(std::string,std::string,std::string,std::vector<double>, std::vector<double>, bool scale=true);
+   void SumBinnedDatasets(std::string,std::string,std::string,double,double, bool scale=true);
    void CreateDataSet(std::string,std::string,int nbins,double x1=-990,double x2=-990); 
    void MakeSystematics(std::string,std::string,int);
 
