@@ -72,6 +72,7 @@ class GlobeConversions {
   Float_t conv_dphitrksatvtx[MAX_CONVERTEDPHOTONS];
   Float_t conv_dphitrksatecal[MAX_CONVERTEDPHOTONS];
   Float_t conv_detatrksatecal[MAX_CONVERTEDPHOTONS];
+  Int_t conv_quality[MAX_CONVERTEDPHOTONS];
   Float_t conv_dxy[MAX_CONVERTEDPHOTONS];
   Float_t conv_dz[MAX_CONVERTEDPHOTONS];
   Float_t conv_lxy[MAX_CONVERTEDPHOTONS];
