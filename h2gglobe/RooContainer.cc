@@ -48,8 +48,12 @@ void RooContainer::AddNormalisationSystematics(std::string name,std::vector<std:
   }
 }
 // ----------------------------------------------------------------------------------------------------
-void RooContainer::SaveSystematicsData(){
-   save_systematics_data = true;
+void RooContainer::SaveSystematicsData(bool save){
+   save_systematics_data = save;
+}
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::SaveRooDataHists(bool save){
+   save_roodatahists = save;
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::MakeSystematicStudy(std::vector<std::string> sys_names,std::vector<int> sys_types){
@@ -689,6 +693,59 @@ void RooContainer::SumBinnedDatasets(std::string new_name, std::string data_one,
 	}
 	
 }
+
+void RooContainer::SumMultiBinnedDatasets(std::string new_name, std::vector<std::string > data, std::vector<double> normalisation,bool scale){
+	// this version takes a vector of histograms and sums them to the total normalisations. 
+	// if scale == true, then each histogram is summed together and then the total scaled to N
+	// if scale ==false then each is scaled to N/numberofhists then added
+   if (normalisation.size() != ncat ){
+	std::cerr << "WARNING!! -- RooContainer::SumMultiBinnedDataSets -- number of coefficients should be the same as number of categories " << std::endl;
+   } else {
+
+	for (int cat=0;cat<ncat;cat++){
+	   std::vector<std::string> catNames;
+	   for (std::vector<string>::iterator it = data.begin() ; it!=data.end();it++){
+		catNames.push_back(getcatName(*it,cat));
+	   }
+	   sumMultiBinnedDatasets(getcatName(new_name,cat),catNames,normalisation[cat],scale);
+	}
+	
+   }
+}
+
+void RooContainer::sumMultiBinnedDatasets(std::string new_name, std::vector<std::string > data, double normalisation,bool scale){
+	
+	int nHists = data.size();
+   	std::map<std::string,TH1F>::iterator it_one = m_th1f_.find(data[0]); // Get The first histogram
+
+   	if (it_one !=m_th1f_.end() ){
+
+       	  TH1F *histOne = (TH1F*)((*it_one).second).Clone();
+          histOne->SetName(Form("th1f_%s",new_name.c_str()));
+
+	  if (!scale) histOne->Scale(1.0/histOne->Integral());
+
+	  for (int i=1;i<nHists;i++){
+	
+   	   std::map<std::string,TH1F>::iterator it_two = m_th1f_.find(data[i]); // Get The first histogram
+      	   if (scale) {  // histograms are weighted by their own integrals
+		histOne->Add(&(it_two->second));
+	   } else {	// histograms equally weighted
+		histOne->Add(&(it_two->second),1.0/(it_two->second).Integral());
+		
+	   }
+	  } 
+	  histOne->Scale(normalisation/histOne->Integral());	
+   	  m_th1f_.insert(std::pair<std::string,TH1F>(new_name,*histOne));
+	  std::cout << "RooContainer::SumBinnedDatasets -- Created New Histogram called " << new_name << std::endl;
+  
+  	} else {
+	   std::cerr << "WARNING -- RooContainer::SumBinnedDatasets -- The following Histogram wasn't found " 
+	             << data[0] << std::endl;
+   	}
+}
+	
+
 // -----------------------------------------------------------------------------------------
 void RooContainer::sumBinnedDatasets(std::string new_name,std::string data_one,std::string data_two,double c1, double c2, bool scale){
 
@@ -1420,7 +1477,9 @@ std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool
 		std::cout << "RooContainer::OptimizedBinning -- Not enough entries in histogram for target numbers calculated - " 
 			  << targetNumbers 
 			  << ", Returning current bin boundaries "  << std::endl;
-		for (int j=2;j<=nBins+1;j++) binEdges.push_back(hb->GetBinLowEdge(j));
+		//for (int j=2;j<=nBins+1;j++) binEdges.push_back(hb->GetBinLowEdge(j));
+		binEdges.push_back(hb->GetBinLowEdge(1));
+		binEdges.push_back(hb->GetBinLowEdge(nBins+1));
 		return binEdges;
 	}
 
@@ -1474,7 +1533,9 @@ std::vector<double> RooContainer::optimizedReverseBinning(TH1F *hb,int nTargetBi
 		std::cout << "RooContainer::OptimizedBinning -- Not enough entries in histogram for target numbers calculated - " 
 			  << targetNumbers 
 			  << ", Returning current bin boundaries "  << std::endl;
-		for (int j=2;j<=nBins+1;j++) binEdges.push_back(hb->GetBinLowEdge(j));
+		//for (int j=2;j<=nBins+1;j++) binEdges.push_back(hb->GetBinLowEdge(j));
+		binEdges.push_back(hb->GetBinLowEdge(1));
+		binEdges.push_back(hb->GetBinLowEdge(nBins+1));
 		return binEdges;
 	}
 
@@ -2212,8 +2273,13 @@ double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hi
 void RooContainer::writeRooDataHist(std::string name, TH1F *hist){
 
   // Having some problems with the RooDataHists right now in the MVA code, stick to the TH1's, also importing is very slow
-  //RooDataHist tmp(Form("roohist_%s",name.c_str()),name.c_str(),RooArgList(m_real_var_[hist->GetTitle()]),RooFit::Import(*hist,false));
-  //ws.import(tmp);
+  // Makes Pdf from Histogram, ie bin Integral is used not bin content
+
+  if (save_roodatahists){
+
+       RooDataHist tmp(Form("roohist_%s",name.c_str()),name.c_str(),RooArgList(m_real_var_[hist->GetTitle()]),RooFit::Import(*hist,true));
+       ws.import(tmp);
+  }
 
   hist->Write();
 }

@@ -60,7 +60,8 @@ class RooContainer {
     void SetNCategories(int);
     void AddGlobalSystematic(std::string,double,double);
     void AddNormalisationSystematics(std::string,std::vector<std::pair<double,double> >, int);
-    void SaveSystematicsData();
+    void SaveSystematicsData(bool save=true);
+    void SaveRooDataHists(bool save=true);
     void MakeSystematicStudy(std::vector<std::string>,std::vector<int>);
     void AddObservable(std::string,double,double);
     void AddConstant(std::string,double);
@@ -83,6 +84,7 @@ class RooContainer {
 
    void SumBinnedDatasets(std::string,std::string,std::string,std::vector<double>, std::vector<double>, bool scale=true);
    void SumBinnedDatasets(std::string,std::string,std::string,double,double, bool scale=true);
+   void SumMultiBinnedDatasets(std::string,std::vector<std::string>,std::vector<double>,bool scale=true);
    void CreateDataSet(std::string,std::string,int nbins,double x1=-990,double x2=-990); 
    void MakeSystematics(std::string,std::string,int);
 
@@ -122,6 +124,7 @@ class RooContainer {
    float sigmaRange;
    bool make_systematics;
    bool save_systematics_data;
+   bool save_roodatahists;
 
   private:
 
@@ -137,6 +140,7 @@ class RooContainer {
   // void convolutePdf(std::string,std::string,std::string,RooRealVar &,double norm_guess=100);
 
    void sumBinnedDatasets(std::string,std::string,std::string,double,double,bool);
+   void sumMultiBinnedDatasets(std::string,std::vector<std::string>,double,bool scale=true);
    void createDataSet(std::string,std::string,int,double x1,double x2);
    void makeSystematics(std::string,std::string,int);
    
