@@ -16,9 +16,6 @@ StatAnalysis::StatAnalysis()  :
 {
     reRunCiC = false;
     doMCSmearing = true;
-    massMin = 100.;
-    massMax = 150.;
-    int nDataBins=50;
 
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
@@ -256,6 +253,7 @@ void StatAnalysis::Init(LoopAll& l)
 
     // FIXME move these params to config file
     l.rooContainer->SetNCategories(nCategories_);
+    l.rooContainer->SaveRooDataHists();
     l.rooContainer->nsigmas = nSystSteps;
     l.rooContainer->sigmaRange = systRange;
     // RooContainer does not support steps different from 1 sigma
@@ -1157,6 +1155,10 @@ void StatAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s )
 bool StatAnalysis::SelectEvents(LoopAll& l, int jentry) 
 {
     return true;
+}
+void StatAnalysis::ResetAnalysis(){
+    // Reset Random Variable on the EnergyResolution Smearer
+    eResolSmearer->resetRandom();
 }
 // ----------------------------------------------------------------------------------------------------
 double StatAnalysis::GetDifferentialKfactor(double gPT, int Mass)

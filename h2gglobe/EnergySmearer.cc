@@ -1,6 +1,5 @@
 #include "EnergySmearer.h"
 #include "PhotonReducedInfo.h"
-#include "TRandom3.h"
 #include <assert.h>
 
 EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters_(par), scaleOrSmear_(true), doCorrections_(false)

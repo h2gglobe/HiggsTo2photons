@@ -31,6 +31,7 @@ public:
 
 	virtual bool SkimEvents(LoopAll&, int);
 	virtual bool SelectEvents(LoopAll&, int);
+	virtual void ResetAnalysis();
 	virtual void Analysis(LoopAll&, Int_t);
 	
 	// Public parameters to be read from config file

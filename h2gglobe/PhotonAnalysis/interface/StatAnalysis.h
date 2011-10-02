@@ -33,6 +33,7 @@ public:
 	
 	virtual bool SelectEvents(LoopAll&, int);
 	virtual void Analysis(LoopAll&, Int_t);
+	virtual void ResetAnalysis();
 	
 	// Options
 	bool reRunCiC;

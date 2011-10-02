@@ -741,6 +741,8 @@ bool PhotonAnalysis::SkimEvents(LoopAll& l, int jentry)
 }
 
 // ----------------------------------------------------------------------------------------------------
+void PhotonAnalysis::ResetAnalysis(){}
+// ----------------------------------------------------------------------------------------------------
 
 bool PhotonAnalysis::SelectEvents(LoopAll& l, int jentry) 
 {
