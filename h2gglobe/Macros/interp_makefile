@@ -1,0 +1,3 @@
+BDTInterpolation.exe: BDTInterpolation.cc
+	g++ -o BDTInterpolation.exe BDTInterpolation.cc `root-config --cflags --libs` -lMinuit -lFoam -lRooFit -lRooFitCore
+
