@@ -34,6 +34,7 @@ public:
 	void GetBranches(TTree *, std::set<TBranch *>& );
 	
 	virtual bool SelectEvents(LoopAll&, int);
+	virtual void ResetAnalysis();
 	virtual void Analysis(LoopAll&, Int_t);
 
 //	double GetPhotonResolution(LoopAll &,int);

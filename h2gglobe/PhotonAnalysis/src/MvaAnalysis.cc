@@ -1437,4 +1437,6 @@ void MvaAnalysis::SetBDTInputVariables(TLorentzVector *lead_p4, TLorentzVector *
     _H_ptOverM    = Higgs.Pt()/mass_hypothesis;
 
 }
-
+void MvaAnalysis::ResetAnalysis(){
+    eResolSmearer->resetRandom();
+}
