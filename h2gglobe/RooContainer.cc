@@ -1384,7 +1384,7 @@ void RooContainer::addGenericPdf(std::string name,std::string formula,std::strin
 	}
 
     	
-     } else {
+    } else {
 	
        std::cerr << "WARNING -- RooContainer::AddGenericPdf -- No Mode " << form
 		 << "Understood -- WARNING"
@@ -1952,7 +1952,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 			,Components(*((it_pdf->second).pdfList().at(i)))
 			,LineColor(i+1)
 			,LineStyle(kDashed));
-	(it_pdf->second).paramOn(xframe);
+	(it_pdf->second).paramOn(xframe,RooFit::Layout(0.15,0.86,0.86));
       }
       pdf_saves_.push_back(&(it_pdf->second));
       n_pars=(it_pdf->second).getParameters(it_data->second)->getSize() -1 ;
@@ -1964,20 +1964,20 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
           real_var->setRange("rnge",x2,x3);
 	  (it_exp->second).plotOn(xframe,LineColor(2),LineStyle(3),Range("rnge"));
 	}
-	(it_exp->second).paramOn(xframe);
+	(it_exp->second).paramOn(xframe,RooFit::Layout(0.15,0.86,0.86));
     	pdf_saves_.push_back(&(it_exp->second));
         //n_pars=(it_exp->second).getParameters(it_data->second)->getSize() -1 ;
         n_pars=(it_exp->second).getParameters(it_data->second)->getSize();
-	cout << "NPARS_MAN" <<  n_pars<< endl;
     }
 
-    double chi_square = xframe->chiSquare(n_pars);
-    if (mode == 0)      // full range fit
+    double chi_square=xframe->chiSquare(n_pars);
+    if (mode == 0) {     // full range fit
       xframe->SetName(Form("%s_%s",name_func.c_str(),name_data.c_str()));
-    else if (mode == 1) // single window fit
+    } else if (mode == 1){ // single window fit
       xframe->SetName(Form("%s_%s_%.1f_%.1f",name_func.c_str(),name_data.c_str(),x1,x2));
-    else	        // sideband fit
+    } else {	        // sideband fit
       xframe->SetName(Form("%s_%s_%.1f_%.1f_%.1f_%.1f",name_func.c_str(),name_data.c_str(),x1,x2,x3,x4));
+    }
 
     if (fit_result->covQual() != 3) {
       std::cerr << " WARNING!!! -- RooContainer::FitToData -- Fit result covariance quality POOR from fit of " 
@@ -1985,6 +1985,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 	   	<< name_data << std::endl;
     }
 
+    fit_result->printValue(std::cout);
     fit_res_.insert(std::pair<RooPlot*,double>(xframe,chi_square));
     fit_results_[name_func]=(fit_result); // keep a record of the last fit of a pdf
 }
