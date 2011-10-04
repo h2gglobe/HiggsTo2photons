@@ -72,17 +72,6 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   THStack* hist_bkg_stack[24];
   THStack* hist_bkg_stack_sig[24];
 
-  TH2 *hist2D_sig;
-  TH2 *hist2D_data;
-  TH2 *hist2D_born;
-  TH2 *hist2D_box;
-  TH2 *hist2D_gjet_pp;
-  TH2 *hist2D_gjet_pf;
-  TH2 *hist2D_qcd_pp;
-  TH2 *hist2D_qcd_pf;
-  TH2 *hist2D_qcd_ff;
-  TH2 *hist2D_bkg;
-
   TH1 *hist_mass_sig;
   TH1 *hist_mass_data;
   TH1 *hist_mass_born;
@@ -228,20 +217,14 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_sig[7] = (TH1*)pho2_eta_cat0_gluglu_H_gg_120_pu2011->Clone();
   hist_sig[8] = (TH1*)pho_minr9_cat0_gluglu_H_gg_120_pu2011->Clone();
   hist_sig[9] = (TH1*)maxeta_cat0_gluglu_H_gg_120_pu2011->Clone();
-  hist_sig[10] = (TH1*)ptOverM_cat0_gluglu_H_gg_120_pu2011->Clone();
-  hist_sig[11] = (TH1*)pho1_ptOverM_cat0_gluglu_H_gg_120_pu2011->Clone();
-  hist_sig[12] = (TH1*)pho2_ptOverM_cat0_gluglu_H_gg_120_pu2011->Clone();
-  hist_sig[13] = (TH1*)ht_cat0_gluglu_H_gg_120_pu2011->Clone();
   hist_sig[14] = (TH1*)deltaEta_cat0_gluglu_H_gg_120_pu2011->Clone();
   hist_sig[15] = (TH1*)deltaMOverMH_msig_cat2_gluglu_H_gg_120_pu2011->Clone();
   hist_sig[16] = (TH1*)pho1_ptOverMH_msig_cat2_gluglu_H_gg_120_pu2011->Clone();
   hist_sig[17] = (TH1*)pho2_ptOverMH_msig_cat2_gluglu_H_gg_120_pu2011->Clone();
   hist_sig[18] = (TH1*)sigmaMOverM_msig_cat2_gluglu_H_gg_120_pu2011->Clone();
-  hist_sig[19] = (TH1*)deltaMSigmaMOverM2_msig_cat2_gluglu_H_gg_120_pu2011->Clone();
   hist_sig[20] = (TH1*)deltaMOverSigmaM_msig_cat2_gluglu_H_gg_120_pu2011->Clone();
   hist_sig[21] = (TH1*)sigmaM_msig_cat2_gluglu_H_gg_120_pu2011->Clone();
 
-  hist2D_sig = (TH2*)deltaMOverSigmaM_vs_sigmaM_cat2_gluglu_H_gg_120_pu2011->Clone();
   hist_mass_sig = (TH1*)all_mass_cat0_gluglu_H_gg_120_pu2011->Clone();
   hist_res_sig[0] = (TH1*)sigmaM_cat0_gluglu_H_gg_120_pu2011->Clone();
   hist_res_sig[1] = (TH1*)sigmaM_cat1_gluglu_H_gg_120_pu2011->Clone();
@@ -266,16 +249,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_data[1][7] = (TH1*)pho2_eta_mlow_cat2_Data->Clone();
     hist_data[1][8] = (TH1*)pho_minr9_mlow_cat2_Data->Clone();
     hist_data[1][9] = (TH1*)maxeta_mlow_cat2_Data->Clone();
-    hist_data[1][10] = (TH1*)ptOverM_mlow_cat2_Data->Clone();
-    hist_data[1][11] = (TH1*)pho1_ptOverM_mlow_cat2_Data->Clone();
-    hist_data[1][12] = (TH1*)pho2_ptOverM_mlow_cat2_Data->Clone();
-    hist_data[1][13] = (TH1*)ht_mlow_cat2_Data->Clone();
     hist_data[1][14] = (TH1*)deltaEta_mlow_cat2_Data->Clone();
     hist_data[1][15] = (TH1*)deltaMOverMH_mlow_cat2_Data->Clone();
     hist_data[1][16] = (TH1*)pho1_ptOverMH_mlow_cat2_Data->Clone();
     hist_data[1][17] = (TH1*)pho2_ptOverMH_mlow_cat2_Data->Clone();
     hist_data[1][18] = (TH1*)sigmaMOverM_mlow_cat2_Data->Clone();
-    hist_data[1][19] = (TH1*)deltaMSigmaMOverM2_mlow_cat2_Data->Clone();
     hist_data[1][20] = (TH1*)deltaMOverSigmaM_mlow_cat2_Data->Clone();
     hist_data[1][21] = (TH1*)sigmaM_mlow_cat2_Data->Clone();
 
@@ -289,16 +267,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_data[2][7] = (TH1*)pho2_eta_msig_cat2_Data->Clone();
     hist_data[2][8] = (TH1*)pho_minr9_msig_cat2_Data->Clone();
     hist_data[2][9] = (TH1*)maxeta_msig_cat2_Data->Clone();
-    hist_data[2][10] = (TH1*)ptOverM_msig_cat2_Data->Clone();
-    hist_data[2][11] = (TH1*)pho1_ptOverM_msig_cat2_Data->Clone();
-    hist_data[2][12] = (TH1*)pho2_ptOverM_msig_cat2_Data->Clone();
-    hist_data[2][13] = (TH1*)ht_msig_cat2_Data->Clone();
     hist_data[2][14] = (TH1*)deltaEta_msig_cat2_Data->Clone();
     hist_data[2][15] = (TH1*)deltaMOverMH_msig_cat2_Data->Clone();
     hist_data[2][16] = (TH1*)pho1_ptOverMH_msig_cat2_Data->Clone();
     hist_data[2][17] = (TH1*)pho2_ptOverMH_msig_cat2_Data->Clone();
     hist_data[2][18] = (TH1*)sigmaMOverM_msig_cat2_Data->Clone();
-    hist_data[2][19] = (TH1*)deltaMSigmaMOverM2_msig_cat2_Data->Clone();
     hist_data[2][20] = (TH1*)deltaMOverSigmaM_msig_cat2_Data->Clone();
     hist_data[2][21] = (TH1*)sigmaM_msig_cat2_Data->Clone();
 
@@ -312,20 +285,14 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_data[3][7] = (TH1*)pho2_eta_mhigh_cat2_Data->Clone();
     hist_data[3][8] = (TH1*)pho_minr9_mhigh_cat2_Data->Clone();
     hist_data[3][9] = (TH1*)maxeta_mhigh_cat2_Data->Clone();
-    hist_data[3][10] = (TH1*)ptOverM_mhigh_cat2_Data->Clone();
-    hist_data[3][11] = (TH1*)pho1_ptOverM_mhigh_cat2_Data->Clone();
-    hist_data[3][12] = (TH1*)pho2_ptOverM_mhigh_cat2_Data->Clone();
-    hist_data[3][13] = (TH1*)ht_mhigh_cat2_Data->Clone();
     hist_data[3][14] = (TH1*)deltaEta_mhigh_cat2_Data->Clone();
     hist_data[3][15] = (TH1*)deltaMOverMH_mhigh_cat2_Data->Clone();
     hist_data[3][16] = (TH1*)pho1_ptOverMH_mhigh_cat2_Data->Clone();
     hist_data[3][17] = (TH1*)pho2_ptOverMH_mhigh_cat2_Data->Clone();
     hist_data[3][18] = (TH1*)sigmaMOverM_mhigh_cat2_Data->Clone();
-    hist_data[3][19] = (TH1*)deltaMSigmaMOverM2_mhigh_cat2_Data->Clone();
     hist_data[3][20] = (TH1*)deltaMOverSigmaM_mhigh_cat2_Data->Clone();
     hist_data[3][21] = (TH1*)sigmaM_mhigh_cat2_Data->Clone();
 
-    hist2D_data = (TH2*)deltaMOverSigmaM_vs_sigmaM_cat2_Data->Clone();
     hist_mass_data = (TH1*)all_mass_cat0_Data->Clone();
     hist_res_data[0] = (TH1*)sigmaM_cat0_Data->Clone();
     hist_res_data[1] = (TH1*)sigmaM_cat1_Data->Clone();
@@ -342,7 +309,7 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   if (!madgraph) {
 
     f_born->cd();
-    hist_born[1][0] = (TH1*)ptOverM_mlow_cat2_Born25->Clone();
+    hist_born[1][0] = (TH1*)ptOverMH_mlow_cat2_Born25->Clone();
     hist_born[1][1] = (TH1*)eta_mlow_cat2_Born25->Clone();
     hist_born[1][2] = (TH1*)deltaPhi_mlow_cat2_Born25->Clone();
     hist_born[1][3] = (TH1*)helicityAngle_mlow_cat2_Born25->Clone();
@@ -352,20 +319,15 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_born[1][7] = (TH1*)pho2_eta_mlow_cat2_Born25->Clone();
     hist_born[1][8] = (TH1*)pho_minr9_mlow_cat2_Born25->Clone();
     hist_born[1][9] = (TH1*)maxeta_mlow_cat2_Born25->Clone();
-    hist_born[1][10] = (TH1*)ptOverM_mlow_cat2_Born25->Clone();
-    hist_born[1][11] = (TH1*)pho1_ptOverM_mlow_cat2_Born25->Clone();
-    hist_born[1][12] = (TH1*)pho2_ptOverM_mlow_cat2_Born25->Clone();
-    hist_born[1][13] = (TH1*)ht_mlow_cat2_Born25->Clone();
     hist_born[1][14] = (TH1*)deltaEta_mlow_cat2_Born25->Clone();
     hist_born[1][15] = (TH1*)deltaMOverMH_mlow_cat2_Born25->Clone();
     hist_born[1][16] = (TH1*)pho1_ptOverMH_mlow_cat2_Born25->Clone();
     hist_born[1][17] = (TH1*)pho2_ptOverMH_mlow_cat2_Born25->Clone();
     hist_born[1][18] = (TH1*)sigmaMOverM_mlow_cat2_Born25->Clone();
-    hist_born[1][19] = (TH1*)deltaMSigmaMOverM2_mlow_cat2_Born25->Clone();
     hist_born[1][20] = (TH1*)deltaMOverSigmaM_mlow_cat2_Born25->Clone();
     hist_born[1][21] = (TH1*)sigmaM_mlow_cat2_Born25->Clone();
 
-    hist_born[2][0] = (TH1*)ptOverM_msig_cat2_Born25->Clone();
+    hist_born[2][0] = (TH1*)ptOverMH_msig_cat2_Born25->Clone();
     hist_born[2][1] = (TH1*)eta_msig_cat2_Born25->Clone();
     hist_born[2][2] = (TH1*)deltaPhi_msig_cat2_Born25->Clone();
     hist_born[2][3] = (TH1*)helicityAngle_msig_cat2_Born25->Clone();
@@ -375,20 +337,15 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_born[2][7] = (TH1*)pho2_eta_msig_cat2_Born25->Clone();
     hist_born[2][8] = (TH1*)pho_minr9_msig_cat2_Born25->Clone();
     hist_born[2][9] = (TH1*)maxeta_msig_cat2_Born25->Clone();
-    hist_born[2][10] = (TH1*)ptOverM_msig_cat2_Born25->Clone();
-    hist_born[2][11] = (TH1*)pho1_ptOverM_msig_cat2_Born25->Clone();
-    hist_born[2][12] = (TH1*)pho2_ptOverM_msig_cat2_Born25->Clone();
-    hist_born[2][13] = (TH1*)ht_msig_cat2_Born25->Clone();
     hist_born[2][14] = (TH1*)deltaEta_msig_cat2_Born25->Clone();
     hist_born[2][15] = (TH1*)deltaMOverMH_msig_cat2_Born25->Clone();
     hist_born[2][16] = (TH1*)pho1_ptOverMH_msig_cat2_Born25->Clone();
     hist_born[2][17] = (TH1*)pho2_ptOverMH_msig_cat2_Born25->Clone();
     hist_born[2][18] = (TH1*)sigmaMOverM_msig_cat2_Born25->Clone();
-    hist_born[2][19] = (TH1*)deltaMSigmaMOverM2_msig_cat2_Born25->Clone();
     hist_born[2][20] = (TH1*)deltaMOverSigmaM_msig_cat2_Born25->Clone();
     hist_born[2][21] = (TH1*)sigmaM_msig_cat2_Born25->Clone();
 
-    hist_born[3][0] = (TH1*)ptOverM_mhigh_cat2_Born25->Clone();
+    hist_born[3][0] = (TH1*)ptOverMH_mhigh_cat2_Born25->Clone();
     hist_born[3][1] = (TH1*)eta_mhigh_cat2_Born25->Clone();
     hist_born[3][2] = (TH1*)deltaPhi_mhigh_cat2_Born25->Clone();
     hist_born[3][3] = (TH1*)helicityAngle_mhigh_cat2_Born25->Clone();
@@ -398,20 +355,14 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_born[3][7] = (TH1*)pho2_eta_mhigh_cat2_Born25->Clone();
     hist_born[3][8] = (TH1*)pho_minr9_mhigh_cat2_Born25->Clone();
     hist_born[3][9] = (TH1*)maxeta_mhigh_cat2_Born25->Clone();
-    hist_born[3][10] = (TH1*)ptOverM_mhigh_cat2_Born25->Clone();
-    hist_born[3][11] = (TH1*)pho1_ptOverM_mhigh_cat2_Born25->Clone();
-    hist_born[3][12] = (TH1*)pho2_ptOverM_mhigh_cat2_Born25->Clone();
-    hist_born[3][13] = (TH1*)ht_mhigh_cat2_Born25->Clone();
     hist_born[3][14] = (TH1*)deltaEta_mhigh_cat2_Born25->Clone();
     hist_born[3][15] = (TH1*)deltaMOverMH_mhigh_cat2_Born25->Clone();
     hist_born[3][16] = (TH1*)pho1_ptOverMH_mhigh_cat2_Born25->Clone();
     hist_born[3][17] = (TH1*)pho2_ptOverMH_mhigh_cat2_Born25->Clone();
     hist_born[3][18] = (TH1*)sigmaMOverM_mhigh_cat2_Born25->Clone();
-    hist_born[3][19] = (TH1*)deltaMSigmaMOverM2_mhigh_cat2_Born25->Clone();
     hist_born[3][20] = (TH1*)deltaMOverSigmaM_mhigh_cat2_Born25->Clone();
     hist_born[3][21] = (TH1*)sigmaM_mhigh_cat2_Born25->Clone();
 
-    hist2D_born = (TH2*)deltaMOverSigmaM_vs_sigmaM_cat2_Born25->Clone();
     hist_mass_born = (TH1*)all_mass_cat0_Born25->Clone();
     hist_res_born[0] = (TH1*)sigmaM_cat0_Born25->Clone();
     hist_res_born[1] = (TH1*)sigmaM_cat1_Born25->Clone();
@@ -436,16 +387,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_born[1][7] = (TH1*)pho2_eta_mlow_cat2_DiPhotonJets->Clone();
     hist_born[1][8] = (TH1*)pho_minr9_mlow_cat2_DiPhotonJets->Clone();
     hist_born[1][9] = (TH1*)maxeta_mlow_cat2_DiPhotonJets->Clone();
-    hist_born[1][10] = (TH1*)ptOverM_mlow_cat2_DiPhotonJets->Clone();
-    hist_born[1][11] = (TH1*)pho1_ptOverM_mlow_cat2_DiPhotonJets->Clone();
-    hist_born[1][12] = (TH1*)pho2_ptOverM_mlow_cat2_DiPhotonJets->Clone();
-    hist_born[1][13] = (TH1*)ht_mlow_cat2_DiPhotonJets->Clone();
     hist_born[1][14] = (TH1*)deltaEta_mlow_cat2_DiPhotonJets->Clone();
     hist_born[1][15] = (TH1*)deltaMOverMH_mlow_cat2_DiPhotonJets->Clone();
     hist_born[1][16] = (TH1*)pho1_ptOverMH_mlow_cat2_DiPhotonJets->Clone();
     hist_born[1][17] = (TH1*)pho2_ptOverMH_mlow_cat2_DiPhotonJets->Clone();
     hist_born[1][18] = (TH1*)sigmaMOverM_mlow_cat2_DiPhotonJets->Clone();
-    hist_born[1][19] = (TH1*)deltaMSigmaMOverM2_mlow_cat2_DiPhotonJets->Clone();
     hist_born[1][20] = (TH1*)deltaMOverSigmaM_mlow_cat2_DiPhotonJets->Clone();
     hist_born[1][21] = (TH1*)sigmaM_mlow_cat2_DiPhotonJets->Clone();
 
@@ -459,16 +405,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_born[2][7] = (TH1*)pho2_eta_msig_cat2_DiPhotonJets->Clone();
     hist_born[2][8] = (TH1*)pho_minr9_msig_cat2_DiPhotonJets->Clone();
     hist_born[2][9] = (TH1*)maxeta_msig_cat2_DiPhotonJets->Clone();
-    hist_born[2][10] = (TH1*)ptOverM_msig_cat2_DiPhotonJets->Clone();
-    hist_born[2][11] = (TH1*)pho1_ptOverM_msig_cat2_DiPhotonJets->Clone();
-    hist_born[2][12] = (TH1*)pho2_ptOverM_msig_cat2_DiPhotonJets->Clone();
-    hist_born[2][13] = (TH1*)ht_msig_cat2_DiPhotonJets->Clone();
     hist_born[2][14] = (TH1*)deltaEta_msig_cat2_DiPhotonJets->Clone();
     hist_born[2][15] = (TH1*)deltaMOverMH_msig_cat2_DiPhotonJets->Clone();
     hist_born[2][16] = (TH1*)pho1_ptOverMH_msig_cat2_DiPhotonJets->Clone();
     hist_born[2][17] = (TH1*)pho2_ptOverMH_msig_cat2_DiPhotonJets->Clone();
     hist_born[2][18] = (TH1*)sigmaMOverM_msig_cat2_DiPhotonJets->Clone();
-    hist_born[2][19] = (TH1*)deltaMSigmaMOverM2_msig_cat2_DiPhotonJets->Clone();
     hist_born[2][20] = (TH1*)deltaMOverSigmaM_msig_cat2_DiPhotonJets->Clone();
     hist_born[2][21] = (TH1*)sigmaM_msig_cat2_DiPhotonJets->Clone();
 
@@ -482,20 +423,14 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_born[3][7] = (TH1*)pho2_eta_mhigh_cat2_DiPhotonJets->Clone();
     hist_born[3][8] = (TH1*)pho_minr9_mhigh_cat2_DiPhotonJets->Clone();
     hist_born[3][9] = (TH1*)maxeta_mhigh_cat2_DiPhotonJets->Clone();
-    hist_born[3][10] = (TH1*)ptOverM_mhigh_cat2_DiPhotonJets->Clone();
-    hist_born[3][11] = (TH1*)pho1_ptOverM_mhigh_cat2_DiPhotonJets->Clone();
-    hist_born[3][12] = (TH1*)pho2_ptOverM_mhigh_cat2_DiPhotonJets->Clone();
-    hist_born[3][13] = (TH1*)ht_mhigh_cat2_DiPhotonJets->Clone();
     hist_born[3][14] = (TH1*)deltaEta_mhigh_cat2_DiPhotonJets->Clone();
     hist_born[3][15] = (TH1*)deltaMOverMH_mhigh_cat2_DiPhotonJets->Clone();
     hist_born[3][16] = (TH1*)pho1_ptOverMH_mhigh_cat2_DiPhotonJets->Clone();
     hist_born[3][17] = (TH1*)pho2_ptOverMH_mhigh_cat2_DiPhotonJets->Clone();
     hist_born[3][18] = (TH1*)sigmaMOverM_mhigh_cat2_DiPhotonJets->Clone();
-    hist_born[3][19] = (TH1*)deltaMSigmaMOverM2_mhigh_cat2_DiPhotonJets->Clone();
     hist_born[3][20] = (TH1*)deltaMOverSigmaM_mhigh_cat2_DiPhotonJets->Clone();
     hist_born[3][21] = (TH1*)sigmaM_mhigh_cat2_DiPhotonJets->Clone();
 
-    hist2D_born = (TH2*)deltaMOverSigmaM_vs_sigmaM_cat2_DiPhotonJets->Clone();
     hist_mass_born = (TH1*)all_mass_cat0_DiPhotonJets->Clone();
     hist_res_born[0] = (TH1*)sigmaM_cat0_DiPhotonJets->Clone();
     hist_res_born[1] = (TH1*)sigmaM_cat1_DiPhotonJets->Clone();
@@ -519,16 +454,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_box[1][7] = (TH1*)pho2_eta_mlow_cat2_Box25->Clone();
   hist_box[1][8] = (TH1*)pho_minr9_mlow_cat2_Box25->Clone();
   hist_box[1][9] = (TH1*)maxeta_mlow_cat2_Box25->Clone();
-  hist_box[1][10] = (TH1*)ptOverM_mlow_cat2_Box25->Clone();
-  hist_box[1][11] = (TH1*)pho1_ptOverM_mlow_cat2_Box25->Clone();
-  hist_box[1][12] = (TH1*)pho2_ptOverM_mlow_cat2_Box25->Clone();
-  hist_box[1][13] = (TH1*)ht_mlow_cat2_Box25->Clone();
   hist_box[1][14] = (TH1*)deltaEta_mlow_cat2_Box25->Clone();
   hist_box[1][15] = (TH1*)deltaMOverMH_mlow_cat2_Box25->Clone();
   hist_box[1][16] = (TH1*)pho1_ptOverMH_mlow_cat2_Box25->Clone();
   hist_box[1][17] = (TH1*)pho2_ptOverMH_mlow_cat2_Box25->Clone();
   hist_box[1][18] = (TH1*)sigmaMOverM_mlow_cat2_Box25->Clone();
-  hist_box[1][19] = (TH1*)deltaMSigmaMOverM2_mlow_cat2_Box25->Clone();
   hist_box[1][20] = (TH1*)deltaMOverSigmaM_mlow_cat2_Box25->Clone();
   hist_box[1][21] = (TH1*)sigmaM_mlow_cat2_Box25->Clone();
 
@@ -542,16 +472,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_box[2][7] = (TH1*)pho2_eta_msig_cat2_Box25->Clone();
   hist_box[2][8] = (TH1*)pho_minr9_msig_cat2_Box25->Clone();
   hist_box[2][9] = (TH1*)maxeta_msig_cat2_Box25->Clone();
-  hist_box[2][10] = (TH1*)ptOverM_msig_cat2_Box25->Clone();
-  hist_box[2][11] = (TH1*)pho1_ptOverM_msig_cat2_Box25->Clone();
-  hist_box[2][12] = (TH1*)pho2_ptOverM_msig_cat2_Box25->Clone();
-  hist_box[2][13] = (TH1*)ht_msig_cat2_Box25->Clone();
   hist_box[2][14] = (TH1*)deltaEta_msig_cat2_Box25->Clone();
   hist_box[2][15] = (TH1*)deltaMOverMH_msig_cat2_Box25->Clone();
   hist_box[2][16] = (TH1*)pho1_ptOverMH_msig_cat2_Box25->Clone();
   hist_box[2][17] = (TH1*)pho2_ptOverMH_msig_cat2_Box25->Clone();
   hist_box[2][18] = (TH1*)sigmaMOverM_msig_cat2_Box25->Clone();
-  hist_box[2][19] = (TH1*)deltaMSigmaMOverM2_msig_cat2_Box25->Clone();
   hist_box[2][20] = (TH1*)deltaMOverSigmaM_msig_cat2_Box25->Clone();
   hist_box[2][21] = (TH1*)sigmaM_msig_cat2_Box25->Clone();
 
@@ -565,20 +490,14 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_box[3][7] = (TH1*)pho2_eta_mhigh_cat2_Box25->Clone();
   hist_box[3][8] = (TH1*)pho_minr9_mhigh_cat2_Box25->Clone();
   hist_box[3][9] = (TH1*)maxeta_mhigh_cat2_Box25->Clone();
-  hist_box[3][10] = (TH1*)ptOverM_mhigh_cat2_Box25->Clone();
-  hist_box[3][11] = (TH1*)pho1_ptOverM_mhigh_cat2_Box25->Clone();
-  hist_box[3][12] = (TH1*)pho2_ptOverM_mhigh_cat2_Box25->Clone();
-  hist_box[3][13] = (TH1*)ht_mhigh_cat2_Box25->Clone();
   hist_box[3][14] = (TH1*)deltaEta_mhigh_cat2_Box25->Clone();
   hist_box[3][15] = (TH1*)deltaMOverMH_mhigh_cat2_Box25->Clone();
   hist_box[3][16] = (TH1*)pho1_ptOverMH_mhigh_cat2_Box25->Clone();
   hist_box[3][17] = (TH1*)pho2_ptOverMH_mhigh_cat2_Box25->Clone();
   hist_box[3][18] = (TH1*)sigmaMOverM_mhigh_cat2_Box25->Clone();
-  hist_box[3][19] = (TH1*)deltaMSigmaMOverM2_mhigh_cat2_Box25->Clone();
   hist_box[3][20] = (TH1*)deltaMOverSigmaM_mhigh_cat2_Box25->Clone();
   hist_box[3][21] = (TH1*)sigmaM_mhigh_cat2_Box25->Clone();
 
-  hist2D_box = (TH2*)deltaMOverSigmaM_vs_sigmaM_cat2_Box25->Clone();
   hist_mass_box = (TH1*)all_mass_cat0_Box25->Clone();
   hist_res_box[0] = (TH1*)sigmaM_cat0_Box25->Clone();
   hist_res_box[1] = (TH1*)sigmaM_cat1_Box25->Clone();
@@ -593,7 +512,7 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   if (!madgraph) {
 
     f_gjet_pp->cd();
-    hist_gjet_pp[1][0] = (TH1*)ptOverM_mlow_cat2_GJetPP->Clone();
+    hist_gjet_pp[1][0] = (TH1*)ptOverMH_mlow_cat2_GJetPP->Clone();
     hist_gjet_pp[1][1] = (TH1*)eta_mlow_cat2_GJetPP->Clone();
     hist_gjet_pp[1][2] = (TH1*)deltaPhi_mlow_cat2_GJetPP->Clone();
     hist_gjet_pp[1][3] = (TH1*)helicityAngle_mlow_cat2_GJetPP->Clone();
@@ -603,20 +522,15 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_gjet_pp[1][7] = (TH1*)pho2_eta_mlow_cat2_GJetPP->Clone();
     hist_gjet_pp[1][8] = (TH1*)pho_minr9_mlow_cat2_GJetPP->Clone();
     hist_gjet_pp[1][9] = (TH1*)maxeta_mlow_cat2_GJetPP->Clone();
-    hist_gjet_pp[1][10] = (TH1*)ptOverM_mlow_cat2_GJetPP->Clone();
-    hist_gjet_pp[1][11] = (TH1*)pho1_ptOverM_mlow_cat2_GJetPP->Clone();
-    hist_gjet_pp[1][12] = (TH1*)pho2_ptOverM_mlow_cat2_GJetPP->Clone();
-    hist_gjet_pp[1][13] = (TH1*)ht_mlow_cat2_GJetPP->Clone();
     hist_gjet_pp[1][14] = (TH1*)deltaEta_mlow_cat2_GJetPP->Clone();
     hist_gjet_pp[1][15] = (TH1*)deltaMOverMH_mlow_cat2_GJetPP->Clone();
     hist_gjet_pp[1][16] = (TH1*)pho1_ptOverMH_mlow_cat2_GJetPP->Clone();
     hist_gjet_pp[1][17] = (TH1*)pho2_ptOverMH_mlow_cat2_GJetPP->Clone();
     hist_gjet_pp[1][18] = (TH1*)sigmaMOverM_mlow_cat2_GJetPP->Clone();
-    hist_gjet_pp[1][19] = (TH1*)deltaMSigmaMOverM2_mlow_cat2_GJetPP->Clone();
     hist_gjet_pp[1][20] = (TH1*)deltaMOverSigmaM_mlow_cat2_GJetPP->Clone();
     hist_gjet_pp[1][21] = (TH1*)sigmaM_mlow_cat2_GJetPP->Clone();
 
-    hist_gjet_pp[2][0] = (TH1*)ptOverM_msig_cat2_GJetPP->Clone();
+    hist_gjet_pp[2][0] = (TH1*)ptOverMH_msig_cat2_GJetPP->Clone();
     hist_gjet_pp[2][1] = (TH1*)eta_msig_cat2_GJetPP->Clone();
     hist_gjet_pp[2][2] = (TH1*)deltaPhi_msig_cat2_GJetPP->Clone();
     hist_gjet_pp[2][3] = (TH1*)helicityAngle_msig_cat2_GJetPP->Clone();
@@ -626,20 +540,15 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_gjet_pp[2][7] = (TH1*)pho2_eta_msig_cat2_GJetPP->Clone();
     hist_gjet_pp[2][8] = (TH1*)pho_minr9_msig_cat2_GJetPP->Clone();
     hist_gjet_pp[2][9] = (TH1*)maxeta_msig_cat2_GJetPP->Clone();
-    hist_gjet_pp[2][10] = (TH1*)ptOverM_msig_cat2_GJetPP->Clone();
-    hist_gjet_pp[2][11] = (TH1*)pho1_ptOverM_msig_cat2_GJetPP->Clone();
-    hist_gjet_pp[2][12] = (TH1*)pho2_ptOverM_msig_cat2_GJetPP->Clone();
-    hist_gjet_pp[2][13] = (TH1*)ht_msig_cat2_GJetPP->Clone();
     hist_gjet_pp[2][14] = (TH1*)deltaEta_msig_cat2_GJetPP->Clone();
     hist_gjet_pp[2][15] = (TH1*)deltaMOverMH_msig_cat2_GJetPP->Clone();
     hist_gjet_pp[2][16] = (TH1*)pho1_ptOverMH_msig_cat2_GJetPP->Clone();
     hist_gjet_pp[2][17] = (TH1*)pho2_ptOverMH_msig_cat2_GJetPP->Clone();
     hist_gjet_pp[2][18] = (TH1*)sigmaMOverM_msig_cat2_GJetPP->Clone();
-    hist_gjet_pp[2][19] = (TH1*)deltaMSigmaMOverM2_msig_cat2_GJetPP->Clone();
     hist_gjet_pp[2][20] = (TH1*)deltaMOverSigmaM_msig_cat2_GJetPP->Clone();
     hist_gjet_pp[2][21] = (TH1*)sigmaM_msig_cat2_GJetPP->Clone();
 
-    hist_gjet_pp[3][0] = (TH1*)ptOverM_mhigh_cat2_GJetPP->Clone();
+    hist_gjet_pp[3][0] = (TH1*)ptOverMH_mhigh_cat2_GJetPP->Clone();
     hist_gjet_pp[3][1] = (TH1*)eta_mhigh_cat2_GJetPP->Clone();
     hist_gjet_pp[3][2] = (TH1*)deltaPhi_mhigh_cat2_GJetPP->Clone();
     hist_gjet_pp[3][3] = (TH1*)helicityAngle_mhigh_cat2_GJetPP->Clone();
@@ -649,20 +558,14 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_gjet_pp[3][7] = (TH1*)pho2_eta_mhigh_cat2_GJetPP->Clone();
     hist_gjet_pp[3][8] = (TH1*)pho_minr9_mhigh_cat2_GJetPP->Clone();
     hist_gjet_pp[3][9] = (TH1*)maxeta_mhigh_cat2_GJetPP->Clone();
-    hist_gjet_pp[3][10] = (TH1*)ptOverM_mhigh_cat2_GJetPP->Clone();
-    hist_gjet_pp[3][11] = (TH1*)pho1_ptOverM_mhigh_cat2_GJetPP->Clone();
-    hist_gjet_pp[3][12] = (TH1*)pho2_ptOverM_mhigh_cat2_GJetPP->Clone();
-    hist_gjet_pp[3][13] = (TH1*)ht_mhigh_cat2_GJetPP->Clone();
     hist_gjet_pp[3][14] = (TH1*)deltaEta_mhigh_cat2_GJetPP->Clone();
     hist_gjet_pp[3][15] = (TH1*)deltaMOverMH_mhigh_cat2_GJetPP->Clone();
     hist_gjet_pp[3][16] = (TH1*)pho1_ptOverMH_mhigh_cat2_GJetPP->Clone();
     hist_gjet_pp[3][17] = (TH1*)pho2_ptOverMH_mhigh_cat2_GJetPP->Clone();
     hist_gjet_pp[3][18] = (TH1*)sigmaMOverM_mhigh_cat2_GJetPP->Clone();
-    hist_gjet_pp[3][19] = (TH1*)deltaMSigmaMOverM2_mhigh_cat2_GJetPP->Clone();
     hist_gjet_pp[3][20] = (TH1*)deltaMOverSigmaM_mhigh_cat2_GJetPP->Clone();
     hist_gjet_pp[3][21] = (TH1*)sigmaM_mhigh_cat2_GJetPP->Clone();
 
-    hist2D_gjet_pp = (TH2*)deltaMOverSigmaM_vs_sigmaM_cat2_GJetPP->Clone();
     hist_mass_gjet_pp = (TH1*)all_mass_cat0_GJetPP->Clone();
     hist_res_gjet_pp[0] = (TH1*)sigmaM_cat0_GJetPP->Clone();
     hist_res_gjet_pp[1] = (TH1*)sigmaM_cat1_GJetPP->Clone();
@@ -687,16 +590,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_gjet_pf[1][7] = (TH1*)pho2_eta_mlow_cat2_GJetPF->Clone();
   hist_gjet_pf[1][8] = (TH1*)pho_minr9_mlow_cat2_GJetPF->Clone();
   hist_gjet_pf[1][9] = (TH1*)maxeta_mlow_cat2_GJetPF->Clone();
-  hist_gjet_pf[1][10] = (TH1*)ptOverM_mlow_cat2_GJetPF->Clone();
-  hist_gjet_pf[1][11] = (TH1*)pho1_ptOverM_mlow_cat2_GJetPF->Clone();
-  hist_gjet_pf[1][12] = (TH1*)pho2_ptOverM_mlow_cat2_GJetPF->Clone();
-  hist_gjet_pf[1][13] = (TH1*)ht_mlow_cat2_GJetPF->Clone();
   hist_gjet_pf[1][14] = (TH1*)deltaEta_mlow_cat2_GJetPF->Clone();
   hist_gjet_pf[1][15] = (TH1*)deltaMOverMH_mlow_cat2_GJetPF->Clone();
   hist_gjet_pf[1][16] = (TH1*)pho1_ptOverMH_mlow_cat2_GJetPF->Clone();
   hist_gjet_pf[1][17] = (TH1*)pho2_ptOverMH_mlow_cat2_GJetPF->Clone();
   hist_gjet_pf[1][18] = (TH1*)sigmaMOverM_mlow_cat2_GJetPF->Clone();
-  hist_gjet_pf[1][19] = (TH1*)deltaMSigmaMOverM2_mlow_cat2_GJetPF->Clone();
   hist_gjet_pf[1][20] = (TH1*)deltaMOverSigmaM_mlow_cat2_GJetPF->Clone();
   hist_gjet_pf[1][21] = (TH1*)sigmaM_mlow_cat2_GJetPF->Clone();
 
@@ -710,16 +608,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_gjet_pf[2][7] = (TH1*)pho2_eta_msig_cat2_GJetPF->Clone();
   hist_gjet_pf[2][8] = (TH1*)pho_minr9_msig_cat2_GJetPF->Clone();
   hist_gjet_pf[2][9] = (TH1*)maxeta_msig_cat2_GJetPF->Clone();
-  hist_gjet_pf[2][10] = (TH1*)ptOverM_msig_cat2_GJetPF->Clone();
-  hist_gjet_pf[2][11] = (TH1*)pho1_ptOverM_msig_cat2_GJetPF->Clone();
-  hist_gjet_pf[2][12] = (TH1*)pho2_ptOverM_msig_cat2_GJetPF->Clone();
-  hist_gjet_pf[2][13] = (TH1*)ht_msig_cat2_GJetPF->Clone();
   hist_gjet_pf[2][14] = (TH1*)deltaEta_msig_cat2_GJetPF->Clone();
   hist_gjet_pf[2][15] = (TH1*)deltaMOverMH_msig_cat2_GJetPF->Clone();
   hist_gjet_pf[2][16] = (TH1*)pho1_ptOverMH_msig_cat2_GJetPF->Clone();
   hist_gjet_pf[2][17] = (TH1*)pho2_ptOverMH_msig_cat2_GJetPF->Clone();
   hist_gjet_pf[2][18] = (TH1*)sigmaMOverM_msig_cat2_GJetPF->Clone();
-  hist_gjet_pf[2][19] = (TH1*)deltaMSigmaMOverM2_msig_cat2_GJetPF->Clone();
   hist_gjet_pf[2][20] = (TH1*)deltaMOverSigmaM_msig_cat2_GJetPF->Clone();
   hist_gjet_pf[2][21] = (TH1*)sigmaM_msig_cat2_GJetPF->Clone();
 
@@ -733,20 +626,14 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_gjet_pf[3][7] = (TH1*)pho2_eta_mhigh_cat2_GJetPF->Clone();
   hist_gjet_pf[3][8] = (TH1*)pho_minr9_mhigh_cat2_GJetPF->Clone();
   hist_gjet_pf[3][9] = (TH1*)maxeta_mhigh_cat2_GJetPF->Clone();
-  hist_gjet_pf[3][10] = (TH1*)ptOverM_mhigh_cat2_GJetPF->Clone();
-  hist_gjet_pf[3][11] = (TH1*)pho1_ptOverM_mhigh_cat2_GJetPF->Clone();
-  hist_gjet_pf[3][12] = (TH1*)pho2_ptOverM_mhigh_cat2_GJetPF->Clone();
-  hist_gjet_pf[3][13] = (TH1*)ht_mhigh_cat2_GJetPF->Clone();
   hist_gjet_pf[3][14] = (TH1*)deltaEta_mhigh_cat2_GJetPF->Clone();
   hist_gjet_pf[3][15] = (TH1*)deltaMOverMH_mhigh_cat2_GJetPF->Clone();
   hist_gjet_pf[3][16] = (TH1*)pho1_ptOverMH_mhigh_cat2_GJetPF->Clone();
   hist_gjet_pf[3][17] = (TH1*)pho2_ptOverMH_mhigh_cat2_GJetPF->Clone();
   hist_gjet_pf[3][18] = (TH1*)sigmaMOverM_mhigh_cat2_GJetPF->Clone();
-  hist_gjet_pf[3][19] = (TH1*)deltaMSigmaMOverM2_mhigh_cat2_GJetPF->Clone();
   hist_gjet_pf[3][20] = (TH1*)deltaMOverSigmaM_mhigh_cat2_GJetPF->Clone();
   hist_gjet_pf[3][21] = (TH1*)sigmaM_mhigh_cat2_GJetPF->Clone();
 
-  hist2D_gjet_pf = (TH2*)deltaMOverSigmaM_vs_sigmaM_cat2_GJetPF->Clone();
   hist_mass_gjet_pf = (TH1*)all_mass_cat0_GJetPF->Clone();
   hist_res_gjet_pf[0] = (TH1*)sigmaM_cat0_GJetPF->Clone();
   hist_res_gjet_pf[1] = (TH1*)sigmaM_cat1_GJetPF->Clone();
@@ -761,7 +648,7 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   if (!madgraph) {
 
     f_qcd_pp->cd();
-    hist_qcd_pp[1][0] = (TH1*)ptOverM_mlow_cat2_QCDPP->Clone();
+    hist_qcd_pp[1][0] = (TH1*)ptOverMH_mlow_cat2_QCDPP->Clone();
     hist_qcd_pp[1][1] = (TH1*)eta_mlow_cat2_QCDPP->Clone();
     hist_qcd_pp[1][2] = (TH1*)deltaPhi_mlow_cat2_QCDPP->Clone();
     hist_qcd_pp[1][3] = (TH1*)helicityAngle_mlow_cat2_QCDPP->Clone();
@@ -771,20 +658,15 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_qcd_pp[1][7] = (TH1*)pho2_eta_mlow_cat2_QCDPP->Clone();
     hist_qcd_pp[1][8] = (TH1*)pho_minr9_mlow_cat2_QCDPP->Clone();
     hist_qcd_pp[1][9] = (TH1*)maxeta_mlow_cat2_QCDPP->Clone();
-    hist_qcd_pp[1][10] = (TH1*)ptOverM_mlow_cat2_QCDPP->Clone();
-    hist_qcd_pp[1][11] = (TH1*)pho1_ptOverM_mlow_cat2_QCDPP->Clone();
-    hist_qcd_pp[1][12] = (TH1*)pho2_ptOverM_mlow_cat2_QCDPP->Clone();
-    hist_qcd_pp[1][13] = (TH1*)ht_mlow_cat2_QCDPP->Clone();
     hist_qcd_pp[1][14] = (TH1*)deltaEta_mlow_cat2_QCDPP->Clone();
     hist_qcd_pp[1][15] = (TH1*)deltaMOverMH_mlow_cat2_QCDPP->Clone();
     hist_qcd_pp[1][16] = (TH1*)pho1_ptOverMH_mlow_cat2_QCDPP->Clone();
     hist_qcd_pp[1][17] = (TH1*)pho2_ptOverMH_mlow_cat2_QCDPP->Clone();
     hist_qcd_pp[1][18] = (TH1*)sigmaMOverM_mlow_cat2_QCDPP->Clone();
-    hist_qcd_pp[1][19] = (TH1*)deltaMSigmaMOverM2_mlow_cat2_QCDPP->Clone();
     hist_qcd_pp[1][20] = (TH1*)deltaMOverSigmaM_mlow_cat2_QCDPP->Clone();
     hist_qcd_pp[1][21] = (TH1*)sigmaM_mlow_cat2_QCDPP->Clone();
 
-    hist_qcd_pp[2][0] = (TH1*)ptOverM_msig_cat2_QCDPP->Clone();
+    hist_qcd_pp[2][0] = (TH1*)ptOverMH_msig_cat2_QCDPP->Clone();
     hist_qcd_pp[2][1] = (TH1*)eta_msig_cat2_QCDPP->Clone();
     hist_qcd_pp[2][2] = (TH1*)deltaPhi_msig_cat2_QCDPP->Clone();
     hist_qcd_pp[2][3] = (TH1*)helicityAngle_msig_cat2_QCDPP->Clone();
@@ -794,20 +676,15 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_qcd_pp[2][7] = (TH1*)pho2_eta_msig_cat2_QCDPP->Clone();
     hist_qcd_pp[2][8] = (TH1*)pho_minr9_msig_cat2_QCDPP->Clone();
     hist_qcd_pp[2][9] = (TH1*)maxeta_msig_cat2_QCDPP->Clone();
-    hist_qcd_pp[2][10] = (TH1*)ptOverM_msig_cat2_QCDPP->Clone();
-    hist_qcd_pp[2][11] = (TH1*)pho1_ptOverM_msig_cat2_QCDPP->Clone();
-    hist_qcd_pp[2][12] = (TH1*)pho2_ptOverM_msig_cat2_QCDPP->Clone();
-    hist_qcd_pp[2][13] = (TH1*)ht_msig_cat2_QCDPP->Clone();
     hist_qcd_pp[2][14] = (TH1*)deltaEta_msig_cat2_QCDPP->Clone();
     hist_qcd_pp[2][15] = (TH1*)deltaMOverMH_msig_cat2_QCDPP->Clone();
     hist_qcd_pp[2][16] = (TH1*)pho1_ptOverMH_msig_cat2_QCDPP->Clone();
     hist_qcd_pp[2][17] = (TH1*)pho2_ptOverMH_msig_cat2_QCDPP->Clone();
     hist_qcd_pp[2][18] = (TH1*)sigmaMOverM_msig_cat2_QCDPP->Clone();
-    hist_qcd_pp[2][19] = (TH1*)deltaMSigmaMOverM2_msig_cat2_QCDPP->Clone();
     hist_qcd_pp[2][20] = (TH1*)deltaMOverSigmaM_msig_cat2_QCDPP->Clone();
     hist_qcd_pp[2][21] = (TH1*)sigmaM_msig_cat2_QCDPP->Clone();
 
-    hist_qcd_pp[3][0] = (TH1*)ptOverM_mhigh_cat2_QCDPP->Clone();
+    hist_qcd_pp[3][0] = (TH1*)ptOverMH_mhigh_cat2_QCDPP->Clone();
     hist_qcd_pp[3][1] = (TH1*)eta_mhigh_cat2_QCDPP->Clone();
     hist_qcd_pp[3][2] = (TH1*)deltaPhi_mhigh_cat2_QCDPP->Clone();
     hist_qcd_pp[3][3] = (TH1*)helicityAngle_mhigh_cat2_QCDPP->Clone();
@@ -817,20 +694,14 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     hist_qcd_pp[3][7] = (TH1*)pho2_eta_mhigh_cat2_QCDPP->Clone();
     hist_qcd_pp[3][8] = (TH1*)pho_minr9_mhigh_cat2_QCDPP->Clone();
     hist_qcd_pp[3][9] = (TH1*)maxeta_mhigh_cat2_QCDPP->Clone();
-    hist_qcd_pp[3][10] = (TH1*)ptOverM_mhigh_cat2_QCDPP->Clone();
-    hist_qcd_pp[3][11] = (TH1*)pho1_ptOverM_mhigh_cat2_QCDPP->Clone();
-    hist_qcd_pp[3][12] = (TH1*)pho2_ptOverM_mhigh_cat2_QCDPP->Clone();
-    hist_qcd_pp[3][13] = (TH1*)ht_mhigh_cat2_QCDPP->Clone();
     hist_qcd_pp[3][14] = (TH1*)deltaEta_mhigh_cat2_QCDPP->Clone();
     hist_qcd_pp[3][15] = (TH1*)deltaMOverMH_mhigh_cat2_QCDPP->Clone();
     hist_qcd_pp[3][16] = (TH1*)pho1_ptOverMH_mhigh_cat2_QCDPP->Clone();
     hist_qcd_pp[3][17] = (TH1*)pho2_ptOverMH_mhigh_cat2_QCDPP->Clone();
     hist_qcd_pp[3][18] = (TH1*)sigmaMOverM_mhigh_cat2_QCDPP->Clone();
-    hist_qcd_pp[3][19] = (TH1*)deltaMSigmaMOverM2_mhigh_cat2_QCDPP->Clone();
     hist_qcd_pp[3][20] = (TH1*)deltaMOverSigmaM_mhigh_cat2_QCDPP->Clone();
     hist_qcd_pp[3][21] = (TH1*)sigmaM_mhigh_cat2_QCDPP->Clone();
 
-    hist2D_qcd_pp = (TH2*)deltaMOverSigmaM_vs_sigmaM_cat2_QCDPP->Clone();
     hist_mass_qcd_pp = (TH1*)all_mass_cat0_QCDPP->Clone();
     hist_res_qcd_pp[0] = (TH1*)sigmaM_cat0_QCDPP->Clone();
     hist_res_qcd_pp[1] = (TH1*)sigmaM_cat1_QCDPP->Clone();
@@ -855,16 +726,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_qcd_pf[1][7] = (TH1*)pho2_eta_mlow_cat2_QCDPF->Clone();
   hist_qcd_pf[1][8] = (TH1*)pho_minr9_mlow_cat2_QCDPF->Clone();
   hist_qcd_pf[1][9] = (TH1*)maxeta_mlow_cat2_QCDPF->Clone();
-  hist_qcd_pf[1][10] = (TH1*)ptOverM_mlow_cat2_QCDPF->Clone();
-  hist_qcd_pf[1][11] = (TH1*)pho1_ptOverM_mlow_cat2_QCDPF->Clone();
-  hist_qcd_pf[1][12] = (TH1*)pho2_ptOverM_mlow_cat2_QCDPF->Clone();
-  hist_qcd_pf[1][13] = (TH1*)ht_mlow_cat2_QCDPF->Clone();
   hist_qcd_pf[1][14] = (TH1*)deltaEta_mlow_cat2_QCDPF->Clone();
   hist_qcd_pf[1][15] = (TH1*)deltaMOverMH_mlow_cat2_QCDPF->Clone();
   hist_qcd_pf[1][16] = (TH1*)pho1_ptOverMH_mlow_cat2_QCDPF->Clone();
   hist_qcd_pf[1][17] = (TH1*)pho2_ptOverMH_mlow_cat2_QCDPF->Clone();
   hist_qcd_pf[1][18] = (TH1*)sigmaMOverM_mlow_cat2_QCDPF->Clone();
-  hist_qcd_pf[1][19] = (TH1*)deltaMSigmaMOverM2_mlow_cat2_QCDPF->Clone();
   hist_qcd_pf[1][20] = (TH1*)deltaMOverSigmaM_mlow_cat2_QCDPF->Clone();
   hist_qcd_pf[1][21] = (TH1*)sigmaM_mlow_cat2_QCDPF->Clone();
 
@@ -878,16 +744,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_qcd_pf[2][7] = (TH1*)pho2_eta_msig_cat2_QCDPF->Clone();
   hist_qcd_pf[2][8] = (TH1*)pho_minr9_msig_cat2_QCDPF->Clone();
   hist_qcd_pf[2][9] = (TH1*)maxeta_msig_cat2_QCDPF->Clone();
-  hist_qcd_pf[2][10] = (TH1*)ptOverM_msig_cat2_QCDPF->Clone();
-  hist_qcd_pf[2][11] = (TH1*)pho1_ptOverM_msig_cat2_QCDPF->Clone();
-  hist_qcd_pf[2][12] = (TH1*)pho2_ptOverM_msig_cat2_QCDPF->Clone();
-  hist_qcd_pf[2][13] = (TH1*)ht_msig_cat2_QCDPF->Clone();
   hist_qcd_pf[2][14] = (TH1*)deltaEta_msig_cat2_QCDPF->Clone();
   hist_qcd_pf[2][15] = (TH1*)deltaMOverMH_msig_cat2_QCDPF->Clone();
   hist_qcd_pf[2][16] = (TH1*)pho1_ptOverMH_msig_cat2_QCDPF->Clone();
   hist_qcd_pf[2][17] = (TH1*)pho2_ptOverMH_msig_cat2_QCDPF->Clone();
   hist_qcd_pf[2][18] = (TH1*)sigmaMOverM_msig_cat2_QCDPF->Clone();
-  hist_qcd_pf[2][19] = (TH1*)deltaMSigmaMOverM2_msig_cat2_QCDPF->Clone();
   hist_qcd_pf[2][20] = (TH1*)deltaMOverSigmaM_msig_cat2_QCDPF->Clone();
   hist_qcd_pf[2][21] = (TH1*)sigmaM_msig_cat2_QCDPF->Clone();
 
@@ -901,20 +762,14 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_qcd_pf[3][7] = (TH1*)pho2_eta_mhigh_cat2_QCDPF->Clone();
   hist_qcd_pf[3][8] = (TH1*)pho_minr9_mhigh_cat2_QCDPF->Clone();
   hist_qcd_pf[3][9] = (TH1*)maxeta_mhigh_cat2_QCDPF->Clone();
-  hist_qcd_pf[3][10] = (TH1*)ptOverM_mhigh_cat2_QCDPF->Clone();
-  hist_qcd_pf[3][11] = (TH1*)pho1_ptOverM_mhigh_cat2_QCDPF->Clone();
-  hist_qcd_pf[3][12] = (TH1*)pho2_ptOverM_mhigh_cat2_QCDPF->Clone();
-  hist_qcd_pf[3][13] = (TH1*)ht_mhigh_cat2_QCDPF->Clone();
   hist_qcd_pf[3][14] = (TH1*)deltaEta_mhigh_cat2_QCDPF->Clone();
   hist_qcd_pf[3][15] = (TH1*)deltaMOverMH_mhigh_cat2_QCDPF->Clone();
   hist_qcd_pf[3][16] = (TH1*)pho1_ptOverMH_mhigh_cat2_QCDPF->Clone();
   hist_qcd_pf[3][17] = (TH1*)pho2_ptOverMH_mhigh_cat2_QCDPF->Clone();
   hist_qcd_pf[3][18] = (TH1*)sigmaMOverM_mhigh_cat2_QCDPF->Clone();
-  hist_qcd_pf[3][19] = (TH1*)deltaMSigmaMOverM2_mhigh_cat2_QCDPF->Clone();
   hist_qcd_pf[3][20] = (TH1*)deltaMOverSigmaM_mhigh_cat2_QCDPF->Clone();
   hist_qcd_pf[3][21] = (TH1*)sigmaM_mhigh_cat2_QCDPF->Clone();
 
-  hist2D_qcd_pf = (TH2*)deltaMOverSigmaM_vs_sigmaM_cat2_QCDPF->Clone();
   hist_mass_qcd_pf = (TH1*)all_mass_cat0_QCDPF->Clone();
   hist_res_qcd_pf[0] = (TH1*)sigmaM_cat0_QCDPF->Clone();
   hist_res_qcd_pf[1] = (TH1*)sigmaM_cat1_QCDPF->Clone();
@@ -937,16 +792,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_qcd_ff[1][7] = (TH1*)pho2_eta_mlow_cat2_QCDFF->Clone();
   hist_qcd_ff[1][8] = (TH1*)pho_minr9_mlow_cat2_QCDFF->Clone();
   hist_qcd_ff[1][9] = (TH1*)maxeta_mlow_cat2_QCDFF->Clone();
-  hist_qcd_ff[1][10] = (TH1*)ptOverM_mlow_cat2_QCDFF->Clone();
-  hist_qcd_ff[1][11] = (TH1*)pho1_ptOverM_mlow_cat2_QCDFF->Clone();
-  hist_qcd_ff[1][12] = (TH1*)pho2_ptOverM_mlow_cat2_QCDFF->Clone();
-  hist_qcd_ff[1][13] = (TH1*)ht_mlow_cat2_QCDFF->Clone();
   hist_qcd_ff[1][14] = (TH1*)deltaEta_mlow_cat2_QCDFF->Clone();
   hist_qcd_ff[1][15] = (TH1*)deltaMOverMH_mlow_cat2_QCDFF->Clone();
   hist_qcd_ff[1][16] = (TH1*)pho1_ptOverMH_mlow_cat2_QCDFF->Clone();
   hist_qcd_ff[1][17] = (TH1*)pho2_ptOverMH_mlow_cat2_QCDFF->Clone();
   hist_qcd_ff[1][18] = (TH1*)sigmaMOverM_mlow_cat2_QCDFF->Clone();
-  hist_qcd_ff[1][19] = (TH1*)deltaMSigmaMOverM2_mlow_cat2_QCDFF->Clone();
   hist_qcd_ff[1][20] = (TH1*)deltaMOverSigmaM_mlow_cat2_QCDFF->Clone();
   hist_qcd_ff[1][21] = (TH1*)sigmaM_mlow_cat2_QCDFF->Clone();
 
@@ -960,16 +810,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_qcd_ff[2][7] = (TH1*)pho2_eta_msig_cat2_QCDFF->Clone();
   hist_qcd_ff[2][8] = (TH1*)pho_minr9_msig_cat2_QCDFF->Clone();
   hist_qcd_ff[2][9] = (TH1*)maxeta_msig_cat2_QCDFF->Clone();
-  hist_qcd_ff[2][10] = (TH1*)ptOverM_msig_cat2_QCDFF->Clone();
-  hist_qcd_ff[2][11] = (TH1*)pho1_ptOverM_msig_cat2_QCDFF->Clone();
-  hist_qcd_ff[2][12] = (TH1*)pho2_ptOverM_msig_cat2_QCDFF->Clone();
-  hist_qcd_ff[2][13] = (TH1*)ht_msig_cat2_QCDFF->Clone();
   hist_qcd_ff[2][14] = (TH1*)deltaEta_msig_cat2_QCDFF->Clone();
   hist_qcd_ff[2][15] = (TH1*)deltaMOverMH_msig_cat2_QCDFF->Clone();
   hist_qcd_ff[2][16] = (TH1*)pho1_ptOverMH_msig_cat2_QCDFF->Clone();
   hist_qcd_ff[2][17] = (TH1*)pho2_ptOverMH_msig_cat2_QCDFF->Clone();
   hist_qcd_ff[2][18] = (TH1*)sigmaMOverM_msig_cat2_QCDFF->Clone();
-  hist_qcd_ff[2][19] = (TH1*)deltaMSigmaMOverM2_msig_cat2_QCDFF->Clone();
   hist_qcd_ff[2][20] = (TH1*)deltaMOverSigmaM_msig_cat2_QCDFF->Clone();
   hist_qcd_ff[2][21] = (TH1*)sigmaM_msig_cat2_QCDFF->Clone();
 
@@ -983,20 +828,14 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_qcd_ff[3][7] = (TH1*)pho2_eta_mhigh_cat2_QCDFF->Clone();
   hist_qcd_ff[3][8] = (TH1*)pho_minr9_mhigh_cat2_QCDFF->Clone();
   hist_qcd_ff[3][9] = (TH1*)maxeta_mhigh_cat2_QCDFF->Clone();
-  hist_qcd_ff[3][10] = (TH1*)ptOverM_mhigh_cat2_QCDFF->Clone();
-  hist_qcd_ff[3][11] = (TH1*)pho1_ptOverM_mhigh_cat2_QCDFF->Clone();
-  hist_qcd_ff[3][12] = (TH1*)pho2_ptOverM_mhigh_cat2_QCDFF->Clone();
-  hist_qcd_ff[3][13] = (TH1*)ht_mhigh_cat2_QCDFF->Clone();
   hist_qcd_ff[3][14] = (TH1*)deltaEta_mhigh_cat2_QCDFF->Clone();
   hist_qcd_ff[3][15] = (TH1*)deltaMOverMH_mhigh_cat2_QCDFF->Clone();
   hist_qcd_ff[3][16] = (TH1*)pho1_ptOverMH_mhigh_cat2_QCDFF->Clone();
   hist_qcd_ff[3][17] = (TH1*)pho2_ptOverMH_mhigh_cat2_QCDFF->Clone();
   hist_qcd_ff[3][18] = (TH1*)sigmaMOverM_mhigh_cat2_QCDFF->Clone();
-  hist_qcd_ff[3][19] = (TH1*)deltaMSigmaMOverM2_mhigh_cat2_QCDFF->Clone();
   hist_qcd_ff[3][20] = (TH1*)deltaMOverSigmaM_mhigh_cat2_QCDFF->Clone();
   hist_qcd_ff[3][21] = (TH1*)sigmaM_mhigh_cat2_QCDFF->Clone();
 
-  hist2D_qcd_ff = (TH2*)deltaMOverSigmaM_vs_sigmaM_cat2_QCDFF->Clone();
   hist_mass_qcd_ff = (TH1*)all_mass_cat0_QCDFF->Clone();
   hist_res_qcd_ff[0] = (TH1*)sigmaM_cat0_QCDFF->Clone();
   hist_res_qcd_ff[1] = (TH1*)sigmaM_cat1_QCDFF->Clone();
@@ -1019,16 +858,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_dy[1][7] = (TH1*)pho2_eta_mlow_cat2_DyeeMG->Clone();
   hist_dy[1][8] = (TH1*)pho_minr9_mlow_cat2_DyeeMG->Clone();
   hist_dy[1][9] = (TH1*)maxeta_mlow_cat2_DyeeMG->Clone();
-  hist_dy[1][10] = (TH1*)ptOverM_mlow_cat2_DyeeMG->Clone();
-  hist_dy[1][11] = (TH1*)pho1_ptOverM_mlow_cat2_DyeeMG->Clone();
-  hist_dy[1][12] = (TH1*)pho2_ptOverM_mlow_cat2_DyeeMG->Clone();
-  hist_dy[1][13] = (TH1*)ht_mlow_cat2_DyeeMG->Clone();
   hist_dy[1][14] = (TH1*)deltaEta_mlow_cat2_DyeeMG->Clone();
   hist_dy[1][15] = (TH1*)deltaMOverMH_mlow_cat2_DyeeMG->Clone();
   hist_dy[1][16] = (TH1*)pho1_ptOverMH_mlow_cat2_DyeeMG->Clone();
   hist_dy[1][17] = (TH1*)pho2_ptOverMH_mlow_cat2_DyeeMG->Clone();
   hist_dy[1][18] = (TH1*)sigmaMOverM_mlow_cat2_DyeeMG->Clone();
-  hist_dy[1][19] = (TH1*)deltaMSigmaMOverM2_mlow_cat2_DyeeMG->Clone();
   hist_dy[1][20] = (TH1*)deltaMOverSigmaM_mlow_cat2_DyeeMG->Clone();
   hist_dy[1][21] = (TH1*)sigmaM_mlow_cat2_DyeeMG->Clone();
 
@@ -1042,16 +876,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_dy[2][7] = (TH1*)pho2_eta_msig_cat2_DyeeMG->Clone();
   hist_dy[2][8] = (TH1*)pho_minr9_msig_cat2_DyeeMG->Clone();
   hist_dy[2][9] = (TH1*)maxeta_msig_cat2_DyeeMG->Clone();
-  hist_dy[2][10] = (TH1*)ptOverM_msig_cat2_DyeeMG->Clone();
-  hist_dy[2][11] = (TH1*)pho1_ptOverM_msig_cat2_DyeeMG->Clone();
-  hist_dy[2][12] = (TH1*)pho2_ptOverM_msig_cat2_DyeeMG->Clone();
-  hist_dy[2][13] = (TH1*)ht_msig_cat2_DyeeMG->Clone();
   hist_dy[2][14] = (TH1*)deltaEta_msig_cat2_DyeeMG->Clone();
   hist_dy[2][15] = (TH1*)deltaMOverMH_msig_cat2_DyeeMG->Clone();
   hist_dy[2][16] = (TH1*)pho1_ptOverMH_msig_cat2_DyeeMG->Clone();
   hist_dy[2][17] = (TH1*)pho2_ptOverMH_msig_cat2_DyeeMG->Clone();
   hist_dy[2][18] = (TH1*)sigmaMOverM_msig_cat2_DyeeMG->Clone();
-  hist_dy[2][19] = (TH1*)deltaMSigmaMOverM2_msig_cat2_DyeeMG->Clone();
   hist_dy[2][20] = (TH1*)deltaMOverSigmaM_msig_cat2_DyeeMG->Clone();
   hist_dy[2][21] = (TH1*)sigmaM_msig_cat2_DyeeMG->Clone();
 
@@ -1065,16 +894,11 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_dy[3][7] = (TH1*)pho2_eta_mhigh_cat2_DyeeMG->Clone();
   hist_dy[3][8] = (TH1*)pho_minr9_mhigh_cat2_DyeeMG->Clone();
   hist_dy[3][9] = (TH1*)maxeta_mhigh_cat2_DyeeMG->Clone();
-  hist_dy[3][10] = (TH1*)ptOverM_mhigh_cat2_DyeeMG->Clone();
-  hist_dy[3][11] = (TH1*)pho1_ptOverM_mhigh_cat2_DyeeMG->Clone();
-  hist_dy[3][12] = (TH1*)pho2_ptOverM_mhigh_cat2_DyeeMG->Clone();
-  hist_dy[3][13] = (TH1*)ht_mhigh_cat2_DyeeMG->Clone();
   hist_dy[3][14] = (TH1*)deltaEta_mhigh_cat2_DyeeMG->Clone();
   hist_dy[3][15] = (TH1*)deltaMOverMH_mhigh_cat2_DyeeMG->Clone();
   hist_dy[3][16] = (TH1*)pho1_ptOverMH_mhigh_cat2_DyeeMG->Clone();
   hist_dy[3][17] = (TH1*)pho2_ptOverMH_mhigh_cat2_DyeeMG->Clone();
   hist_dy[3][18] = (TH1*)sigmaMOverM_mhigh_cat2_DyeeMG->Clone();
-  hist_dy[3][19] = (TH1*)deltaMSigmaMOverM2_mhigh_cat2_DyeeMG->Clone();
   hist_dy[3][20] = (TH1*)deltaMOverSigmaM_mhigh_cat2_DyeeMG->Clone();
   hist_dy[3][21] = (TH1*)sigmaM_mhigh_cat2_DyeeMG->Clone();
 
@@ -1138,7 +962,7 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
 
   for (int ivar=0; ivar<22; ivar++) {
 
-    if (ivar==4 || ivar==5 || ivar==10 || ivar==11 || ivar==12 || ivar==13) continue;
+    if (ivar==4 || ivar==5 || ivar==10 || ivar==11 || ivar==12 || ivar==13 || ivar==19) continue;
 
     if (ivar==0 || ivar==10 || ivar==3) {
       hist_sig[ivar]->Rebin(2);
@@ -2066,82 +1890,6 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
 
   c_res->SaveAs(outdir+"sigmaM_cat.gif");
 
-  //TString title2D[2] = {"M_{#gamma#gamma}","H_{T}"};
-  //TString title2D[2] = {"#DeltaM/M_{H}","#sigma_{M}"};
-  //TString title2D[2] = {"#DeltaM/M_{H}","#DeltaM/Sigma_{M}"};
-  TString title2D[2] = {"#sigma_{M}","#DeltaM/Sigma_{M}"};
-
-  /*
-  hist2D_born->Scale(bornSF);
-  hist2D_box->Scale(1.3);
-  hist2D_gjet_pf->Scale(1.3);
-  hist2D_qcd_pf->Scale(1.3);
-  hist2D_qcd_ff->Scale(1.);
-  if (!madgraph) {
-    hist2D_gjet_pp->Scale(1.3);
-    hist2D_qcd_pp->Scale(1.3);
-  }
-
-  hist2D_bkg = (TH2*)hist2D_box->Clone();
-  hist2D_bkg->Add(hist2D_born);
-  if (!madgraph) {
-    hist2D_bkg->Add(hist2D_gjet_pp);
-    hist2D_bkg->Add(hist2D_qcd_pp);
-  }
-  if (fakes) {
-    hist2D_bkg->Add(hist2D_gjet_pf);
-    hist2D_bkg->Add(hist2D_qcd_pf);
-    hist2D_bkg->Add(hist2D_qcd_ff);
-  }
-  hist2D_bkg->GetXaxis()->SetTitle(title2D[0]);
-  hist2D_bkg->GetYaxis()->SetTitle(title2D[1]);
-  hist2D_bkg->GetXaxis()->SetTitleSize(0.04);
-  hist2D_bkg->GetYaxis()->SetTitleSize(0.04);
-  hist2D_bkg->SetFillColor(kGreen-2);
-
-  hist2D_sig->GetXaxis()->SetTitle(title2D[0]);
-  hist2D_sig->GetYaxis()->SetTitle(title2D[1]);
-  hist2D_sig->GetXaxis()->SetTitleSize(0.04);
-  hist2D_sig->GetYaxis()->SetTitleSize(0.04);
-  hist2D_sig->SetFillColor(kBlue);
-
-  if (data) {
-    hist2D_data->GetXaxis()->SetTitle(title2D[0]);
-    hist2D_data->GetYaxis()->SetTitle(title2D[1]);
-    hist2D_data->GetXaxis()->SetTitleSize(0.04);
-    hist2D_data->GetYaxis()->SetTitleSize(0.04);
-  }
-
-  TCanvas *c_deltaMOverSigmaM_vs_sigmaM = new TCanvas("c_deltaMOverSigmaM_vs_sigmaM","deltaMOverSigmaM_vs_sigmaM",1200,800);
-  c_deltaMOverSigmaM_vs_sigmaM->Divide(2,2);
-  c_deltaMOverSigmaM_vs_sigmaM->SetFillColor(10);
-  c_deltaMOverSigmaM_vs_sigmaM->cd(1);
-  hist2D_bkg->Draw("box");
-  txt->DrawLatex(0.15,0.82,"Total Background");
-  c_deltaMOverSigmaM_vs_sigmaM->cd(2);
-  if (data) hist2D_data->Draw("box");
-  txt->DrawLatex(0.15,0.82,"Data");
-  c_deltaMOverSigmaM_vs_sigmaM->cd(3);
-  //hist2D_bkg->ProfileX()->Draw();
-  hist2D_sig->Draw("box");
-  txt->DrawLatex(0.15,0.82,"Signal");
-  c_deltaMOverSigmaM_vs_sigmaM->cd(4);
-  if (data) hist2D_data->ProfileX()->Draw();
-  txt->DrawLatex(0.15,0.82,"Data (profile)");
-
-  c_deltaMOverSigmaM_vs_sigmaM->SaveAs(outdir+"deltaMOverSigmaM_vs_sigmaM.gif");
-  */
-
-  /*
-  float R_low = hist_bkg[2][13]->GetMean()/hist_bkg[1][13]->GetMean();
-  float R_high = hist_bkg[2][13]->GetMean()/hist_bkg[3][13]->GetMean();
-
-  cout << "<HT> (low) = " << hist_bkg[1][13]->GetMean() << endl;
-  cout << "<HT> (sig) = " << hist_bkg[2][13]->GetMean() << endl;
-  cout << "<HT> (high) = " << hist_bkg[3][13]->GetMean() << endl;
-  cout << "R_low = " << R_low << endl;
-  cout << "R_high = " << R_high << endl;
-  */
 }
 
 void SetHistogramErrors(TH1* h) {
