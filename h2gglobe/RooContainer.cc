@@ -1582,7 +1582,8 @@ void RooContainer::RebinBinnedDataset(std::string new_name,std::string name,std:
 		rebinBinnedDataset(catNewName,catName,&(it->second),catBinEdges[cat]);
 	  else {
 		std::cerr << "WARNING -- RooContainer::RebinBinnedDataset -- No Such Binned Dataset as "
-			  << getcatName(name,cat);
+			  << getcatName(name,cat)
+			  << std::endl;
 	  }
 
 	  if (systematics){
