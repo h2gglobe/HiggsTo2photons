@@ -1,14 +1,6 @@
 #include "TMath.h"
 #include <iomanip>
 
-/*
-This macro can be executed directly in root to produce a set of plots for 
-mH=120.  A script to generate and execute macros for all mass hypotheses is 
-runBackgroundModelPlots.sh.  This requires that the script 
-make_bkgplot_html.sh is run first in order to create a directory structure 
-and html pages to organize the plots that are produced.
-*/
-
 void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", bool madgraph=true, bool fakes=true, bool data=true) {
 
   int mass_in=120;
@@ -22,7 +14,7 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   mass_str+=mass_in;
   TString outdir;
   if (www) {
-    outdir = "/afs/cern.ch/user/f/futyand/www/hgg/"+outdirname+"/"+mass_str+"/gifs/";
+    outdir = outdirname+"/"+mass_str+"/gifs/";
   } else {
     outdir = outdirname+"/";
   }
@@ -33,52 +25,52 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   gStyle->SetCanvasColor(0);
   gStyle->SetFrameBorderMode(0);
 
-  TFile *f_sig = TFile::Open("CMS-HGG_signal_all.root");
-  if (data) TFile *f_data = TFile::Open("CMS-HGG_data.root");
+  TFile *f_bdtout = TFile::Open("/vols/cms02/h2g/latest_workspace/CMS-HGG_1658pb_mva_02-10-11.root");
+
+  TFile *f_sig = TFile::Open("/vols/cms/futyand/hgg/histos_2Sep/CMS-HGG_signal_all.root");
+  if (data) TFile *f_data = TFile::Open("/vols/cms/futyand/hgg/histos_2Sep/CMS-HGG_data.root");
   TFile *f_born;
   TFile *f_gjet_pp;
   TFile *f_qcd_pp;
   if (!madgraph) {
-    f_born = TFile::Open("CMS-HGG_Born25.root");
-    f_gjet_pp = TFile::Open("CMS-HGG_GJetPP.root");
-    f_qcd_pp = TFile::Open("CMS-HGG_QCDPP.root");
+    f_born = TFile::Open("/vols/cms/futyand/hgg/histos_2Sep/CMS-HGG_Born25.root");
+    f_gjet_pp = TFile::Open("/vols/cms/futyand/hgg/histos_2Sep/CMS-HGG_GJetPP.root");
+    f_qcd_pp = TFile::Open("/vols/cms/futyand/hgg/histos_2Sep/CMS-HGG_QCDPP.root");
   }else {
-    f_born = TFile::Open("CMS-HGG_DiPhotonJets.root");
+    f_born = TFile::Open("/vols/cms/futyand/hgg/histos_2Sep/CMS-HGG_DiPhotonJets.root");
   }
-  TFile *f_box = TFile::Open("CMS-HGG_Box25.root");
-  TFile *f_gjet_pf = TFile::Open("CMS-HGG_GJetPF.root");
-  TFile *f_qcd_pf = TFile::Open("CMS-HGG_QCDPF.root");
-  TFile *f_qcd_ff = TFile::Open("CMS-HGG_QCDFF.root");
-  TFile *f_dy = TFile::Open("CMS-HGG_DyeeMG.root");
+  TFile *f_box = TFile::Open("/vols/cms/futyand/hgg/histos_2Sep/CMS-HGG_Box25.root");
+  TFile *f_gjet_pf = TFile::Open("/vols/cms/futyand/hgg/histos_2Sep/CMS-HGG_GJetPF.root");
+  TFile *f_qcd_pf = TFile::Open("/vols/cms/futyand/hgg/histos_2Sep/CMS-HGG_QCDPF.root");
+  TFile *f_qcd_ff = TFile::Open("/vols/cms/futyand/hgg/histos_2Sep/CMS-HGG_QCDFF.root");
+  TFile *f_dy = TFile::Open("/vols/cms/futyand/hgg/histos_2Sep/CMS-HGG_DyeeMG.root");
 
-  TFile *f_bdtout = TFile::Open("CMS-HGG_1658pb_mva_20-09-11.root");
-
-  TH1* hist_sig[23];
-  TH1* hist_data[4][23];
-  TH1* hist_born[4][23];
-  TH1* hist_box[4][23];
-  TH1* hist_gjet_pp[4][23];
-  TH1* hist_gjet_pf[4][23];
-  TH1* hist_qcd_pp[4][23];
-  TH1* hist_qcd_pf[4][23];
-  TH1* hist_qcd_ff[4][23];
-  TH1* hist_dy[4][23];
-  TH1* hist_bkg[4][23];
-  TH1* hist_bkgModel[23];
-  TH1* hist_bkg_scaled[4][23];
-  TH1* hist_data_scaled[4][23];
-  TH1* hist_bkg_sig[23];
-  TH1* hist_data_sig[23];
-  TH1* hist_sig_reweight[23];
-  TH1* hist_bkg_reweight[23];
-  TH1* hist_data_reweight[23];
-  TH1* hist_data_reweight_rebin[23];
-  TH1* hist_bkg_ratio[23];
-  TH1* hist_bkg_ratio_low[23];
-  TH1* hist_bkg_ratio_high[23];
-  TH1* hist_data_ratio[23];
-  THStack* hist_bkg_stack[23];
-  THStack* hist_bkg_stack_sig[23];
+  TH1* hist_sig[24];
+  TH1* hist_data[4][24];
+  TH1* hist_born[4][24];
+  TH1* hist_box[4][24];
+  TH1* hist_gjet_pp[4][24];
+  TH1* hist_gjet_pf[4][24];
+  TH1* hist_qcd_pp[4][24];
+  TH1* hist_qcd_pf[4][24];
+  TH1* hist_qcd_ff[4][24];
+  TH1* hist_dy[4][24];
+  TH1* hist_bkg[4][24];
+  TH1* hist_bkgModel[24];
+  TH1* hist_bkg_scaled[4][24];
+  TH1* hist_data_scaled[4][24];
+  TH1* hist_bkg_sig[24];
+  TH1* hist_data_sig[24];
+  TH1* hist_sig_reweight[24];
+  TH1* hist_bkg_reweight[24];
+  TH1* hist_data_reweight[24];
+  TH1* hist_data_reweight_rebin[24];
+  TH1* hist_bkg_ratio[24];
+  TH1* hist_bkg_ratio_low[24];
+  TH1* hist_bkg_ratio_high[24];
+  TH1* hist_data_ratio[24];
+  THStack* hist_bkg_stack[24];
+  THStack* hist_bkg_stack_sig[24];
 
   TH2 *hist2D_sig;
   TH2 *hist2D_data;
@@ -136,18 +128,33 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
       hist_bkg[i][22]->GetYaxis()->SetTitle("");
     }
 
+    hist_sig[23] = (TH1*)th1f_sig_ada_120_cat0->Clone();
+    hist_data[1][23] = (TH1*)th1f_bkg_low_ada_120_cat0->Clone();
+    hist_data[2][23] = (TH1*)th1f_data_ada_120_cat0->Clone();
+    hist_data[3][23] = (TH1*)th1f_bkg_high_ada_120_cat0->Clone();
+    hist_bkgModel[23] = (TH1*)th1f_bkg_ada_120_cat0->Clone();
+    hist_bkg[1][23] = (TH1*)th1f_bkg_mc_low_ada_120_cat0->Clone();
+    hist_bkg[2][23] = (TH1*)th1f_bkg_mc_ada_120_cat0->Clone();
+    hist_bkg[3][23] = (TH1*)th1f_bkg_mc_high_ada_120_cat0->Clone();
+    hist_sig[23]->GetYaxis()->SetTitle("");
+    hist_bkgModel[23]->GetYaxis()->SetTitle("");
+    for (int i=1; i<4; i++) {
+      hist_data[i][23]->GetYaxis()->SetTitle("");
+      hist_bkg[i][23]->GetYaxis()->SetTitle("");
+    }
+
   } else {
 
     int nbins=th1f_sig_grad_120_cat0->GetNbinsX();
     if (rebinBdtOut) nbins-=1;
-    hist_sig[22] = new TH1F("hist_sig","hist_sig",nbins,0,float(nbins));
-    hist_data[1][22] = new TH1F("hist_data_low","hist_data_low",nbins,0,float(nbins));
-    hist_data[2][22] = new TH1F("hist_data_sig","hist_data_sig",nbins,0,float(nbins));
-    hist_data[3][22] = new TH1F("hist_data_high","hist_data_high",nbins,0,float(nbins));
-    hist_bkgModel[22] = new TH1F("hist_bkgModel","hist_bkgModel",nbins,0,float(nbins));
-    hist_bkg[1][22] = new TH1F("hist_bkg_low","hist_bkg_low",nbins,0,float(nbins));
-    hist_bkg[2][22] = new TH1F("hist_bkg_sig","hist_bkg_sig",nbins,0,float(nbins));
-    hist_bkg[3][22] = new TH1F("hist_bkg_high","hist_bkg_high",nbins,0,float(nbins));
+    hist_sig[22] = new TH1F("hist_sig_grad","hist_sig_grad",nbins,0,float(nbins));
+    hist_data[1][22] = new TH1F("hist_data_low_grad","hist_data_low_grad",nbins,0,float(nbins));
+    hist_data[2][22] = new TH1F("hist_data_sig_grad","hist_data_sig_grad",nbins,0,float(nbins));
+    hist_data[3][22] = new TH1F("hist_data_high_grad","hist_data_high_grad",nbins,0,float(nbins));
+    hist_bkgModel[22] = new TH1F("hist_bkgModel_grad","hist_bkgModel_grad",nbins,0,float(nbins));
+    hist_bkg[1][22] = new TH1F("hist_bkg_low_grad","hist_bkg_low_grad",nbins,0,float(nbins));
+    hist_bkg[2][22] = new TH1F("hist_bkg_sig_grad","hist_bkg_sig_grad",nbins,0,float(nbins));
+    hist_bkg[3][22] = new TH1F("hist_bkg_high_grad","hist_bkg_high_grad",nbins,0,float(nbins));
     for (int ibin=0; ibin<nbins+1; ibin++) {
       hist_sig[22]->SetBinContent(ibin,th1f_sig_grad_120_cat0->GetBinContent(ibin));
       hist_sig[22]->SetBinError(ibin,th1f_sig_grad_120_cat0->GetBinError(ibin));
@@ -167,12 +174,43 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
       hist_bkg[3][22]->SetBinError(ibin,th1f_bkg_mc_high_grad_120_cat0->GetBinError(ibin));
     }
 
+    int nbins=th1f_sig_ada_120_cat0->GetNbinsX();
+    if (rebinBdtOut) nbins-=1;
+    hist_sig[23] = new TH1F("hist_sig_ada","hist_sig_ada",nbins,0,float(nbins));
+    hist_data[1][23] = new TH1F("hist_data_low_ada","hist_data_low_ada",nbins,0,float(nbins));
+    hist_data[2][23] = new TH1F("hist_data_sig_ada","hist_data_sig_ada",nbins,0,float(nbins));
+    hist_data[3][23] = new TH1F("hist_data_high_ada","hist_data_high_ada",nbins,0,float(nbins));
+    hist_bkgModel[23] = new TH1F("hist_bkgModel_ada","hist_bkgModel_ada",nbins,0,float(nbins));
+    hist_bkg[1][23] = new TH1F("hist_bkg_low_ada","hist_bkg_low_ada",nbins,0,float(nbins));
+    hist_bkg[2][23] = new TH1F("hist_bkg_sig_ada","hist_bkg_sig_ada",nbins,0,float(nbins));
+    hist_bkg[3][23] = new TH1F("hist_bkg_high_ada","hist_bkg_high_ada",nbins,0,float(nbins));
+    for (int ibin=0; ibin<nbins+1; ibin++) {
+      hist_sig[23]->SetBinContent(ibin,th1f_sig_ada_120_cat0->GetBinContent(ibin));
+      hist_sig[23]->SetBinError(ibin,th1f_sig_ada_120_cat0->GetBinError(ibin));
+      hist_data[1][23]->SetBinContent(ibin,th1f_bkg_low_ada_120_cat0->GetBinContent(ibin));
+      hist_data[1][23]->SetBinError(ibin,th1f_bkg_low_ada_120_cat0->GetBinError(ibin));
+      hist_data[2][23]->SetBinContent(ibin,th1f_data_ada_120_cat0->GetBinContent(ibin));
+      hist_data[2][23]->SetBinError(ibin,th1f_data_ada_120_cat0->GetBinError(ibin));
+      hist_data[3][23]->SetBinContent(ibin,th1f_bkg_high_ada_120_cat0->GetBinContent(ibin));
+      hist_data[3][23]->SetBinError(ibin,th1f_bkg_high_ada_120_cat0->GetBinError(ibin));
+      hist_bkgModel[23]->SetBinError(ibin,th1f_bkg_ada_120_cat0->GetBinError(ibin));
+      hist_bkgModel[23]->SetBinContent(ibin,th1f_bkg_ada_120_cat0->GetBinContent(ibin));
+      hist_bkg[1][23]->SetBinContent(ibin,th1f_bkg_mc_low_ada_120_cat0->GetBinContent(ibin));
+      hist_bkg[1][23]->SetBinError(ibin,th1f_bkg_mc_low_ada_120_cat0->GetBinError(ibin));
+      hist_bkg[2][23]->SetBinContent(ibin,th1f_bkg_mc_ada_120_cat0->GetBinContent(ibin));
+      hist_bkg[2][23]->SetBinError(ibin,th1f_bkg_mc_ada_120_cat0->GetBinError(ibin));
+      hist_bkg[3][23]->SetBinContent(ibin,th1f_bkg_mc_high_ada_120_cat0->GetBinContent(ibin));
+      hist_bkg[3][23]->SetBinError(ibin,th1f_bkg_mc_high_ada_120_cat0->GetBinError(ibin));
+    }
+
     if (rebinBdtOut) {
-      hist_sig[22]->Rebin(2);
-      for (int i=1; i<4; i++) {
-	hist_data[i][22]->Rebin(2);
-	hist_bkg[i][22]->Rebin(2);
-	hist_bkgModel[22]->Rebin(2);
+      for (int j=22; j<24; j++) {
+	hist_sig[j]->Rebin(2);
+	for (int i=1; i<4; i++) {
+	  hist_data[i][j]->Rebin(2);
+	  hist_bkg[i][j]->Rebin(2);
+	  hist_bkgModel[j]->Rebin(2);
+	}
       }
     }
 
@@ -1051,15 +1089,18 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   hist_res_dy[7] = (TH1*)sigmaM_cat7_DyeeMG->Clone();
   hist_res_dy[8] = (TH1*)sigmaM_cat8_DyeeMG->Clone();
 
-  TString var[23] = {"ptOverM","eta","deltaPhi","helicityAngle","pho1_pt","pho2_pt","pho1_eta","pho2_eta","pho_minr9","maxeta","ptOverM","pho1_ptOverM","pho2_ptOverM","ht","deltaEta","deltaMOverMH","pho1_ptOverMH","pho2_ptOverMH","sigmaMOverM","deltaMSigmaMOverM2","deltaMOverSigmaM","sigmaM","bdtOut_grad"};
-  TString title[23] = {"Diphoton p_{T}/M_{#gamma#gamma}","Diphoton #eta","#Delta#phi","cos#theta*","lead p_{T} (GeV)","sublead p_{T} (GeV)","lead #eta","sublead #eta","min(R9)","max #eta","Diphoton p_{T}/M_{#gamma#gamma}","p_{T1}/M_{#gamma#gamma}","p_{T2}/M_{#gamma#gamma}","H_T (GeV)","#Delta#eta","#DeltaM/M_{H}","p_{T1}/M_{H}","p_{T2}/M_{H}","#sigma_{M}/M_{#gamma#gamma}","#DeltaM/M_{H} * #sigma_{M}/M_{#gamma#gamma}","#DeltaM/#sigma_{M}","#sigma_{M}","BDT output (grad)"};
+  TString var[24] = {"ptOverM","eta","deltaPhi","helicityAngle","pho1_pt","pho2_pt","pho1_eta","pho2_eta","pho_minr9","maxeta","ptOverM","pho1_ptOverM","pho2_ptOverM","ht","deltaEta","deltaMOverMH","pho1_ptOverMH","pho2_ptOverMH","sigmaMOverM","deltaMSigmaMOverM2","deltaMOverSigmaM","sigmaM","bdtOut_grad","bdtOut_ada"};
+  TString title[24] = {"Diphoton p_{T}/M_{#gamma#gamma}","Diphoton #eta","#Delta#phi","cos#theta*","lead p_{T} (GeV)","sublead p_{T} (GeV)","lead #eta","sublead #eta","min(R9)","max #eta","Diphoton p_{T}/M_{#gamma#gamma}","p_{T1}/M_{#gamma#gamma}","p_{T2}/M_{#gamma#gamma}","H_T (GeV)","#Delta#eta","#DeltaM/M_{H}","p_{T1}/M_{H}","p_{T2}/M_{H}","#sigma_{M}/M_{#gamma#gamma}","#DeltaM/M_{H} * #sigma_{M}/M_{#gamma#gamma}","#DeltaM/#sigma_{M}","#sigma_{M}","BDT output (gradient boost)","BDT output (adaptive boost)"};
   if (equalBinWidths) {
     title[22]="BDT output bin number (gradient boost)";
+    title[23]="BDT output bin number (adaptive boost)";
     var[22]="bdtOutBin_grad";
+    var[23]="bdtOutBin_ada";
     if (rebinBdtOut) var[22]="bdtOutBin2_grad";
+    if (rebinBdtOut) var[23]="bdtOutBin2_ada";
   }
 
-  TCanvas* canvas[23];
+  TCanvas* canvas[24];
 
   float bornSF = madgraph ? 1.15 : 1.3;
 
@@ -1077,6 +1118,9 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   sideband_boundaries[2] = mass_hypothesis*(1+signalRegionWidth);
   sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
 
+  float frac_signal = hist_mass_sig->Integral(hist_mass_sig->FindBin(sideband_boundaries[1]),hist_mass_sig->FindBin(sideband_boundaries[2]))/hist_mass_sig->Integral();
+  cout << "fraction of signal in signal region = " << frac_signal << endl;
+
   float Ndata_sig = hist_bkgModel[22]->Integral();
   float Ndata_sig_err;
   if (mass_in==115) { Ndata_sig_err=0.014; }
@@ -1092,7 +1136,7 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     cout << "Invalid mass: " << mass_in << endl;
   }
 
-  for (int ivar=0; ivar<1; ivar++) {
+  for (int ivar=0; ivar<22; ivar++) {
 
     if (ivar==4 || ivar==5 || ivar==10 || ivar==11 || ivar==12 || ivar==13) continue;
 
@@ -1540,266 +1584,268 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
   }
 
   if (mass_in != 110) {
+    for (int j=22; j<24; j++) {
 
-    hist_sig[22]->SetLineColor(2);
-    hist_sig[22]->SetLineWidth(2.5);
+      hist_sig[j]->SetLineColor(2);
+      hist_sig[j]->SetLineWidth(2.5);
 
-    for (int i=1; i<4; i++) {
-      hist_data[i][22]->SetMarkerStyle(20);
-      hist_data[i][22]->SetMarkerSize(.8);
-      hist_data[i][22]->SetLineWidth(2);
-      hist_data[i][22]->GetXaxis()->SetTitle(title[22]);
-      hist_data[i][22]->GetXaxis()->SetTitleSize(0.04);
-      hist_bkg[i][22]->SetLineWidth(2);
-      hist_bkg[i][22]->GetXaxis()->SetTitle(title[22]);
-      hist_bkg[i][22]->GetXaxis()->SetTitleSize(0.04);
+      for (int i=1; i<4; i++) {
+	hist_data[i][j]->SetMarkerStyle(20);
+	hist_data[i][j]->SetMarkerSize(.8);
+	hist_data[i][j]->SetLineWidth(2);
+	hist_data[i][j]->GetXaxis()->SetTitle(title[j]);
+	hist_data[i][j]->GetXaxis()->SetTitleSize(0.04);
+	hist_bkg[i][j]->SetLineWidth(2);
+	hist_bkg[i][j]->GetXaxis()->SetTitle(title[j]);
+	hist_bkg[i][j]->GetXaxis()->SetTitleSize(0.04);
+      }
+
+      hist_bkg[1][j]->SetLineColor(2);
+      hist_bkg[1][j]->SetMarkerColor(2);
+      hist_bkg[1][j]->SetMarkerStyle(20);
+      hist_bkg[1][j]->SetMarkerSize(0.8);
+      hist_bkg[2][j]->SetLineColor(4);
+      hist_bkg[2][j]->SetMarkerColor(4);
+      hist_bkg[2][j]->SetFillColor(38);
+      hist_bkgModel[j]->SetMarkerStyle(20);
+      hist_bkgModel[j]->SetMarkerSize(.8);
+      hist_bkgModel[j]->SetLineColor(4);
+      hist_bkgModel[j]->SetFillColor(38);
+      hist_bkgModel[j]->SetLineWidth(2);
+      hist_bkgModel[j]->GetXaxis()->SetTitle(title[j]);
+      hist_bkgModel[j]->GetXaxis()->SetTitleSize(0.04);
+      hist_bkg[3][j]->SetLineColor(kGreen-2);
+      hist_bkg[3][j]->SetMarkerColor(kGreen-2);
+      hist_bkg[3][j]->SetMarkerStyle(20);
+      hist_bkg[3][j]->SetMarkerSize(0.8);
+      hist_sig_x5 = (TH1*)hist_sig[j]->Clone();
+      hist_sig_x10 = (TH1*)hist_sig[j]->Clone();
+      hist_sig_x5->SetLineStyle(2);
+      hist_sig[j]->SetLineStyle(3);
+      hist_sig[j]->Scale(2.);
+      hist_sig_x5->Scale(5.);
+      hist_sig_x10->Scale(10.);
+
+      for (int i=1; i<4; i++) {
+	float sf=nbkg_sig/hist_bkg[i][j]->Integral();
+	hist_bkg_scaled[i][j] = (TH1*)hist_bkg[i][j]->Clone();
+	hist_bkg_scaled[i][j]->Scale(sf);
+
+	sf=Ndata_sig/hist_data[i][j]->Integral();
+	hist_data_scaled[i][j] = (TH1*)hist_data[i][j]->Clone();
+	hist_data_scaled[i][j]->Scale(sf);
+
+      }
+
+      hist_bkg_reweight[j] = (TH1*)hist_bkg[1][j]->Clone();
+      float nbkg_sig = hist_bkg[2][j]->Integral();
+      hist_bkg_reweight[j]->Reset();
+      hist_bkg_reweight[j]->Add(hist_bkg[1][j],0.5*nbkg_sig/hist_bkg[1][j]->Integral());
+      hist_bkg_reweight[j]->Add(hist_bkg[3][j],0.5*nbkg_sig/hist_bkg[3][j]->Integral());
+
+      canvas[j] = new TCanvas("c_"+var[j],var[j],1950,1300);
+      canvas[j]->Divide(3,3);
+      canvas[j]->SetFillColor(0);
+
+      canvas[j]->cd(1);
+
+      hist_bkgModel[j]->SetMaximum(150.);
+      hist_bkgModel[j]->SetMinimum(0.);
+
+      hist_bkgModel[j]->Draw("hist");
+      /*
+	hist_bkgModel_err = (TH1*)hist_bkgModel[j]->Clone();
+	for (int ibin=0; ibin<nbins+1; ibin++) {
+	//hist_bkgModel_err->SetBinError(ibin,hist_bkgModel[j]->GetBinContent(ibin)*Ndata_sig_err);
+	}
+	hist_bkgModel_err->SetFillColor(4);
+	hist_bkgModel_err->Draw("e2,same");
+      */
+      hist_sig[j]->Draw("hist,same");
+      hist_sig_x5->Draw("hist,same");
+      hist_sig_x10->Draw("hist,same");
+      hist_data[2][j]->Draw("same,e");
+
+      TLegend *leg1 = new TLegend(.15,.55,.47,.87);
+      leg1->SetBorderSize(0);
+      leg1->SetFillColor(10);
+      leg1->SetTextSize(.035);
+      leg1->AddEntry(hist_data[2][j],"Data (1.66fb^{-1})");
+      leg1->AddEntry(hist_sig_x10,"Signal ("+mass_str+" GeV) x2, x5, x10");
+      leg1->AddEntry(hist_bkgModel[j],"Background Model","F");
+      leg1->Draw();
+      leg1->Draw();
+
+      canvas[j]->cd(5);
+
+      hist_data_highMinusLow = (TH1*)hist_data_scaled[3][j]->Clone();
+      hist_data_highMinusLow->Add(hist_data_scaled[1][j],-1.);
+      hist_data_highMinusLow->SetMarkerColor(4);
+      hist_data_highMinusLow->SetLineColor(4);
+      hist_data_highMinusLow->SetMaximum(50.);
+      hist_data_highMinusLow->SetMinimum(-50.);
+      hist_data_highMinusLow->Draw("e");
+
+      txt->DrawLatex(0.15,0.82, "high sideband - low sideband");
+
+      float xmin = hist_data[1][j]->GetXaxis()->GetXmin();
+      float xmax = hist_data[1][j]->GetXaxis()->GetXmax();
+      TLine *line1 = new TLine(xmin,0.,xmax,0.);
+      line1->SetLineColor(4);
+      line1->SetLineWidth(2);
+      line1->Draw();
+
+      /*
+	canvas[j]->cd(3);
+
+	hist_bkg[2][j]->SetMaximum(150.);
+	hist_bkg[2][j]->SetMinimum(0.);
+
+	hist_bkg[2][j]->Draw("hist");
+	hist_sig[j]->Draw("hist,same");
+	hist_data[2][j]->Draw("same,e");
+
+	leg3 = (TLegend*)leg1->Clone();
+	leg3->Clear();
+	leg3->AddEntry(hist_data[2][j],"Data (1.66fb^{-1})");
+	leg3->AddEntry(hist_sig[j],"Signal ("+mass_str+" GeV) x 10");
+	leg3->AddEntry(hist_bkg[2][j],"Background MC","F");
+	leg3->Draw();
+      */
+
+      canvas[j]->cd(6);
+
+      hist_bkg_highMinusLow = (TH1*)hist_bkg_scaled[3][j]->Clone();
+      hist_bkg_highMinusLow->Add(hist_bkg_scaled[1][j],-1.);
+      hist_bkg_highMinusLow->SetMarkerColor(4);
+      hist_bkg_highMinusLow->SetLineColor(4);
+      hist_bkg_highMinusLow->SetMaximum(50.);
+      hist_bkg_highMinusLow->SetMinimum(-50.);
+      hist_bkg_highMinusLow->Draw("e");
+
+      txt->DrawLatex(0.15,0.82, "MC high sideband - MC low sideband");
+
+      line1->Draw();
+
+      canvas[j]->cd(4);
+
+      hist_dataMinusModel = (TH1*)hist_data[2][j]->Clone();
+      hist_dataMinusModel->Add(hist_bkgModel[j],-1.);
+
+      float max=50.;
+      if (hist_sig[j]->GetMaximum()>max) max=hist_sig[j]->GetMaximum()*1.05;
+      hist_dataMinusModel->SetMaximum(max);
+      hist_dataMinusModel->SetMinimum(-50.);
+      hist_dataMinusModel->Draw("e");
+      hist_sig[j]->Draw("hist,same");
+      hist_sig_x5->Draw("hist,same");
+      hist_sig_x10->Draw("hist,same");
+
+      TLegend *leg2 = new TLegend(.15,.7,.47,.87);
+      leg2->SetBorderSize(0);
+      leg2->SetFillColor(10);
+      leg2->SetTextSize(.035);
+      leg2->AddEntry(hist_dataMinusModel,"Data (1.66fb^{-1}) - background model","LP");
+      leg2->AddEntry(hist_sig_x10,"Signal ("+mass_str+" GeV) x2, x5, x10");
+      leg2->Draw();
+
+      line1->Draw();
+
+      canvas[j]->cd(2);
+
+      hist_data_scaled[1][j]->SetLineColor(2);
+      hist_data_scaled[1][j]->SetMarkerColor(2);
+      hist_data_scaled[3][j]->SetLineColor(kGreen-2);
+      hist_data_scaled[3][j]->SetMarkerColor(kGreen-2);
+
+      hist_data_scaled[1][j]->SetMaximum(150.);
+      hist_data_scaled[1][j]->SetMinimum(0.);
+      hist_data_scaled[1][j]->Draw("e");
+      hist_data_scaled[3][j]->Draw("e,same");
+
+      leg6 = (TLegend*)leg2->Clone();
+      leg6->Clear();
+      leg6->AddEntry(hist_data_scaled[3][j],"High sideband","LP");
+      leg6->AddEntry(hist_data_scaled[1][j],"Low sideband","LP");
+      leg6->Draw();
+
+      canvas[j]->cd(9);
+
+      hist_bkg_reweight[j]->SetMaximum(150.);
+      hist_bkg_reweight[j]->SetMinimum(0.);
+      hist_bkg_reweight[j]->SetLineColor(4);
+      hist_bkg_reweight[j]->SetMarkerColor(4);
+      hist_bkg[2][j]->SetFillColor(38);
+
+      hist_bkg_reweight[j]->Draw("e");
+      hist_bkg[2][j]->Draw("e2,same");
+      hist_bkg_reweight[j]->Draw("e,same");
+
+      TLegend *leg7 = (TLegend*)leg1->Clone();
+      leg7->Clear();
+      leg7->AddEntry(hist_bkg[2][j],"MC Signal region","F");
+      leg7->AddEntry(hist_bkg_reweight[j],"MC Background model");
+      leg7->Draw();
+
+      canvas[j]->cd(3);
+
+      hist_bkg_scaled[2][j]->SetMaximum(150.);
+      hist_bkg_scaled[2][j]->SetMinimum(0.);
+
+      hist_bkg_scaled[2][j]->Draw("e2");
+      hist_bkg_scaled[1][j]->Draw("e,same");
+      hist_bkg_scaled[3][j]->Draw("e,same");
+
+      leg8 = (TLegend*)leg1->Clone();
+      leg8->Clear();
+      leg8->AddEntry(hist_bkg_scaled[3][j],"MC High sideband","LP");
+      leg8->AddEntry(hist_bkg_scaled[2][j],"MC Signal region","F");
+      leg8->AddEntry(hist_bkg_scaled[1][j],"MC Low sideband","LP");
+      leg8->Draw();
+
+      /*
+	canvas[j]->cd(11);
+
+	hist_modelMinusSig = (TH1*)hist_bkg_reweight[j]->Clone();
+	hist_modelMinusSig->Add(hist_bkg[2][j],-1.);
+
+	hist_modelMinusSig->SetMaximum(50.);
+	hist_modelMinusSig->SetMinimum(-50.);
+	hist_modelMinusSig->Draw();
+
+	line1->Draw();
+
+	txt->DrawLatex(0.15,0.82, "MC Background model - MC signal region");
+
+	canvas[j]->cd(12);
+
+	hist_bkg_highMinusSig = (TH1*)hist_bkg_scaled[3][j]->Clone();
+	hist_bkg_lowMinusSig = (TH1*)hist_bkg_scaled[1][j]->Clone();
+	hist_bkg_highMinusSig->Add(hist_bkg_scaled[2][j],-1.);
+	hist_bkg_lowMinusSig->Add(hist_bkg_scaled[2][j],-1.);
+
+	hist_bkg_highMinusSig->SetMarkerColor(kGreen-2);
+	hist_bkg_highMinusSig->SetLineColor(kGreen-2);
+	hist_bkg_lowMinusSig->SetMarkerColor(2);
+	hist_bkg_lowMinusSig->SetLineColor(2);
+
+	hist_bkg_highMinusSig->SetMaximum(50.);
+	hist_bkg_highMinusSig->SetMinimum(-50.);
+	hist_bkg_highMinusSig->Draw("e");
+	hist_bkg_lowMinusSig->Draw("e,same");
+
+	leg12 = (TLegend*)leg2->Clone();
+	leg12->Clear();
+	leg12->AddEntry(hist_bkg_highMinusSig,"MC high sideband - MC signal region");
+	leg12->AddEntry(hist_bkg_lowMinusSig,"MC high sideband - MC signal region");
+	leg12->Draw();
+
+	line1->Draw();
+      */
+
+      canvas[j]->SaveAs(outdir+var[j]+".gif");
+
     }
-
-    hist_bkg[1][22]->SetLineColor(2);
-    hist_bkg[1][22]->SetMarkerColor(2);
-    hist_bkg[1][22]->SetMarkerStyle(20);
-    hist_bkg[1][22]->SetMarkerSize(0.8);
-    hist_bkg[2][22]->SetLineColor(4);
-    hist_bkg[2][22]->SetMarkerColor(4);
-    hist_bkg[2][22]->SetFillColor(38);
-    hist_bkgModel[22]->SetMarkerStyle(20);
-    hist_bkgModel[22]->SetMarkerSize(.8);
-    hist_bkgModel[22]->SetLineColor(4);
-    hist_bkgModel[22]->SetFillColor(38);
-    hist_bkgModel[22]->SetLineWidth(2);
-    hist_bkgModel[22]->GetXaxis()->SetTitle(title[22]);
-    hist_bkgModel[22]->GetXaxis()->SetTitleSize(0.04);
-    hist_bkg[3][22]->SetLineColor(kGreen-2);
-    hist_bkg[3][22]->SetMarkerColor(kGreen-2);
-    hist_bkg[3][22]->SetMarkerStyle(20);
-    hist_bkg[3][22]->SetMarkerSize(0.8);
-    hist_sig_x5 = (TH1*)hist_sig[22]->Clone();
-    hist_sig_x10 = (TH1*)hist_sig[22]->Clone();
-    hist_sig_x5->SetLineStyle(2);
-    hist_sig[22]->SetLineStyle(3);
-    hist_sig[22]->Scale(2.);
-    hist_sig_x5->Scale(5.);
-    hist_sig_x10->Scale(10.);
-
-    for (int i=1; i<4; i++) {
-      float sf=nbkg_sig/hist_bkg[i][22]->Integral();
-      hist_bkg_scaled[i][22] = (TH1*)hist_bkg[i][22]->Clone();
-      hist_bkg_scaled[i][22]->Scale(sf);
-
-      sf=Ndata_sig/hist_data[i][22]->Integral();
-      hist_data_scaled[i][22] = (TH1*)hist_data[i][22]->Clone();
-      hist_data_scaled[i][22]->Scale(sf);
-
-    }
-
-    hist_bkg_reweight[22] = (TH1*)hist_bkg[1][22]->Clone();
-    float nbkg_sig = hist_bkg[2][22]->Integral();
-    hist_bkg_reweight[22]->Reset();
-    hist_bkg_reweight[22]->Add(hist_bkg[1][22],0.5*nbkg_sig/hist_bkg[1][22]->Integral());
-    hist_bkg_reweight[22]->Add(hist_bkg[3][22],0.5*nbkg_sig/hist_bkg[3][22]->Integral());
-
-    canvas[22] = new TCanvas("c_"+var[22],var[22],1950,1300);
-    canvas[22]->Divide(3,3);
-    canvas[22]->SetFillColor(0);
-
-    canvas[22]->cd(1);
-
-    hist_bkgModel[22]->SetMaximum(150.);
-    hist_bkgModel[22]->SetMinimum(0.);
-
-    hist_bkgModel[22]->Draw("hist");
-    /*
-    hist_bkgModel_err = (TH1*)hist_bkgModel[22]->Clone();
-    for (int ibin=0; ibin<nbins+1; ibin++) {
-      //hist_bkgModel_err->SetBinError(ibin,hist_bkgModel[22]->GetBinContent(ibin)*Ndata_sig_err);
-    }
-    hist_bkgModel_err->SetFillColor(4);
-    hist_bkgModel_err->Draw("e2,same");
-    */
-    hist_sig[22]->Draw("hist,same");
-    hist_sig_x5->Draw("hist,same");
-    hist_sig_x10->Draw("hist,same");
-    hist_data[2][22]->Draw("same,e");
-
-    TLegend *leg1 = new TLegend(.15,.55,.47,.87);
-    leg1->SetBorderSize(0);
-    leg1->SetFillColor(10);
-    leg1->SetTextSize(.035);
-    leg1->AddEntry(hist_data[2][22],"Data (1.66fb^{-1})");
-    leg1->AddEntry(hist_sig_x10,"Signal ("+mass_str+" GeV) x2, x5, x10");
-    leg1->AddEntry(hist_bkgModel[22],"Background Model","F");
-    leg1->Draw();
-    leg1->Draw();
-
-    canvas[22]->cd(5);
-
-    hist_data_highMinusLow = (TH1*)hist_data_scaled[3][22]->Clone();
-    hist_data_highMinusLow->Add(hist_data_scaled[1][22],-1.);
-    hist_data_highMinusLow->SetMarkerColor(4);
-    hist_data_highMinusLow->SetLineColor(4);
-    hist_data_highMinusLow->SetMaximum(50.);
-    hist_data_highMinusLow->SetMinimum(-50.);
-    hist_data_highMinusLow->Draw("e");
-
-    txt->DrawLatex(0.15,0.82, "high sideband - low sideband");
-
-    float xmin = hist_data[1][22]->GetXaxis()->GetXmin();
-    float xmax = hist_data[1][22]->GetXaxis()->GetXmax();
-    TLine *line1 = new TLine(xmin,0.,xmax,0.);
-    line1->SetLineColor(4);
-    line1->SetLineWidth(2);
-    line1->Draw();
-
-    /*
-    canvas[22]->cd(3);
-
-    hist_bkg[2][22]->SetMaximum(150.);
-    hist_bkg[2][22]->SetMinimum(0.);
-
-    hist_bkg[2][22]->Draw("hist");
-    hist_sig[22]->Draw("hist,same");
-    hist_data[2][22]->Draw("same,e");
-
-    leg3 = (TLegend*)leg1->Clone();
-    leg3->Clear();
-    leg3->AddEntry(hist_data[2][22],"Data (1.66fb^{-1})");
-    leg3->AddEntry(hist_sig[22],"Signal ("+mass_str+" GeV) x 10");
-    leg3->AddEntry(hist_bkg[2][22],"Background MC","F");
-    leg3->Draw();
-    */
-
-    canvas[22]->cd(6);
-
-    hist_bkg_highMinusLow = (TH1*)hist_bkg_scaled[3][22]->Clone();
-    hist_bkg_highMinusLow->Add(hist_bkg_scaled[1][22],-1.);
-    hist_bkg_highMinusLow->SetMarkerColor(4);
-    hist_bkg_highMinusLow->SetLineColor(4);
-    hist_bkg_highMinusLow->SetMaximum(50.);
-    hist_bkg_highMinusLow->SetMinimum(-50.);
-    hist_bkg_highMinusLow->Draw("e");
-
-    txt->DrawLatex(0.15,0.82, "MC high sideband - MC low sideband");
-
-    line1->Draw();
-
-    canvas[22]->cd(4);
-
-    hist_dataMinusModel = (TH1*)hist_data[2][22]->Clone();
-    hist_dataMinusModel->Add(hist_bkgModel[22],-1.);
-
-    float max=50.;
-    if (hist_sig[22]->GetMaximum()>max) max=hist_sig[22]->GetMaximum()*1.05;
-    hist_dataMinusModel->SetMaximum(max);
-    hist_dataMinusModel->SetMinimum(-50.);
-    hist_dataMinusModel->Draw("e");
-    hist_sig[22]->Draw("hist,same");
-    hist_sig_x5->Draw("hist,same");
-    hist_sig_x10->Draw("hist,same");
-
-    TLegend *leg2 = new TLegend(.15,.7,.47,.87);
-    leg2->SetBorderSize(0);
-    leg2->SetFillColor(10);
-    leg2->SetTextSize(.035);
-    leg2->AddEntry(hist_dataMinusModel,"Data (1.66fb^{-1}) - background model","LP");
-    leg2->AddEntry(hist_sig_x10,"Signal ("+mass_str+" GeV) x2, x5, x10");
-    leg2->Draw();
-
-    line1->Draw();
-
-    canvas[22]->cd(2);
-
-    hist_data_scaled[1][22]->SetLineColor(2);
-    hist_data_scaled[1][22]->SetMarkerColor(2);
-    hist_data_scaled[3][22]->SetLineColor(kGreen-2);
-    hist_data_scaled[3][22]->SetMarkerColor(kGreen-2);
-
-    hist_data_scaled[1][22]->SetMaximum(150.);
-    hist_data_scaled[1][22]->SetMinimum(0.);
-    hist_data_scaled[1][22]->Draw("e");
-    hist_data_scaled[3][22]->Draw("e,same");
-
-    leg6 = (TLegend*)leg2->Clone();
-    leg6->Clear();
-    leg6->AddEntry(hist_data_scaled[3][22],"High sideband","LP");
-    leg6->AddEntry(hist_data_scaled[1][22],"Low sideband","LP");
-    leg6->Draw();
-
-    canvas[22]->cd(9);
-
-    hist_bkg_reweight[22]->SetMaximum(150.);
-    hist_bkg_reweight[22]->SetMinimum(0.);
-    hist_bkg_reweight[22]->SetLineColor(4);
-    hist_bkg_reweight[22]->SetMarkerColor(4);
-    hist_bkg[2][22]->SetFillColor(38);
-
-    hist_bkg_reweight[22]->Draw("e");
-    hist_bkg[2][22]->Draw("e2,same");
-    hist_bkg_reweight[22]->Draw("e,same");
-
-    TLegend *leg7 = (TLegend*)leg1->Clone();
-    leg7->Clear();
-    leg7->AddEntry(hist_bkg[2][22],"MC Signal region","F");
-    leg7->AddEntry(hist_bkg_reweight[22],"MC Background model");
-    leg7->Draw();
-
-    canvas[22]->cd(3);
-
-    hist_bkg_scaled[2][22]->SetMaximum(150.);
-    hist_bkg_scaled[2][22]->SetMinimum(0.);
-
-    hist_bkg_scaled[2][22]->Draw("e2");
-    hist_bkg_scaled[1][22]->Draw("e,same");
-    hist_bkg_scaled[3][22]->Draw("e,same");
-
-    leg8 = (TLegend*)leg1->Clone();
-    leg8->Clear();
-    leg8->AddEntry(hist_bkg_scaled[3][22],"MC High sideband","LP");
-    leg8->AddEntry(hist_bkg_scaled[2][22],"MC Signal region","F");
-    leg8->AddEntry(hist_bkg_scaled[1][22],"MC Low sideband","LP");
-    leg8->Draw();
-
-    /*
-    canvas[22]->cd(11);
-
-    hist_modelMinusSig = (TH1*)hist_bkg_reweight[22]->Clone();
-    hist_modelMinusSig->Add(hist_bkg[2][22],-1.);
-
-    hist_modelMinusSig->SetMaximum(50.);
-    hist_modelMinusSig->SetMinimum(-50.);
-    hist_modelMinusSig->Draw();
-
-    line1->Draw();
-
-    txt->DrawLatex(0.15,0.82, "MC Background model - MC signal region");
-
-    canvas[22]->cd(12);
-
-    hist_bkg_highMinusSig = (TH1*)hist_bkg_scaled[3][22]->Clone();
-    hist_bkg_lowMinusSig = (TH1*)hist_bkg_scaled[1][22]->Clone();
-    hist_bkg_highMinusSig->Add(hist_bkg_scaled[2][22],-1.);
-    hist_bkg_lowMinusSig->Add(hist_bkg_scaled[2][22],-1.);
-
-    hist_bkg_highMinusSig->SetMarkerColor(kGreen-2);
-    hist_bkg_highMinusSig->SetLineColor(kGreen-2);
-    hist_bkg_lowMinusSig->SetMarkerColor(2);
-    hist_bkg_lowMinusSig->SetLineColor(2);
-
-    hist_bkg_highMinusSig->SetMaximum(50.);
-    hist_bkg_highMinusSig->SetMinimum(-50.);
-    hist_bkg_highMinusSig->Draw("e");
-    hist_bkg_lowMinusSig->Draw("e,same");
-
-    leg12 = (TLegend*)leg2->Clone();
-    leg12->Clear();
-    leg12->AddEntry(hist_bkg_highMinusSig,"MC high sideband - MC signal region");
-    leg12->AddEntry(hist_bkg_lowMinusSig,"MC high sideband - MC signal region");
-    leg12->Draw();
-
-    line1->Draw();
-    */
-
-    canvas[22]->SaveAs(outdir+var[22]+".gif");
-
   }
 
   hist_mass_born->Scale(bornSF);
