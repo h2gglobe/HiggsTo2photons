@@ -203,6 +203,7 @@ class RooContainer {
    std::map<std::string,int> bins_;
    std::map<std::string,double> inits_;
    std::map<RooPlot*,double> fit_res_;
+   std::vector<TCanvas*> fit_canvases_;
    std::map<std::string,RooFitResult*> fit_results_;
    std::map<std::string,RooAbsReal* > latestFitRangeIntegral_;
    std::map<std::string,RooAbsReal* > DUMP_;

@@ -383,6 +383,7 @@ void RooContainer::Save(){
   std::cout << "RooContainer::Save -- Saving Plots "
             << std::endl;
 
+/*
   std::map<RooPlot*,double>::iterator it;
   for(it  = fit_res_.begin()
      ;it != fit_res_.end()
@@ -390,6 +391,9 @@ void RooContainer::Save(){
       
        writeRooPlot((*it).first,(*it).second);
   }
+*/
+  std::vector<TCanvas*>::iterator it;
+  for(it = fit_canvases_.begin();it != fit_canvases_.end();it++ ) (*it)->Write();
   
   std::cout << "RooContainer::Save -- Saving Pdfs "
             << std::endl;
@@ -1467,7 +1471,6 @@ std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool
 
 	int nBins = hb->GetNbinsX();
 	std::vector<double> binEdges;
-	binEdges.push_back(hb->GetBinLowEdge(1));
 
 	double targetNumbers;
 	if (use_n_target) targetNumbers = nTargetBins; 
@@ -1482,6 +1485,7 @@ std::vector<double> RooContainer::optimizedBinning(TH1F *hb,int nTargetBins,bool
 		binEdges.push_back(hb->GetBinLowEdge(nBins+1));
 		return binEdges;
 	}
+	binEdges.push_back(hb->GetBinLowEdge(1));
 
 	double sumBin = 0;
 	int i=1;
@@ -1523,7 +1527,6 @@ std::vector<double> RooContainer::optimizedReverseBinning(TH1F *hb,int nTargetBi
 
 	int nBins = hb->GetNbinsX();
 	std::vector<double> binEdges;
-	binEdges.push_back(hb->GetBinLowEdge(nBins+1));
 
 	double targetNumbers;
 	if (use_n_target) targetNumbers = nTargetBins; 
@@ -1538,6 +1541,7 @@ std::vector<double> RooContainer::optimizedReverseBinning(TH1F *hb,int nTargetBi
 		binEdges.push_back(hb->GetBinLowEdge(nBins+1));
 		return binEdges;
 	}
+	binEdges.push_back(hb->GetBinLowEdge(nBins+1));
 
 	std::cout << "RooContainer::optimizedBinning -- Performing Reverse Optimize Binning" <<std::endl;
 	double sumBin = 0;
@@ -1930,8 +1934,8 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
 //  	RooAbsReal* integral2 = pdf_ptr->createIntegral(*real_var,Range("rnge2"));
 	RooFormulaVar *integral = new RooFormulaVar("sum","sum","@0+@1",RooArgSet(*integral1,*integral2));
 	
-        real_var->setRange("rnge",x2,x3);
-	cout << "Number of Events in signal region = " << (it_data->second).sumEntries(0,"rnge") <<endl;
+        real_var->setRange("rngeiSignal",x2,x3);
+	cout << "Number of Events in signal region = " << (it_data->second).sumEntries(0,"rngeSignal") <<endl;
 	DUMP_[Form("partial_1_%s",name_func.c_str())]=integral1;
 	DUMP_[Form("partial_2_%s",name_func.c_str())]=integral2;
 
@@ -1959,12 +1963,16 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
     }
 
     else {
-	(it_exp->second).plotOn(xframe,LineColor(4));
 	if (mode==2){
-          real_var->setRange("rnge",x2,x3);
-	  (it_exp->second).plotOn(xframe,LineColor(2),LineStyle(3),Range("rnge"));
+	  (it_exp->second).plotOn(xframe,LineColor(4),RooFit::Range("rnge1,rnge2"),RooFit::Normalization(m_real_var_[name_func].getVal(),RooAbsReal::NumEvent));
+	} else {
+	  (it_exp->second).plotOn(xframe,LineColor(4),RooFit::Range("rnge"),RooFit::Normalization(m_real_var_[name_func].getVal(),RooAbsReal::NumEvent));
 	}
-	(it_exp->second).paramOn(xframe,RooFit::Layout(0.15,0.86,0.86));
+	//if (mode==2){
+         // real_var->setRange("rnge",x2,x3);
+	 // (it_exp->second).plotOn(xframe,LineColor(2),LineStyle(3),Range("rnge")); //RooFit is so annoying that multiple goes at this ruins the normalisation
+	//}
+	(it_exp->second).paramOn(xframe,RooFit::Layout(0.25,0.95,0.86));
     	pdf_saves_.push_back(&(it_exp->second));
         //n_pars=(it_exp->second).getParameters(it_data->second)->getSize() -1 ;
         n_pars=(it_exp->second).getParameters(it_data->second)->getSize();
@@ -1986,8 +1994,22 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
     }
 
     fit_result->printValue(std::cout);
-    fit_res_.insert(std::pair<RooPlot*,double>(xframe,chi_square));
+
+    // -------------------------------------------------------------------------------------------
+    // Make a plot of the fit
+    // Dont want to let the plots pop up!
+    gROOT->SetBatch(true);
+    gROOT->SetStyle("Plain");
+    //TLatex *text = new TLatex();
+    TCanvas *can = new TCanvas(Form("plot_%s",xframe->GetName()),xframe->GetName(),1200,900) ;    
+  
+    can->cd(); 
+    xframe->Draw();
+    //text->SetNDC();
+    //text->DrawLatex(0.11,0.15,Form("#chi^{2} / n d.o.f = %.3f",chi));
+    fit_canvases_.push_back(can);
     fit_results_[name_func]=(fit_result); // keep a record of the last fit of a pdf
+    // -------------------------------------------------------------------------------------------
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -2293,12 +2315,12 @@ void RooContainer::writeRooPlot(RooPlot *plot,double chi){
   gROOT->SetStyle("Plain");
   // ---------------------------------
   TLatex *text = new TLatex();
-  TCanvas *can = new TCanvas(Form("plot_%s",plot->GetName()),plot->GetName(),900,600) ;    
+  TCanvas *can = new TCanvas(Form("plot_%s",plot->GetName()),plot->GetName(),1200,900) ;    
   
   can->cd(); 
   plot->Draw();
   text->SetNDC();
-  text->DrawLatex(0.11,0.15,Form("#chi^{2} / n d.o.f = %.3f",chi));
+  //text->DrawLatex(0.11,0.15,Form("#chi^{2} / n d.o.f = %.3f",chi));
   can->Write();
   delete can;
 }
