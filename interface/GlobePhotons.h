@@ -24,10 +24,10 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 
-//#include "RecoEgamma/EgammaElectronAlgos/interface/ElectronHcalHelper.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
+#include "HiggsAnalysis/HiggsToGammaGamma/interface/EGEnergyCorrector.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -183,6 +183,9 @@ class GlobePhotons {
 
   Float_t pho_residCorrEnergy[MAX_PHOTONS];
   Float_t pho_residCorrResn[MAX_PHOTONS];
+  
+  Float_t pho_regr_energy[MAX_PHOTONS];
+  Float_t pho_regr_energyerr[MAX_PHOTONS];
 
   Int_t pho_id[MAX_PHOTONS];
 
@@ -263,12 +266,11 @@ class GlobePhotons {
   std::vector<double> cutsubleadr9[12];
   std::vector<double> cutsublead_drtotk[12];
 
-  //ElectronHcalHelper *hcalHelper, *hcalHelperPflow;
-
   CaloGeometry geometry;
   const EcalSeverityLevelAlgo* sevLevel; 
   edm::ESHandle<TransientTrackBuilder> theTTkBuilder;
-  //ElectronHcalHelper::Configuration hcalCfg, hcalCfgPflow;
+  
+  EGEnergyCorrector ecorr_;
 };
 
 #endif

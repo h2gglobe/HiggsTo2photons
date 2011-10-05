@@ -312,7 +312,7 @@ GlobeEcalClusters::analyzeBarrelSuperClusters() {
     else sc_brem[sc_n]=-1; // something is not ok with sigma_eta, in this case
 
     // SC r9
-    if (sc->rawEnergy()>0) sc_r9[sc_n] = EcalClusterTools::e3x3(  *(sc->seed()), &(*endcapRecHits), &(*topology)) / sc->rawEnergy();
+    if (sc->rawEnergy()>0) sc_r9[sc_n] = EcalClusterTools::e3x3(*(sc->seed()), &(*barrelRecHits), &(*topology)) / sc->rawEnergy();
     else sc_r9[sc_n]=-1;
 
     //SEED BC 

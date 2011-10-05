@@ -338,7 +338,15 @@ void GlobeElectrons::defineBranch(TTree* tree) {
 
   sprintf(a1, "el_%s_conv", nome);
   sprintf(a2, "el_%s_conv[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_conv, a2);
+  tree->Branch(a1, &el_conv, a2);  
+
+  sprintf(a1, "el_%s_regr_energy", nome);
+  sprintf(a2, "el_%s_regr_energy[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_regr_energy, a2);
+
+  sprintf(a1, "el_%s_regr_energyerr", nome);
+  sprintf(a2, "el_%s_regr_energyerr[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_regr_energyerr, a2);
 }
 
 
@@ -397,6 +405,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const CaloSubdetectorGeometry *geometryES = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   CaloSubdetectorTopology *topology_p = 0;
   if (geometryES) topology_p = new EcalPreshowerTopology(geoHandle);
+  
+  ecalLazyTool = new EcalClusterLazyTools(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);
 
   edm::Handle<EcalRecHitCollection> ESRecHits;
   iEvent.getByLabel(ecalHitESColl , ESRecHits);
@@ -511,6 +521,18 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     el_sieie[el_n] = egsf.sigmaIetaIeta();
 
+    // Regression Correction
+    if (!ecorr_.IsInitialized()) {   
+      char filename[200];
+      char* descr = getenv("CMSSW_BASE");
+      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrele.root", descr);
+      ecorr_.Initialize(iSetup, filename);
+    }
+
+    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(egsf, *ecalLazyTool);
+    el_regr_energy[el_n]    = cor.first;
+    el_regr_energyerr[el_n] = cor.second;
+
     // ES variables
     el_eseffsixix[el_n] = 0.;
     el_eseffsiyiy[el_n] = 0.;
@@ -612,7 +634,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           if (&(*egsf.superCluster()) == &(*cluster)) {
             el_scind[el_n] = index; 
             el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(cluster), &(*barrelRecHits), &(*topology))[0]);
-            std::vector<float> vCov = EcalClusterTools::localCovariances( *(cluster->seed()), &(*barrelRecHits), &(*topology));
+            std::vector<float> vCov = ecalLazyTool->localCovariances(*(cluster->seed()));
             el_sipip[el_n] = sqrt(vCov[2]);
             break;
           }
@@ -631,7 +653,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           if (&(*(egsf.superCluster())) == &(*cluster)) {
             el_scind[el_n] = index;
             el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(cluster), &(*endcapRecHits), &(*topology))[0]);
-            std::vector<float> vCov = EcalClusterTools::localCovariances( *(cluster->seed()), &(*endcapRecHits), &(*topology));
+            std::vector<float> vCov = ecalLazyTool->localCovariances(*(cluster->seed()));
             el_sipip[el_n] = sqrt(vCov[2]);
             break;
           }
@@ -668,13 +690,13 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if (egsf.isEB()) {
       std::vector<reco::PFCandidate::ParticleType> temp;
       temp.push_back(reco::PFCandidate::h);
-      el_pfiso_mycharged03[el_n] = pfTkIso(egsf, pfHandle.product(), 0.3, 0, temp);
-      el_pfiso_mycharged04[el_n] = pfTkIso(egsf, pfHandle.product(), 0.4, 0, temp);
+      el_pfiso_mycharged03[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.3, 0, temp);
+      el_pfiso_mycharged04[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.4, 0, temp);
       
       temp.clear();
       temp.push_back(reco::PFCandidate::h0);
-      el_pfiso_myneutral03[el_n] = pfHcalIso(egsf, pfHandle, pfHandlePu, 0.3, 0, temp);
-      el_pfiso_myneutral04[el_n] = pfHcalIso(egsf, pfHandle, pfHandlePu, 0.4, 0, temp);
+      el_pfiso_myneutral03[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.3, 0, temp);
+      el_pfiso_myneutral04[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.4, 0, temp);
 
       temp.clear();
       temp.push_back(reco::PFCandidate::gamma);
@@ -683,13 +705,13 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     } else {
       std::vector<reco::PFCandidate::ParticleType> temp;
       temp.push_back(reco::PFCandidate::h);
-      el_pfiso_mycharged03[el_n] = pfTkIso(egsf, pfHandle.product(), 0.3, 0.015, temp);
-      el_pfiso_mycharged04[el_n] = pfTkIso(egsf, pfHandle.product(), 0.4, 0.015, temp);
+      el_pfiso_mycharged03[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.3, 0.015, temp);
+      el_pfiso_mycharged04[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.4, 0.015, temp);
       
       temp.clear();
       temp.push_back(reco::PFCandidate::h0);
-      el_pfiso_myneutral03[el_n] = pfHcalIso(egsf, pfHandle, pfHandlePu, 0.3, 0, temp);
-      el_pfiso_myneutral04[el_n] = pfHcalIso(egsf, pfHandle, pfHandlePu, 0.4, 0, temp);
+      el_pfiso_myneutral03[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.3, 0, temp);
+      el_pfiso_myneutral04[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.4, 0, temp);
 
       temp.clear();
       temp.push_back(reco::PFCandidate::gamma);
