@@ -20,11 +20,13 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-//#include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
-
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+
+#include "HiggsAnalysis/HiggsToGammaGamma/interface/EGEnergyCorrector.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -135,6 +137,9 @@ class GlobeElectrons {
   Float_t el_ip_gsf[MAX_ELECTRONS];
   Float_t el_dist[MAX_ELECTRONS];
   Float_t el_dcot[MAX_ELECTRONS];
+  
+  Float_t el_regr_energy[MAX_ELECTRONS];
+  Float_t el_regr_energyerr[MAX_ELECTRONS];
 
   std::vector<std::vector<int> >* el_catbased;
 
@@ -164,7 +169,10 @@ class GlobeElectrons {
   edm::InputTag ecalHitEEColl;
   edm::InputTag ecalHitESColl;
   edm::InputTag hcalHitColl;
-  edm::InputTag dcsTag_;
+  //edm::InputTag dcsTag_; 
+
+  EcalClusterLazyTools* ecalLazyTool;
+  EGEnergyCorrector ecorr_;
 };
 
 #endif

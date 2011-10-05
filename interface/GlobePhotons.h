@@ -29,6 +29,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
+#include "HiggsAnalysis/HiggsToGammaGamma/interface/EGEnergyCorrector.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -190,9 +191,10 @@ class GlobePhotons {
   Int_t pho_conv_validvtx[MAX_PHOTONS];
   Float_t pho_conv_MVALikelihood[MAX_PHOTONS];
   Int_t pho_isconv[MAX_PHOTONS];
-
   Float_t pho_residCorrEnergy[MAX_PHOTONS];
   Float_t pho_residCorrResn[MAX_PHOTONS];
+  Float_t pho_regr_energy[MAX_PHOTONS];
+  Float_t pho_regr_energyerr[MAX_PHOTONS];
 
   Int_t pho_id[MAX_PHOTONS];
 
@@ -279,6 +281,8 @@ class GlobePhotons {
   const EcalSeverityLevelAlgo* sevLevel; 
   edm::ESHandle<TransientTrackBuilder> theTTkBuilder;
   ElectronHcalHelper::Configuration hcalCfg, hcalCfgPflow;
+
+  EGEnergyCorrector ecorr_;
 };
 
 #endif

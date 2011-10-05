@@ -14,7 +14,7 @@ bool vetoPFParticle(const reco::PFCandidate& pfc, std::vector<reco::PFCandidate:
 }    
 
 
-float pfTkIso(const reco::GsfElectron& egsf, const reco::PFCandidateCollection* pfCollection, float dRmax, float dRveto, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
+float pfHcalIso(const reco::GsfElectron& egsf, const reco::PFCandidateCollection* pfCollection, float dRmax, float dRveto, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
 
   math::XYZVector dir(egsf.px(), egsf.py(), egsf.pz());
 
@@ -64,7 +64,7 @@ float pfEcalIso(const reco::GsfElectron& egsf, const reco::PFCandidateCollection
   return sum;
 }
 
-float pfHcalIso(const reco::GsfElectron& egsf, edm::Handle<reco::PFCandidateCollection> pfCollectionH, edm::Handle<reco::PileUpPFCandidateCollection> pfCollectionPUH, float dRmax, float dRveto, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
+float pfTkIso(const reco::GsfElectron& egsf, edm::Handle<reco::PFCandidateCollection> pfCollectionH, edm::Handle<reco::PileUpPFCandidateCollection> pfCollectionPUH, float dRmax, float dRveto, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
 
   math::XYZVector dir(egsf.px(), egsf.py(), egsf.pz());
   edm::ProductID originalID = pfCollectionH.id();

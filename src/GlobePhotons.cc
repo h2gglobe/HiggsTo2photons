@@ -9,9 +9,10 @@
 #include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
-#include "HiggsAnalysis/HiggsTo2photons/interface/PhotonFixCMS.h"
+#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
+#include <cstdlib>
 
 void GlobePhotons::checkSetup(const edm::EventSetup& iSetup) {
 
@@ -21,15 +22,11 @@ void GlobePhotons::checkSetup(const edm::EventSetup& iSetup) {
   LocalCorr->init(iSetup);
 
   // Transform Track into TransientTrack (needed by the Vertex fitter)
-  //edm::ESHandle<TransientTrackBuilder> theTTkBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", theTTkBuilder);
 
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   geometry = *geoHandle;
-
-  //edm::ESHandle<EcalChannelStatus> chStatus;
-  //iSetup.get<EcalChannelStatusRcd>().get(chStatus);
 
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
@@ -93,6 +90,9 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 
   // set Hgg PhotonID thresholds
   setPhotonIDThresholds(iConfig);
+
+  // Initialise PhotonFix
+  PhotonFix::initialiseParameters(iConfig);
 
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
@@ -297,6 +297,10 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_isconv", &pho_isconv, "pho_isconv[pho_n]/I");
   tree->Branch("pho_residCorrEnergy", &pho_residCorrEnergy, "pho_residCorrEnergy[pho_n]/F");
   tree->Branch("pho_residCorrResn", &pho_residCorrResn, "pho_residCorrResn[pho_n]/F");
+
+  tree->Branch("pho_regr_energy", &pho_regr_energy, "pho_regr_energy[pho_n]/F");
+  tree->Branch("pho_regr_energyerr", &pho_regr_energyerr, "pho_regr_energyerr[pho_n]/F");
+
   tree->Branch("pho_id", &pho_id, "pho_id[pho_n]/I");
   
   pho_conv_vtx = new TClonesArray("TVector3", MAX_PHOTONS);
@@ -315,7 +319,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   if (debug_level > 9) 
     std::cout << "GlobePhotons: Start analyze" << std::endl;
 
-  PhotonFixCMS::initialise(iSetup, "4_2");
+  PhotonFix::initialiseGeometry(iSetup);
   checkSetup(iSetup);
   hcalHelper->readEvent(const_cast<edm::Event &>(iEvent));
   hcalHelperPflow->readEvent(const_cast<edm::Event &>(iEvent));
@@ -474,12 +478,23 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_id[pho_n] = PhotonID(localPho, 4, reco::VertexRef(hVertex, 0), false);
 
     // Residual corrections
-    PhotonFixCMS ResidCorrector(*localPho);
+    PhotonFix ResidCorrector(*localPho);
     pho_residCorrEnergy[pho_n] = ResidCorrector.fixedEnergy();
     pho_residCorrResn[pho_n] = ResidCorrector.sigmaEnergy();
 
-    int index = 0;
+    // Regression Correction
+    if (!ecorr_.IsInitialized()) {
+      char filename[200];
+      char* descr = getenv("CMSSW_BASE");
+      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrph.root", descr);
+      ecorr_.Initialize(iSetup, filename);
+    }
 
+    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*localPho);
+    pho_regr_energy[pho_n]    = cor.first;
+    pho_regr_energyerr[pho_n] = cor.second;
+
+    int index = 0;
     for(int isuperClusterType=0; isuperClusterType<3; ++isuperClusterType) {
       if (isuperClusterType == 0) {
         for(reco::SuperClusterCollection::size_type j = 0; j<superClustersHybridH->size(); ++j){
