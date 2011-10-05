@@ -39,6 +39,11 @@ class GlobeEcalHits {
   Short_t ecalhit_flag[MAX_ECALRECHITS];
   Float_t ecalhit_time[MAX_ECALRECHITS];
   UInt_t ecalhit_detid[MAX_ECALRECHITS];
+  Short_t ecalhit_zside[MAX_ECALRECHITS];
+  Short_t ecalhit_ieta[MAX_ECALRECHITS];
+  Short_t ecalhit_iphi[MAX_ECALRECHITS];
+  Short_t ecalhit_ix[MAX_ECALRECHITS];
+  Short_t ecalhit_iy[MAX_ECALRECHITS];
   
  private:
   const char* nome;
