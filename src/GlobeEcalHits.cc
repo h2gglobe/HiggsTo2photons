@@ -39,6 +39,11 @@ void GlobeEcalHits::defineBranch(TTree* tree) {
   tree->Branch("ecalhit_flag", &ecalhit_flag, "ecalhit_flag[ecalhit_n]/S");
   tree->Branch("ecalhit_time", &ecalhit_time, "ecalhit_time[ecalhit_n]/F");
   tree->Branch("ecalhit_detid", &ecalhit_detid, "ecalhit_detid[ecalhit_n]/I");
+  tree->Branch("ecalhit_ieta", &ecalhit_ieta, "ecalhit_ieta[ecalhit_n]/S");
+  tree->Branch("ecalhit_iphi", &ecalhit_iphi, "ecalhit_iphi[ecalhit_n]/S");
+  tree->Branch("ecalhit_ix", &ecalhit_ix, "ecalhit_ix[ecalhit_n]/S");
+  tree->Branch("ecalhit_iy", &ecalhit_iy, "ecalhit_iy[ecalhit_n]/S");
+  tree->Branch("ecalhit_zside", &ecalhit_zside, "ecalhit_zside[ecalhit_n]/S");
 
   ecalhit_p4 = new TClonesArray("TLorentzVector", MAX_ECALRECHITS);
   tree->Branch("ecalhit_p4", "TClonesArray", &ecalhit_p4, 32000, 0);
@@ -48,13 +53,11 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                             GlobeLeptons *lep, GlobeElectrons *el, GlobeMuons *mu,
                             GlobePhotons *pho) {
 
-  
+
   if(!el) std::cout << "GlobeEcalHits: CAREFUL, GlobeElectron pointer is not set" << std::endl;
   if(!mu) std::cout << "GlobeEcalHits: CAREFUL, GlobeMuon pointer is not set" << std::endl;
   if(!pho) std::cout << "GlobeEcalHits: CAREFUL, GlobePhoton pointer is not set" << std::endl;
     
-
-
   // geometry initialization
   edm::ESHandle<CaloGeometry> geometry;
   iSetup.get<CaloGeometryRecord>().get(geometry);
@@ -141,6 +144,11 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           ecalhit_time[ecalhit_n] = rh->time();
           ecalhit_flag[ecalhit_n] = rh->recoFlag();
 	  ecalhit_detid[ecalhit_n] = rh->detid();
+	  ecalhit_ieta[ecalhit_n] = ((EBDetId)rh->detid()).ieta();
+	  ecalhit_iphi[ecalhit_n] = ((EBDetId)rh->detid()).iphi();
+	  ecalhit_zside[ecalhit_n] = ((EBDetId)rh->detid()).zside();
+	  ecalhit_ix[ecalhit_n] = -9999;
+	  ecalhit_iy[ecalhit_n] = -9999;	  
           ecalhit_n++;
           break; //break out of lepton loop, already passed 
         } //End Passes All Cuts
@@ -207,6 +215,11 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           ecalhit_time[ecalhit_n] = rh->time();
           ecalhit_flag[ecalhit_n] = (int)rh->recoFlag();
 	  ecalhit_detid[ecalhit_n] = rh->detid();
+	  ecalhit_ix[ecalhit_n] = ((EEDetId)rh->detid()).ix();
+	  ecalhit_iy[ecalhit_n] = ((EEDetId)rh->detid()).iy();
+	  ecalhit_zside[ecalhit_n] = ((EEDetId)rh->detid()).zside();
+	  ecalhit_ieta[ecalhit_n] = -9999;
+	  ecalhit_iphi[ecalhit_n] = -9999;
           ecalhit_n++;
           break; //break out of lepton loop, already passed 
             
@@ -262,6 +275,11 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           ecalhit_time[ecalhit_n] = rh->time();
           ecalhit_flag[ecalhit_n] = rh->recoFlag();
 	  ecalhit_detid[ecalhit_n] = rh->detid();
+	  ecalhit_ieta[ecalhit_n] = -9999;
+	  ecalhit_iphi[ecalhit_n] = -9999;
+	  ecalhit_ix[ecalhit_n] = -9999;
+	  ecalhit_iy[ecalhit_n] = -9999;
+	  ecalhit_zside[ecalhit_n] = -9999;
           ecalhit_n++;
             
         } //End Passes All Cuts

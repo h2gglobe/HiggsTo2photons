@@ -15,6 +15,9 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+
+#include "HiggsAnalysis/HiggsToGammaGamma/interface/EGEnergyCorrector.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -116,6 +119,9 @@ class GlobeElectrons {
   Float_t el_dist[MAX_ELECTRONS];
   Float_t el_dcot[MAX_ELECTRONS];
 
+  Float_t el_regr_energy[MAX_ELECTRONS];
+  Float_t el_regr_energyerr[MAX_ELECTRONS];
+
   std::vector<std::vector<int> >* el_catbased;
 
   TClonesArray *el_sc;
@@ -143,7 +149,10 @@ class GlobeElectrons {
   edm::InputTag ecalHitEBColl;
   edm::InputTag ecalHitEEColl;
   edm::InputTag ecalHitESColl;
-  edm::InputTag hcalHitColl;
+  edm::InputTag hcalHitColl;  
+
+  EcalClusterLazyTools* ecalLazyTool;
+  EGEnergyCorrector ecorr_;
 };
 
 #endif

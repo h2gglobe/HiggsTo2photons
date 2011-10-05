@@ -8,7 +8,7 @@ secFiles = cms.untracked.vstring()
 source = cms.Source ("PoolSource",fileNames = readFiles)
 readFiles.extend( (
     # GLUGLU
-    'file:/tmp/sani/44FC0E39-FAE5-E011-AACB-00248C0BE018.root',
+    'file:/tmp/sani/8C858225-EFBA-E011-BAC6-0018F3D0967A.root',
     # SinglePhoton
     #'file:/tmp/sani/5A123876-B5BB-E011-AF3C-002618943982.root',
     # Data
