@@ -4,6 +4,7 @@
 #include <string>
 #include <cassert>
 #include <cmath>
+#include <cstdlib>
 
 #include "TFile.h"
 #include "TH1F.h"
@@ -15,6 +16,7 @@
 #include "TROOT.h"
 #include "TList.h"
 #include "TString.h"
+#include "Normalization.C"
 
 std::vector<double> optimizedBinning(TH1F *hb, int nTargetBins, bool revise_target, bool use_n_target){
 	// Return a set of bins which are "smoother" 
@@ -159,8 +161,8 @@ int getIndex(int mass){
 
 int main(){
   
-  TFile *inFile = new TFile("../FullWorkspace/CMS-HGG_1658pb_mva.root");
-  TFile *outFile = new TFile("OutputSigIntHistos.root","RECREATE");
+  TFile *inFile = new TFile("/vols/cms02/h2g/interp_workspace/CMS-HGG_1658pb_mva.root");
+  TFile *outFile = new TFile("/vols/cms02/h2g/interp_workspace/CMS-HGG_1658pb_mva_int_02-10-11.root","RECREATE");
 
   const int nBDTs=2;
   const int nMasses=7;
@@ -197,25 +199,15 @@ int main(){
 */
 
 // ----- else can just get rebinned histograms straight out of workspace
-/*
-  for (int bdt=0; bdt<nBDTs; bdt++){
-    for (int bdtmass=0; bdtmass<nMasses; bdtmass++){
-      for (int j=-1; j<2; j++){
-        if ((bdtmass==0 && j==-1) || (bdtmass==(nMasses-1) && j==1)) continue;
-        if (j==-1) sigHistBelow[bdt][bdtmass] = (TH1F*)inFile->Get(("th1f_sig_"+BDTtype[bdt]+"_"+BDTmasses[bdtmass]+"_"+BDTmasses[bdtmass+j]+"_cat0").c_str());
-        if (j==0) sigHist[bdt][bdtmass] = (TH1F*)inFile->Get(("th1f_sig_"+BDTtype[bdt]+"_"+BDTmasses[bdtmass]+"_"+BDTmasses[bdtmass+j]+"_cat0").c_str());
-        if (j==1) sigHistAbove[bdt][bdtmass] = (TH1F*)inFile->Get(("th1f_sig_"+BDTtype[bdt]+"_"+BDTmasses[bdtmass]+"_"+BDTmasses[bdtmass+j]+"_cat0").c_str());
-      }
-    }
-  }
-*/
 
+  // write original histograms in out file
   TList *HistList = inFile->GetListOfKeys();
   outFile->cd();
   for (int j=0; j<HistList->GetSize(); j++){
     TH1F *temp = (TH1F*)inFile->Get(HistList->At(j)->GetName());
     temp->Write();
   }
+  // get lists of middle, upper and lower templates for each mass
   TList *orgHistList[2][7];
   TList *orgHistListBelow[2][7];
   TList *orgHistListAbove[2][7];
@@ -234,6 +226,10 @@ int main(){
           if ((bdtmass==0 && k==-1) || (bdtmass==nMasses-1 && k==1)) continue;
           if (HistName.Contains(("sig_"+BDTtype[bdt]+"_"+BDTmasses[bdtmass]+"_"+BDTmasses[bdtmass+k]).c_str())){
             TH1F *temp = (TH1F*)inFile->Get(HistName.Data());
+            // scale by 1/XS*BR
+            double XS = GetXsection(std::atof(BDTmasses[bdtmass+k].c_str()));
+            double BR = GetBR(std::atof(BDTmasses[bdtmass+k].c_str()));
+            temp->Scale(1./(XS*BR));
             if (k==-1) orgHistListBelow[bdt][bdtmass]->Add(temp);
             if (k==0) orgHistList[bdt][bdtmass]->Add(temp);
             if (k==1) orgHistListAbove[bdt][bdtmass]->Add(temp);
@@ -254,7 +250,7 @@ int main(){
   int i=0;
   // loop over mass points etc.
   for (double mass=115.; mass<150.5; mass+=0.5){
-    std::cout << i << std::endl; 
+    //std::cout << i << std::endl; 
     if (int(mass*2)%10==0 && mass!=145.0) continue;
     std::pair<int,int> nearestPair = findNearest(mass);
     bool above;
@@ -263,7 +259,7 @@ int main(){
     if (nearest-nextNear < 0) above = true;
     else above = false;
     
-    std::cout << mass << " bracketed by: " << nearestPair.first << " " << nearestPair.second << " " << above << std::endl;
+    //std::cout << mass << " bracketed by: " << nearestPair.first << " " << nearestPair.second << " " << above << std::endl;
 
     int bdtmass = getIndex(nearest); // gives index of bdt to use
 
@@ -275,21 +271,27 @@ int main(){
         TH1F *tempAbove = (TH1F*)orgHistListAbove[bdt][bdtmass]->At(syst);
         TH1F *tempBelow = (TH1F*)orgHistListBelow[bdt][bdtmass]->At(syst);
         TH1F* tempInt;
-        if (above)
+        if (above){
           tempInt = Interpolate(tempSig,tempAbove, double(nearest),double(nextNear),mass);
-        else
+          double norm = GetNorm(double(nearest),tempSig,double(nextNear),tempAbove,mass);
+          tempInt->Scale(norm);
+        }
+        else{
           tempInt = Interpolate(tempBelow,tempSig, double(nextNear),double(nearest),mass);
+          double norm = GetNorm(double(nextNear),tempBelow,double(nearest),tempSig,mass);
+          tempInt->Scale(norm);
+        }
         orgHistListInt[bdt][i]->Add(tempInt);
       }
     }
     i++;
   }
  
+  outFile->cd();
+  
   for (int i=0; i<2; i++) for (int j=0; j<71; j++) for (int k=0; k<orgHistListInt[i][j]->GetSize(); k++) {
     orgHistListInt[i][j]->At(k)->Write();
   }
-
-  outFile->cd();
 
   return 0;
 }
