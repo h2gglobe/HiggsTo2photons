@@ -29,14 +29,17 @@ for K in keys:
 nPlots = len(plots)
 
 if (nPlots >1):
-  can = ROOT.TCanvas("c","Fit Plots",4000,3000)
-  if int(nPlots**0.5)*int(nPlots**0.5) == nPlots: can.Divide(int(nPlots**0.5),int(nPlots**0.5))
+  
+  if int(nPlots**0.5)*int(nPlots**0.5) == nPlots: 
+  	can = ROOT.TCanvas("c","Fit Plots",int(nPlots**0.5)*1200,int(nPlots**0.5)*900) # each plot needs to be pretty big
+	can.Divide(int(nPlots**0.5),int(nPlots**0.5))
+
   else:
     sqrtnPlots = int(nPlots**0.5)+1
+    can = ROOT.TCanvas("c","Fit Plots",sqrtnPlots*1200,sqrtnPlots*900) # each plot needs to be pretty big
     can.Divide(sqrtnPlots,sqrtnPlots-1)
 else: 
   can = ROOT.TCanvas("c","Fit Plots",1200,900)
-
 for i,P in enumerate(plots):
   can.cd(i+1)
   P.DrawClonePad()
