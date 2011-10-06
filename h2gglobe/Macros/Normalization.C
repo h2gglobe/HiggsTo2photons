@@ -8,7 +8,7 @@
 
 double GetBR(double mass) {
 
-  map <double, double> BranchingRatioMap;
+  std::map <double, double> BranchingRatioMap;
   BranchingRatioMap[90]=0.00123;
   BranchingRatioMap[95]=0.0014;
   BranchingRatioMap[100]=0.00159;
@@ -162,7 +162,7 @@ double GetBR(double mass) {
 
 double GetXsection(double mass) {
 
-  map <double, double> XSectionMap;
+  std::map <double, double> XSectionMap;
   XSectionMap[90]=33.8959;
   XSectionMap[95]=30.5228;
   XSectionMap[100]=27.5471;
@@ -335,9 +335,9 @@ double GetNorm(double mass1, TH1F* hist1, double mass2, TH1F* hist2, double mass
 
 void CheckNorm(double Min, double Max, double Step) {
 
-  vector <double> Mass;
-  vector <double> BranchingRatio;
-  vector <double> XSection;
+  std::vector <double> Mass;
+  std::vector <double> BranchingRatio;
+  std::vector <double> XSection;
   for (double i=Min; i<Max; i+=Step) {
     Mass.push_back(i);
     BranchingRatio.push_back(GetBR(i));
