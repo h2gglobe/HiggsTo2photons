@@ -428,9 +428,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     // Regression Correction
     if (!ecorr_.IsInitialized()) {
-      char filename[200];
-      char* descr = getenv("CMSSW_BASE");
-      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrph.root", descr);
+      std::string filename = "http://home.cern.ch/sani/gbrele.root";
       ecorr_.Initialize(iSetup, filename);
     }
 
@@ -1063,7 +1061,7 @@ float GlobePhotons::pfEcalIso(math::XYZVector vCand, const reco::PFCandidateColl
 	  continue;
       }
       
-      math::XYZVector pvi(pfc.momentum());
+      math::XYZVector pvi(pfc.positionAtECALEntrance());
       float dR = deltaR(vCand.Eta(), vCand.Phi(), pvi.Eta(), pvi.Phi());
       float dEta = fabs(vCand.Eta() - pvi.Eta());
       double dPhi = fabs(vCand.Phi() - pvi.Phi());
