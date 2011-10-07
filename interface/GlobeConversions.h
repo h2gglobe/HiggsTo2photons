@@ -60,6 +60,7 @@ class GlobeConversions {
   TClonesArray *conv_vtx;
   TClonesArray *conv_pair_momentum;
   TClonesArray *conv_refitted_momentum;
+  TClonesArray *conv_singleleg_momentum;
 
 
   Int_t conv_barrel[MAX_CONVERTEDPHOTONS];
@@ -72,7 +73,8 @@ class GlobeConversions {
   Float_t conv_dphitrksatvtx[MAX_CONVERTEDPHOTONS];
   Float_t conv_dphitrksatecal[MAX_CONVERTEDPHOTONS];
   Float_t conv_detatrksatecal[MAX_CONVERTEDPHOTONS];
-  Int_t conv_quality[MAX_CONVERTEDPHOTONS];
+  std::vector<std::vector<int> >* conv_quality;
+  Int_t conv_type[MAX_CONVERTEDPHOTONS];
   Float_t conv_dxy[MAX_CONVERTEDPHOTONS];
   Float_t conv_dz[MAX_CONVERTEDPHOTONS];
   Float_t conv_lxy[MAX_CONVERTEDPHOTONS];
@@ -90,10 +92,10 @@ class GlobeConversions {
   Float_t conv_tk2_pin[MAX_CONVERTEDPHOTONS];
   Float_t conv_tk1_dz[MAX_CONVERTEDPHOTONS];
   Float_t conv_tk1_dzerr[MAX_CONVERTEDPHOTONS];
-  Int_t conv_tk1_nh[MAX_CONVERTEDPHOTONS];
+  Short_t conv_tk1_nh[MAX_CONVERTEDPHOTONS];
   Float_t conv_tk2_dz[MAX_CONVERTEDPHOTONS];
   Float_t conv_tk2_dzerr[MAX_CONVERTEDPHOTONS];
-  Int_t conv_tk2_nh[MAX_CONVERTEDPHOTONS];
+  Short_t conv_tk2_nh[MAX_CONVERTEDPHOTONS];
   Int_t conv_ch1ch2[MAX_CONVERTEDPHOTONS];
 
   /// vertex quanities
@@ -111,6 +113,7 @@ class GlobeConversions {
  private:
   const char* nome;
   GlobeCuts *gCUT;
+  edm::InputTag photonCollStd;
   edm::InputTag allConversionsColl;
 
   // SUPER CLUSTERS
@@ -128,6 +131,8 @@ class GlobeConversions {
   edm::InputTag hcalBEColl;
   edm::InputTag hcalFColl;
   edm::InputTag hcalHoColl; 
+// Particle Flow
+  edm::InputTag pfColl;
 
   int debug_level;
   bool doFastSim;
