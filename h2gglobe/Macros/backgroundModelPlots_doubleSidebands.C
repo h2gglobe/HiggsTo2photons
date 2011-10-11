@@ -31,7 +31,7 @@ void BDTvars_doubleSidebands(bool www=false, TString outdirname="BDTplots_all", 
   gStyle->SetCanvasColor(0);
   gStyle->SetFrameBorderMode(0);
 
-  TFile *f_bdtout = TFile::Open("/vols/cms02/h2g/latest_workspace/CMS-HGG_1658pb_mva_02-10-11.root");
+  TFile *f_bdtout = TFile::Open("/vols/cms02/nw709/hgg/src_cvs/latest/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/PhotonAnalysis_scripts/workspaces/CMS-HGG_1658pb_5percent.root");
   TFile *f_bdtin = TFile::Open("/vols/cms/futyand/hgg/histos_4Oct_doubleSidebands_5percent/CMS-HGG_1658pb_bkgModel.root");
   TFile *f_bdtin_qcd = TFile::Open("/vols/cms/futyand/hgg/histos_4Oct_doubleSidebands_5percent/CMS-HGG_1658pb_bkgModel_qcdtest.root");
 
