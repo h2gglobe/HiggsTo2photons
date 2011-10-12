@@ -49,7 +49,6 @@ public:
 	void SetBDTInputVariables(TLorentzVector*, TLorentzVector*, double, double, double, double, double);
 	
 	// Options
-	bool reRunCiC;
 	float leadEtCut;
 	float subleadEtCut;
 	std::string efficiencyFile;

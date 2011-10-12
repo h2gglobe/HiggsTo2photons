@@ -14,7 +14,6 @@ StatAnalysis::StatAnalysis()  :
     name_("StatAnalysis"),
     vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
 {
-    reRunCiC = false;
     doMCSmearing = true;
 
     systRange  = 3.; // in units of sigma
@@ -87,8 +86,6 @@ void StatAnalysis::Init(LoopAll& l)
 	<< "-------------------------------------------------------------------------------------- \n"
 	<< std::endl;
 
-    // avoid recalculated the CIC ID every time
-    l.runCiC = reRunCiC;
     // call the base class initializer
     PhotonAnalysis::Init(l);
 

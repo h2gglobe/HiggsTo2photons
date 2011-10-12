@@ -36,7 +36,6 @@ public:
 	virtual void ResetAnalysis();
 	
 	// Options
-	bool reRunCiC;
 	float leadEtCut;
 	float subleadEtCut;
 	std::string efficiencyFile;

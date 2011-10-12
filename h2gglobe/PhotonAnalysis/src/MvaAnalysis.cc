@@ -198,8 +198,6 @@ void MvaAnalysis::Init(LoopAll& l)
 	<< "-------------------------------------------------------------------------------------- \n"
 	<< std::endl;
 
-    // avoid recalculated the CIC ID every time
-    l.runCiC = reRunCiC;
     // call the base class initializer
     PhotonAnalysis::Init(l);
 

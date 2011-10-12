@@ -12,7 +12,6 @@ nR9Categories=2
 nPtCategories=2
 
 doTriggerSelection=1
-reRunCiC=0
 
 ->
 Turn on-off all smearings 

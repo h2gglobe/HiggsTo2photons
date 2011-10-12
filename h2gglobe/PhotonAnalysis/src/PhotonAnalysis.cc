@@ -139,9 +139,9 @@ void PhotonAnalysis::Init(LoopAll& l)
 	triggerSelections.back().addpath("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v");
 	triggerSelections.back().addpath("HLT_Photon26_R9Id_Photon18_R9Id_v");
 
+	// avoid recalculation of the CIC ID every time
+	l.runCiC = reRunCiC;
 	// CiC initialization
-	// FIXME should move this to GeneralFunctions
-	l.runCiC = true;
 	const int phoNCUTS = LoopAll::phoNCUTS;
 	const int phoCiC6NCATEGORIES = LoopAll::phoCiC6NCATEGORIES;
 	const int phoCiC4NCATEGORIES = LoopAll::phoCiC4NCATEGORIES;

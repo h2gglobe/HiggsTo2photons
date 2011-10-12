@@ -76,6 +76,7 @@ public:
 	std::vector<float> pho_et;
 	// Other options
 	bool runStatAnalysis;
+	bool reRunCiC;
         TString puHist, puMap;//name of pileup reweighting histogram
 	bool applyPtoverM;
 	float leadEtCut;
