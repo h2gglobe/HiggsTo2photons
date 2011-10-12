@@ -66,15 +66,20 @@ public:
 	float massMin, massMax;
 	int nDataBins;	
         float signalRegionWidth;
+        float sidebandWidth;
+        float sidebandShift;
+        int numberOfSidebands;
 	
 	std::string kfacHist;
 
 	int nMasses;
 
 	bool doTraining;
+	bool splitSignalSample;
 	//int nMassPt;
-	std::string names[12];
-	double masses[12];
+	std::string names[9];
+        std::string BDTnames[9];
+	double masses[9];
 
 	std::string mvaWeightsFolder;
 

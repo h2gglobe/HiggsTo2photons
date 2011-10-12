@@ -1,11 +1,15 @@
-->
-->
 leadEtCut=40.0
 subleadEtCut=30.0
 
-massMin=100.
-massMax=160.
+massMin=95.
+massMax=185.
 nDataBins=60
+
+signalRegionWidth=0.07
+sidebandWidth=0.07
+sidebandShift=0.
+numberOfSidebands=1
+
 
 nEtaCategories=2
 nR9Categories=2
@@ -13,7 +17,9 @@ nPtCategories=1
 
 doTriggerSelection=1
 
-doTraining=1
+doTraining=0
+splitSignalSample=0
+
 
 ->
 Turn on-off all smearings 
@@ -56,7 +62,7 @@ kfacHist=/vols/cms02/h2g/aux/KFactors_AllScales_interpolated.root
 efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v13.root
 puHist=/vols/cms02/h2g/aux/lp.json.weights.root
 puMap=pu_weights_map.dat
-mvaWeightsFolder=/vols/cms02/h2g/weights/wt_6Sept/
+mvaWeightsFolder=/vols/cms02/h2g/weights/wt_21Sept_pp/
 ->
 run-dependent corrections are now taken from energy_scale_offsets.dat;
 GF, aug12: Escale shift taken from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/371.html
