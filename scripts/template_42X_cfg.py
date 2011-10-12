@@ -191,18 +191,21 @@ if flagAOD is 'ON':
   process.p11 = cms.Path( process.eventCounters*process.eventFilter1*
                           process.pfPileUp *
                           #process.pfBasedPhotonIsoSequence*
+                          #process.pfSelectedPhotons *
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*process.h2ganalyzerPath)
   
   process.p12 = cms.Path( process.eventCounters*process.eventFilter2*
                           process.pfPileUp *
                           #process.pfBasedPhotonIsoSequence*
+                          #process.pfSelectedPhotons *
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*process.h2ganalyzerPath)
 else:
   process.p11 = cms.Path( process.eventCounters*process.eventFilter1*
                           process.pfPileUp *
                           #process.pfBasedPhotonIsoSequence*
+                          #process.pfSelectedPhotons *
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*
                           process.conversionTrackCandidates*
@@ -214,6 +217,7 @@ else:
   process.p12 = cms.Path( process.eventCounters*process.eventFilter2*
                           process.pfPileUp *
                           #process.pfBasedPhotonIsoSequence*
+                          #process.pfSelectedPhotons *
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*
                           process.conversionTrackCandidates*
