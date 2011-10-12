@@ -62,6 +62,9 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
 
   doRho = iConfig.getParameter<bool>("doRho");
   doPileup = iConfig.getParameter<bool>("doPileup");
+  
+  doPdfWeight = iConfig.getParameter<bool>("doPdfWeight");
+
 
   debug_level = iConfig.getParameter<int>("Debug_Level");
   
@@ -72,7 +75,7 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
     std::cout << "doGenerator and doGenParticles cannot be true at the same time." << std::endl;
     throw;
   }
-    
+
   //GENERATOR
   if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeGenerator"<<std::endl;
   if (doGenerator)
@@ -211,6 +214,11 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   //if (doPAT)
   //  pat = new GlobePAT(iConfig);
 
+
+  if (doPdfWeight)
+    pdfweights = new GlobePdfWeights(iConfig);
+
+
   if(debug_level > 9) std::cout<<"GlobeAnalyzer: readConfiguration"<<std::endl;
   readConfiguration(iConfig);
 }
@@ -218,6 +226,7 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
 GlobeAnalyzer::~GlobeAnalyzer() {}
 
 void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
 
  if(debug_level > 9) std::cout << "GlobeAnalyzer: Begin" << std::endl;
   
@@ -446,8 +455,9 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   if (doPileup)
     pileup->analyze(iEvent, iSetup);
-
   
+  if (doPdfWeight)
+    pdfweights->analyze(iEvent, iSetup);
 
   if(debug_level > 2) 
     std::cout << "GlobeAnalyzer: selectorbits" << std::endl;
@@ -595,6 +605,9 @@ void GlobeAnalyzer::beginJob() {
   if (doPileup)
      pileup->defineBranch(tree);
   
+  if (doPdfWeight)
+    pdfweights->defineBranch(tree);
+
   defineBranch();
   
   tot_events = 0;
