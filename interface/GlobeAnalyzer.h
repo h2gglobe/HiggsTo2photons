@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Matteosan SANI
 //         Created:  Thu Feb  7 10:14:43 CET 2008
-// $Id: GlobeAnalyzer.h,v 1.10 2011/07/04 13:08:42 musella Exp $
+// $Id: GlobeAnalyzer.h,v 1.11 2011/07/22 09:45:50 musella Exp $
 //
 //
 
@@ -59,7 +59,7 @@ Implementation:
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeHT.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeReducedGen.h"
 //#include "HiggsAnalysis/HiggsTo2photons/interface/GlobePAT.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/interface/GlobePdfWeights.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeRho.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePileup.h"
 
@@ -111,6 +111,7 @@ public:
   GlobeReducedGen* reducedgen;
   GlobeRho* rho;
   GlobePileup* pileup;
+  GlobePdfWeights* pdfweights;
 
 private:
   void beginJob();
@@ -179,7 +180,8 @@ private:
   bool doPAT;
   bool doRho;
   bool doPileup;
-
+  bool doPdfWeight;
+  
   bool fullHLT;
   std::vector<edm::InputTag> theElHLTLabels;
   std::vector<edm::InputTag> theMuHLTLabels;
