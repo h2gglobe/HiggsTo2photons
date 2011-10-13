@@ -1,3 +1,0 @@
-BDTInterpolation.exe: BDTInterpolation.cc
-	g++ -o BDTInterpolation.exe BDTInterpolation.cc `root-config --cflags --libs` -lMinuit -lFoam -L/vols/sl5_exp_software/cms/slc5_amd64_gcc434/lcg/roofit/5.28.00a-cms12/lib/ -lRooFit -lRooFitCore
-
