@@ -2219,29 +2219,18 @@ std::pair<double,double> RooContainer::getNormalisationAndErrorFromFit(std::stri
   RooAbsReal* normalisationVar;
   if (multi_pdf){
 
-//     std::map<std::string,std::vector<RooRealVar*> >::iterator it = m_comp_pdf_norm_.find(pdf_name);
-     // get the values which correspond to normalisations of each component pdf
-//     for ( std::vector<RooRealVar*>::iterator it_r = (it->second).begin() ; it_r!=(it->second).end();it_r++){
-	
 	normalisationVar = &m_form_var_[pdf_name];
- //   }
   }
   else{
     normalisationVar = &m_real_var_[pdf_name];
   }
 
   normalisation = normalisationVar->getVal();
-  // find integral over latest fit range, then we know N*pdf() modifier.
-  //RooFormulaVar K("K","K","1.0/@1",RooArgSetlatestFitRangeIntegral_[pdf_name];
 
   std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name << " in range " << r1 << " -> " << r2 <<std::endl;
   obs->setRange("rngeNorm",r1,r2);
-//  pdf_ptr->forceNumInt(true);
   RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
-//  RooAbsReal* integralFull = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
   RooFormulaVar normIntVar("normIntVar","normIntVar","@0*@1/@2",RooArgSet(*normalisationVar,*integral,*latestFitRangeIntegral_[pdf_name]));
-  //if (!external_range){
-  //RooFormulaVar normIntVar("normIntVar","normIntVar","@0*@1/",RooArgSet(*normalisationVar,*integral));
 
   double integralValue = integral->getVal();
   double integralError = integral->getPropagatedError(*fit_results_[pdf_name]);
@@ -2249,48 +2238,35 @@ std::pair<double,double> RooContainer::getNormalisationAndErrorFromFit(std::stri
   double result    = normIntVar.getVal();
   double fullError = normIntVar.getPropagatedError(*fit_results_[pdf_name]);
 
-  std::cout << "	Pdf Integral and Error From Latest Fit - " << integralValue << "+/-" << integralError << std::endl;
-  std::cout << "	Full (extended term) Norm - " << normalisationVar->getVal()  << std::endl;
-  std::cout << "	Integral Of latest Fit - " << latestFitRangeIntegral_[pdf_name]->getVal()  << std::endl;
-  std::cout << "	Pdf Get Norm - " << pdf_ptr->getNorm()  << std::endl;
-  std::cout << "	Normalisation In Range and Error - " << result << "+/-" << fullError << std::endl;
+//  std::cout << "	Pdf Integral and Error From Latest Fit - " << integralValue << "+/-" << integralError << std::endl;
+//  std::cout << "	Full (extended term) Norm - " << normalisationVar->getVal()  << std::endl;
+//  std::cout << "	Integral Of latest Fit - " << latestFitRangeIntegral_[pdf_name]->getVal()  << std::endl;
+//  std::cout << "	Pdf Get Norm - " << pdf_ptr->getNorm()  << std::endl;
+//  std::cout << "	Normalisation In Range and Error - " << result << "+/-" << fullError << std::endl;
   return std::pair<double,double>(result,fullError);
 
- // } else {
- // 	double result    = normalisationVar->getVal();
- // 	double fullError = normalisationVar->getPropagatedError(*fit_results_[pdf_name]);
- // 	std::cout << "	Normalisation and Error - " << result << "+/-" << fullError << std::endl;
- // 	return std::pair<double,double>(result,fullError);
- // }
 }
 
 double RooContainer::getNormalisationFromFit(std::string pdf_name,std::string hist_name,RooAbsPdf *pdf_ptr,RooRealVar *obs,double r1,double r2,bool multi_pdf,bool external_range){
 
   double normalisation = 0;
+  RooAbsReal* normalisationVar;
   if (multi_pdf){
 
-     std::map<std::string,std::vector<RooRealVar*> >::iterator it = m_comp_pdf_norm_.find(pdf_name);
-     // get the values which correspond to normalisations of each component pdf
-     for ( std::vector<RooRealVar*>::iterator it_r = (it->second).begin() ; it_r!=(it->second).end();it_r++){
-	normalisation += (*it_r)->getVal();
-     }
+	normalisationVar = &m_form_var_[pdf_name];
   }
   else{
-    normalisation = m_real_var_[pdf_name].getVal();
+    normalisationVar = &m_real_var_[pdf_name];
   }
 
-  double K = normalisation/latestFitRangeIntegral_[pdf_name]->getVal();
+  normalisation = normalisationVar->getVal();
 
   std::cout << "RooContainer::getNormalisationFromFit - Calculating Integral from Pdf " << pdf_name << " in range " << r1 << " -> " << r2 <<std::endl;
   obs->setRange("rngeNorm",r1,r2);
-//  pdf_ptr->forceNumInt(true);
   RooAbsReal* integral = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
-//  RooAbsReal* integralFull = pdf_ptr->createIntegral(*obs,NormSet(*obs),Range("rngeNorm"));
+  RooFormulaVar normIntVar("normIntVar","normIntVar","@0*@1/@2",RooArgSet(*normalisationVar,*integral,*latestFitRangeIntegral_[pdf_name]));
+  double result    = normIntVar.getVal();
 
-  double integralValue = integral->getVal();
-  double result    = K*integralValue;
-
-//  pdf_ptr->forceNumInt(false);
   return result;
 }
 // ----------------------------------------------------------------------------------------------------
