@@ -33,15 +33,15 @@ void bkgShapeSyst_mass(TFile *f_in,std::string mode, double mass, int cat,bool e
   f_in->cd();
 
   if (!equalBinWidths) {
-    hist_data[1] = (TH1*)f_in->Get(Form("th1f_bkg_low_%s_%3.1f_cat%d",mode.c_str(),mass,cat))->Clone();
+    hist_data[1] = (TH1*)f_in->Get(Form("th1f_bkg_1low_%s_%3.1f_cat%d",mode.c_str(),mass,cat))->Clone();
     hist_data[2] = (TH1*)f_in->Get(Form("th1f_bkg_%s_%3.1f_cat%d",mode.c_str(),mass,cat))->Clone();
-    hist_data[3] = (TH1*)f_in->Get(Form("th1f_bkg_high_%s_%3.1f_cat%d",mode.c_str(),mass,cat))->Clone();
+    hist_data[3] = (TH1*)f_in->Get(Form("th1f_bkg_1high_%s_%3.1f_cat%d",mode.c_str(),mass,cat))->Clone();
   //  hist_data[2] = (TH1*)th1f_bkg_ada_120_cat0->Clone();
   //  hist_data[3] = (TH1*)th1f_bkg_high_ada_120_cat0->Clone();
   } else {
     TH1 *th1f_bkg_ada_120_cat0 = (TH1*) f_in->Get(Form("th1f_bkg_%s_%3.1f_cat%d",mode.c_str(),mass,cat));
-    TH1 *th1f_bkg_high_ada_120_cat0 = (TH1*) f_in->Get(Form("th1f_bkg_high_%s_%3.1f_cat%d",mode.c_str(),mass,cat));
-    TH1 *th1f_bkg_low_ada_120_cat0 = (TH1*) f_in->Get(Form("th1f_bkg_low_%s_%3.1f_cat%d",mode.c_str(),mass,cat));
+    TH1 *th1f_bkg_high_ada_120_cat0 = (TH1*) f_in->Get(Form("th1f_bkg_1high_%s_%3.1f_cat%d",mode.c_str(),mass,cat));
+    TH1 *th1f_bkg_low_ada_120_cat0 = (TH1*) f_in->Get(Form("th1f_bkg_1low_%s_%3.1f_cat%d",mode.c_str(),mass,cat));
     int nbins=th1f_bkg_ada_120_cat0->GetNbinsX();
     hist_data[1] = new TH1F(Form("hist_data_low_%s_%3.1f_cat%d",mode.c_str(),mass,cat),"hist_data_low",nbins,0,float(nbins));
     hist_data[2] = new TH1F(Form("hist_data_sig_%s_%3.1f_cat%d",mode.c_str(),mass,cat),"hist_data_sig",nbins,0,float(nbins));
@@ -85,6 +85,8 @@ void bkgShapeSyst_mass(TFile *f_in,std::string mode, double mass, int cat,bool e
   th1f_bkg_ada_120_cat0_bkgShapeUp01_sigma->Scale(hist_data[2]->Integral());
   th1f_bkg_ada_120_cat0_bkgShapeDown01_sigma->Scale(hist_data[2]->Integral());
 
+  gROOT->SetBatch(true);
+
   TCanvas *canvas = new TCanvas(Form("c_%s%3.1f",mode.c_str(),mass)+var,var);
   canvas->SetFillColor(0);
 
@@ -105,7 +107,7 @@ void bkgShapeSyst_mass(TFile *f_in,std::string mode, double mass, int cat,bool e
   leg->AddEntry(th1f_bkg_ada_120_cat0_bkgShapeDown01_sigma,"Background model: down 1 sigma","L");
   leg->Draw();
 
-  canvas->SaveAs(Form("bkgSystematic_%s_%d_cat%3.1f.pdf",mode.c_str(),mass,cat));
+  canvas->SaveAs(Form("bkgSystematic_%s_%3.1f_cat%d.pdf",mode.c_str(),mass,cat));
   f_in->cd();
   th1f_bkg_ada_120_cat0_bkgShapeUp01_sigma->Write();
   th1f_bkg_ada_120_cat0_bkgShapeDown01_sigma->Write();
@@ -125,11 +127,11 @@ void bkgShapeSyst(std::string FileName, int ncat=1,bool equalBinWidths=false){
 //  const int nmasses = 9;
 //  int masses[nmasses] = {115,120,121,123,125,130,135,140,150};
 //  int masses[nmasses] = 
-  for (int m=0;m<nmasses;m++){
-  for (double m=115.;m<=150.;m+=0.5)
+  //for (int m=0;m<nmasses;m++){
+  for (double m=115.;m<=150.;m+=0.5){
     for (int cat=0;cat<ncat;cat++){
-       bkgShapeSyst_mass(f_in,"ada",masses[m],cat,equalBinWidths);
-       bkgShapeSyst_mass(f_in,"grad",masses[m],cat,equalBinWidths);
+       bkgShapeSyst_mass(f_in,"ada",m,cat,equalBinWidths);
+       bkgShapeSyst_mass(f_in,"grad",m,cat,equalBinWidths);
     }
   }
 
