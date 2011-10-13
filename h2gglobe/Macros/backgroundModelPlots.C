@@ -1230,28 +1230,32 @@ void backgroundModelPlots(bool www=false, TString outdirname="BDTplots_all", boo
     if (hist_bkg[3][ivar]->GetMaximum()>max) max=hist_bkg[3][ivar]->GetMaximum();
     hist_bkg[1][ivar]->SetMaximum(max*1.1);
 
-    hist_bkg[1][ivar]->SetLineColor(2);
-    hist_bkg[2][ivar]->SetLineColor(4);
-    hist_bkg[3][ivar]->SetLineColor(6);
-    hist_bkg[2][ivar]->SetLineWidth(2);
-    hist_bkg[1][ivar]->SetLineWidth(2);
-    hist_bkg[3][ivar]->SetLineWidth(2);
-    //hist_bkg[1][ivar]->SetLineStyle(2);
-    //hist_bkg[3][ivar]->SetLineStyle(3);
     hist_bkg[1][ivar]->GetXaxis()->SetTitle(title[ivar]);
     hist_bkg[1][ivar]->GetXaxis()->SetTitleSize(0.04);
 
     if (ivar==1) hist_bkg[1][ivar]->GetXaxis()->SetRangeUser(0.,7.);
     //if (ivar==21) hist_bkg[1][ivar]->GetXaxis()->SetRangeUser(0.,10.);
     if (ivar==6 || ivar==7 ||ivar==9) hist_bkg[1][ivar]->GetXaxis()->SetRangeUser(0.,2.5);
-    hist_bkg[1][ivar]->SetFillColor(2);
-    //hist_bkg[1][ivar]->SetFillStyle(3004);
-    hist_bkg[3][ivar]->SetFillColor(6);
-    //hist_bkg[3][ivar]->SetFillStyle(3005);
-    hist_bkg[2][ivar]->SetFillColor(4);
-    hist_bkg[1][ivar]->Draw("e3");
-    hist_bkg[3][ivar]->Draw("e3,same");
-    hist_bkg[2][ivar]->Draw("e3,same");
+
+    hist_bkg[1][ivar]->SetLineColor(2);
+    hist_bkg[3][ivar]->SetLineColor(kGreen-1);
+    hist_bkg[1][ivar]->SetMarkerColor(2);
+    hist_bkg[3][ivar]->SetMarkerColor(kGreen-1);
+    hist_bkg[2][ivar]->SetFillColor(38);
+    hist_bkg[1][ivar]->SetMarkerStyle(20);
+    hist_bkg[3][ivar]->SetMarkerStyle(20);
+    hist_bkg[1][ivar]->SetMarkerSize(0.8);
+    hist_bkg[3][ivar]->SetMarkerSize(0.8);
+    for (int i=1; i<4; i++) hist_bkg[i][ivar]->SetLineWidth(2);
+    hist_bkg[1][ivar]->Draw();
+    hist_bkg[2][ivar]->Draw("e2,same");
+    hist_bkg[3][ivar]->Draw("same");
+    //hist_bkg[1][ivar]->SetFillColor(2);
+    //hist_bkg[3][ivar]->SetFillColor(6);
+    //hist_bkg[2][ivar]->SetFillColor(4);
+    //hist_bkg[1][ivar]->Draw("e3");
+    //hist_bkg[3][ivar]->Draw("e3,same");
+    //hist_bkg[2][ivar]->Draw("e3,same");
 
     TLegend *leg2 = (TLegend*)leg->Clone();
     leg2->Clear();
