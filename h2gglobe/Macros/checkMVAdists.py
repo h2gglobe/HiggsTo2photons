@@ -4,6 +4,8 @@ r.gStyle.SetOptStat(0)
 import sys
 #r.gROOT.SetBatch(True)
 
+print "Check MVA Signal Distributions -> Use as a quick check of the histograms going into the combination code (Run this over the interpolated workspace)"
+
 rebin=False
 if len(sys.argv) < 4: 
 	sys.exit("checkMVAdists.py usage: python checkMVAdists.py FileName.root mass (eg 120) mode (eg grad) (option -rebin, rebins histogram to bin-number)")
