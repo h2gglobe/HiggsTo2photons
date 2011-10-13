@@ -2,11 +2,11 @@ import ROOT
 import sys,numpy
 
 f = sys.argv[1]
-if len(sys.argv)!=2: 
+if len(sys.argv)<2: 
 	sys.exit("checkSignalYields.py usage:   python checkSignalYields.py NameOfFile.root (-interp for interpolated workspaces)")
 doInterp=False
 if len(sys.argv)>2:
-	if sys.argv[3]=="-interp":
+	if sys.argv[2]=="-interp":
 		doInterp=True
 
 fil = ROOT.TFile(f)
@@ -26,13 +26,13 @@ if doInterp:
 	print "Mass-%3.1f Signal     (grad) -> "%mass ,h.Integral(), "Mass-%3.1f Background (grad) -> "%mass ,hB.Integral(), " S/B ",h.Integral()/hB.Integral()
 
 else:
-  m = [115,120,121,123,125,130,135,140,150]
+  m = [115,120,125,130,135,140,150]
   for mass in m :
-	h = fil.Get("th1f_sig_ada_%d.0_cat0"%mass)
-	hB = fil.Get("th1f_bkg_ada_%d.0_cat0"%mass)
+	h = fil.Get("th1f_sig_ada_%d.0_%d.0_cat0"%(mass,mass))
+	hB = fil.Get("th1f_bkg_ada_%d.0_cat0"%(mass))
 	print "Mass-%d Signal     (ada) -> "%mass ,h.Integral(), "Mass-%d Background (ada) -> "%mass ,hB.Integral(), " S/B ",h.Integral()/hB.Integral()
   print
   for mass in m :
-	h = fil.Get("th1f_sig_grad_%d.0_cat0"%mass)
-	hB = fil.Get("th1f_bkg_grad_%d.0_cat0"%mass)
+	h = fil.Get("th1f_sig_grad_%d.0_%d.0_cat0"%(mass,mass))
+	hB = fil.Get("th1f_bkg_grad_%d.0_cat0"%(mass))
 	print "Mass-%d Signal     (grad) -> "%mass ,h.Integral(), "Mass-%d Background (grad) -> "%mass ,hB.Integral(), " S/B ",h.Integral()/hB.Integral()

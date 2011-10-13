@@ -256,7 +256,7 @@ std::string getTime(){
 
 }
 
-int BDTInterpolationstd::string inFileName,(bool Diagnose=false){
+int BDTInterpolation(std::string inFileName,bool Diagnose=false){
 
   system("rm -r plots");
   system("mkdir plots");
@@ -299,7 +299,7 @@ int BDTInterpolationstd::string inFileName,(bool Diagnose=false){
   for (int j=0; j<HistList->GetSize(); j++){
     TH1F *temp = (TH1F*)inFile->Get(HistList->At(j)->GetName());
     TString name = temp->GetName();
-    if (name.Contains("121") || name.Contains("123") || name.Contains("BDT")) continue;
+    //if (name.Contains("121") || name.Contains("123") || name.Contains("BDT")) continue;
     std::string tName = temp->GetName();
     for (int i=0; i<nMasses; i++){
       int ind = tName.find(BDTmasses[i]+"_"+BDTmasses[i]);
@@ -478,7 +478,7 @@ int BDTInterpolationstd::string inFileName,(bool Diagnose=false){
   system("rm temp.txt");
   std::cout << "Plots avaiable to view in ~/public_html/h2g/MVA/SigInt/Diagnostics/." << std::endl;
   std::cout << "If working on /vols/ at IC plots avaliable to view at www.hep.ph.ic.ac.uk/~"+result+"/h2g/MVA/SigInt/Diagnostics/plots/plots.html" << std::endl;
-  std::cout << "New workspace written to \"Result/CMS-HGG_1658pb_mva_int.root\"." << std::endl;
+  std::cout << "New workspace written to " <<outFile->GetName() << std::endl;
   return 0;
 }
 
