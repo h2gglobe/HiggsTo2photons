@@ -9,7 +9,7 @@ if len(sys.argv) < 4:
 	sys.exit("checkMVAdists.py usage: python checkMVAdists.py FileName.root mass (eg 120) mode (eg grad) (option -rebin, rebins histogram to bin-number)")
 
 fileName = sys.argv[1]
-mass = int(sys.argv[2])
+mass = float(sys.argv[2])
 mode = str(sys.argv[3])
 
 if len(sys.argv) ==5:
@@ -17,9 +17,9 @@ if len(sys.argv) ==5:
 
 
 f = r.TFile(fileName)
-dat = f.Get("th1f_data_%s_%d_cat0"%(mode,mass)).Clone()
-bkg = f.Get("th1f_bkg_%s_%d_cat0"%(mode,mass)).Clone()
-sig = f.Get("th1f_sig_%s_%d_cat0"%(mode,mass)).Clone()
+dat = f.Get("th1f_data_%s_%3.1f_cat0"%(mode,mass)).Clone()
+bkg = f.Get("th1f_bkg_%s_%3.1f_cat0"%(mode,mass)).Clone()
+sig = f.Get("th1f_sig_%s_%3.1f_cat0"%(mode,mass)).Clone()
 datR = r.TH1F("datR","a",dat.GetNbinsX(),0,dat.GetNbinsX())
 bkgR = r.TH1F("bkgR","b",bkg.GetNbinsX(),0,bkg.GetNbinsX())
 sigR = r.TH1F("sigR","c",sig.GetNbinsX(),0,sig.GetNbinsX())
@@ -88,8 +88,8 @@ dat.Draw("sameP")
 leg.Draw()
 
 
-c.SaveAs("%s_mass_%d.gif"%(mode,mass))
-c.SaveAs("%s_mass_%d.pdf"%(mode,mass))
+c.SaveAs("%s_mass_%3.1f.gif"%(mode,mass))
+c.SaveAs("%s_mass_%3.1f.pdf"%(mode,mass))
 
 
 d = r.TCanvas("d","d",1000,1000)
