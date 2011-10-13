@@ -120,6 +120,7 @@ void MvaAnalysis::Term(LoopAll& l)
         for (double mass=mass_h_low; mass<mass_h_high; mass+=0.5){
 
           double mass_hypothesis = masses[i]+mass;
+	  if (mass_hypothesis < 115 || mass_hypothesis > 150) continue;
       
           l.rooContainer->RebinBinnedDataset(Form("bkg_grad_%3.1f",mass_hypothesis),Form("data_BDT_sideband_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
           l.rooContainer->RebinBinnedDataset(Form("bkg_mc_grad_%3.1f",mass_hypothesis),Form("bkg_BDT_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
@@ -535,8 +536,8 @@ void MvaAnalysis::Init(LoopAll& l)
           }
 
             //TMVA Reader
-            tmvaReader_->BookMVA("BDT_ada" +names[i],mvaWeightsFolder+"/TMVAClassification_BDT_ada" +BDTnames[i]+".weights.xml");
-            tmvaReader_->BookMVA("BDT_grad"+names[i],mvaWeightsFolder+"/TMVAClassification_BDT_grad"+BDTnames[i]+".weights.xml");
+            tmvaReader_->BookMVA("BDT_ada" +names[i],mvaWeightsFolder+"/TMVAClassification_BDT_ada" +BDTnames[i]+"_all.weights.xml");
+            tmvaReader_->BookMVA("BDT_grad"+names[i],mvaWeightsFolder+"/TMVAClassification_BDT_grad"+BDTnames[i]+"_all.weights.xml");
         }
     }
 

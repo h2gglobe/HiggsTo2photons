@@ -4,39 +4,7 @@ intL=1658. histfile=CMS-HGG_1658pb_mva.root output=shifo.root
 put here files to merge
 doesnt matter what the type etc is
 ->
-Fil=CMS-HGG_1658pb_0.root
-Fil=CMS-HGG_1658pb_1.root
-Fil=CMS-HGG_1658pb_2.root
-Fil=CMS-HGG_1658pb_3.root
-Fil=CMS-HGG_1658pb_4.root
-Fil=CMS-HGG_1658pb_5.root
-Fil=CMS-HGG_1658pb_6.root
-Fil=CMS-HGG_1658pb_7.root
-Fil=CMS-HGG_1658pb_8.root
-Fil=CMS-HGG_1658pb_9.root
-Fil=CMS-HGG_1658pb_10.root
-Fil=CMS-HGG_1658pb_11.root
-Fil=CMS-HGG_1658pb_12.root
-Fil=CMS-HGG_1658pb_13.root
-Fil=CMS-HGG_1658pb_14.root
-Fil=CMS-HGG_1658pb_15.root
-Fil=CMS-HGG_1658pb_16.root
-Fil=CMS-HGG_1658pb_17.root
-Fil=CMS-HGG_1658pb_18.root
-Fil=CMS-HGG_1658pb_19.root
-Fil=CMS-HGG_1658pb_20.root
-Fil=CMS-HGG_1658pb_21.root
-Fil=CMS-HGG_1658pb_22.root
-Fil=CMS-HGG_1658pb_23.root
-Fil=CMS-HGG_1658pb_24.root
-Fil=CMS-HGG_1658pb_25.root
-Fil=CMS-HGG_1658pb_26.root
-Fil=CMS-HGG_1658pb_27.root
-Fil=CMS-HGG_1658pb_28.root
-Fil=CMS-HGG_1658pb_29.root
-->
 Dir=cms-hgg-files
-->
 
 
 ->

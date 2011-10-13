@@ -8,7 +8,7 @@ nDataBins=60
 signalRegionWidth=0.07
 sidebandWidth=0.07
 sidebandShift=0.
-numberOfSidebands=1
+numberOfSidebands=2
 
 
 nEtaCategories=2
@@ -62,7 +62,7 @@ kfacHist=/vols/cms02/h2g/aux/KFactors_AllScales_interpolated.root
 efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v13.root
 puHist=/vols/cms02/h2g/aux/lp.json.weights.root
 puMap=pu_weights_map.dat
-mvaWeightsFolder=/vols/cms02/h2g/weights/wt_21Sept_pp/
+mvaWeightsFolder=/vols/cms02/h2g/weights/wt_11Oct/
 ->
 run-dependent corrections are now taken from energy_scale_offsets.dat;
 GF, aug12: Escale shift taken from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/371.html
