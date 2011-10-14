@@ -42,6 +42,7 @@ job_maker [options]
 --blacklist=                       sites to black list (e.g. \"T2_US_UCSD,ultralight.org,hpc.ufl.edu\")
 --whitelist=                       sites to white list (e.g. \"T2_US_UCSD,ultralight.org,hpc.ufl.edu\")
 --useT1                            edits the crab.cfg so that T1 access is possible
+--AddPdfWeight                     add PDF weight informations
 """
 
 
@@ -57,6 +58,7 @@ flagMMgSkim = False
 flagAOD = False
 flagRECO = False
 flagT1 = False
+AddPdfWeight = False
 
 name = "NoNameGiven"
 datasetpath=""
@@ -76,7 +78,7 @@ blackList=""
 whiteList=""
 useServer = False
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -136,6 +138,8 @@ for opt,argm in opts:
         blackList = argm
     elif (opt == "--useT1"):
         flagT1 = True
+    elif (opt == "--AddPdfWeight"):
+        AddPdfWeight = True
     else:
         print 'Wrong options: %s' % (opt)
         sys.exit(3)
@@ -196,6 +200,8 @@ for run in runselection:
             file_out.write("hltLabel = \'"+hlttag+"\'\n")
         elif ("GlobalTag.globaltag" in line and globaltag != ""):
             file_out.write("process.GlobalTag.globaltag = \""+globaltag+"\"\n")
+        elif ("flagAddPdfWeight = 'OFF'" in line and AddPdfWeight):
+            file_out.write("flagAddPdfWeight = \'ON\'\n")
         else:
             file_out.write(line)
     file_out.close()
