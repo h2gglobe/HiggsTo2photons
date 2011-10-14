@@ -21,7 +21,7 @@ h2ganalyzer = cms.EDAnalyzer(
 
     #PhotonFIX parameters
     PFParameters = PhotonFixParameters,
-    
+
     # COLLECTIONS
     GeneratorColl = cms.InputTag("generator"),
     GenParticlesColl = cms.InputTag("genParticles"),
@@ -291,11 +291,9 @@ h2ganalyzer = cms.EDAnalyzer(
     
     doRho = cms.bool(True),
     doPileup = cms.bool(True),
-
     doPdfWeight = cms.bool(False),
-    PdfWeightsCollList = cms.VInputTag(
-         cms.InputTag("pdfWeights","cteq66")),
-    
+    PdfWeightsCollList = cms.VInputTag(cms.InputTag("pdfWeights","cteq66")),
+
     doFastSim = cms.bool(False),
     doAodSim  = cms.bool(True),
     

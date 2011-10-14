@@ -549,10 +549,11 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_sieie[el_n] = egsf.sigmaIetaIeta();
 
     // Regression Correction
-    if (!ecorr_.IsInitialized()) {   
+    if (!ecorr_.IsInitialized()) {  
       char filename[200];
       char* descr = getenv("CMSSW_BASE");
-      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrele.root", descr);
+      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrele.root", descr); 
+      //std::string filename("http://home.cern.ch/sani/gbrele.root");
       ecorr_.Initialize(iSetup, filename);
     }
 
@@ -684,8 +685,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
             el_scind[el_n] = index;
             el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(cluster), &(*endcapRecHits), &(*topology))[0]);
 	    std::vector<float> vCov = ecalLazyTool->localCovariances(*(cluster->seed()));
-            //std::vector<float> vCov = EcalClusterTools::localCovariances( *(cluster->seed()), &(*endcapRecHits), &(*topology));
-            el_sipip[el_n] = sqrt(vCov[2]);
+	    el_sipip[el_n] = sqrt(vCov[2]);
             break;
           }
           index++;

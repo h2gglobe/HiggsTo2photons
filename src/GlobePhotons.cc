@@ -171,6 +171,10 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_isEBGap",&pho_isEBGap,"pho_isEBGap[pho_n]/I");
   tree->Branch("pho_isEEGap",&pho_isEEGap,"pho_isEEGap[pho_n]/I");
   tree->Branch("pho_isEBEEGap",&pho_isEBEEGap,"pho_isEBEEGap[pho_n]/I");
+  tree->Branch("pho_isEBEtaGap",&pho_isEBEtaGap,"pho_isEBEtaGap[pho_n]/I");    
+  tree->Branch("pho_isEBPhiGap",&pho_isEBPhiGap,"pho_isEBPhiGap[pho_n]/I");    
+  tree->Branch("pho_isEEDeeGap",&pho_isEEDeeGap,"pho_isEEDeeGap[pho_n]/I");    
+  tree->Branch("pho_isEERingGap",&pho_isEERingGap,"pho_isEERingGap[pho_n]/I");   
 
   //shower shape variables
   tree->Branch("pho_see",&pho_see,"pho_see[pho_n]/F");
@@ -333,11 +337,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   edm::Handle<reco::PFCandidateCollection> pfHandle;
   iEvent.getByLabel("pfSelectedPhotons", pfHandle);
-
-  // ValueMap for PF isolation values 
-  //edm::Handle<edm::ValueMap<edm::Ptr<reco::PFCandidate> > > egammaToPFPhotonsH;    
-  //iEvent.getByLabel("particleFlow", "photons", egammaToPFPhotonsH);
-  //const edm::ValueMap<edm::Ptr<reco::PFCandidate> >& egammaToPFPhotons = *(egammaToPFPhotonsH.product());
 
   std::vector< edm::Handle< edm::ValueMap<double> > > isolationValues03(inputTagIsoVals03_.size());
   for (size_t j = 0; j<inputTagIsoVals03_.size(); ++j) {
@@ -572,8 +571,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_isEBGap[pho_n] = localPho->isEBGap();
     pho_isEEGap[pho_n] = localPho->isEEGap();
     pho_isEBEEGap[pho_n] = localPho->isEBEEGap();
-
-
+    pho_isEBEtaGap[pho_n] = localPho->isEBEtaGap();
+    pho_isEBPhiGap[pho_n] = localPho->isEBPhiGap();
+    pho_isEEDeeGap[pho_n] = localPho->isEEDeeGap();
+    pho_isEERingGap[pho_n] = localPho->isEERingGap();
+    
     //shower shape variables
     pho_see[pho_n] = localPho->sigmaEtaEta();
     pho_sieie[pho_n] = localPho->sigmaIetaIeta();
@@ -674,18 +676,18 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     math::XYZVector vCand(localPho->caloPosition().x(), localPho->caloPosition().y(), localPho->caloPosition().z());
     std::vector<reco::PFCandidate::ParticleType> temp;
     temp.push_back(reco::PFCandidate::gamma);
-    pho_pfiso_myphoton03[pho_n]  = pfEcalIso(vCand, pfCollection.product(), 0.3, 0.045, 0.00, 0.0, 0.08, 0.1, temp);
-    pho_pfiso_myphoton04[pho_n]  = pfEcalIso(vCand, pfCollection.product(), 0.4, 0.045, 0.00, 0.0, 0.08, 0.1, temp);
+    pho_pfiso_myphoton03[pho_n]  = pfEcalIso(localPho, pfCollection.product(), 0.3, 0.045, 0.015, 0.0, 0.08, 0.1, temp);
+    pho_pfiso_myphoton04[pho_n]  = pfEcalIso(localPho, pfCollection.product(), 0.4, 0.045, 0.015, 0.0, 0.08, 0.1, temp);
     
     temp.clear();
     temp.push_back(reco::PFCandidate::h0);
-    pho_pfiso_myneutral03[pho_n] = pfHcalIso(vCand, pfCollection.product(), 0.3, 0.00, temp);
-    pho_pfiso_myneutral04[pho_n] = pfHcalIso(vCand, pfCollection.product(), 0.4, 0.00, temp);
+    pho_pfiso_myneutral03[pho_n] = pfHcalIso(localPho, pfCollection.product(), 0.3, 0.00, temp);
+    pho_pfiso_myneutral04[pho_n] = pfHcalIso(localPho, pfCollection.product(), 0.4, 0.00, temp);
     
     temp.clear();
     temp.push_back(reco::PFCandidate::h);
-    pho_pfiso_mycharged03->push_back(pfTkIsoWithVertex(vCand, pfCollection.product(), 0.3, 0.02, temp)); 
-    pho_pfiso_mycharged04->push_back(pfTkIsoWithVertex(vCand, pfCollection.product(), 0.4, 0.02, temp)); 
+    pho_pfiso_mycharged03->push_back(pfTkIsoWithVertex(localPho, pfCollection.product(), 0.3, 0.02, temp)); 
+    pho_pfiso_mycharged04->push_back(pfTkIsoWithVertex(localPho, pfCollection.product(), 0.4, 0.02, temp)); 
     
     pho_ecalsumetconedr04[pho_n] = localPho->ecalRecHitSumEtConeDR04();
     pho_hcalsumetconedr04[pho_n] = localPho->hcalTowerSumEtConeDR04();
@@ -1077,20 +1079,20 @@ Float_t GlobePhotons::DeltaRToTrackHgg(reco::PhotonRef photon, edm::Handle<reco:
   return eldr;
 }
 
-std::vector<float> GlobePhotons::pfTkIsoWithVertex(math::XYZVector cand, const reco::PFCandidateCollection* forIsolation, float dRmax, float dRveto, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
+std::vector<float> GlobePhotons::pfTkIsoWithVertex(reco::PhotonRef localPho, const reco::PFCandidateCollection* forIsolation, float dRmax, float dRveto, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
   
   std::vector<float> result;
   
   for(unsigned int ivtx=0; ivtx<hVertex->size(); ++ivtx) {
     
     reco::VertexRef vtx(hVertex, ivtx);
-    math::XYZVector vCand(cand.x() - vtx->x(), 
-			  cand.y() - vtx->y(), 
-			  cand.z() - vtx->z());
+    math::XYZVector vCand(localPho->superCluster()->x() - vtx->x(), 
+			  localPho->superCluster()->y() - vtx->y(), 
+			  localPho->superCluster()->z() - vtx->z());
     
     float sum = 0;
     for(unsigned i=0; i<forIsolation->size(); i++) {
-    
+      
       const reco::PFCandidate& pfc = (*forIsolation)[i];
       
       bool process = false;
@@ -1130,7 +1132,8 @@ std::vector<float> GlobePhotons::pfTkIsoWithVertex(math::XYZVector cand, const r
   return result;
 }
 
-float GlobePhotons::pfEcalIso(math::XYZVector vCand, const reco::PFCandidateCollection* forIsolation, float dRmax, float dRveto, float etaStrip, float phiStrip, float energyBarrel, float energyEndcap, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
+
+float GlobePhotons::pfEcalIso(reco::PhotonRef localPho, const reco::PFCandidateCollection* forIsolation, float dRmax, float dRveto, float etaStrip, float phiStrip, float energyBarrel, float energyEndcap, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
   
   float sum = 0;
   for(unsigned i=0; i<forIsolation->size(); i++) {
@@ -1156,11 +1159,17 @@ float GlobePhotons::pfEcalIso(math::XYZVector vCand, const reco::PFCandidateColl
 	if (fabs(pfc.energy()) < energyEndcap)
 	  continue;
       }
-      
-      math::XYZVector pvi(pfc.momentum());
-      float dR = deltaR(vCand.Eta(), vCand.Phi(), pvi.Eta(), pvi.Phi());
-      float dEta = fabs(vCand.Eta() - pvi.Eta());
-      double dPhi = fabs(vCand.Phi() - pvi.Phi());
+
+      math::XYZVector vCand = math::XYZVector(localPho->superCluster()->x(), localPho->superCluster()->y(), localPho->superCluster()->z());
+
+      float r = vCand.R();
+      math::XYZVector pfvtx(pfc.vx(), pfc.vy(), pfc.vz()); 
+      math::XYZVector pvm((pfc.momentum()*r/pfc.momentum().R()) + pfvtx);
+
+      float dR = deltaR(vCand.Eta(), vCand.Phi(), pvm.Eta(), pvm.Phi());
+      float dEta = fabs(vCand.Eta() - pvm.Eta());
+      double dPhi = fabs(vCand.Phi() - pvm.Phi());
+
       if(dPhi > TMath::Pi())
 	dPhi = TMath::TwoPi() - dPhi;
       
@@ -1180,36 +1189,8 @@ float GlobePhotons::pfEcalIso(math::XYZVector vCand, const reco::PFCandidateColl
   return sum;
 }
 
-float GlobePhotons::pfHcalIso(math::XYZVector vCand, const reco::PFCandidateCollection* forIsolation, float dRmax, float dRveto, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
+float GlobePhotons::pfHcalIso(reco::PhotonRef localPho, const reco::PFCandidateCollection* forIsolation, float dRmax, float dRveto, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
   
-  float sum = 0;
-  for(unsigned i=0; i<forIsolation->size(); i++) {
-    
-    const reco::PFCandidate& pfc = (*forIsolation)[i];
-    
-    bool process = false;
-    for (std::vector<reco::PFCandidate::ParticleType>::const_iterator it = pVetoes.begin();
-	 it != pVetoes.end(); ++it) {
-      if (pfc.particleId() == *it) {
-	process = true;
-	break;
-      }
-    }
-    
-    if (process) {
-      if (pfc.pt() < 0.5)
-	continue;
-      
-      math::XYZVector pvi(pfc.momentum());
-      float dR = deltaR(vCand.Eta(), vCand.Phi(), pvi.Eta(), pvi.Phi());
-      
-      if(dR > dRmax || dR < dRveto)
-	continue;
-      
-      sum += pfc.pt();
-    }
-  }
-
-  return sum;
+  return pfEcalIso(localPho, forIsolation, dRmax, dRveto, 0.0, 0.0, 0.0, 0.0, pVetoes);
 }
 
