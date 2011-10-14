@@ -45,8 +45,8 @@ public:
 //	double SecH(double);
 //	double TanH(double);
 	int SignalType(int);
-	void SetBDTInputVariables();
-	void SetBDTInputVariables(TLorentzVector*, TLorentzVector*, double, double, double, double, double);
+	void SetBDTInputVariables(TLorentzVector*, TLorentzVector*, double, double, double, double, double, int cat = 0);
+	void SetBDTInputTree(TTree *);
 	
 	// Options
 	float leadEtCut;
@@ -138,14 +138,19 @@ protected:
 	float _mod_d_eta;    
 	float _cos_theta_star;
 	float _wt;           
+	int _cat;           
+	int _sideband;           
 
 	//vector<double> weights;
 	TFile *kfacFile;
 	
     	TMVA::Reader * tmvaReader_;
-//        TMVA::Factory* tmvaFactory_[5] ;
-	TTree * signalTree_[12];
-	TTree * backgroundTree_[12];
+	TTree * signalTrainTree_[12];
+	TTree * signalTestTree_[12];
+
+	TTree * backgroundTrainTree_[12];
+	TTree * backgroundTestTree_[12];
+
 	TFile * mvaFile_;
 	
 };

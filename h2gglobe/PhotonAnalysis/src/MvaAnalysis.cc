@@ -28,22 +28,22 @@ MvaAnalysis::~MvaAnalysis()
 // ----------------------------------------------------------------------------------------------------
 void MvaAnalysis::Term(LoopAll& l) 
 {
-
     if (doTraining){
         for (int i = 0; i<nMasses;i++){
-            //cout<<"~~Mass = "<<names[i]<<endl;
-            //cout<<"test cd"<<endl;
             mvaFile_->cd();
-            if (0<signalTree_[i]->GetEntries()    ){
-                 //cout<<"test signal: "<<signalTree_[i]->GetEntries()<<endl;
-                 signalTree_[i]->Write(("sig"+names[i]).c_str());
+            if (0<signalTrainTree_[i]->GetEntries()    ){
+                signalTrainTree_[i]->Write(("sig_train"+names[i]).c_str());
             }
-            if (0<backgroundTree_[i]->GetEntries()){
-                 //cout<<"test background: "<<backgroundTree_[i]->GetEntries()<<endl;
-                 backgroundTree_[i]->Write(("bkg"+names[i]).c_str());
+            if (0<signalTestTree_[i]->GetEntries()    ){
+                signalTestTree_[i]->Write(("sig_test"+names[i]).c_str());
+            }
+            if (0<backgroundTrainTree_[i]->GetEntries()    ){
+                backgroundTrainTree_[i]->Write(("bkg_train"+names[i]).c_str());
+            }
+            if (0<backgroundTestTree_[i]->GetEntries()    ){
+                backgroundTestTree_[i]->Write(("bkg_test"+names[i]).c_str());
+            }
         }
-    }
-        //cout<<"test close"<<endl;
         mvaFile_->Close();
     }
     else{
@@ -412,66 +412,17 @@ void MvaAnalysis::Init(LoopAll& l)
         mvaFile_ = TFile::Open( outfileName, "RECREATE" );
         mvaFile_->cd();
         for (int i = 0; i<nMasses;i++){
-            signalTree_[i]          = new TTree(("sig"+names[i]).c_str(),
-                                            ("SignalTree"+names[i]).c_str());
-            TBranch *s_log_H_pt     = signalTree_[i]->Branch("log_H_pt", &_log_H_pt , "log_H_pt/F");;
-            TBranch *s_H_ptOverM    = signalTree_[i]->Branch("H_ptOverM", &_H_ptOverM , "_H_ptOverM/F");;
-            TBranch *s_H_eta        = signalTree_[i]->Branch("H_eta", &_H_eta , "H_eta/F");;
-            TBranch *s_d_phi        = signalTree_[i]->Branch("d_phi", &_d_phi,"d_phi/F");
-            TBranch *s_max_eta      = signalTree_[i]->Branch("max_eta", &_max_eta , "max_eta/F");;
-            TBranch *s_min_r9       = signalTree_[i]->Branch("min_r9", &_min_r9 , "min_r9/F");;
-            TBranch *s_pho1_eta     = signalTree_[i]->Branch("pho1_eta", &_pho1_eta , "pho1_eta/F");
-            TBranch *s_pho2_eta     = signalTree_[i]->Branch("pho2_eta", &_pho2_eta , "pho2_eta/F");
-            TBranch *s_pho1_ptOverM = signalTree_[i]->Branch("pho1_ptOverM", &_pho1_ptOverM , "pho1_ptOverM/F");;
-            TBranch *s_pho2_ptOverM = signalTree_[i]->Branch("pho2_ptOverM", &_pho2_ptOverM , "pho2_ptOverM/F");;
-            TBranch *s_deltaMOverM = signalTree_[i]->Branch("deltaMOverM", &_deltaMOverM,"deltaMOverM/F");
-            TBranch *s_deltaMOverSigmaM = signalTree_[i]->Branch("deltaMOverSigmaM", &_deltaMOverSigmaM,"deltaMOverSigmaM/F");
-            TBranch *s_sigmaMOverM = signalTree_[i]->Branch("sigmaMOverM", &_sigmaMOverM,"sigmaMOverM/F");
-            TBranch *s_mgg          = signalTree_[i]->Branch("mgg", &_mgg, "mgg/F");
-            TBranch *s_pho1_phi     = signalTree_[i]->Branch("pho1_phi", &_pho1_phi , "pho1_phi/F");
-            TBranch *s_pho1_pt      = signalTree_[i]->Branch("pho1_pt", &_pho1_pt , "pho1_pt/F");;
-            TBranch *s_pho1_r9      = signalTree_[i]->Branch("pho1_r9", &_pho1_r9 , "_pho1_r9/F");;
-            TBranch *s_pho2_phi     = signalTree_[i]->Branch("pho2_phi", &_pho2_phi , "pho2_phi/F");
-            TBranch *s_pho2_pt      = signalTree_[i]->Branch("pho2_pt", &_pho2_pt , "pho2_pt/F");;
-            TBranch *s_pho2_r9      = signalTree_[i]->Branch("pho2_r9", &_pho2_r9 , "_pho2_r9/F");;
-            TBranch *s_H_pt         = signalTree_[i]->Branch("H_pt", &_H_pt , "H_pt/F");;
-            TBranch *s_Ht           = signalTree_[i]->Branch("Ht", &_Ht , "Ht/F");;
-            TBranch *s_d_eta        = signalTree_[i]->Branch("d_eta", &_d_eta,"d_eta/F");
-            TBranch *s_mod_d_eta    = signalTree_[i]->Branch("mod_d_eta", &_mod_d_eta,"mod_d_eta/F");
-            TBranch *s_cos_theta_star= signalTree_[i]->Branch("cos_theta_star", &_cos_theta_star , "cos_theta_star/F");;
-            TBranch *s_wt           = signalTree_[i]->Branch("wt", &_wt, "wt/F");
+            signalTrainTree_[i] = new TTree(("sig_train"+names[i]).c_str(),("SignalTrainTree"+names[i]).c_str());
+            SetBDTInputTree(signalTrainTree_[i]);
+            signalTestTree_[i]  = new TTree(("sig_test"+names[i]).c_str(), ("SignalTestTree"+names[i]).c_str());
+            SetBDTInputTree(signalTestTree_[i]);
 
-            backgroundTree_[i]      = new TTree(("bkg"+names[i]).c_str(),
-                                                ("BackgroundTree"+names[i]).c_str());
-            TBranch *b_log_H_pt     = backgroundTree_[i]->Branch("log_H_pt", &_log_H_pt , "log_H_pt/F");;
-            TBranch *b_H_ptOverM    = backgroundTree_[i]->Branch("H_ptOverM", &_H_ptOverM , "_H_ptOverM/F");;
-            TBranch *b_H_eta        = backgroundTree_[i]->Branch("H_eta", &_H_eta , "H_eta/F");;
-            TBranch *b_d_phi        = backgroundTree_[i]->Branch("d_phi", &_d_phi,"d_phi/F");
-            TBranch *b_max_eta      = backgroundTree_[i]->Branch("max_eta", &_max_eta , "max_eta/F");;
-            TBranch *b_min_r9       = backgroundTree_[i]->Branch("min_r9", &_min_r9 , "min_r9/F");;
-            TBranch *b_pho1_eta     = backgroundTree_[i]->Branch("pho1_eta", &_pho1_eta , "pho1_eta/F");
-            TBranch *b_pho2_eta     = backgroundTree_[i]->Branch("pho2_eta", &_pho2_eta , "pho2_eta/F");
-            TBranch *b_pho1_ptOverM = backgroundTree_[i]->Branch("pho1_ptOverM", &_pho1_ptOverM , "pho1_ptOverM/F");;
-            TBranch *b_pho2_ptOverM = backgroundTree_[i]->Branch("pho2_ptOverM", &_pho2_ptOverM , "pho2_ptOverM/F");;
-            TBranch *b_deltaMOverM = backgroundTree_[i]->Branch("deltaMOverM", &_deltaMOverM,"deltaMOverM/F");
-            TBranch *b_deltaMOverSigmaM = backgroundTree_[i]->Branch("deltaMOverSigmaM", &_deltaMOverSigmaM,"deltaMOverSigmaM/F");
-            TBranch *b_sigmaMOverM = backgroundTree_[i]->Branch("sigmaMOverM", &_sigmaMOverM,"sigmaMOverM/F");
-            TBranch *b_mgg          = backgroundTree_[i]->Branch("mgg", &_mgg, "mgg/F");
-            TBranch *b_pho1_phi     = backgroundTree_[i]->Branch("pho1_phi", &_pho1_phi , "pho1_phi/F");
-            TBranch *b_pho1_pt      = backgroundTree_[i]->Branch("pho1_pt", &_pho1_pt , "pho1_pt/F");;
-            TBranch *b_pho1_r9      = backgroundTree_[i]->Branch("pho1_r9", &_pho1_r9 , "_pho1_r9/F");;
-            TBranch *b_pho2_phi     = backgroundTree_[i]->Branch("pho2_phi", &_pho2_phi , "pho2_phi/F");
-            TBranch *b_pho2_pt      = backgroundTree_[i]->Branch("pho2_pt", &_pho2_pt , "pho2_pt/F");;
-            TBranch *b_pho2_r9      = backgroundTree_[i]->Branch("pho2_r9", &_pho2_r9 , "_pho2_r9/F");;
-            TBranch *b_H_pt         = backgroundTree_[i]->Branch("H_pt", &_H_pt , "H_pt/F");;
-            TBranch *b_Ht           = backgroundTree_[i]->Branch("Ht", &_Ht , "Ht/F");;
-            TBranch *b_d_eta        = backgroundTree_[i]->Branch("d_eta", &_d_eta,"d_eta/F");
-            TBranch *b_mod_d_eta    = backgroundTree_[i]->Branch("mod_d_eta", &_mod_d_eta,"mod_d_eta/F");
-            TBranch *b_cos_theta_star= backgroundTree_[i]->Branch("cos_theta_star", &_cos_theta_star , "cos_theta_star/F");;
-            TBranch *b_wt           = backgroundTree_[i]->Branch("wt", &_wt, "wt/F");
+            backgroundTrainTree_[i] = new TTree(("bkg_train"+names[i]).c_str(),("BackgroundTrainTree"+names[i]).c_str());
+            SetBDTInputTree(backgroundTrainTree_[i]);
+            backgroundTestTree_[i]  = new TTree(("bkg_test"+names[i]).c_str(), ("BackgroundTestTree"+names[i]).c_str());
+            SetBDTInputTree(backgroundTestTree_[i]);
         }
     }
-
     else{
 
         l.rooContainer->AddObservable("BDT" ,-1.,1.);
@@ -709,11 +660,39 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 	double massResolution = massResolutionCalculator->massResolution();
 
-        if (doTraining && (splitSignalSample && jentry%2==0)){
+
+        if (doTraining ){//train on EVEN!!!!! EVEN!!!!
             if (cur_type > 0 ){// Background 
                 for (int i = 0; i<nMasses;i++) {
-                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,masses[i],evweight);
-                    backgroundTree_[i]->Fill();
+                    // define hypothesis masses for the sidebands
+                    float mass_hypothesis = masses[i];
+                    float mass_hypothesis_low = mass_hypothesis*(1-signalRegionWidth)/(1+signalRegionWidth);
+                    float mass_hypothesis_high = mass_hypothesis*(1+signalRegionWidth)/(1-signalRegionWidth);
+                    // define the sidebands
+                    float sideband_boundaries[4];
+                    sideband_boundaries[0] = mass_hypothesis_low*(1-signalRegionWidth);
+                    sideband_boundaries[1] = mass_hypothesis*(1-signalRegionWidth);
+                    sideband_boundaries[2] = mass_hypothesis*(1+signalRegionWidth);
+                    sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
+
+                    if( mass>sideband_boundaries[1] && mass<sideband_boundaries[2] ){//Signal mass window cut
+                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis,evweight,category);
+                        _sideband = 0;
+                        if (jentry%2==0) backgroundTrainTree_[i]->Fill();
+                        else if (jentry%2==1) backgroundTestTree_[i]->Fill();
+                    }
+                    else if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1] ){//lower sideband mass window cut
+                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_low,evweight,category);
+                        _sideband = -1;
+                        if (jentry%2==0) backgroundTrainTree_[i]->Fill();
+                        else if (jentry%2==1) backgroundTestTree_[i]->Fill();
+                    }
+                    else if( mass>sideband_boundaries[2] && mass<sideband_boundaries[3] ){//upper sideband mass window cut
+                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_high,evweight,category);
+                        _sideband = 1;
+                        if (jentry%2==0) backgroundTrainTree_[i]->Fill();
+                        else if (jentry%2==1) backgroundTestTree_[i]->Fill();
+                    }
                 } 
             }
             else { //Signal 
@@ -722,8 +701,17 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     cout<<"CAN'T TRAIN ON DATA!\n";
                     return;
                 }
-                SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,masses[i0],evweight);
-                signalTree_[i0]->Fill();
+                float mass_hypothesis = masses[i0];
+                float sideband_boundaries[2];
+                sideband_boundaries[0] = mass_hypothesis*(1-signalRegionWidth);
+                sideband_boundaries[1] = mass_hypothesis*(1+signalRegionWidth);
+                 
+                if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1] ){//Signal mass window cut
+                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,masses[i0],evweight,category);
+                    _sideband = 0;
+                    if (jentry%2==0) signalTrainTree_[i0]->Fill();
+                    else if (jentry%2==1) signalTestTree_[i0]->Fill();
+                }
             }
         }
         else{
@@ -1258,7 +1246,7 @@ int MvaAnalysis::SignalType(int cur_type){
 
 void MvaAnalysis::SetBDTInputVariables(TLorentzVector *lead_p4, TLorentzVector *sublead_p4, 
                                        double lead_r9, double sublead_r9, 
-                                       double massResolution, double mass_hypothesis, double evweight ){
+                                       double massResolution, double mass_hypothesis, double evweight, int cat){
 
 	TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
 	float mass    = Higgs.M();
@@ -1295,7 +1283,40 @@ void MvaAnalysis::SetBDTInputVariables(TLorentzVector *lead_p4, TLorentzVector *
     _deltaMOverSigmaM = (mass-mass_hypothesis)/massResolution;
     _sigmaMOverM = massResolution/mass;
     _H_ptOverM    = Higgs.Pt()/mass_hypothesis;
+    _cat        = cat;
 
+}
+
+void MvaAnalysis::SetBDTInputTree(TTree *tree){
+    mvaFile_->cd();
+    TBranch *b_log_H_pt             = tree->Branch("log_H_pt", &_log_H_pt , "log_H_pt/F");;
+    TBranch *b_H_ptOverM            = tree->Branch("H_ptOverM", &_H_ptOverM , "_H_ptOverM/F");;
+    TBranch *b_H_eta                = tree->Branch("H_eta", &_H_eta , "H_eta/F");;
+    TBranch *b_d_phi                = tree->Branch("d_phi", &_d_phi,"d_phi/F");
+    TBranch *b_max_eta              = tree->Branch("max_eta", &_max_eta , "max_eta/F");;
+    TBranch *b_min_r9               = tree->Branch("min_r9", &_min_r9 , "min_r9/F");;
+    TBranch *b_pho1_eta             = tree->Branch("pho1_eta", &_pho1_eta , "pho1_eta/F");
+    TBranch *b_pho2_eta             = tree->Branch("pho2_eta", &_pho2_eta , "pho2_eta/F");
+    TBranch *b_pho1_ptOverM         = tree->Branch("pho1_ptOverM", &_pho1_ptOverM , "pho1_ptOverM/F");;
+    TBranch *b_pho2_ptOverM         = tree->Branch("pho2_ptOverM", &_pho2_ptOverM , "pho2_ptOverM/F");;
+    TBranch *b_deltaMOverM          = tree->Branch("deltaMOverM", &_deltaMOverM,"deltaMOverM/F");
+    TBranch *b_deltaMOverSigmaM     = tree->Branch("deltaMOverSigmaM", &_deltaMOverSigmaM,"deltaMOverSigmaM/F");
+    TBranch *b_sigmaMOverM          = tree->Branch("sigmaMOverM", &_sigmaMOverM,"sigmaMOverM/F");
+    TBranch *b_mgg                  = tree->Branch("mgg", &_mgg, "mgg/F");
+    TBranch *b_pho1_phi             = tree->Branch("pho1_phi", &_pho1_phi , "pho1_phi/F");
+    TBranch *b_pho1_pt              = tree->Branch("pho1_pt", &_pho1_pt , "pho1_pt/F");;
+    TBranch *b_pho1_r9              = tree->Branch("pho1_r9", &_pho1_r9 , "_pho1_r9/F");;
+    TBranch *b_pho2_phi             = tree->Branch("pho2_phi", &_pho2_phi , "pho2_phi/F");
+    TBranch *b_pho2_pt              = tree->Branch("pho2_pt", &_pho2_pt , "pho2_pt/F");;
+    TBranch *b_pho2_r9              = tree->Branch("pho2_r9", &_pho2_r9 , "_pho2_r9/F");;
+    TBranch *b_H_pt                 = tree->Branch("H_pt", &_H_pt , "H_pt/F");;
+    TBranch *b_Ht                   = tree->Branch("Ht", &_Ht , "Ht/F");;
+    TBranch *b_d_eta                = tree->Branch("d_eta", &_d_eta,"d_eta/F");
+    TBranch *b_mod_d_eta            = tree->Branch("mod_d_eta", &_mod_d_eta,"mod_d_eta/F");
+    TBranch *b_cos_theta_star       = tree->Branch("cos_theta_star", &_cos_theta_star , "cos_theta_star/F");;
+    TBranch *b_wt                   = tree->Branch("wt", &_wt, "wt/F");
+    TBranch *b_cat                  = tree->Branch("cat", &_cat, "cat/I");
+    TBranch *b_sideband             = tree->Branch("sideband", &_sideband, "sideband/I");
 }
 
 void MvaAnalysis::ResetAnalysis(){
