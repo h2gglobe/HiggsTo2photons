@@ -150,6 +150,10 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_isEBGap",&pho_isEBGap,"pho_isEBGap[pho_n]/I");
   tree->Branch("pho_isEEGap",&pho_isEEGap,"pho_isEEGap[pho_n]/I");
   tree->Branch("pho_isEBEEGap",&pho_isEBEEGap,"pho_isEBEEGap[pho_n]/I");
+  tree->Branch("pho_isEBEtaGap",&pho_isEBEtaGap,"pho_isEBEtaGap[pho_n]/I");    
+  tree->Branch("pho_isEBPhiGap",&pho_isEBPhiGap,"pho_isEBPhiGap[pho_n]/I");    
+  tree->Branch("pho_isEEDeeGap",&pho_isEEDeeGap,"pho_isEEDeeGap[pho_n]/I");    
+  tree->Branch("pho_isEERingGap",&pho_isEERingGap,"pho_isEERingGap[pho_n]/I");   
 
   //shower shape variables
   tree->Branch("pho_see",&pho_see,"pho_see[pho_n]/F");
@@ -521,8 +525,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_isEBGap[pho_n] = localPho->isEBGap();
     pho_isEEGap[pho_n] = localPho->isEEGap();
     pho_isEBEEGap[pho_n] = localPho->isEBEEGap();
-
-
+    pho_isEBEtaGap[pho_n] = localPho->isEBEtaGap();
+    pho_isEBPhiGap[pho_n] = localPho->isEBPhiGap();
+    pho_isEEDeeGap[pho_n] = localPho->isEEDeeGap();
+    pho_isEERingGap[pho_n] = localPho->isEERingGap();
+    
     //shower shape variables
     pho_see[pho_n] = localPho->sigmaEtaEta();
     pho_sieie[pho_n] = localPho->sigmaIetaIeta();
@@ -625,7 +632,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       std::cout << "_______________________________________" << std::endl;
     */
     pho_pfiso_myphoton03[pho_n]  = pfEcalIso(localPho, pfCollection.product(), 0.3, 0.045, 0.015, 0.0, 0.08, 0.1, temp);
-      //}
+    //}
     pho_pfiso_myphoton04[pho_n]  = pfEcalIso(localPho, pfCollection.product(), 0.4, 0.045, 0.015, 0.0, 0.08, 0.1, temp);
     
     temp.clear();
@@ -1121,7 +1128,6 @@ float GlobePhotons::pfEcalIso(reco::PhotonRef localPho, const reco::PFCandidateC
       
       if(dR > dRmax || dR < dRveto)
 	continue;
-      
       /*
       if (pfc.pt() > 20.)
 	std::cout << "CANDIDATE ";

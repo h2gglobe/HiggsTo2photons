@@ -77,6 +77,10 @@ class GlobePhotons {
   Int_t pho_isEBGap[MAX_PHOTONS];
   Int_t pho_isEEGap[MAX_PHOTONS];
   Int_t pho_isEBEEGap[MAX_PHOTONS];
+  Int_t pho_isEBEtaGap[MAX_PHOTONS];
+  Int_t pho_isEBPhiGap[MAX_PHOTONS];
+  Int_t pho_isEEDeeGap[MAX_PHOTONS];
+  Int_t pho_isEERingGap[MAX_PHOTONS];
 
   //shower shape variables
   Float_t pho_see[MAX_PHOTONS];
