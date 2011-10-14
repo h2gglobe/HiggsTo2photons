@@ -260,7 +260,7 @@ std::string getTime(){
   std::string timeStr;
   time_t now = time(0);
   struct tm* tm = localtime(&now);
-  timeStr = Form("%2d:%2d on %2d/%2d/%2d",tm->tm_hour,tm->tm_min,tm->tm_mday,tm->tm_mon+1,tm->tm_year);
+  timeStr = Form("%02d:%02d_%02d-%02d-%02d",tm->tm_hour,tm->tm_min,tm->tm_mday,tm->tm_mon+1,tm->tm_year-100);
 
   return timeStr;
 
@@ -268,12 +268,12 @@ std::string getTime(){
 
 int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=true){
 
+  std::cout << getTime() << std::endl;
+
   system("rm -r plots");
   system("mkdir plots");
 
   gROOT->SetBatch();
-  gROOT->SetStyle("Plain");
-  gROOT->ForceStyle();
   gStyle->SetOptStat(0);
 
   // input flags
@@ -499,18 +499,19 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
   if (davidCalls>0) std::cout << davidCalls << " plots written to: plots/ada/david/ \n                  plots/grad/david/" << std::endl;
   if (fracCalls>0) std::cout << fracCalls << " plots written to: plots/ada/frac/ \n                  plots/grad/frac/" << std::endl;
 
+  std::string TIME_DATE = getTime();
   if (Diagnose){
-    system("python make_html.py");
-    system("mkdir -p ~/public_html/h2g/MVA/SigInt/Diagnostics");
-    system("cp -r plots ~/public_html/h2g/MVA/SigInt/Diagnostics");
+    system(("python make_html.py "+TIME_DATE).c_str());
+    system(("mkdir -p ~/public_html/h2g/MVA/SigInt/Diagnostics/"+TIME_DATE+"/").c_str());
+    system(("cp -r plots ~/public_html/h2g/MVA/SigInt/Diagnostics/"+TIME_DATE+"/").c_str());
     system("whoami > temp.txt");
     std::ifstream temp("temp.txt");
     std::string result;
     temp >> result;
     temp.close();
     system("rm temp.txt");
-    std::cout << "Plots avaiable to view in ~/public_html/h2g/MVA/SigInt/Diagnostics/." << std::endl;
-    std::cout << "If working on /vols/ at IC plots avaliable to view at www.hep.ph.ic.ac.uk/~"+result+"/h2g/MVA/SigInt/Diagnostics/plots/plots.html" << std::endl;
+    std::cout << ("Plots avaiable to view in ~/public_html/h2g/MVA/SigInt/Diagnostics/"+TIME_DATE+"/").c_str() << std::endl;
+    std::cout << "If working on /vols/ at IC plots avaliable to view at www.hep.ph.ic.ac.uk/~"+result+"/h2g/MVA/SigInt/Diagnostics/"+TIME_DATE+"/plots/plots.html" << std::endl;
   }
   std::cout << "New workspace written to " << outFile->GetName() << std::endl;
   return 0;
