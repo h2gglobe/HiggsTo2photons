@@ -11,7 +11,7 @@ flagNoSkim = 'OFF'
 flagMMgSkim = 'OFF'
 flagSkimworz = 'OFF'
 flagSkim1El = 'OFF'
-
+flagAddPdfWeight = 'OFF'
 
 #ADDITIONAL OPTIONS
 flagAOD = 'ON'
@@ -136,6 +136,12 @@ process.goodSCOver5 = cms.EDFilter("SuperClusterSelector",
                                    cut = cms.string('rawEnergy()*sin((2*atan(exp(eta())))) > 5.')
                                    )
 
+process.pdfWeights = cms.EDProducer("PdfWeightProducer",
+                                    #FixPOWHEG = cms.untracked.string("cteq66.LHgrid"),
+                                    #GenTag = cms.untracked.InputTag("genParticles"),
+                                    PdfInfoTag = cms.untracked.InputTag("generator"),
+                                    PdfSetNames = cms.untracked.vstring("cteq66.LHgrid")
+                                    )
 #process.goodEvents = cms.Sequence(process.noScraping * process.primaryVertexFilter)
 #process.pathToCheck = cms.Sequence(process.L10and34 *process.noScraping*process.primaryVertexFilter*process.HFCoincidence*process.L140or41)
 #process.pathToCheck2 = cms.Sequence(process.L10and34 *process.noScraping*process.primaryVertexFilter*process.L140or41*process.HFCoincidence)
@@ -179,7 +185,12 @@ process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 
 # event counters
 process.processedEvents = cms.EDProducer("EventCountProducer")
-process.eventCounters = cms.Sequence(process.processedEvents)
+
+if (flagAddPdfWeight == 'ON'):
+  process.eventCounters = cms.Sequence(process.processedEvents + process.pdfWeights)
+else:
+  process.eventCounters = cms.Sequence(process.processedEvents)
+
 process.h2ganalyzer.globalCounters.extend(['processedEvents']) 
 
 # PFIsolation photons
@@ -188,19 +199,22 @@ process.load("HiggsAnalysis.HiggsTo2photons.pfIsolation_cff")
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 
 if flagAOD is 'ON':
-  process.p11 = cms.Path( process.eventCounters*process.eventFilter1*
+  process.p11 = cms.Path( process.eventCounters*
+                          process.eventFilter1*
                           process.pfPileUp *
                           process.pfBasedPhotonIsoSequence*
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*process.h2ganalyzerPath)
   
-  process.p12 = cms.Path( process.eventCounters*process.eventFilter2*
+  process.p12 = cms.Path( process.eventCounters*
+                          process.eventFilter2*
                           process.pfPileUp *
                           process.pfBasedPhotonIsoSequence*
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*process.h2ganalyzerPath)
 else:
-  process.p11 = cms.Path( process.eventCounters*process.eventFilter1*
+  process.p11 = cms.Path( process.eventCounters*
+                          process.eventFilter1*
                           process.pfPileUp *
                           process.pfBasedPhotonIsoSequence*
                           process.kt6PFJetsForRhoCorrection*
@@ -211,7 +225,8 @@ else:
                           process.piZeroDiscriminators*
                           process.h2ganalyzerPath)
   
-  process.p12 = cms.Path( process.eventCounters*process.eventFilter2*
+  process.p12 = cms.Path( process.eventCounters*
+                          process.eventFilter2*
                           process.pfPileUp *
                           process.pfBasedPhotonIsoSequence*
                           process.kt6PFJetsForRhoCorrection*
@@ -223,6 +238,9 @@ else:
                           process.h2ganalyzerPath)
 
 process.h2ganalyzer.JobMaker = jobMaker
+
+if (flagAddPdfWeight == 'ON'):
+  process.h2ganalyzer.doPdfWeight = True 
 
 if flagMC is 'ON':
   process.h2ganalyzer.doGenJet_algo1 = True

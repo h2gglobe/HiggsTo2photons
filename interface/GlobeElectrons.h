@@ -169,7 +169,6 @@ class GlobeElectrons {
   edm::InputTag ecalHitEEColl;
   edm::InputTag ecalHitESColl;
   edm::InputTag hcalHitColl;
-  //edm::InputTag dcsTag_; 
 
   EcalClusterLazyTools* ecalLazyTool;
   EGEnergyCorrector ecorr_;

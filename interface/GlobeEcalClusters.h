@@ -30,6 +30,9 @@
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
+
 #include "Math/VectorUtil.h"
 #include <iostream>
 
@@ -121,8 +124,10 @@ public:
   Float_t sc_seta[MAX_SUPERCLUSTERS];
   Float_t sc_brem[MAX_SUPERCLUSTERS];
   Float_t sc_r9[MAX_SUPERCLUSTERS];
-  
-// BASIC CLUSTERS
+  Float_t sc_bccrackcorr[MAX_SUPERCLUSTERS][MAX_SUPERCLUSTER_BASICCLUSTERS];
+  Float_t sc_bclocalcorr[MAX_SUPERCLUSTERS][MAX_SUPERCLUSTER_BASICCLUSTERS];
+
+  // BASIC CLUSTERS
   Int_t bc_n;
   Int_t bc_hybrid_n;
   Int_t bc_islbar_n;
@@ -177,6 +182,9 @@ public:
   edm::InputTag endcapBasicClusterShapeColl; 
   edm::InputTag ecalHitEBColl;
   edm::InputTag ecalHitEEColl;
+
+  EcalClusterFunctionBaseClass *CrackCorrFunc;
+  EcalClusterFunctionBaseClass *LocalCorrFunc;
 
   int debug_level;
 };
