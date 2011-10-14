@@ -160,7 +160,7 @@ void plotDavid(TH1F* bkgT, TH1F* sigT, TH1F* dataT, std::string name){
 
   bkg->GetYaxis()->SetRangeUser(0.0,2.*(data->GetMaximum()));
 
-  bkg->Draw("hist");
+  bkg->Draw("e2");
   sig->Draw("same hist");
   data->Draw("same e");
   leg->Draw("same");
@@ -199,19 +199,25 @@ void plotFrac(TList* HistList, TH1F* compT, std::string name){
   canv->cd(1);
   gPad->SetPad(0.01,0.3,0.99,0.99);
   gPad->SetBottomMargin(0.0);
-  gPad->SetLeftMargin(0.2);
+  gPad->SetLeftMargin(0.1);
   comp->SetLineColor(1);
   comp->SetFillColor(kGray);
   comp->Draw("hist");
   comp->SetTitle(("Up, down and interpolated templates for "+bdt+" "+name).c_str());
   comp->GetYaxis()->SetTitle("Events");
   comp->GetXaxis()->SetTitle("BDT output bin");
+  TLegend *leg = new TLegend(0.2,0.2,0.6,0.8);
+  leg->AddEntry(comp,comp->GetName(),"f");
+  leg->SetLineColor(0);
+  leg->SetFillColor(0);
   
   canv->cd(2);
   gPad->SetPad(0.01,0.01,0.99,0.3);
   gPad->SetTopMargin(0.0);
   gPad->SetBottomMargin(0.2);
-  gPad->SetLeftMargin(0.2);
+  gPad->SetLeftMargin(0.1);
+  TF1 *line = new TF1("line","0.0",0.,comp->GetBinLowEdge(comp->GetNbinsX()+1));
+  line->SetLineColor(kBlack);
   
   for (int i=0; i<nHists; i++){
     uandd[i] = linearBin((TH1F*)HistList->At(i));
@@ -220,23 +226,27 @@ void plotFrac(TList* HistList, TH1F* compT, std::string name){
     uandd[i]->DrawCopy("same e");
     uandd[i]->Add(comp,-1);
     uandd[i]->Divide(comp);
+    leg->AddEntry(uandd[i],uandd[i]->GetName(),"lep");
+    uandd[i]->Scale(100.0);
     canv->cd(2);
     if (i==0) uandd[i]->Draw("e");
-    else uandd[i]->Draw("same e");
+    else {
+      uandd[i]->Draw("same e");
+      line->Draw("same");
+    }
     uandd[i]->SetTitle("");
     uandd[i]->GetYaxis()->SetLabelSize(0.08);
-    uandd[i]->GetYaxis()->SetRangeUser(-0.2,0.2);
-    uandd[i]->GetYaxis()->SetTitle("(t-i)/i");
+    uandd[i]->GetYaxis()->SetRangeUser(-50.,50.);
+    uandd[i]->GetYaxis()->SetTitle("#frac{#Delta_{int}}{int} %");
+    uandd[i]->GetYaxis()->SetTitleOffset(0.4);
     uandd[i]->GetYaxis()->SetTitleSize(0.08);
     uandd[i]->GetXaxis()->SetLabelSize(0.08);
     uandd[i]->GetXaxis()->SetTitle("BDT output");
     uandd[i]->GetXaxis()->SetTitleSize(0.08);
+    canv->cd(1);
+   // leg->Draw("same");
   }
   
-  TF1 *line = new TF1("line","0.0",-1.,1.);
-  line->SetLineColor(1);
-  line->SetLineWidth(0.04);
-  line->Draw("same");
 
   canv->Print(("plots/"+bdt+"/fracs/"+name+".png").c_str(),"png");
   delete canv;
@@ -256,7 +266,7 @@ std::string getTime(){
 
 }
 
-int BDTInterpolation(std::string inFileName,bool Diagnose=false){
+int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=true){
 
   system("rm -r plots");
   system("mkdir plots");
@@ -276,8 +286,12 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false){
     all = true;
   }
   else std::cout << "Diagnostics turned off" << std::endl;
+  if (doNorm) std::cout << "Normalization turned on" << std::endl;
+  else std::cout << "Normalization turned off" << std::endl;
 
   TFile *inFile = new TFile(inFileName.c_str());
+  //TFile *inFile = new TFile("/vols/cms02/nw709/hgg/src_cvs/oct13/CMSSW_4_2_8/src/HiggsAnalysis/HiggsTo2photons/h2gglobe/Macros/CMS-HGG_1658pb_mva.root");
+  //TFile *inFile = new TFile("RefWorkspaces/CMS-HGG_1658pb_mva.root");
   TFile *outFile = new TFile(Form("%s_interpolated.root",inFileName.c_str()),"RECREATE");
   ofstream diagFile("plots/BDTInterpolationDiagnostics.txt");
 
@@ -299,7 +313,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false){
   for (int j=0; j<HistList->GetSize(); j++){
     TH1F *temp = (TH1F*)inFile->Get(HistList->At(j)->GetName());
     TString name = temp->GetName();
-    //if (name.Contains("121") || name.Contains("123") || name.Contains("BDT")) continue;
+//    if (name.Contains("121") || name.Contains("123") || name.Contains("BDT")) continue;
     std::string tName = temp->GetName();
     for (int i=0; i<nMasses; i++){
       int ind = tName.find(BDTmasses[i]+"_"+BDTmasses[i]);
@@ -404,16 +418,16 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false){
         TH1F* tempInt;
         TList* plotList = new TList();
         if (above){
-          tempSig->Scale(1./(GetXsection(double(nearest))*GetBR(double(nearest))));
-          tempAbove->Scale(1./(GetXsection(double(nextNear))*GetBR(double(nextNear))));
+          if (doNorm) tempSig->Scale(1./(GetXsection(double(nearest))*GetBR(double(nearest))));
+          if (doNorm) tempAbove->Scale(1./(GetXsection(double(nextNear))*GetBR(double(nextNear))));
           tempInt = Interpolate(double(nearest),tempSig,double(nextNear),tempAbove,mass);
           if (syst==0){
             plotList->Add(tempSig);
             plotList->Add(tempAbove);
             if (all || frac) plotFrac(plotList,tempInt,Form("%3.1f",mass));
           }
-          tempSig->Scale(GetXsection(double(nearest))*GetBR(double(nearest)));
-          tempAbove->Scale(GetXsection(double(nextNear))*GetBR(double(nextNear)));
+          if (doNorm) tempSig->Scale(GetXsection(double(nearest))*GetBR(double(nearest)));
+          if (doNorm) tempAbove->Scale(GetXsection(double(nextNear))*GetBR(double(nextNear)));
           double norm = GetNorm(double(nearest),tempSig,double(nextNear),tempAbove,mass);
           diagFile << "   Interpolated:     " << tempInt->GetName() << std::endl;
           diagFile << "   scaled up with:   " << Form("%1.3f",GetXsection(double(nearest))*GetBR(double(nearest))) << std::endl;
@@ -421,19 +435,19 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false){
           diagFile << "   scale ratio:      " << Form("%1.3f",(GetXsection(double(nearest))*GetBR(double(nearest)))*1./norm) << std::endl;
           diagFile << "   from:             " << tempSig->GetName() << std::endl;
           diagFile << "   and:              " << tempAbove->GetName() << std::endl;
-          tempInt->Scale(1./norm);
+          if (doNorm) tempInt->Scale(norm/tempInt->Integral());
         }
         else{
-          tempSig->Scale(1./(GetXsection(double(nearest))*GetBR(double(nearest))));
-          tempBelow->Scale(1./(GetXsection(double(nextNear))*GetBR(double(nextNear))));
+          if (doNorm) tempSig->Scale(1./(GetXsection(double(nearest))*GetBR(double(nearest))));
+          if (doNorm) tempBelow->Scale(1./(GetXsection(double(nextNear))*GetBR(double(nextNear))));
           tempInt = Interpolate(double(nextNear),tempBelow,double(nearest),tempSig,mass);
           if (syst==0){
             plotList->Add(tempBelow);
             plotList->Add(tempSig);
             if (all || frac) plotFrac(plotList,tempInt,Form("%3.1f",mass));
           }
-          tempSig->Scale(GetXsection(double(nearest))*GetBR(double(nearest)));
-          tempBelow->Scale(GetXsection(double(nextNear))*GetBR(double(nextNear)));
+          if (doNorm) tempSig->Scale(GetXsection(double(nearest))*GetBR(double(nearest)));
+          if (doNorm) tempBelow->Scale(GetXsection(double(nextNear))*GetBR(double(nextNear)));
           double norm = GetNorm(double(nextNear),tempBelow,double(nearest),tempSig,mass);
           diagFile << "   Interpolated:     " << tempInt->GetName() << std::endl;
           diagFile << "   scaled up with:   " << Form("%1.3f",GetXsection(double(nearest))*GetBR(double(nearest))) << std::endl;
@@ -441,7 +455,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false){
           diagFile << "   scale ratio:      " << Form("%1.3f",(GetXsection(double(nearest))*GetBR(double(nearest)))*1./norm) << std::endl;
           diagFile << "   from:             " << tempBelow->GetName() << std::endl;
           diagFile << "   and:              " << tempSig->GetName() << std::endl;
-          tempInt->Scale(1./norm);
+          if (doNorm) tempInt->Scale(norm/tempInt->Integral());
         }
         orgHistListInt[bdt][i]->Add(tempInt);
         std::string name = Form("%3.1f",mass);
@@ -460,25 +474,45 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false){
     orgHistListInt[l][j]->At(k)->Write();
     diagFile << orgHistListInt[l][j]->At(k)->GetName() << std::endl;
   }
-
+  
+  TList* endList = outFile->GetListOfKeys();
+  for (double mass=115.0; mass<150.5; mass+=0.5){
+    diagFile << mass << std::endl;
+    std::pair<int,int> nearestPair = findNearest(mass);
+    double nearest = nearestPair.first;
+    double nextNear = nearestPair.second;
+    for (int k=0; k<endList->GetSize(); k++){
+      TString hName = endList->At(k)->GetName();
+      if (hName.Contains("sigma") || !hName.Contains("sig")) continue;
+      if (hName.Contains(Form("a_%3.1f_cat0",nearest)) || hName.Contains(Form("d_%3.1f_cat0",nearest)) || hName.Contains(Form("%3.1f_%3.1f_cat0",nearest,nextNear)) || hName.Contains(Form("%3.1f_cat0",mass))) {
+        TH1F *temp = (TH1F*)outFile->Get(hName);
+        diagFile << "    " << setw(30) << temp->GetName();
+        diagFile << "    " << setw(8) << temp->GetEntries();
+        diagFile << "    " << setw(8) << temp->Integral() << std::endl;
+      }
+    }
+  }
+    
   outFile->Close();
 
   std::cout << "Diagnostics log written to \"BDTInterpolationDiagnostics.txt\"" << std::endl;
   if (davidCalls>0) std::cout << davidCalls << " plots written to: plots/ada/david/ \n                  plots/grad/david/" << std::endl;
   if (fracCalls>0) std::cout << fracCalls << " plots written to: plots/ada/frac/ \n                  plots/grad/frac/" << std::endl;
 
-  system("python make_html.py");
-  system("mkdir -p ~/public_html/h2g/MVA/SigInt/Diagnostics/");
-  system("cp -r plots ~/public_html/h2g/MVA/SigInt/Diagnostics/");
-  system("whoami > temp.txt");
-  std::ifstream temp("temp.txt");
-  std::string result;
-  temp >> result;
-  temp.close();
-  system("rm temp.txt");
-  std::cout << "Plots avaiable to view in ~/public_html/h2g/MVA/SigInt/Diagnostics/." << std::endl;
-  std::cout << "If working on /vols/ at IC plots avaliable to view at www.hep.ph.ic.ac.uk/~"+result+"/h2g/MVA/SigInt/Diagnostics/plots/plots.html" << std::endl;
-  std::cout << "New workspace written to " <<outFile->GetName() << std::endl;
+  if (Diagnose){
+    system("python make_html.py");
+    system("mkdir -p ~/public_html/h2g/MVA/SigInt/Diagnostics");
+    system("cp -r plots ~/public_html/h2g/MVA/SigInt/Diagnostics");
+    system("whoami > temp.txt");
+    std::ifstream temp("temp.txt");
+    std::string result;
+    temp >> result;
+    temp.close();
+    system("rm temp.txt");
+    std::cout << "Plots avaiable to view in ~/public_html/h2g/MVA/SigInt/Diagnostics/." << std::endl;
+    std::cout << "If working on /vols/ at IC plots avaliable to view at www.hep.ph.ic.ac.uk/~"+result+"/h2g/MVA/SigInt/Diagnostics/plots/plots.html" << std::endl;
+  }
+  std::cout << "New workspace written to " << outFile->GetName() << std::endl;
   return 0;
 }
 
