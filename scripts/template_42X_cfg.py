@@ -24,11 +24,11 @@ if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON'
 process = cms.Process("Globe") 
 process.load("Configuration.StandardSequences.GeometryDB_cff") 
 process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_42X_cfi")
-if flagAOD is 'OFF':
-  #pi0 disc
-  process.load("RecoEcal.EgammaClusterProducers.preshowerClusterShape_cfi")
-  process.load("EgammaAnalysis.PhotonIDProducers.piZeroDiscriminators_cfi")
+#pi0 disc
+process.load("RecoEcal.EgammaClusterProducers.preshowerClusterShape_cfi")
+process.load("EgammaAnalysis.PhotonIDProducers.piZeroDiscriminators_cfi")
   
+if flagAOD is 'OFF':
   #rerun ConvId
   process.load("RecoEgamma.EgammaPhotonProducers.conversionTrackSequence_cff")
   # NOTICE: You need the following two python files to rerun the conversion tracking with ECAL association
@@ -62,8 +62,6 @@ process.options = cms.untracked.PSet(
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
-
-
 
 
 process.superClusterMerger =  cms.EDProducer("EgammaSuperClusterMerger",
@@ -206,12 +204,14 @@ if flagAOD is 'ON':
                           process.pfPileUp *
                           #process.pfBasedPhotonIsoSequence*
                           #process.pfSelectedPhotons *
+                          process.piZeroDiscriminators*
                           process.kt6PFJetsForRhoCorrection*
                           process.ak5PFJets*process.h2ganalyzerPath)
   
   process.p12 = cms.Path( process.eventCounters*
                           process.eventFilter2*
                           process.pfPileUp *
+                          process.piZeroDiscriminators*
                           #process.pfBasedPhotonIsoSequence*
                           #process.pfSelectedPhotons *
                           process.kt6PFJetsForRhoCorrection*
@@ -253,6 +253,7 @@ if flagMC is 'ON':
   process.h2ganalyzer.doGenJet_algo2 = True
   process.h2ganalyzer.doGenJet_algo3 = True
   process.h2ganalyzer.doGenParticles = True
+  process.h2ganalyzer.doGenMet = True
   process.h2ganalyzer.doReducedGen = True
 elif flagData is 'ON':
   process.h2ganalyzer.doPileup = False
@@ -261,6 +262,7 @@ elif flagData is 'ON':
   process.h2ganalyzer.doGenJet_algo3 = False
   process.h2ganalyzer.doGenParticles = False
   process.h2ganalyzer.doGenVertices = False
+  process.h2ganalyzer.doGenMet = False
   process.h2ganalyzer.doReducedGen = False
 
 if flagMC is 'ON' and flagAOD is 'OFF':

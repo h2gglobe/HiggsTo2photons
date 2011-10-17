@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Matteosan SANI
 //         Created:  Thu Feb  7 10:14:43 CET 2008
-// $Id: GlobeAnalyzer.h,v 1.11 2011/07/22 09:45:50 musella Exp $
+// $Id: GlobeAnalyzer.h,v 1.11.2.1 2011/10/12 19:33:05 pioppi Exp $
 //
 //
 
@@ -39,6 +39,7 @@ Implementation:
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeL1.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeVertex.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeMET.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/GlobeGenMET.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePFCandidates.h"
 
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeSimHits.h"
@@ -85,6 +86,7 @@ public:
   GlobePFCandidates* pfCandidates;
   GlobeEcalClusters* ecalclusters;
   GlobeMET* met, *tcmet, *pfmet; 
+  GlobeGenMET* genCaloMet, *genTrueMet, *genNoptMet; 
   GlobeCaloTowers* calotowers;
   GlobeHcal* hcalhits;
   GlobeL1* level1;
@@ -152,6 +154,7 @@ private:
   bool doGenJetAlgo1;
   bool doGenJetAlgo2;
   bool doGenJetAlgo3;
+  bool doGenMET;
   bool doGenerator;
   bool doGenParticles;
   bool doGenVertices;

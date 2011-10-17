@@ -302,9 +302,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<reco::PhotonPi0DiscriminatorAssociationMap>  map;
   reco::PhotonPi0DiscriminatorAssociationMap::const_iterator mapIter;
   
-  if (!doAodSim) 
-    iEvent.getByLabel("piZeroDiscriminators","PhotonPi0DiscriminatorAssociationMap",  map);
-  
   edm::Handle<reco::PhotonCollection> R_PhotonHandle;
   iEvent.getByLabel(photonCollStd, R_PhotonHandle);
   const reco::PhotonCollection R_photons = *(R_PhotonHandle.product());  
@@ -549,19 +546,23 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_r9[pho_n] = localPho->r9();
 
     // Added by Aris - Begin
-    if (!doAodSim) {
-      int R_nphot = 0;
-      float nn = -1.;
-      pho_pi0disc[pho_n] = nn;
+    int R_nphot = 0;
+    float nn = -1.;
+    pho_pi0disc[pho_n] = nn;
+    if (localPho->isEB()) {
+      iEvent.getByLabel("piZeroDiscriminators","PhotonPi0DiscriminatorAssociationMap",  map);
       for( reco::PhotonCollection::const_iterator  R_phot_iter = R_photons.begin(); R_phot_iter != R_photons.end(); R_phot_iter++) { 
         mapIter = map->find(edm::Ref<reco::PhotonCollection>(R_PhotonHandle,R_nphot));
         if(mapIter!=map->end()) {
           nn = mapIter->val;
         }
-        if(localPho->p4() == R_phot_iter->p4()) pho_pi0disc[pho_n] = nn;
+        if(localPho->p4() == R_phot_iter->p4()) 
+	  pho_pi0disc[pho_n] = nn;
         R_nphot++;              
       }
-      
+    }
+    
+    if (!doAodSim) {
       int iTrk=0;
       bool ConvMatch = false;
       for( std::vector<reco::TransientTrack>::iterator  iTk =  t_outInTrk.begin(); iTk !=  t_outInTrk.end(); iTk++) {
@@ -588,8 +589,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_IsConvOutIn[pho_n] = (int)ConvMatch; 
     }
     // Added by Aris - End
-
-
+    
     // more cluster shapes from Lazy Tools
     std::vector<float> viCov;
     viCov = lazyTool.localCovariances(*seed_clu);
