@@ -27,6 +27,8 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   doGenJetAlgo2 = iConfig.getParameter<bool>("doGenJet_algo2");
   doGenJetAlgo3 = iConfig.getParameter<bool>("doGenJet_algo3");
 
+  doGenMET = iConfig.getParameter<bool>("doGenMet");
+
   doGenerator = iConfig.getParameter<bool>("doGenerator");
   doGenParticles = iConfig.getParameter<bool>("doGenParticles");
   doGenVertices = iConfig.getParameter<bool>("doGenVertices");
@@ -162,6 +164,14 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobePFMET"<<std::endl;
   if (doPFMet)
     pfmet = new GlobeMET(iConfig, "pfmet");
+
+
+  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeGenMET"<<std::endl;
+  if (doGenMET) {
+    genCaloMet = new GlobeGenMET(iConfig, "calo");
+    genTrueMet = new GlobeGenMET(iConfig, "true");
+    genNoptMet = new GlobeGenMET(iConfig, "nopt");
+  }
 
   //GENJETS
   if(debug_level > 9) std::cout<<"GlobeAnalyzer: coutall GlobeGenJets"<<std::endl;
@@ -375,6 +385,12 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doPFMet)
     pfmet->analyze(iEvent, iSetup);
 
+  if (doGenMET) {
+    genCaloMet->analyze(iEvent, iSetup);
+    genTrueMet->analyze(iEvent, iSetup);
+    genNoptMet->analyze(iEvent, iSetup);
+  }
+
   //GENJETS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: algo1genjet" << std::endl;
   if (doGenJetAlgo1)
@@ -522,10 +538,16 @@ void GlobeAnalyzer::beginJob() {
 
   if (doMet)
     met->defineBranch(tree);
-  if(dotcMet)
+  if (dotcMet)
     tcmet->defineBranch(tree);
-  if(doPFMet)
+  if (doPFMet)
     pfmet->defineBranch(tree);
+
+  if (doGenMET) {
+    genCaloMet->defineBranch(tree);
+    genTrueMet->defineBranch(tree);
+    genNoptMet->defineBranch(tree);
+  }
 
   if (doSimHits)
     simhits->defineBranch(tree);

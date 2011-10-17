@@ -32,6 +32,10 @@ h2ganalyzer = cms.EDAnalyzer(
     GenJetColl_algo1 = cms.InputTag("ak5GenJets"),
     GenJetColl_algo2 = cms.InputTag("ak7GenJets"),
     GenJetColl_algo3 = cms.InputTag("kt4GenJets"),
+
+    GenCaloMETColl = cms.InputTag("genMetCalo"),
+    GenTrueMETColl = cms.InputTag("genMetTrue"),
+    GenNoptMETColl = cms.InputTag("genMetCaloAndNonPrompt"),
     
     SimHitList = cms.VInputTag(cms.InputTag("g4SimHits","TrackerHitsPixelBarrelLowTof"),
                                cms.InputTag("g4SimHits","TrackerHitsPixelBarrelHighTof"),
@@ -285,7 +289,8 @@ h2ganalyzer = cms.EDAnalyzer(
 
     doPFCandidates = cms.bool(True),
     PFIsoOuterCone = cms.double(0.4),
-    
+
+    doGenMet = cms.bool(True),
     doMet = cms.bool(True),
     dotcMet = cms.bool(True),
     doPFMet = cms.bool(True),
