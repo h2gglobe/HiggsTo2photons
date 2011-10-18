@@ -290,11 +290,12 @@ class configProducer:
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
   def generate_weights_file(self,filename):
-     wfile = open(filename,"w")
-     for samplefile in self.file_processed_events_:
-	wfile.write("%s=%d\n"%(samplefile,self.file_processed_events_[samplefile]) )
-     wfile.close()
-     print "Written Number Of Processed Events file -- ",filename
+     if len(self.file_processed_events_):
+       wfile = open(filename,"w")
+       for samplefile in self.file_processed_events_:
+	 wfile.write("%s=%d\n"%(samplefile,self.file_processed_events_[samplefile]) )
+       wfile.close()
+       print "Written Number Of Processed Events file -- ",filename
 
   def read_config_loop(self,f):
      "Parsing of the looper configuration"        
