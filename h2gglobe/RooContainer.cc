@@ -1440,6 +1440,104 @@ void RooContainer::convolutePdf(std::string name, std::string f_pdf, std::string
 }
 */
 // ----------------------------------------------------------------------------------------------------
+std::vector<std::vector<double> > RooContainer::SoverBOptimizedBinning(std::string signalname,std::string bkgname,int nTargetBins,double penaltyScale){
+
+	std::vector<std::vector<double> > return_bins;
+	for (int cat=0;cat<ncat;cat++){
+	   std::map<std::string,TH1F>::iterator it_ths=m_th1f_.find(getcatName(signalname,cat));
+	   std::map<std::string,TH1F>::iterator it_thb=m_th1f_.find(getcatName(bkgname,cat));
+	   if (it_ths!=m_th1f_.end() && it_thb!=m_th1f_.end()){
+		return_bins.push_back(soverBOptimizedBinning(&(it_ths->second),&(it_thb->second),nTargetBins,penaltyScale));
+
+	   } else {
+		std::cerr << "WARNING ! -- RooContainer::SoverBOptimizedBinning -- One of the Following binned datasets not found " << signalname << ", " << bkgname <<std::endl;
+	   }
+	}
+
+	return return_bins;
+
+}
+// ----------------------------------------------------------------------------------------------------
+std::vector<double> RooContainer::soverBOptimizedBinning(TH1F *hs,TH1F *hb,int nTargetBins,double penaltyScale){
+
+	// Performs Optimized Binning based on a Signal and Background (S/B) distributions
+	// First runs the optimizedBinning on background and rebins S and B clones, note, always performs 
+	// revise_target=false,direction=-1 and use_n_entries=true
+	// nTargetBins is used for the flat binning, decision to merge based on penaltyScale
+
+	std::vector<double> binEdges = optimizedReverseBinning(hb,nTargetBins,false,true);
+
+	int j =0;
+	double *arrBins = new double[binEdges.size()];
+	for (std::vector<double>::iterator it=binEdges.begin();it!=binEdges.end();it++){
+		//cout << *it << endl;
+		arrBins[j]=*it;
+		j++;	
+	}
+	// Create new rebinned histograms (only temporary)
+	TH1F *hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,"hbnew",arrBins);
+	TH1F *hsnew =(TH1F*) hs->Rebin(binEdges.size()-1,"hsnew",arrBins);
+	
+	delete [] arrBins;
+
+	if (hbnew->Integral()==0 || hsnew->Integral()==0) return binEdges;
+	std::vector<double> newbinEdges;
+	newbinEdges.push_back(hbnew->GetBinLowEdge(1));
+	int nNewBins = hbnew->GetNbinsX();
+	int i=1;
+	while (i<=nNewBins){
+
+		int k = i+1;
+		double highEdge=hbnew->GetBinLowEdge(i+1);
+		double S = hsnew->GetBinContent(i);
+		double B = hbnew->GetBinContent(i);
+		double Serr = hsnew->GetBinError(i);
+		double Berr = hbnew->GetBinError(i);
+		if (B!=0){ 
+		  double SoB = S/B;
+		  double SoBerr = SoB*TMath::Sqrt((Serr/S)*(Serr/S) + (Berr/B)*(Berr/B));
+		  bool carryOn=true;
+                  double importance = SoB/maxSoB;
+
+		  while ( carryOn){
+			if (i<nNewBins){
+
+			  double S1 = hsnew->GetBinContent(k);
+			  double B1 = hbnew->GetBinContent(k);
+			  if (B1==0) {
+				carryOn=true;
+			      	highEdge = hbnew->GetBinLowEdge(i+2);
+				k++;
+			  }
+			  else{
+			    double SoB1 = S1/B1;
+			    double Serr1 = hsnew->GetBinError(k);
+			    double Berr1 = hbnew->GetBinError(k);
+			    double SoBerr1 = SoB1*TMath::Sqrt((Serr1/S1)*(Serr1/S1) + (Berr1/B1)*(Berr1/B1));
+			  
+			  //  if (fabs(SoB-SoB1) < penaltyScale*TMath::Sqrt(SoBerr*SoBerr + SoBerr1*SoBerr1)){
+			      if (fabs(SoB-SoB1)/SoB < penaltyScale/imporance ){
+			      highEdge = hbnew->GetBinLowEdge(i+2);
+			      carryOn = true;
+			      k++;
+			    } else {carryOn=false;}
+			 }
+
+			} else {
+			  highEdge = hbnew->GetBinLowEdge(k);
+			  carryOn=false;
+			}
+		  }
+		}
+	        newbinEdges.push_back(highEdge);
+		i=k;
+	}
+
+	// now we have new Bin edges to return to the 
+	return newbinEdges;
+
+}
+// ----------------------------------------------------------------------------------------------------
 std::vector<std::vector<double> > RooContainer::OptimizedBinning(std::string datasetname, int nTargetBins,bool revise_target,bool use_n_entries,int direction){
 
 	std::vector<std::vector<double> > return_bins;
@@ -1627,6 +1725,7 @@ void RooContainer::rebinBinnedDataset(std::string new_name,std::string name, TH1
 	// Just a quick test, mask the last "channel"
 	//hbnew->SetBinContent(hbnew->GetNbinsX(),0);
 	//cout << "DONT DO THIS IN MAIN PROGRAM ----- LINE 1563 rebin setting last bin to 0" <<endl;
+	delete [] arrBins;
 	m_th1f_[new_name]=*hbnew;
 	
 }

@@ -104,6 +104,7 @@ class RooContainer {
 
    void RebinBinnedDataset(std::string,std::string,std::vector <std::vector<double> >, bool);
    std::vector<std::vector<double> >OptimizedBinning(std::string,int,bool,bool,int direction=1);
+   std::vector<std::vector<double> >SoverBOptimizedBinning(std::string,std::string,int,double);
    void WriteDataCard(std::string,std::string,std::string,std::string);
    void WriteSpecificCategoryDataCards(std::string,std::string,std::string,std::string);
    void GenerateBinnedPdf(std::string,std::string,std::string,int,int,int,double x1=-999,double x2=-999);
@@ -158,6 +159,7 @@ class RooContainer {
    void rebinBinnedDataset(std::string,std::string,TH1F *,std::vector<double>);
    std::vector<double> optimizedBinning(TH1F *,int,bool,bool);
    std::vector<double> optimizedReverseBinning(TH1F *,int,bool,bool);
+   std::vector<double> soverBOptimizedBinning(TH1F *,TH1F*,int,double);
 
    double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
    std::pair<double,double> getNormalisationAndErrorFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
