@@ -51,6 +51,9 @@ class configProducer:
     self.jobId_ = jobId
     self.nf_ 	= [0]
 
+    self.sample_weights_file_ = 0
+    self.file_processed_events_ = {}
+
     self.conf_filename = str(conf_filename)
     self.lines_ = []
 
@@ -73,7 +76,13 @@ class configProducer:
     else: 
       sys.exit("No Such Type As: %d"%self.type_)
       
-    
+  def read_weights_file(self):
+    weights_lines=[];
+    self.read_file(self.sample_weights_file_,weights_lines) 
+    for line in weights_lines:
+	file,pEvents = line.split("=")
+	self.file_processed_events_[file]=int(pEvents)
+ 
   def read_file(self,conf_filename,lines=None):
     if lines == None:
       self.lines_ = [ ]
@@ -279,10 +288,22 @@ class configProducer:
          self.read_struct_line(line,self.ut_)
            
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  def generate_weights_file(self,filename):
+     wfile = open(filename,"w")
+     for samplefile in self.file_processed_events_:
+	wfile.write("%s=%d\n"%(samplefile,self.file_processed_events_[samplefile]) )
+     wfile.close()
+     print "Written Number Of Processed Events file -- ",filename
+
   def read_config_loop(self,f):
      "Parsing of the looper configuration"        
      self.read_file(f)
      self.intL	    = 0
+     # look for a file called f.weights
+     if os.path.isfile(f+".pevents") : 
+	self.sample_weights_file_= f+".pevents"
+	self.read_weights_file()
 
      for line in self.lines_:
        # Decide whether this is a define line or a file line:
@@ -311,6 +332,9 @@ class configProducer:
      for cc in  self.conf_.confs:
        cc["intL"] = self.intL 
 
+     if  self.sample_weights_file_==0:
+	 if self.njobs_==-1 or self.jobId_==0:
+	    self.generate_weights_file(f+".pevents")
   # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   def read_struct_line(self,line,struct):
     split_line = line.split()
@@ -521,7 +545,13 @@ class configProducer:
         self.conf_.files.append(tuple_n)
       else: self.conf_.files.append((None,fi_type));
       if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == 0:
-        map_c["tot"] = getTreeEntry(fi_name,"global_variables","processedEvents");
+	if self.sample_weights_file_==0 :
+	  nEventsInFile = getTreeEntry(fi_name,"global_variables","processedEvents")
+	  self.file_processed_events_[fi_name] = nEventsInFile
+          map_c["tot"] = nEventsInFile;
+	  
+	else:  map_c["tot"] = self.file_processed_events_[fi_name]
+
 	map_c["addnevents"] = int(1)
       self.conf_.confs.append(map_c.copy())
 
@@ -543,7 +573,13 @@ class configProducer:
           allfiles = mkFiles(dir,-1,-1)
           for file_s in allfiles:
 	      print "Getting N Processed Events for - ", file_s[0]
-              map_c["tot"] = map_c["tot"] + getTreeEntry(file_s[0],"global_variables","processedEvents")
+	      if self.sample_weights_file_==0 :
+		nEventsInFile = getTreeEntry(file_s[0],"global_variables","processedEvents")
+                map_c["tot"] = map_c["tot"] + nEventsInFile
+		self.file_processed_events_[file_s[0]] = nEventsInFile
+	      else:
+		map_c["tot"] = map_c["tot"] + self.file_processed_events_[file_s[0]]
+
       for file_s in files:
 	  if file_s[1]: self.conf_.files.append((file_s[0],fi_type))
 	  else:      self.conf_.files.append((None,fi_type))
