@@ -80,6 +80,7 @@ public:
 	std::string names[9];
         std::string BDTnames[9];
 	double masses[9];
+    	std::vector<float> bkg_masses; //This is for Nicks training method
 
 	std::string mvaWeightsFolder;
 
@@ -150,6 +151,9 @@ protected:
 
 	TTree * backgroundTrainTree_[12];
 	TTree * backgroundTestTree_[12];
+
+	TTree * backgroundTrainTree_all; 
+	TTree * backgroundTestTree_all; 
 
 	TFile * mvaFile_;
 	

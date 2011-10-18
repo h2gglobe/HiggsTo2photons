@@ -44,6 +44,12 @@ void MvaAnalysis::Term(LoopAll& l)
                 backgroundTestTree_[i]->Write(("bkg_test"+names[i]).c_str());
             }
         }
+        if (0<backgroundTrainTree_all->GetEntries() ){
+            backgroundTrainTree_all->Write("bkg_train_all");
+        }
+        if (0<backgroundTestTree_all->GetEntries() ){
+            backgroundTestTree_all->Write("bkg_test_all");
+        }
         mvaFile_->Close();
     }
     else{
@@ -209,6 +215,12 @@ void MvaAnalysis::Init(LoopAll& l)
     BDTnames[10]="_123";
     masses[10] = 123.;
 */
+    for (float mass = 90.;
+               mass<150.;
+               mass*= (1+signalRegionWidth)/(1-signalRegionWidth)){
+        bkg_masses.push_back(mass); 
+        cout<<"background mass hypothesis: "<< mass << endl;
+    }
     std::string outputfilename = (std::string) l.histFileName;
     //
     // These parameters are set in the configuration file
@@ -422,6 +434,10 @@ void MvaAnalysis::Init(LoopAll& l)
             backgroundTestTree_[i]  = new TTree(("bkg_test"+names[i]).c_str(), ("BackgroundTestTree"+names[i]).c_str());
             SetBDTInputTree(backgroundTestTree_[i]);
         }
+        backgroundTrainTree_all = new TTree("bkg_train_all" ,"BackgroundTrainTree_all");
+        SetBDTInputTree(backgroundTrainTree_all);
+        backgroundTestTree_all  = new TTree("bkg_test_all"   ,"BackgroundTestTree_all");
+        SetBDTInputTree(backgroundTestTree_all);
     }
     else{
 
@@ -663,6 +679,18 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
         if (doTraining ){//train on EVEN!!!!! EVEN!!!!
             if (cur_type > 0 ){// Background 
+                for (int i = 0; i<bkg_masses.size();i++) {//Nicks alternative background method
+                    float mass_hypothesis = bkg_masses[i];
+                    float boundaries[2];
+                    boundaries[0] = mass_hypothesis*(1-signalRegionWidth);
+                    boundaries[1] = mass_hypothesis*(1+signalRegionWidth);
+                    if( mass>boundaries[0] && mass<boundaries[1] ){//Signal mass window cut
+                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis,evweight,category);
+                        _sideband = i;
+                        if (jentry%2==0) backgroundTrainTree_all->Fill();
+                        else if (jentry%2==1) backgroundTestTree_all->Fill();
+                    }
+                }
                 for (int i = 0; i<nMasses;i++) {
                     // define hypothesis masses for the sidebands
                     float mass_hypothesis = masses[i];
