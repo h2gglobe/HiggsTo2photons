@@ -1485,6 +1485,12 @@ std::vector<double> RooContainer::soverBOptimizedBinning(TH1F *hs,TH1F *hb,int n
 	newbinEdges.push_back(hbnew->GetBinLowEdge(1));
 	int nNewBins = hbnew->GetNbinsX();
 	int i=1;
+	double maxSoB=0;
+        for (int j=1;j<=hbnew->GetNbinsX();j++){
+                double newMaximum = hsnew->GetBinContent(j)/hbnew->GetBinContent(j) ;
+                if (newMaximum>maxSoB) maxSoB=newMaximum;
+        }
+
 	while (i<=nNewBins){
 
 		int k = i+1;
@@ -1516,7 +1522,7 @@ std::vector<double> RooContainer::soverBOptimizedBinning(TH1F *hs,TH1F *hb,int n
 			    double SoBerr1 = SoB1*TMath::Sqrt((Serr1/S1)*(Serr1/S1) + (Berr1/B1)*(Berr1/B1));
 			  
 			  //  if (fabs(SoB-SoB1) < penaltyScale*TMath::Sqrt(SoBerr*SoBerr + SoBerr1*SoBerr1)){
-			      if (fabs(SoB-SoB1)/SoB < penaltyScale/imporance ){
+			      if (fabs(SoB-SoB1)/SoB < penaltyScale/importance ){
 			      highEdge = hbnew->GetBinLowEdge(i+2);
 			      carryOn = true;
 			      k++;
