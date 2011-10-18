@@ -150,7 +150,7 @@
 ./job_maker --MC --AOD --noskim --AddPdfWeight --storage="castor" --name=VBF_HToGG_M-110_S4 --datasetpath="/VBF_HToGG_M-110_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM" --events=20000 --events_per_job=500 --outputdir="c/cmshgg/processed/h2g_V11_03_04/Summer11-PU_S4_START42_V11-v1/PDF" --globaltag="START42_V13::All" --hlttag="HLT"
 ./job_maker --MC --AOD --noskim --AddPdfWeight --storage="castor" --name=VBF_HToGG_M-105_S4 --datasetpath="/VBF_HToGG_M-105_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM" --events=20000 --events_per_job=500 --outputdir="c/cmshgg/processed/h2g_V11_03_04/Summer11-PU_S4_START42_V11-v1/PDF" --globaltag="START42_V13::All" --hlttag="HLT"
 ./job_maker --MC --AOD --noskim --AddPdfWeight --storage="castor" --name=VBF_HToGG_M-100_S4 --datasetpath="/VBF_HToGG_M-100_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM" --events=20000 --events_per_job=500 --outputdir="c/cmshgg/processed/h2g_V11_03_04/Summer11-PU_S4_START42_V11-v1/PDF" --globaltag="START42_V13::All" --hlttag="HLT"
-./job_maker --MC --AOD --noskim --AddPdfWeight --storage="castor" --name=VBF_HToGG_M-95_S4 --datasetpath="/VBF_HToGG_M-95_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM" --events=20000 --events_per_job=500 --outputdir="c/cmshgg/processed/h2g_V11_03_04/Summer11-PU_S4_START42_V11-v1/PDF" --globaltag="START42_V13::All" --hlttag="HLT" -
+./job_maker --MC --AOD --noskim --AddPdfWeight --storage="castor" --name=VBF_HToGG_M-95_S4 --datasetpath="/VBF_HToGG_M-95_7TeV-powheg-pythia6/Summer11-PU_S4_START42_V11-v1/AODSIM" --events=20000 --events_per_job=500 --outputdir="c/cmshgg/processed/h2g_V11_03_04/Summer11-PU_S4_START42_V11-v1/PDF" --globaltag="START42_V13::All" --hlttag="HLT"
 
 
 
