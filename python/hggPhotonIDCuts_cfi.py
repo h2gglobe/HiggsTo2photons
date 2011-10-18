@@ -203,6 +203,142 @@ hggPhotonIDCuts = cms.PSet(
           cutsubleadsieie6c10= cms.vdouble(  0.0098,    0.0091,    0.0086,     0.024,     0.023,     0.022),
          cutsubleadhovere6c10= cms.vdouble(   0.026,    0.0082,   3.2e-05,   3.2e-05,    0.0073,    0.0083),
              cutsubleadr96c10= cms.vdouble(    0.94,       0.9,      0.52,      0.95,      0.92,      0.76),
-  cutsublead_drtotk_25_996c10= cms.vdouble(       1,         1,         1,         1,         1,         1)
+  cutsublead_drtotk_25_996c10= cms.vdouble(       1,         1,         1,         1,         1,         1),
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.167242        fake=0.000199112        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+###########################################################################
+########################## 6 categories PF ################################
+###########################################################################
+#  ----------------------------sob value=0.000222222     end of iteration 9          Loose  ---------------------------
+    cutsubleadpfisosumoet0 = cms.vdouble(     9.1,       7.9,        36,       8.5,      11.7,      10.5),
+ cutsubleadpfisosumoetbad0 = cms.vdouble(      32,        47,        48,      14.2,        62,      10.8),
+     cutsubleadpfchisooet0 = cms.vdouble(     6.4,       4.1,       5.4,       3.8,       6.8,         3),
+#   cutsubleadhcalisooetom0 = cms.vdouble(    12.4,      11.3,       8.5,       9.1,      10.8,       5.7),
+        cutsubleadpfsieie0 = cms.vdouble(  0.0117,    0.0113,    0.0103,     0.032,     0.031,     0.029),
+       cutsubleadpfhovere0 = cms.vdouble(   0.108,      0.14,     0.082,     0.146,     0.114,     0.144),
+           cutsubleadpfr90 = cms.vdouble(    0.94,       0.9,      0.23,      0.94,       0.9,      0.23),
+cutsubleadpf_drtotk_25_990 = cms.vdouble(    0.99,     0.027,    0.0124,    0.0087,    0.0098,    0.0125),
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.955435        fake=0.674154        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#  ----------------------------sob value=0.000388889     end of iteration 8          Medium  ---------------------------
+    cutsubleadpfisosumoet1 = cms.vdouble(     8.2,       7.1,        36,       6.1,       7.7,       7.4),
+ cutsubleadpfisosumoetbad1 = cms.vdouble(      31,      12.1,        48,       8.9,       9.7,       7.2),
+       cutsubleadpfchisooet1 = cms.vdouble(     5.6,       3.4,       4.6,       3.6,       5.3,       2.6),
+#   cutsubleadhcalisooetom1 = cms.vdouble(    11.7,       8.6,       8.5,         9,       9.7,       5.7),
+          cutsubleadpfsieie1 = cms.vdouble(  0.0117,    0.0109,      0.01,     0.032,      0.03,     0.028),
+         cutsubleadpfhovere1 = cms.vdouble(   0.107,     0.125,     0.082,     0.146,     0.114,     0.062),
+             cutsubleadpfr91 = cms.vdouble(    0.94,       0.9,      0.23,      0.94,       0.9,      0.23),
+  cutsubleadpf_drtotk_25_991 = cms.vdouble(       1,      0.98,     0.048,    0.0111,     0.031,    0.0175),
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.932915        fake=0.600583        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#  ----------------------------sob value=0.000555556     end of iteration 8          Tight  ---------------------------
+    cutsubleadpfisosumoet2 = cms.vdouble(     7.1,       6.8,      11.8,       5.8,       6.1,       4.4),
+ cutsubleadpfisosumoetbad2 = cms.vdouble(    11.9,       9.3,       9.4,       8.2,       6.2,       4.9),
+       cutsubleadpfchisooet2 = cms.vdouble(     4.5,       3.4,       2.3,       2.8,       3.5,      1.86),
+#   cutsubleadhcalisooetom2 = cms.vdouble(    10.9,         5,         7,         8,       9.7,       3.9),
+          cutsubleadpfsieie2 = cms.vdouble(  0.0109,    0.0108,    0.0099,     0.028,     0.029,     0.028),
+         cutsubleadpfhovere2 = cms.vdouble(   0.107,     0.094,     0.082,     0.116,     0.114,     0.062),
+             cutsubleadpfr92 = cms.vdouble(    0.94,       0.9,      0.24,      0.94,       0.9,      0.23),
+  cutsubleadpf_drtotk_25_992 = cms.vdouble(       1,      0.98,     0.059,     0.024,      0.24,      0.07),
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.895477        fake=0.505515        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#  ----------------------------sob value=0.000722222     end of iteration 8          SuperTight  ---------------------------
+    cutsubleadpfisosumoet3 = cms.vdouble(     6.3,       6.8,       4.9,       5.4,       4.1,       3.6),
+ cutsubleadpfisosumoetbad3 = cms.vdouble(    10.7,       7.8,       7.1,       7.8,       5.3,       4.3),
+       cutsubleadpfchisooet3 = cms.vdouble(       4,       2.5,       2.3,       2.8,      1.95,      1.81),
+#   cutsubleadhcalisooetom3 = cms.vdouble(    10.9,       4.8,       5.3,       7.3,       5.9,         3),
+          cutsubleadpfsieie3 = cms.vdouble(  0.0108,    0.0108,    0.0099,     0.028,     0.029,     0.028),
+         cutsubleadpfhovere3 = cms.vdouble(   0.106,     0.091,     0.082,     0.106,     0.096,     0.057),
+             cutsubleadpfr93 = cms.vdouble(    0.94,       0.9,      0.37,      0.94,       0.9,      0.23),
+  cutsubleadpf_drtotk_25_993 = cms.vdouble(       1,      0.98,     0.097,      0.99,      0.99,      0.99),
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.868785        fake=0.452173        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#  ----------------------------sob value=0.000944444     end of iteration 8          HyperTight1  ---------------------------
+    cutsubleadpfisosumoet4 = cms.vdouble(     5.7,       5.5,       4.5,       5.4,       2.7,       2.8),
+ cutsubleadpfisosumoetbad4 = cms.vdouble(      10,       6.5,       5.6,       5.4,       4.6,       3.9),
+       cutsubleadpfchisooet4 = cms.vdouble(     3.4,       2.2,       2.3,       2.8,      1.24,      1.28),
+#   cutsubleadhcalisooetom4 = cms.vdouble(    10.8,       4.8,       5.1,       7.3,       5.1,         3),
+          cutsubleadpfsieie4 = cms.vdouble(  0.0107,    0.0107,    0.0098,     0.028,     0.028,     0.027),
+         cutsubleadpfhovere4 = cms.vdouble(   0.093,     0.091,     0.082,     0.097,     0.085,     0.052),
+             cutsubleadpfr94 = cms.vdouble(    0.94,       0.9,      0.37,      0.94,       0.9,      0.23),
+  cutsubleadpf_drtotk_25_994 = cms.vdouble(       1,         1,      0.33,         1,         1,         1),
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.831948        fake=0.400756        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#  ----------------------------sob value=0.00138889     end of iteration 8          HyperTight2  ---------------------------
+    cutsubleadpfisosumoet5 = cms.vdouble(     5.3,       4.5,       2.8,       2.8,       2.7,       2.4),
+ cutsubleadpfisosumoetbad5 = cms.vdouble(     6.5,         6,       4.4,       5.4,       4.4,       3.9),
+       cutsubleadpfchisooet5 = cms.vdouble(     3.1,       2.1,       1.6,       0.7,      1.08,      0.97),
+#   cutsubleadhcalisooetom5 = cms.vdouble(    10.8,       4.8,       5.1,       7.3,       5.1,      1.74),
+          cutsubleadpfsieie5 = cms.vdouble(  0.0106,    0.0105,    0.0098,     0.028,     0.027,     0.027),
+         cutsubleadpfhovere5 = cms.vdouble(   0.055,     0.086,     0.049,      0.08,     0.074,     0.031),
+             cutsubleadpfr95 = cms.vdouble(    0.94,       0.9,      0.37,      0.94,       0.9,      0.23),
+  cutsubleadpf_drtotk_25_995 = cms.vdouble(       1,         1,      0.99,         1,         1,         1),
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.724074        fake=0.293226        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#  ----------------------------sob value=0.002     end of iteration 8          HyperTight3  ---------------------------
+    cutsubleadpfisosumoet6 = cms.vdouble(       3,       2.8,       2.4,       2.5,       2.3,       2.2),
+ cutsubleadpfisosumoetbad6 = cms.vdouble(     6.5,       5.8,       3.7,       4.5,       3.7,       2.6),
+       cutsubleadpfchisooet6 = cms.vdouble(    1.46,      1.21,       1.5,    0.0071,      0.82,    0.0098),
+#   cutsubleadhcalisooetom6 = cms.vdouble(     8.5,       4.8,       2.7,       7.3,       3.7,      1.69),
+          cutsubleadpfsieie6 = cms.vdouble(  0.0106,    0.0105,    0.0098,     0.028,     0.026,     0.026),
+         cutsubleadpfhovere6 = cms.vdouble(   0.046,     0.086,     0.049,      0.08,      0.03,     0.026),
+             cutsubleadpfr96 = cms.vdouble(    0.94,       0.9,      0.38,      0.94,       0.9,      0.23),
+  cutsubleadpf_drtotk_25_996 = cms.vdouble(       1,         1,         1,         1,         1,         1),
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.540237        fake=0.171467        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#  ----------------------------sob value=0.00283333     end of iteration 8          HyperTight4  ---------------------------
+    cutsubleadpfisosumoet7 = cms.vdouble(     2.6,       2.5,       2.2,       2.4,       2.3,       2.2),
+ cutsubleadpfisosumoetbad7 = cms.vdouble(     6.1,       4.8,       3.1,       3.2,       3.5,       2.6),
+       cutsubleadpfchisooet7 = cms.vdouble(    1.15,      0.96,      1.18,    0.0071,     0.183,    0.0098),
+#   cutsubleadhcalisooetom7 = cms.vdouble(     7.1,       4.8,      1.27,       6.8,       1.4,      1.29),
+          cutsubleadpfsieie7 = cms.vdouble(  0.0106,    0.0099,    0.0097,     0.027,     0.023,     0.022),
+         cutsubleadpfhovere7 = cms.vdouble(   0.046,     0.086,     0.049,     0.036,      0.03,     0.026),
+             cutsubleadpfr97 = cms.vdouble(    0.94,       0.9,      0.43,      0.95,       0.9,      0.48),
+  cutsubleadpf_drtotk_25_997 = cms.vdouble(       1,         1,         1,         1,         1,         1),
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.398482        fake=0.101649        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#  ----------------------------sob value=0.00394444     end of iteration 8          HyperTight5  ---------------------------
+    cutsubleadpfisosumoet8 = cms.vdouble(     2.4,       2.3,      1.91,       2.3,       2.2,       2.2),
+ cutsubleadpfisosumoetbad8 = cms.vdouble(     5.5,       4.3,       2.3,       3.2,       3.5,       2.6),
+       cutsubleadpfchisooet8 = cms.vdouble(    1.02,      0.95,      1.18,   7.1e-05,     0.183,   9.9e-05),
+#   cutsubleadhcalisooetom8 = cms.vdouble(     3.8,       2.6,       1.1,         2,      1.11,     0.055),
+          cutsubleadpfsieie8 = cms.vdouble(  0.0106,    0.0099,    0.0097,     0.024,     0.023,     0.022),
+         cutsubleadpfhovere8 = cms.vdouble(    0.04,     0.041,    0.0108,    0.0185,     0.028,    0.0075),
+             cutsubleadpfr98 = cms.vdouble(    0.94,       0.9,      0.44,      0.96,       0.9,      0.51),
+  cutsubleadpf_drtotk_25_998 = cms.vdouble(       1,         1,         1,         1,         1,         1),
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.278187        fake=0.058862        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#  ----------------------------sob value=0.00527778     end of iteration 8          HyperTight6  ---------------------------
+    cutsubleadpfisosumoet9 = cms.vdouble(     2.3,       2.1,      1.71,       2.1,      1.91,       2.2),
+ cutsubleadpfisosumoetbad9 = cms.vdouble(     4.3,       4.3,      1.85,      1.93,       3.5,       2.6),
+       cutsubleadpfchisooet9 = cms.vdouble(    0.92,      0.93,    0.0119,     1e-06,   0.00184,     1e-06),
+#   cutsubleadhcalisooetom9 = cms.vdouble(     3.8,      1.11,      0.83,         2,      0.95,   0.00055),
+          cutsubleadpfsieie9 = cms.vdouble(  0.0102,    0.0099,    0.0085,     0.024,     0.023,     0.022),
+         cutsubleadpfhovere9 = cms.vdouble(  0.0195,    0.0131,    0.0108,    0.0118,     0.024,    0.0075),
+             cutsubleadpfr99 = cms.vdouble(    0.94,       0.9,       0.5,      0.97,       0.9,      0.52),
+  cutsubleadpf_drtotk_25_999 = cms.vdouble(       1,         1,         1,         1,         1,         1),
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.184858        fake=0.0347188        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#  ----------------------------sob value=0.007     end of iteration 8          HyperTight7  ---------------------------
+   cutsubleadpfisosumoet10 = cms.vdouble(     2.1,      1.98,      1.52,         2,      1.91,      1.98),
+cutsubleadpfisosumoetbad10 = cms.vdouble(     4.1,       2.6,      1.28,       1.7,       3.5,       2.2),
+      cutsubleadpfchisooet10 = cms.vdouble(  0.0093,      0.37,   0.00012,         0,   1.9e-05,         0),
+#  cutsubleadhcalisooetom10 = cms.vdouble(    1.37,     0.069,      0.83,         2,      0.94,     6e-06),
+         cutsubleadpfsieie10 = cms.vdouble(  0.0093,    0.0099,    0.0085,     0.024,     0.023,     0.022),
+        cutsubleadpfhovere10 = cms.vdouble(  0.0171,    0.0131,    0.0108,    0.0053,     0.024,    0.0045),
+            cutsubleadpfr910 = cms.vdouble(    0.94,       0.9,      0.55,      0.97,       0.9,      0.52),
+ cutsubleadpf_drtotk_25_9910 = cms.vdouble(       1,         1,         1,         1,         1,         1),
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.0423217        fake=0.00855196        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#  ----------------------------sob value=0.00983333     end of iteration 8          HyperTight8  ---------------------------
+   cutsubleadpfisosumoet11 = cms.vdouble(     2.1,       1.8,      1.52,      1.83,      1.91,      1.98),
+cutsubleadpfisosumoetbad11 = cms.vdouble(     4.1,      1.82,      1.28,       1.7,       3.5,       2.2),
+      cutsubleadpfchisooet11 = cms.vdouble( 9.4e-05,    0.0038,     1e-06,         0,         0,         0),
+#  cutsubleadhcalisooetom11 = cms.vdouble(    1.37,     0.069,      0.82,       0.2,      0.91,         0),
+         cutsubleadpfsieie11 = cms.vdouble(  0.0092,    0.0099,    0.0085,     0.024,     0.023,     0.022),
+        cutsubleadpfhovere11 = cms.vdouble(0.000172,    0.0122,    0.0058,    0.0053,     0.024,    0.0045),
+            cutsubleadpfr911 = cms.vdouble(    0.94,       0.9,      0.75,      0.97,       0.9,      0.52),
+ cutsubleadpf_drtotk_25_9911 = cms.vdouble(       1,         1,         1,         1,         1,         1),
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.0335742        fake=0.00691706        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+#  ----------------------------sob value=0.0138889     end of iteration 8          HyperTight9  ---------------------------
+   cutsubleadpfisosumoet12 = cms.vdouble(     2.1,      1.62,      1.52,      1.83,      1.82,      1.98),
+cutsubleadpfisosumoetbad12 = cms.vdouble(     4.1,      1.82,      1.28,       1.7,       2.8,       2.2),
+      cutsubleadpfchisooet12 = cms.vdouble(   1e-06,   3.8e-05,         0,         0,         0,         0),
+#  cutsubleadhcalisooetom12 = cms.vdouble(  0.0139,     0.069,      0.82,     0.002,      0.21,         0),
+         cutsubleadpfsieie12 = cms.vdouble(  0.0092,    0.0099,    0.0085,     0.024,     0.023,     0.022),
+        cutsubleadpfhovere12 = cms.vdouble( 1.3e-05,    0.0091,    0.0058,    0.0053,    0.0051,   4.5e-05),
+            cutsubleadpfr912 = cms.vdouble(    0.94,       0.9,      0.78,      0.97,       0.9,      0.52),
+ cutsubleadpf_drtotk_25_9912 = cms.vdouble(       1,         1,         1,         1,         1,         1)
+# >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>  eff=0.028696        fake=0.00580757        <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 )

@@ -8,6 +8,7 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCuts.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeEcalClusters.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/CiCPhotonID.h"
 
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
@@ -29,6 +30,7 @@
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
 #include "HiggsAnalysis/HiggsToGammaGamma/interface/EGEnergyCorrector.h"
 
+
 #include "TTree.h"
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
@@ -44,22 +46,6 @@ class GlobePhotons {
   void checkSetup(const edm::EventSetup&);
   void defineBranch(TTree* tree);
   bool analyze(const edm::Event&, const edm::EventSetup&);
-
-  int PhotonID(reco::PhotonRef, int, reco::VertexRef, bool, int a = -1);
-
-  Float_t SumTrackPtInConeHgg(reco::PhotonRef, reco::VertexRef, Float_t, Float_t, Float_t, Float_t, Float_t, Float_t);
-  Float_t WorstSumTrackPtInConeHgg(reco::PhotonRef, Float_t, Float_t, Float_t, Float_t, Float_t, Float_t);
-  Float_t DeltaRToTrackHgg(reco::PhotonRef, edm::Handle<reco::GsfElectronCollection>, int);
-  LorentzVector VertexCorrectedP4Hgg(reco::PhotonRef, reco::VertexRef);
-
-  int photonCutLevel6(float, float, float, float, float, float, float, float);
-  int photonCutLevel4(float, float, float, float, float, float, float, float);
-
-  void setPhotonIDThresholds(const edm::ParameterSet&);
-  std::vector<float> pfTkIsoWithVertex(reco::PhotonRef, const reco::PFCandidateCollection*, float, float, std::vector<reco::PFCandidate::ParticleType>); 
-  float pfEcalIso(reco::PhotonRef, const reco::PFCandidateCollection*, float, float, float, float, float, float, std::vector<reco::PFCandidate::ParticleType>);
-  float pfHcalIso(reco::PhotonRef, const reco::PFCandidateCollection*, float, float, std::vector<reco::PFCandidate::ParticleType>);
-  //bool sameParticle(const reco::PFCandidate&, const reco::PFCandidate&) const;  
   
   std::map<DetId, EcalRecHit> rechits_map_;
 
@@ -193,7 +179,9 @@ class GlobePhotons {
   Float_t pho_regr_energy[MAX_PHOTONS];
   Float_t pho_regr_energyerr[MAX_PHOTONS];
 
-  Int_t pho_id[MAX_PHOTONS];
+  Int_t pho_id_4cat[MAX_PHOTONS][100];  
+  Int_t pho_id_6cat[MAX_PHOTONS][100];
+  Int_t pho_id_6catpf[MAX_PHOTONS][100];
 
   TClonesArray *pho_p4;
   TClonesArray *pho_calopos;
@@ -208,6 +196,8 @@ class GlobePhotons {
   GlobeCuts *gCUT;
   GlobeEcalClusters *gES;
   edm::InputTag photonCollStd;
+
+  CiCPhotonID* cicPhotonId;
 
   // SUPER CLUSTERS
   edm::InputTag hybridSuperClusterColl;
