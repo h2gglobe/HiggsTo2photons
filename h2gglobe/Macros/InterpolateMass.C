@@ -27,7 +27,7 @@ string dtoa(double value) {
 
 void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile, TFile* OutputFile, RooWorkspace* WorkSpace, int debug=1) {
 
-  if (fitmass>=140 || fitmass<=105) {
+  if (fitmass>=150 || fitmass<=105) {
     cout << "Warning!!!!!!!!!!! You must have an input mass between 105 and 140 GeV!" << endl << "Exiting Program!!!!" << endl;
     return;
   }
@@ -35,10 +35,10 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
   if (floor(fitmass)-fitmass<0.00001 && floor(fitmass)-fitmass>0) fitmass=floor(fitmass);
   if (fitmass-ceil(fitmass)>-0.00001 && fitmass-ceil(fitmass)<0) fitmass=ceil(fitmass);
   
-  double Masses[6] = {105.0, 110.0, 115.0, 120.0, 130.0, 140.0};
+  double Masses[10] = {105.0, 110.0, 115.0, 120.0,125.0, 130.0, 135.0,140.0,150.0};
   double lowerbound = 0;
   double upperbound = 0;
-  for (unsigned int i=0; i<5; i++) {
+  for (unsigned int i=0; i<10; i++) {
     if (fitmass>Masses[i] && fitmass<Masses[i+1]) {
       lowerbound = Masses[i];
       upperbound = Masses[i+1];
@@ -54,7 +54,7 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
   LowerBoundString.ReplaceAll(".0","");
   TString UpperBoundString = dtoa(upperbound);
   UpperBoundString.ReplaceAll(".0","");
-  RooRealVar RooRealMass = *(WorkSpace->var("BDT"));
+  RooRealVar RooRealMass = *(WorkSpace->var("CMS_hgg_mass"));
   
   for (unsigned int k=0; k < InterpolationList.size(); k++) {
 
@@ -128,7 +128,7 @@ void InterpolateMass(double fitmass) {
   for (Int_t j=0; j<HistList->GetSize(); ++j) {
 
     TString HistName(HistList->At(j)->GetName());
-    if (HistName.Contains("115") and HistName.Contains("sig")) InterpolationList.push_back(HistName);
+    if (HistName.Contains("115")) InterpolationList.push_back(HistName);
     if (HistName.Contains("th1f")) {
       TH1F* temphist = (TH1F*) SourceFile->Get(HistName.Data());
       OutputFile->WriteTObject(temphist);
@@ -171,7 +171,7 @@ void InterpolateMassRange(double Min, double Max, double Step, TString SourceFil
   for (Int_t j=0; j<HistList->GetSize(); ++j) {
 
     TString HistName(HistList->At(j)->GetName());
-    if (HistName.Contains("115")and HistName.Contains("sig")) InterpolationList.push_back(HistName);
+    if (HistName.Contains("115")) InterpolationList.push_back(HistName);
     if (HistName.Contains("th1f")) {
       TH1F* temphist = (TH1F*) SourceFile->Get(HistName.Data());
       OutputFile->WriteTObject(temphist);
