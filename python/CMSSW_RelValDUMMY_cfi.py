@@ -1,14 +1,14 @@
 
 import FWCore.ParameterSet.Config as cms
 
-maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
+maxEvents = cms.untracked.PSet( input = cms.untracked.int32(500) )
 
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 source = cms.Source ("PoolSource",fileNames = readFiles)
 readFiles.extend( (
     # GLUGLU
-    'file:/tmp/sani/8C858225-EFBA-E011-BAC6-0018F3D0967A.root',
+    'file:/tmp/sani/78CB9889-B5BB-E011-A3DE-001A92810AB8.root',
     # SinglePhoton
     #'file:/tmp/sani/5A123876-B5BB-E011-AF3C-002618943982.root',
     # Data

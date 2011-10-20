@@ -182,13 +182,16 @@ process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(doRhoFastjet = True)
 process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 
+##-------------------- Filter to skip bugged events with non conserved energy -------
+process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
+
 # event counters
 process.processedEvents = cms.EDProducer("EventCountProducer")
 
 if (flagAddPdfWeight == 'ON'):
-  process.eventCounters = cms.Sequence(process.processedEvents + process.pdfWeights)
+  process.eventCounters = cms.Sequence(process.totalKinematicsFilter + process.processedEvents + process.pdfWeights)
 else:
-  process.eventCounters = cms.Sequence(process.processedEvents)
+  process.eventCounters = cms.Sequence(process.totalKinematicsFilter + process.processedEvents)
 
 
 process.h2ganalyzer.globalCounters.extend(['processedEvents']) 
