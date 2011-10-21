@@ -1,0 +1,8 @@
+scp -r lxplus.cern.ch:~sani/public/{RecoEcal,EgammaAnalysis} .
+cvs co -r regression_Sept30 HiggsAnalysis/HiggsToGammaGamma
+addpkg CommonTools/TriggerUtils V00-02-01
+addpkg Configuration/Skimming V02-02-13
+addpkg RecoJets/JetAlgorithms V04-01-00
+addpkg RecoJets/JetProducers V05-05-03
+addpkg RecoJets/Configuration V02-04-17
+
