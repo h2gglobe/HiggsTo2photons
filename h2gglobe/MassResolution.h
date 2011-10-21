@@ -61,13 +61,13 @@ class MassResolution {
 
   public:
     MassResolution();
-    MassResolution(std::string);
+    MassResolution(std::string,std::string);
 
     void Setup(LoopAll&,TLorentzVector *,TLorentzVector *,int,int,int,double,double,EnergySmearer::energySmearingParameters,int,int);
 
     double leadPhotonResolution();
     double subleadPhotonResolution();
-    double getPhotonResolution(double,double,double,int);
+    double getPhotonResolution(double,double,double,int,double);
     
     double leadPhotonResolutionNoSmear();
     double subleadPhotonResolutionNoSmear();
@@ -112,6 +112,7 @@ class MassResolution {
     int sublead_phoCat;
     EnergySmearer::energySmearingParameters _eSmearPars;
 
+    std::string energyCorrectionMethod;
     double dz;
     double higgsMass;
 

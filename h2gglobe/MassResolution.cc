@@ -17,7 +17,8 @@ MassResolution::MassResolution(){
   dz_file->Close();
 }
 
-MassResolution::MassResolution(std::string fileName){
+MassResolution::MassResolution(std::string fileName,std::string ecorrmethod){
+  energyCorrectionMethod = ecorrmethod;
   dz_file = TFile::Open(fileName.c_str());
   dz_plot = (TGraph*)dz_file->Get("dz_vs_hpt");
   dz_file->Close();
@@ -31,8 +32,13 @@ void MassResolution::Setup(LoopAll &l, TLorentzVector *in_lead_p4, TLorentzVecto
   sublead_sc_pos = (TVector3*)(l.sc_xyz->At(l.pho_scind[sublead_index]));
   vertex = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_index]);
   vtx_dxdydz = (TVector3*)l.vtx_std_dxdydz->At(l.dipho_vtxind[diphoton_index]);
-  lead_Eres = l.pho_residCorrResn[lead_index];
-  sublead_Eres = l.pho_residCorrResn[sublead_index];
+  if (energyCorrectionMethod=="DaunceyAndKenzie"){
+    lead_Eres = l.pho_residCorrResn[lead_index];
+    sublead_Eres = l.pho_residCorrResn[sublead_index];
+  } else if (energyCorrectionMethod=="Bendavid"){
+    lead_Eres = l.pho_regr_energy[lead_index];
+    sublead_Eres = l.pho_regr_energyerr[sublead_index];
+  }
 //	lead_r9 = l.pho_r9[lead_index];
 // sublead_r9 = l.pho_r9[sublead_index];
 	lead_phoCat = l.PhotonCategory(lead_index,nR9Categories,nEtaCategories);
@@ -166,30 +172,49 @@ double MassResolution::subleadPhotonResolutionNoSmear() {
 }
 // return lead photon resolution 
 double MassResolution::leadPhotonResolution() {
-  return getPhotonResolution(lead_p4->E(),lead_Eres,lead_r9, lead_phoCat);
+  return getPhotonResolution(lead_p4->E(),lead_Eres,lead_r9, lead_phoCat,lead_sc_pos->Eta());
 }
 // return sublead photon resolution
 double MassResolution::subleadPhotonResolution() {
-  return getPhotonResolution(sublead_p4->E(),sublead_Eres,sublead_r9,sublead_phoCat);
+  return getPhotonResolution(sublead_p4->E(),sublead_Eres,sublead_r9,sublead_phoCat,sublead_sc_pos->Eta());
 }
 // Actually compute resolution given a photon
-double MassResolution::getPhotonResolution(double photonEnergy, double photonResolution, double r9, int phoCat) {
+double MassResolution::getPhotonResolution(double photonEnergy, double photonResolution, double r9, int phoCat, double scEta) {
 
-	// Get the photon-category sigma
-  	std::string myCategory="";
-  	if (_eSmearPars.categoryType=="2CatR9_EBEE" )
-    	{
-      	  if (phoCat==0 || phoCat==1)	myCategory+="EB";
-      	  else	myCategory+="EE";
-      
-          if (phoCat==0 || phoCat==2)   myCategory+="HighR9";
-      	  else	myCategory+="LowR9";
-    	}
+
+    // Get the photon-category sigma
+    std::string myCategory="";
+    if (_eSmearPars.categoryType=="2CatR9_EBEE" )
+   	{
+     	  if (phoCat==0 || phoCat==1)	myCategory+="EB";
+  	  else	myCategory+="EE";
+     
+         if (phoCat==0 || phoCat==2)   myCategory+="HighR9";
+     	  else	myCategory+="LowR9";
+   	}
+ 	else if (_eSmearPars.categoryType=="2CatR9_EBEBm4EE")
+  	{
+     	  if ((phoCat==0 || phoCat==1) && fabs(scEta)      < 1.)
+           myCategory+="EB";
+         else if ( (phoCat==0 || phoCat==1)&& fabs(scEta)  > 1.)
+           myCategory+="EBm4";
+         else
+           myCategory+="EE";
+      if (phoCat==0||phoCat==2)
+	myCategory+="HighR9";
+      else
+	myCategory+="LowR9";
+    }
   	else if (_eSmearPars.categoryType=="EBEE")
     	{
       	  if (phoCat==0 || phoCat==1)	myCategory+="EB";
       	  else	myCategory+="EE";
     	} 
+  else
+    {
+      std::cout << "Failed to calculate MassResolution, Unknown categorization. No category name is returned" << std::endl;
+      return 0;
+    }
 	// Smearing is applied ON TOP of PhotonFix corrections -> must scale that energy to get addistional resolutions
 	double categoryResolution = _eSmearPars.smearing_sigma[myCategory]*photonEnergy;	
 	return TMath::Sqrt(categoryResolution*categoryResolution + photonResolution*photonResolution);
