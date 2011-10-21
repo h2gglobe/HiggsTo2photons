@@ -523,6 +523,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     if (!doTraining && splitSignalSample && jentry%2!=0 && cur_type < 0) return;
     if (splitSignalSample && cur_type < 0) weight*=2;
+    if (!doTraining && splitBackgroundSample && jentry%2!=0 && cur_type > 0) return;
+    if (splitBackgroundSample && cur_type > 0) weight*=2;
  
     l.FillCounter( "Processed", 1. );
     assert( weight > 0. );  

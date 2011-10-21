@@ -76,6 +76,7 @@ public:
 
 	bool doTraining;
 	bool splitSignalSample;
+	bool splitBackgroundSample;
 	//int nMassPt;
 	std::string names[9];
         std::string BDTnames[9];

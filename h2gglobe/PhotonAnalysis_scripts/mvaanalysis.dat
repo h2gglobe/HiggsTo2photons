@@ -18,7 +18,8 @@ nPtCategories=1
 doTriggerSelection=1
 
 doTraining=0
-splitSignalSample=0
+splitSignalSample=1
+splitBackgroundSample=1
 
 
 ->
