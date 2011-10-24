@@ -176,11 +176,14 @@ process.h2ganalyzer.Debug_Level = 0
 process.load("CommonTools.ParticleFlow.pfPileUp_cfi")
 ##-------------------- Import the JEC services -----------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-process.ak5PFL1Fastjet.srcRho = cms.InputTag('kt6PFJetsForRhoCorrection','rho')
 ##-------------------- Import the Jet RECO modules -----------------------
 process.load('RecoJets.Configuration.RecoPFJets_cff')
-process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(doRhoFastjet = True)
+process.kt6PFJets = process.kt6PFJets.clone(rParam = 0.6, doRhoFastjet = True)
+process.ak5PFJets.doAreaFastjet = True
+process.ak5PFL1Fastjet.useCondDB = False
+process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(rParam = 0.6, doRhoFastjet = True)
 process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
+
 
 ##-------------------- Filter to skip bugged events with non conserved energy -------
 process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
@@ -208,8 +211,10 @@ if flagAOD is 'ON':
                           #process.pfBasedPhotonIsoSequence*
                           #process.pfSelectedPhotons *
                           process.piZeroDiscriminators*
+                          process.kt6PFJets*
+                          process.ak5PFJets*
                           process.kt6PFJetsForRhoCorrection*
-                          process.ak5PFJets*process.h2ganalyzerPath)
+                          process.h2ganalyzerPath)
   
   process.p12 = cms.Path( process.eventCounters*
                           process.eventFilter2*
@@ -217,16 +222,19 @@ if flagAOD is 'ON':
                           process.piZeroDiscriminators*
                           #process.pfBasedPhotonIsoSequence*
                           #process.pfSelectedPhotons *
+                          process.kt6PFJets*
+                          process.ak5PFJets*
                           process.kt6PFJetsForRhoCorrection*
-                          process.ak5PFJets*process.h2ganalyzerPath)
+                          process.h2ganalyzerPath)
 else:
   process.p11 = cms.Path( process.eventCounters*
                           process.eventFilter1*
                           process.pfPileUp *
                           #process.pfBasedPhotonIsoSequence*
                           #process.pfSelectedPhotons *
-                          process.kt6PFJetsForRhoCorrection*
+                          process.kt6PFJets*
                           process.ak5PFJets*
+                          process.kt6PFJetsForRhoCorrection*
                           process.conversionTrackCandidates*
                           process.ckfOutInTracksFromConversions*
                           process.preshowerClusterShape*
@@ -238,8 +246,9 @@ else:
                           process.pfPileUp *
                           #process.pfBasedPhotonIsoSequence*
                           #process.pfSelectedPhotons *
-                          process.kt6PFJetsForRhoCorrection*
+                          process.kt6PFJets*
                           process.ak5PFJets*
+                          process.kt6PFJetsForRhoCorrection*
                           process.conversionTrackCandidates*
                           process.ckfOutInTracksFromConversions*
                           process.preshowerClusterShape*

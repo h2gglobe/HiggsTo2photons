@@ -246,20 +246,27 @@ for run in runselection:
             file_out.write("storage_path=/srm/v2/server?SFN=/hadoop/cms/store/user/\n")
         elif ("user_remote_dir" in line and storage == "hadoop"):
             file_out.write("user_remote_dir=/"+user_remote_dir+"/"+job_name+"\n")
-        elif ("total_number_of_events" in line and json == ""):
+        #elif ("total_number_of_events" in line and json == ""):
+        elif ("total_number_of_events" in line and not flagData):
             file_out.write("total_number_of_events = "+str(total_number)+"\n")
-        elif ("events_per_job" in line and json == ""):
+        #elif ("events_per_job" in line and json == ""):
+        elif ("events_per_job" in line and not flagData):
             file_out.write("events_per_job = "+str(events_job)+"\n")
-        elif ("lumi_mask" in line and json != ""):
+        elif ("lumi_mask" in line and flagData):
             if json.startswith('/'):
                 # absolute path specified
                 file_out.write("lumi_mask = "+str(json)+"\n")
+            elif json.startswith('-'):
+                # no json file applied
+                file_out.write("#lumi_mask = "+str(json)+"\n")
             else:
                 # relative path specified
                 file_out.write("lumi_mask = ../../../scripts/"+str(json)+"\n")
-        elif ("lumis_per_job" in line and json != ""):
+        #elif ("lumis_per_job" in line and json != ""):
+        elif ("lumis_per_job" in line and flagData):
             file_out.write("lumis_per_job = "+str(lumis_per_job)+"\n")
-        elif ("total_number_of_lumis" in line and json != ""):
+        #elif ("total_number_of_lumis" in line and json != ""):
+        elif ("total_number_of_lumis" in line and flagData):
             file_out.write("total_number_of_lumis = "+str(lumis)+"\n")
         elif ("se_white_list" in line and whiteList != ""):
             file_out.write("se_white_list = "+str(whiteList)+"\n")
