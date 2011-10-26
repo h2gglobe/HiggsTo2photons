@@ -180,7 +180,6 @@ process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 process.load('RecoJets.Configuration.RecoPFJets_cff')
 process.kt6PFJets = process.kt6PFJets.clone(rParam = 0.6, doRhoFastjet = True)
 process.ak5PFJets.doAreaFastjet = True
-process.ak5PFL1Fastjet.useCondDB = False
 process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(rParam = 0.6, doRhoFastjet = True)
 process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 

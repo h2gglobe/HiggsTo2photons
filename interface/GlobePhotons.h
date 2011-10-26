@@ -74,7 +74,7 @@ class GlobePhotons {
   Float_t pho_sipip[MAX_PHOTONS];
   Float_t pho_sieip[MAX_PHOTONS];
   Float_t pho_e1x5[MAX_PHOTONS];
-  Float_t pho_e2x5[MAX_PHOTONS];
+  Float_t pho_e2x2[MAX_PHOTONS];
   Float_t pho_e3x3[MAX_PHOTONS];
   Float_t pho_e5x5[MAX_PHOTONS];
   Float_t pho_emaxxtal[MAX_PHOTONS];
@@ -89,8 +89,17 @@ class GlobePhotons {
   Float_t pho_zernike42[MAX_PHOTONS];
   Float_t pho_eseffsixix[MAX_PHOTONS];
   Float_t pho_eseffsiyiy[MAX_PHOTONS];
+  Float_t pho_r19[MAX_PHOTONS];
+  Float_t pho_maxoraw[MAX_PHOTONS];
+  Float_t pho_cep[MAX_PHOTONS];
+  Float_t pho_lambdaratio[MAX_PHOTONS];
+  Float_t pho_lambdadivcov[MAX_PHOTONS];
+  Float_t pho_etawidth[MAX_PHOTONS];
+  Float_t pho_brem[MAX_PHOTONS];
+  Float_t pho_smaj[MAX_PHOTONS];
 
-// pi0 disc variable
+
+  // pi0 disc variable
   Float_t pho_pi0disc[MAX_PHOTONS];
 
 // OutIn Conv trks variable
@@ -137,6 +146,8 @@ class GlobePhotons {
   Float_t pho_trksumpthollowconedr03[MAX_PHOTONS];
   Float_t pho_ntrksolidconedr03[MAX_PHOTONS];
   Float_t pho_ntrkhollowconedr03[MAX_PHOTONS];
+  std::vector<std::vector<float> >* pho_frixiso;
+  Float_t pho_must[MAX_PHOTONS];
 
   Int_t pho_barrel[MAX_PHOTONS];
   Int_t pho_scind[MAX_PHOTONS];

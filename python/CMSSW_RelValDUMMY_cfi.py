@@ -8,7 +8,9 @@ secFiles = cms.untracked.vstring()
 source = cms.Source ("PoolSource",fileNames = readFiles)
 readFiles.extend( (
     # GLUGLU
-    'file:/tmp/sani/78CB9889-B5BB-E011-A3DE-001A92810AB8.root',
+    'file:/tmp/capalmer/8C858225-EFBA-E011-BAC6-0018F3D0967A.root',
+    #'/store/relval/CMSSW_4_2_8/RelValH130GGgluonfusion/GEN-SIM-RECO/START42_V12-v1/0024/8C858225-EFBA-E011-BAC6-0018F3D0967A.root',
+    #'file:/tmp/sani/78CB9889-B5BB-E011-A3DE-001A92810AB8.root',
     # SinglePhoton
     #'file:/tmp/sani/5A123876-B5BB-E011-AF3C-002618943982.root',
     # Data

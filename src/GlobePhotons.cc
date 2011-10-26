@@ -1,6 +1,7 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePhotons.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
@@ -8,6 +9,8 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+
+//#include "HiggsAnalysis/HiggsTo2photons/interface/pfFrixioneIso.h"
 
 #include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
@@ -88,8 +91,10 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 
   pho_pfiso_mycharged03 = new std::vector<std::vector<float> >();
   pho_pfiso_mycharged04 = new std::vector<std::vector<float> >();
+  pho_frixiso = new std::vector<std::vector<float> >();
 
   cicPhotonId = new CiCPhotonID(iConfig);
+  //pfFrixIso = new pfFrixioneIso();
 }
 
 void GlobePhotons::defineBranch(TTree* tree) {
@@ -119,7 +124,7 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_see",&pho_see,"pho_see[pho_n]/F");
   tree->Branch("pho_sieie",&pho_sieie,"pho_sieie[pho_n]/F");
   tree->Branch("pho_e1x5",&pho_e1x5,"pho_e1x5[pho_n]/F");
-  tree->Branch("pho_e2x5",&pho_e2x5,"pho_e2x5[pho_n]/F");
+  tree->Branch("pho_e2x2",&pho_e2x2,"pho_e2x2[pho_n]/F");
   tree->Branch("pho_e3x3",&pho_e3x3,"pho_e3x3[pho_n]/F");
   tree->Branch("pho_e5x5",&pho_e5x5,"pho_e5x5[pho_n]/F");
   tree->Branch("pho_emaxxtal",&pho_emaxxtal,"pho_emaxxtal[pho_n]/F");
@@ -133,6 +138,16 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_eseffsixix",&pho_eseffsixix,"pho_eseffsixix[pho_n]/F");
   tree->Branch("pho_eseffsiyiy",&pho_eseffsiyiy,"pho_eseffsiyiy[pho_n]/F");
   
+  // NN variable
+  tree->Branch("pho_r19", &pho_r19, "pho_r19[pho_n]/F");
+  tree->Branch("pho_maxoraw", &pho_maxoraw, "pho_maxoraw[pho_n]/F");
+  tree->Branch("pho_cep", &pho_cep, "pho_cep[pho_n]/F");
+  tree->Branch("pho_lambdaratio", &pho_lambdaratio, "pho_lambdaratio[pho_n]/F");
+  tree->Branch("pho_lambdadivcov", &pho_lambdadivcov, "pho_lambdadivcov[pho_n]/F");
+  tree->Branch("pho_etawidth", &pho_etawidth, "pho_etawidth[pho_n]/F");
+  tree->Branch("pho_brem", &pho_brem, "pho_brem[pho_n]/F");
+  tree->Branch("pho_smaj", &pho_smaj, "pho_smaj[pho_n]/F");
+
   // added by Aris
   // pi0 disc
   tree->Branch("pho_pi0disc",&pho_pi0disc,"pho_pi0disc[pho_n]/F");
@@ -147,6 +162,9 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_pfiso_myphoton04", &pho_pfiso_myphoton04, "pho_pfiso_myphoton04[pho_n]/F");
   tree->Branch("pho_pfiso_mycharged03", "std::vector<std::vector<float> >", &pho_pfiso_mycharged03);
   tree->Branch("pho_pfiso_mycharged04", "std::vector<std::vector<float> >", &pho_pfiso_mycharged04);
+
+  tree->Branch("pho_frixiso", "std::vector<std::vector<float> >", &pho_frixiso);  
+  tree->Branch("pho_must", &pho_must, "pho_must[pho_n]/F");
 
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
@@ -394,6 +412,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_id_6catpf[pho_n][iv] = cicPhotonId->photonCutLevel6catPF(localPho, iv);
     }
 
+    // FRIXIONE ISO
+    //pfFrixIso->float pfFrixioneIso::mvaID(const reco::PFCandidateCollection* pfParticlesColl,const reco::Photon *recoPhoton, edm::Handle< reco::VertexCollection > recoVtx)
+    pho_must[pho_n]    = 0;
+
+
     // Residual corrections
     PhotonFix ResidCorrector(*localPho);
     pho_residCorrEnergy[pho_n] = ResidCorrector.fixedEnergy();
@@ -500,7 +523,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_see[pho_n] = localPho->sigmaEtaEta();
     pho_sieie[pho_n] = localPho->sigmaIetaIeta();
     pho_e1x5[pho_n] = localPho->e1x5();
-    pho_e2x5[pho_n] = localPho->e2x5();
+    pho_e2x2[pho_n] =  lazyTool.e2x2(*seed_clu);
     pho_e3x3[pho_n] = localPho->e3x3();
     pho_e5x5[pho_n] = localPho->e5x5();
     pho_emaxxtal[pho_n] = localPho->maxEnergyXtal();
@@ -513,6 +536,36 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_r1x5[pho_n] = localPho->r1x5();
     pho_r2x5[pho_n] = localPho->r2x5();
     pho_r9[pho_n] = localPho->r9();
+
+// more cluster shapes from Lazy Tools
+    std::vector<float> viCov;
+    viCov = lazyTool.localCovariances(*seed_clu);
+    pho_sipip[pho_n] = viCov[2];
+    pho_sieip[pho_n] = viCov[1];
+    pho_zernike20[pho_n] = lazyTool.zernike20(*seed_clu);
+    pho_zernike42[pho_n] = lazyTool.zernike42(*seed_clu);
+    pho_e2nd[pho_n] = lazyTool.e2nd(*seed_clu);
+    pho_e2x5right[pho_n] = lazyTool.e2x5Right(*seed_clu);
+    pho_e2x5left[pho_n] = lazyTool.e2x5Left(*seed_clu);
+    pho_e2x5Top[pho_n] = lazyTool.e2x5Top(*seed_clu);
+    pho_e2x5bottom[pho_n] = lazyTool.e2x5Bottom(*seed_clu);
+    pho_eright[pho_n] = lazyTool.eRight(*seed_clu);
+    pho_eleft[pho_n] = lazyTool.eLeft(*seed_clu);
+    pho_etop[pho_n] = lazyTool.eTop(*seed_clu);
+    pho_ebottom[pho_n] = lazyTool.eBottom(*seed_clu);
+
+    // NN variables
+    pho_r19[pho_n]            = lazyTool.eMax(*seed_clu)/pho_e3x3[pho_n];
+    pho_maxoraw[pho_n]        = lazyTool.eMax(*seed_clu)/localPho->superCluster()->rawEnergy();
+    pho_cep[pho_n]            = viCov[1];
+    float lambdaMinus         = (viCov[0] + viCov[2] - sqrt(pow(viCov[0] - viCov[2], 2) + 4*pow(viCov[1], 2)));
+    float lambdaPlus          = (viCov[0] + viCov[2] + sqrt(pow(viCov[0] - viCov[2], 2) + 4*pow(viCov[1], 2)));
+    pho_lambdaratio[pho_n]    = lambdaMinus/lambdaPlus;
+    pho_lambdadivcov[pho_n]   = lambdaMinus/viCov[0];
+    pho_etawidth[pho_n]       = localPho->superCluster()->etaWidth();
+    pho_brem[pho_n]           = localPho->superCluster()->phiWidth()/localPho->superCluster()->etaWidth();
+    Cluster2ndMoments moments = EcalClusterTools::cluster2ndMoments(*seed_clu, *(prechits.product()), 0.8, 4.7, true);
+    pho_smaj[pho_n]           = moments.sMaj; 
 
     // Added by Aris - Begin
     int R_nphot = 0;
@@ -559,23 +612,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
     // Added by Aris - End
     
-    // more cluster shapes from Lazy Tools
-    std::vector<float> viCov;
-    viCov = lazyTool.localCovariances(*seed_clu);
-    pho_sipip[pho_n] = viCov[2];
-    pho_sieip[pho_n] = viCov[1];
-    pho_zernike20[pho_n] = lazyTool.zernike20(*seed_clu);
-    pho_zernike42[pho_n] = lazyTool.zernike42(*seed_clu);
-    pho_e2nd[pho_n] = lazyTool.e2nd(*seed_clu);
-    pho_e2x5right[pho_n] = lazyTool.e2x5Right(*seed_clu);
-    pho_e2x5left[pho_n] = lazyTool.e2x5Left(*seed_clu);
-    pho_e2x5Top[pho_n] = lazyTool.e2x5Top(*seed_clu);
-    pho_e2x5bottom[pho_n] = lazyTool.e2x5Bottom(*seed_clu);
-    pho_eright[pho_n] = lazyTool.eRight(*seed_clu);
-    pho_eleft[pho_n] = lazyTool.eLeft(*seed_clu);
-    pho_etop[pho_n] = lazyTool.eTop(*seed_clu);
-    pho_ebottom[pho_n] = lazyTool.eBottom(*seed_clu);
-
     //spike-ID
     //pho_e2overe9[pho_n] = EcalSeverityLevelAlgo::E2overE9( id, *prechits, 5.0, 0.0);
     pho_seed_severity[pho_n] = sevLevel->severityLevel(id, *prechits);
