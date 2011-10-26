@@ -1,4 +1,4 @@
-scp -r lxplus.cern.ch:~sani/public/{RecoEcal,EgammaAnalysis} .
+cp -r ~sani/public/{RecoEcal,EgammaAnalysis} .
 cvs co -r regression_Sept30 HiggsAnalysis/HiggsToGammaGamma
 addpkg CommonTools/TriggerUtils V00-02-01
 addpkg Configuration/Skimming V02-02-13

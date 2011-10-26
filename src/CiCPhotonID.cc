@@ -44,7 +44,7 @@ int CiCPhotonID::PhotonIDCategory(reco::PhotonRef photon, int nCategories) {
     
     thisCat = 2*(etaCat) + r9Cat;
   } else if (nCategories == 6) {
-    bool r9Cat = (Int_t)(r9<0.94) + (r9<0.9); // 0, 1, or 2 (high r9 --> low r9)
+    Int_t r9Cat = (Int_t)(r9<0.94) + (Int_t)(r9<0.9); // 0, 1, or 2 (high r9 --> low r9)
     bool etaCat = eta>1.479;
 
     thisCat = 3*(etaCat) + r9Cat;
@@ -110,13 +110,14 @@ bool CiCPhotonID::PhotonIDPF(int nCategories, reco::PhotonRef photon, Int_t ivtx
   temp.clear();
   temp.push_back(reco::PFCandidate::h);  
   std::vector<float> vtxIsolations03 = pfTkIsoWithVertex(photon, 0.3, 0.02, temp);
+  std::vector<float> vtxIsolations04 = pfTkIsoWithVertex(photon, 0.4, 0.02, temp);
   float val_pfiso_charged03 = vtxIsolations03[ivtx];
   float val_pfiso_charged_badvtx_04 = -99;
   int badind = -1;
   for(unsigned int iv=0; iv<vtxHandle->size(); iv++) {
-    if(vtxIsolations03[iv] > val_pfiso_charged_badvtx_04) {
+    if(vtxIsolations04[iv] > val_pfiso_charged_badvtx_04) {
       badind = iv;
-      val_pfiso_charged_badvtx_04 = vtxIsolations03[iv];
+      val_pfiso_charged_badvtx_04 = vtxIsolations04[iv];
     }
   }
 
@@ -127,8 +128,8 @@ bool CiCPhotonID::PhotonIDPF(int nCategories, reco::PhotonRef photon, Int_t ivtx
   float isosumconst    = 2.8;
   float isosumconstbad = 4.8;
 
-  float val_isosum     = val_pfiso_charged03 + val_pfiso_photon03 - rho*rhofac;
-  float val_isosumbad  = val_pfiso_charged_badvtx_04 + val_pfiso_photon04 - rho*rhofacbad;
+  float val_isosum     = val_pfiso_charged03 + val_pfiso_photon03;
+  float val_isosumbad  = val_pfiso_charged_badvtx_04 + val_pfiso_photon04;
   float val_isosumoet    = (val_isosum + isosumconst - rho*rhofac)*50./phop4.Et();
   float val_isosumoetbad = (val_isosumbad + isosumconstbad - rho*rhofacbad)*50./phop4.Et();
   float val_trkisooet    = (val_pfiso_charged03)*50./phop4.Et();
@@ -139,7 +140,7 @@ bool CiCPhotonID::PhotonIDPF(int nCategories, reco::PhotonRef photon, Int_t ivtx
   vars[3] = photon->sigmaIetaIeta();
   vars[4] = photon->hadronicOverEm();
   vars[5] = photon->r9();
-  vars[6] = DeltaRToTrackHgg(photon, ivtx);
+  vars[6] = DeltaRToTrackHgg(photon,  99);
   //vars[7] = (float)photon->hasPixelSeed();
   
   for(int var=0; var<7; var++){
@@ -191,7 +192,7 @@ bool CiCPhotonID::PhotonID(int nCategories, reco::PhotonRef photon, int iVtx, Ci
   vars[3] = photon->sigmaIetaIeta();
   vars[4] = photon->hadronicOverEm();
   vars[5] = photon->r9();
-  vars[6] = DeltaRToTrackHgg(photon, iVtx);
+  vars[6] = DeltaRToTrackHgg(photon, 99);
   //vars[7] = (float)photon->hasPixelSeed();
   
   for(int var=0; var<7; var++){
@@ -456,7 +457,7 @@ int CiCPhotonID::photonCutLevel4cat(reco::PhotonRef photon, Int_t iVtx) {
   
   int lev = 0;
 
-  for (Int_t i=0; i<10; i++)
+  for (Int_t i=0; i<8; i++)
     if (PhotonID(4, photon, iVtx, CiCPhotonID::CiCPhotonIDLevel(i)))
       lev++;
 
@@ -468,7 +469,7 @@ int CiCPhotonID::photonCutLevel6cat(reco::PhotonRef photon, Int_t iVtx) {
   
   int lev = 0;
 
-  for (Int_t i=0; i<10; i++)
+  for (Int_t i=0; i<8; i++)
     if (PhotonID(6, photon, iVtx, CiCPhotonID::CiCPhotonIDLevel(i)))
       lev++;
 
@@ -479,7 +480,7 @@ int CiCPhotonID::photonCutLevel6catPF(reco::PhotonRef photon, Int_t iVtx) {
   
   int lev = 0;
 
-  for (Int_t i=0; i<10; i++)
+  for (Int_t i=0; i<11; i++)
     if (PhotonIDPF(6, photon, iVtx, CiCPhotonID::CiCPhotonIDLevel(i)))
       lev++;
 
