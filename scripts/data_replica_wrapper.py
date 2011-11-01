@@ -104,6 +104,8 @@ if options.recursive:
 myOptions = drOptions()
 myOptions.TO_SITE = options.TO_SITE
 myOptions.FROM_SITE = "CERN_CASTOR_USER"
+myOptions.WHITELIST = ""
+myOptions.BLACKLIST = ""
 
 filelists = popen("ls | grep '\.filelist'").readlines()
 for i in range(len(filelists)):
