@@ -4,10 +4,9 @@
 #
 # Author: Leonardo Sala <leonardo.sala@cern.ch>
 #
-# $Id: data_replica.py,v 1.1 2011/04/21 16:45:58 drberry Exp $
+# $Id: data_replica.py,v 1.37 2011/08/25 12:50:56 leo Exp $
 #################################################################
 
-# updated for the new CMS webservices (https)
 
 
 import os
@@ -16,7 +15,8 @@ from sys import argv,exit
 from optparse import OptionParser
 from time import time
 
-PREFERRED_SITES = ["T2"]
+
+PREFERRED_SITES = []
 DENIED_SITES = ["T0","MSS"]
 PROTOCOL = "srmv2"
 
@@ -67,7 +67,7 @@ if __name__ == "__main__":
     
 [USE CASES]
 
-  * Replicate a file list without specifying a source node (discovery). In this case, a source nodes list is retrieved from PhEDEx data service: 
+* Replicate a file list without specifying a source node (discovery). In this case, a source nodes list is retrieved from PhEDEx data service: 
 
       data_replica --discovery filelist.txt --to-site YOUR_SITE
 
@@ -148,27 +148,22 @@ if __name__ == "__main__":
     parser.add_option("--threads",
                       action="store", dest="THREADS", default="1",
                       help="Option for multiple threads with lcgcp")
-    
+
+    parser.add_option("--whitelist",
+                      action="store", dest="WHITELIST", default="",
+                      help="Sets up a comma-separated White-list (preferred sites). Transfers will start from thse sites, then data_replica will use the other sites found with the --discovery option (without --discovery this option makes no sense). Sites not included in the whitelist will be not excluded: use --blacklist for this.")
+
+    parser.add_option("--blacklist",
+                      action="store", dest="BLACKLIST", default="",
+                      help="Sets up a comma-separated Black-list (excluded sites). Data_replica won't use these sites (without --discovery this option makes no sense).")
+        
     (moptions, args) = parser.parse_args()
     moptions.Replicate = ENABLE_REPLICATION
-
+    
     if len(args)<1:
         print usage
         exit(-1)
     
-### Log files definition
-#myPid = os.getpid() # want to use???
-#USER = os.getenv('LOGNAME')
-#DATE = popen("date +'%Y%m%d%k%M'").readlines()[0].strip('\n').replace(" ","0")
-#splittedLogfile = options.logfile.split(".")
-#additionalLogName = ""
-#if options.logfile=="data_replica.log": additionalLogName = "-"+USER+"-"+DATE
-#DATAREPLICA_LOGFILE = splittedLogfile[-2]+additionalLogName+".log"
-#EXISTING_LOGFILE = splittedLogfile[-2]+"_existingList"+additionalLogName+".log"
-#FAILED_LOGFILE = splittedLogfile[-2]+"_failedList"+additionalLogName+".log"
-#SUCCESS_LOGFILE = splittedLogfile[-2]+"_successList"+additionalLogName+".log"
-#NOREPLICA_LOGFILE =splittedLogfile[-2]+"_noReplica"+additionalLogName+".log"
-#ADMIN_LOGFILE = "/tmp/data_replica-admin-"+USER+"-"+DATE+'.log'
 
 
 
@@ -260,7 +255,6 @@ def retrieve_pfn(lfn,site):
 def retrieve_siteAndPfn(lfn):
     entry = []
     retrieve_siteList(lfn,entry)
-    print entry
     for x in entry:
         x["pfn"] =  retrieve_pfn(lfn,x["node"])
     #filelist[lfn]  =entry
@@ -268,10 +262,18 @@ def retrieve_siteAndPfn(lfn):
                             
 
 
+### Fill the PREFERRED_SITES and DENIED_SITES arrays
+def setBlackWhiteSiteList(options,PREFERRED_SITES, DENIED_SITES  ):
+    if options.WHITELIST!="":
+        for site in options.WHITELIST.split(","):
+            PREFERRED_SITES.append(site)
+    if options.BLACKLIST!="":
+        for site in options.BLACKLIST.split(","):
+            DENIED_SITES.append(site)        
 
 
 ### arrange sources, putting preferred ones before
-def arrange_sources(sitelist,PREFERRED_SITES ):
+def arrange_sources(sitelist,PREFERRED_SITES, DENIED_SITES ):
     new_sitelist = []
     notPref_sitelist = []
     for entry in sitelist:
@@ -298,7 +300,10 @@ def arrange_sources(sitelist,PREFERRED_SITES ):
 
 
 def getFileSizeLCG(pfn):
+    #out_pipe = popen("lcg-ls "+LCG_OPTIONS_COMMON+" -T "+PROTOCOL+" -l "+pfn+" 2>/dev/null | awk '{print $5}'")
     out_pipe = popen("lcg-ls "+LCG_OPTIONS_COMMON+" -l "+pfn+" 2>/dev/null | awk '{print $5}'")
+    #print out_pipe
+    #print "lcg-ls %s -T %s -l %s" %(LCG_OPTIONS_COMMON,PROTOCOL,pfn)
     #print "lcg-ls -l "+pfn+" 2>/dev/null | awk '{print $5}'"
     out = out_pipe.readlines()
     #out_pipe.close()
@@ -425,7 +430,8 @@ def copyFile(tool,copyOptions, source,  dest, srm_prot, myLog, logfile, isStage)
     if tool=="srmcp":
         command += "&& srmcp "+srm_prot+" "+copyOptions+" "+source["pfn"]+" "+dest+ " 2>&1"
     else:
-        command += "&& lcg-cp -V cms "+copyOptions+" -T "+PROTOCOL+" -U "+PROTOCOL+" "+source["pfn"]+" "+dest+ " 2>&1"
+        #command += "&& lcg-cp -V cms "+copyOptions+" -T "+PROTOCOL+" -U "+PROTOCOL+" "+source["pfn"]+" "+dest+ " 2>&1"
+        command += "&& lcg-cp -V cms "+copyOptions+" "+source["pfn"]+" "+dest+ " 2>&1"
     printDebug( command )
 
     if not options.DRYRUN:
@@ -436,6 +442,7 @@ def copyFile(tool,copyOptions, source,  dest, srm_prot, myLog, logfile, isStage)
             destSize = -1
         ### if no file at dest, copy
         if destSize==-1:
+            print command
             pipe = popen(command)
             out = pipe.readlines()
             for l in out:
@@ -627,6 +634,10 @@ def data_replica(args, moptions):
         
     if options.TO_SITE == "":
         print "WARNING: no dest site given, assuming PFN destination"
+        if DESTINATION.find("///")==-1:
+            print "ERROR: PFN destination incorrect, please check"
+            exit(-1)
+                    
         
     if options.TO_SITE != "" and DESTINATION=="":
         if options.Replicate: print "No DESTINATION given, replicating data using lfn2pfn information"
@@ -649,7 +660,14 @@ def data_replica(args, moptions):
         if os.environ["HOSTNAME"].find("lxplus")==-1 or (options.FROM_SITE!="T2_CH_CAF" and options.FROM_SITE!="CERN_CASTOR_USER" ):
             print "--castor-stage option works only from a lxplus machine and setting --from-site=T2_CH_CAF or CERN_CASTOR_USER"
             exit(-1)
-                                                                                                                
+
+    if not options.usePDS and (options.WHITELIST!="" or options.BLACKLIST!=""):
+        print "Black/white lists make sense only if --discovery is activated, exiting."
+        exit(-1)
+
+    ###fill black/white lists
+    setBlackWhiteSiteList(options,PREFERRED_SITES, DENIED_SITES)
+    
 ### Log files definition
     myPid = os.getpid() # want to use???
     ### Log files definition
@@ -717,9 +735,11 @@ def data_replica(args, moptions):
         pipe.close()
         splitOut = out.split('-')
         if len(splitOut)>1:
-            version = splitOut[1].split('.')[0]+'.'+splitOut[1].split('.')[1]+splitOut[1].split('.')[2]
+            ##version = splitOut[1].split('.')[0]+'.'+splitOut[1].split('.')[1]+splitOut[1].split('.')[2]
+            version = splitOut[1].split('.')[1]
             version = float(version)
-        if version >= 1.7:
+        ##if version >= 1.7:    1.11 is not greater than 1.7 but it should be
+        if version >= 7:
             copyOptions = LCG_OPTIONS_17
             copyOptions = copyOptions.replace("-n 1 ","-n "+options.THREADS+" ")
         else:  copyOptions = LCG_OPTIONS
@@ -756,7 +776,7 @@ def data_replica(args, moptions):
 
             if options.usePDS:
                 filelist = retrieve_siteAndPfn(lfn)
-				
+
             if DESTINATION != "":
                 if DESTINATION[-1] != "/": DESTINATION+="/"
             else:
@@ -770,6 +790,8 @@ def data_replica(args, moptions):
                  exit(1)
             srm_prot = ""
             if PROTOCOL == "srmv2": srm_prot = "-2"
+
+            isFileAtSource = True  ## keeps track if the file exist at source
 
             ###Special case for user dir on castor
             ### file list is supposed to be in the form /castor/ (PFN)
@@ -785,19 +807,18 @@ def data_replica(args, moptions):
                     printDebug("CastorStaging: deleted "+local_pfn)
 
             elif options.usePDS:
-                sources_list = arrange_sources(filelist,PREFERRED_SITES )
+                sources_list = arrange_sources(filelist,PREFERRED_SITES,  DENIED_SITES )
                 if sources_list == []:
-                    #print filelist
-                    #print sources_list
                     printOutput( "ERROR: no replicas found",0,ADMIN_LOGFILE)
+                    isFileAtSource=False
                     writeLog(NOREPLICA_LOGFILE,lfn+"\n")
-                    continue
+                    #continue
     
                 for entry in sources_list:
                     logTransferHeader(entry, pfn_DESTINATION, ADMIN_LOGFILE)
                     SUCCESS, error_log = copyFile(options.TOOL,copyOptions, entry, pfn_DESTINATION, srm_prot, myLog,DATAREPLICA_LOGFILE, options.CASTORSTAGE)
                     if SUCCESS == 0:  break
-                    elif error_log.find("File exist")!=-1:  break
+                    elif error_log.lower().find("file exist")!=-1:  break
                 
 
             else:
@@ -810,24 +831,29 @@ def data_replica(args, moptions):
 
                 if options.FROM_SITE!='LOCAL':
                     source["size"] =  getFileSizeLCG(pfn )#out[0].strip("\n")
+                    #print source["size"]
                     if source["size"]==-1:
                         printOutput( "[ERROR] file does not exist on source", 0, ADMIN_LOGFILE)
+                        isFileAtSource=False
                         writeLog(NOREPLICA_LOGFILE,myLog["lfn"]+'\n')
-                        continue
+                        #continue
                 else:
                     ###Using lfn, as in this case is the full path
                     if not os.path.isfile(lfn):
                         printOutput( "[ERROR] file does not exist on source",0,ADMIN_LOGFILE)
                         writeLog(NOREPLICA_LOGFILE,myLog["lfn"]+'\n')
-                        continue
+                        isFileAtSource=False
+                        #continue
                     source["size"] = str(os.path.getsize(lfn))
                 
-
-                logTransferHeader(source,pfn_DESTINATION, ADMIN_LOGFILE)
-                SUCCESS, error_log = copyFile(options.TOOL, copyOptions, source, pfn_DESTINATION, srm_prot, myLog, DATAREPLICA_LOGFILE, options.CASTORSTAGE)
+                if isFileAtSource:    
+                    logTransferHeader(source,pfn_DESTINATION, ADMIN_LOGFILE)
+                    SUCCESS, error_log = copyFile(options.TOOL, copyOptions, source, pfn_DESTINATION, srm_prot, myLog, DATAREPLICA_LOGFILE, options.CASTORSTAGE)
+                else:
+                    SUCCESS=1
 
             if SUCCESS != 0:
-                if myLog['detail'].find('File exist')!=-1:
+                if myLog['detail'].lower().find('file exist')!=-1:
                     writeLog(EXISTING_LOGFILE,lfn+" "+myLog['to-pfn']+"\n")
                 elif myLog['detail'].find('file does not exist')==-1 and myLog['detail'].find('no replicas')==-1:
                 ### does not consider existing file as error...
@@ -835,16 +861,7 @@ def data_replica(args, moptions):
                     failedTransfers+=1
                 else:
                     failedTransfers+=1   
-#
-#            if SUCCESS != 0:
-#        if myLog['detail'].find('File exist')!=-1:
-#            writeLog(EXISTING_LOGFILE,lfn+" "+myLog['to-pfn']+"\n")
-#        elif myLog['detail'].find('file does not exist')==-1 and myLog['detail'].find('no replicas')==1:
-#            ### does not consider existing file as error...
-#            writeLog(FAILED_LOGFILE,lfn+"\n")
-#            failedTransfers+=1
-#        else:
-#            failedTransfers+=1
+
                         
     print "Returned code "+str(failedTransfers)
     return failedTransfers
@@ -855,3 +872,4 @@ if __name__ == "__main__":
 
 
 
+    
