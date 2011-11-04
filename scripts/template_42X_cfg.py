@@ -1,4 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+import copy
+from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 
 #DATA TYPE
 flagData = 'OFF'
@@ -48,7 +50,13 @@ process.load('HiggsAnalysis.HiggsTo2photons.ZMuSkim_cff')
 process.load('HiggsAnalysis.HiggsTo2photons.photonReRecoForMMG_cfi')
 
 if flagSkimDiphoton == 'ON':
-  process.load('Configuration.Skimming.PDWG_DiPhoton_SD_cff')
+#  process.load('Configuration.Skimming.PDWG_DiPhoton_SD_cff')
+     process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
+     process.DiPhotonHltFilter = copy.deepcopy(hltHighLevel)
+     process.DiPhotonHltFilter.throw = cms.bool(False)
+     process.DiPhotonHltFilter.HLTPaths = ["HLT_Photon*_CaloId*_Iso*_Photon*_CaloId*_Iso*_*","HLT_Photon*_R9Id*_Photon*_R9Id*_*","HLT_Photon*_R9Id*_Photon*_CaloId*_Iso*_*","HLT_Photon*_CaloId*_Iso*_Photon*_R9Id*_*"]
+
+
 
 process.load("HiggsAnalysis.HiggsTo2photons.CMSSW_RelValDUMMY_cfi")
 #process.skipEvents = cms.untracked.PSet(input=cms.untracked.uint32(3500))
@@ -151,8 +159,8 @@ if flagVLPreSelection == 'ON':
   process.eventFilter1 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut) # for bkg
   process.eventFilter2 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut) # for bkg
 elif flagSkimDiphoton == 'ON':
-  process.eventFilter1 = cms.Sequence(process.CaloIdIsoPhotonPairsFilter) # for some data
-  process.eventFilter2 = cms.Sequence(process.R9IdPhotonPairsFilter)      # for some data
+  process.eventFilter1 = cms.Sequence(process.DiPhotonHltFilter) # for some data
+  process.eventFilter2 = cms.Sequence(process.DiPhotonHltFilter)      # for some data
 elif flagNoSkim == 'ON':    
   process.eventFilter1 = cms.Sequence(process.dummySelector)   #for signal MC
   process.eventFilter2 = cms.Sequence(process.dummySelector)   #for signal MC
@@ -192,6 +200,8 @@ process.processedEvents = cms.EDProducer("EventCountProducer")
 
 if (flagAddPdfWeight == 'ON'):
   process.eventCounters = cms.Sequence(process.totalKinematicsFilter + process.processedEvents + process.pdfWeights)
+elif (flagData == 'ON'):
+  process.eventCounters = cms.Sequence(process.processedEvents)
 else:
   process.eventCounters = cms.Sequence(process.totalKinematicsFilter + process.processedEvents)
 
