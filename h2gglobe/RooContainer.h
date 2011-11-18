@@ -8,6 +8,7 @@
 #include "TLatex.h"
 #include "TH1F.h"
 #include "TAxis.h"
+#include "TString.h"
 #include "TMath.h"
 #include "TMatrixDSym.h"
 #include "TMatrixD.h"
@@ -47,6 +48,7 @@
 #include <map>
 #include <set>
 #include <vector>
+//#include <algorithm>
 
 class RooContainer {
 
@@ -56,9 +58,10 @@ class RooContainer {
     
     ~RooContainer(){};
     void SetNCategories(int);
-    void Verobose(bool noisy=true);
     void AddGlobalSystematic(std::string,double,double);
-    void SaveSystematicsData();
+    void AddNormalisationSystematics(std::string,std::vector<std::pair<double,double> >, int);
+    void SaveSystematicsData(bool save=true);
+    void SaveRooDataHists(bool save=true);
     void MakeSystematicStudy(std::vector<std::string>,std::vector<int>);
     void AddObservable(std::string,double,double);
     void AddConstant(std::string,double);
@@ -80,6 +83,8 @@ class RooContainer {
    //		      ,double norm_guess=100);
 
    void SumBinnedDatasets(std::string,std::string,std::string,std::vector<double>, std::vector<double>, bool scale=true);
+   void SumBinnedDatasets(std::string,std::string,std::string,double,double, bool scale=true);
+   void SumMultiBinnedDatasets(std::string,std::vector<std::string>,std::vector<double>,bool scale=true);
    void CreateDataSet(std::string,std::string,int nbins,double x1=-990,double x2=-990); 
    void MakeSystematics(std::string,std::string,int);
 
@@ -97,11 +102,15 @@ class RooContainer {
    void InputSystematicSet(std::string s_name, std::string sys_name, std::vector<int> cats
 			   ,std::vector<double> x, std::vector<double> weights=std::vector<double>(0));
 
+   void RebinBinnedDataset(std::string,std::string,std::vector <std::vector<double> >, bool);
+   std::vector<std::vector<double> >OptimizedBinning(std::string,int,bool,bool,int direction=1);
+   std::vector<std::vector<double> >SoverBOptimizedBinning(std::string,std::string,int,double);
    void WriteDataCard(std::string,std::string,std::string,std::string);
    void WriteSpecificCategoryDataCards(std::string,std::string,std::string,std::string);
    void GenerateBinnedPdf(std::string,std::string,std::string,int,int,int,double x1=-999,double x2=-999);
    void CombineBinnedDatasets(std::string,std::string, double fraction=-1);
-   std::vector<double> GetFitNormalisations(std::string,std::string,double,double);
+   std::vector<double> GetFitNormalisations(std::string,std::string,double,double,bool external_fit=false);
+   std::vector< std::pair<double,double> > GetFitNormalisationsAndErrors(std::string,std::string,double,double,bool external_fit=false);	// external Fit bool depricated
 
    void Save();
 
@@ -116,7 +125,7 @@ class RooContainer {
    float sigmaRange;
    bool make_systematics;
    bool save_systematics_data;
-   bool verbosity_;
+   bool save_roodatahists;
 
   private:
 
@@ -132,6 +141,7 @@ class RooContainer {
   // void convolutePdf(std::string,std::string,std::string,RooRealVar &,double norm_guess=100);
 
    void sumBinnedDatasets(std::string,std::string,std::string,double,double,bool);
+   void sumMultiBinnedDatasets(std::string,std::vector<std::string>,double,bool scale=true);
    void createDataSet(std::string,std::string,int,double x1,double x2);
    void makeSystematics(std::string,std::string,int);
    
@@ -146,14 +156,20 @@ class RooContainer {
    void writeSpecificCategoryDataCard(int,std::string,std::string,std::string,std::string);
    void removeDuplicateElements(std::vector<RooAbsPdf*> &);
    void setAllParametersConstant();
+   void rebinBinnedDataset(std::string,std::string,TH1F *,std::vector<double>);
+   std::vector<double> optimizedBinning(TH1F *,int,bool,bool);
+   std::vector<double> optimizedReverseBinning(TH1F *,int,bool,bool);
+   std::vector<double> soverBOptimizedBinning(TH1F *,TH1F*,int,double);
 
-   double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool);
+   double getNormalisationFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
+   std::pair<double,double> getNormalisationAndErrorFromFit(std::string,std::string,RooAbsPdf *,RooRealVar*,double,double,bool,bool);
 
    void getArgSetParameters(RooArgSet*,std::vector<double> &);
    void setArgSetParameters(RooArgSet*,std::vector<double> &);
 
    std::map<std::string,int> systematics_;
    std::map<std::string,std::pair<double,double> > global_systematics_;
+   std::map<std::string,std::vector <std::pair<double,double> > > normalisation_systematics_;
    std::map<std::string,int>::iterator it_sys;
 
    std::string getweightName(std::string);   
@@ -189,7 +205,10 @@ class RooContainer {
    std::map<std::string,int> bins_;
    std::map<std::string,double> inits_;
    std::map<RooPlot*,double> fit_res_;
+   std::vector<TCanvas*> fit_canvases_;
    std::map<std::string,RooFitResult*> fit_results_;
+   std::map<std::string,RooAbsReal* > latestFitRangeIntegral_;
+   std::map<std::string,RooAbsReal* > DUMP_;
 
    RooWorkspace ws;   
    
