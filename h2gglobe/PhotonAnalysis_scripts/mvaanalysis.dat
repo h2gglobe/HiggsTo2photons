@@ -1,0 +1,84 @@
+leadEtCut=40.0
+subleadEtCut=30.0
+
+massMin=95.
+massMax=185.
+nDataBins=60
+
+signalRegionWidth=0.07
+sidebandWidth=0.07
+sidebandShift=0.
+numberOfSidebands=2
+
+
+nEtaCategories=2
+nR9Categories=2
+nPtCategories=1
+
+doTriggerSelection=1
+
+reRunCiCForData=1
+
+doTraining=0
+splitSignalSample=1
+splitBackgroundSample=1
+
+
+->
+Turn on-off all smearings 
+->
+doMCSmearing=1 
+
+->
+Individual smearing flags
+->
+doEscaleSmear=1
+doEscaleSyst=1
+
+doEresolSmear=1
+doEresolSyst=1
+
+energyCorrectionMethod=BendavidOTF
+doEcorrectionSmear=1
+doEcorrectionSyst=0
+
+doPhotonIdEffSyst=1
+doPhotonIdEffSmear=1
+
+doVtxEffSyst=1
+doVtxEffSmear=1
+
+doTriggerEffSmear=1
+doTriggerEffSyst=1
+
+doR9Smear=1
+doR9Syst=1
+
+doKFactorSmear=1
+doKFactorSyst=1
+
+mvaWeightsFolder=/vols/cms02/h2g/weights/wt_25Oct/
+
+->
+Inputs for reweighing
+- phoId and trigger: same as EPS,  https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374.html
+- vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
+->
+
+kfacHist=/vols/cms02/h2g/aux/KFactors_AllScales_interpolated.root
+efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v14.root
+puHist=/vols/cms02/h2g/aux/2011_0100_73500.pileup.weights.root
+
+puMap=pu_weights_map.dat
+
+->
+run-dependent corrections are now taken from energy_scale_offsets.dat;
+GF, aug12: Escale shift taken from https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/371.html
+->
+scale_offset_file=energy_scale_offsets.dat
+scale_offset_error_file=energy_scale_errors.dat
+
+->
+smearing updated for LP11 improvements, according to: https://indico.cern.ch/materialDisplay.py?contribId=16&sessionId=5&materialId=slides&confId=157048
+->
+smearing_file=smearing_sigma_and_errors.dat
