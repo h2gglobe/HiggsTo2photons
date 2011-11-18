@@ -62,6 +62,7 @@ class RooContainer {
     void AddGlobalSystematic(std::string,double,double);
     void AddNormalisationSystematics(std::string,std::vector<std::pair<double,double> >, int);
     void SaveSystematicsData(bool save=true);
+    void MakeSystematicPdfs(bool save=true);
     void SaveRooDataHists(bool save=true);
     void MakeSystematicStudy(std::vector<std::string>,std::vector<int>);
     void AddObservable(std::string,double,double);
@@ -125,6 +126,7 @@ class RooContainer {
    int nsigmas;
    float sigmaRange;
    bool make_systematics;
+   bool fit_systematics;
    bool save_systematics_data;
    bool verbosity_;
    bool save_roodatahists;
