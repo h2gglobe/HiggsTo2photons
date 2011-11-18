@@ -10,6 +10,7 @@
 
 #include "TMVA/Reader.h"
 #include "PhotonFix.h"
+#include "MassResolution.h"
 #include "../../../../HiggsToGammaGamma/interface/GBRForest.h"
 //#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
 
@@ -95,6 +96,7 @@ public:
 
 	std::string scale_offset_error_file, smearing_file;
 	std::string energyCorrectionMethod;
+	std::string massResolutionFileName;
 
 	std::string tmvaPerVtxMethod;                       	
         std::string tmvaPerVtxWeights;                  
@@ -139,6 +141,8 @@ protected:
         GBRForest *fReaderebvariance;
         GBRForest *fReaderee;
         GBRForest *fReadereevariance;      
+
+	MassResolution *massResolutionCalculator;
 
 };
 

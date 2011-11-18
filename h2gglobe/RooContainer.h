@@ -58,6 +58,7 @@ class RooContainer {
     
     ~RooContainer(){};
     void SetNCategories(int);
+    void Verbose(bool noisy=true);
     void AddGlobalSystematic(std::string,double,double);
     void AddNormalisationSystematics(std::string,std::vector<std::pair<double,double> >, int);
     void SaveSystematicsData(bool save=true);
@@ -125,6 +126,7 @@ class RooContainer {
    float sigmaRange;
    bool make_systematics;
    bool save_systematics_data;
+   bool verbosity_;
    bool save_roodatahists;
 
   private:

@@ -3,20 +3,16 @@
 leadEtCut=40.0
 subleadEtCut=30.0
 
-massMin=100.
-massMax=160.
-nDataBins=60
+massMin=110.
+massMax=130.
+nDataBins=20
 
 nEtaCategories=2
 nR9Categories=2
 nPtCategories=1
 
-doTriggerSelection=1
-->
-Currently CiC will always be re-run as hardcoded in PhotonAnalysis
-This is necessary for R9 Scaling and MC Energy Smearing 
-->
-reRunCiC=1
+doTriggerSelection=0
+reRunCiCForData=1
 
 ->
 Turn on-off all smearings 
@@ -57,9 +53,9 @@ Inputs for reweighing
 - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 ->
 
-kfacHist=/afs/cern.ch/user/n/nckw/public/KFactors_AllScales_interpolated.root
-efficiencyFile=/afs/cern.ch/user/n/nckw/public/sig_reweighing_v14.root
-puHist=/afs/cern.ch/user/m/musella/public/higgs/pileup111311/2011_0100_73500.pileup.weights.root
+kfacHist=/vols/cms02/h2g/aux/KFactors_AllScales_interpolated.root
+efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v14.root
+puHist=/vols/cms02/h2g/aux/2011_0100_73500.pileup.weights.root
 
 puMap=pu_weights_map.dat
 

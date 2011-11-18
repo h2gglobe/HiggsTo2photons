@@ -186,6 +186,8 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->SetNCategories(nCategories_);
     l.rooContainer->nsigmas = nSystSteps;
     l.rooContainer->sigmaRange = systRange;
+    l.rooContainer->SaveRooDataHists();
+    l.rooContainer->Verbose(false);
     // RooContainer does not support steps different from 1 sigma
     //assert( ((float)nSystSteps) == systRange );
     if( doEcorrectionSmear && doEcorrectionSyst ) {
@@ -444,6 +446,15 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     assert( weight > 0. );  
     l.FillCounter( "XSWeighted", weight );
     nevents+=1.;
+
+    // Set reRunCiC Only if this is an MC event since scaling of R9 and Energy isn't done at reduction
+    if (cur_type==0) {
+	l.runCiC=reRunCiCForData;
+    } else {
+	l.runCiC = true;
+    }
+
+    // -----------------------------------------------------------------------------------------------
 
     //PU reweighting
     unsigned int n_pu = l.pu_n;
@@ -982,3 +993,7 @@ std::string StatAnalysis::GetSignalLabel(int id){
 	
 }
 
+void StatAnalysis::ResetAnalysis(){
+    // Reset Random Variable on the EnergyResolution Smearer
+    eResolSmearer->resetRandom();
+}

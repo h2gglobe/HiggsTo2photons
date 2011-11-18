@@ -397,7 +397,9 @@ void PhotonAnalysis::Init(LoopAll& l)
 	
 	if (l.typerun == 2 || l.typerun == 1) {
 	}
-	
+
+	// MassResolution 
+	massResolutionCalculator = new MassResolution(massResolutionFileName,energyCorrectionMethod);	
     /* -------------------------------------------------------------------------------------------
     Pileup Reweighting
     https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupReweighting

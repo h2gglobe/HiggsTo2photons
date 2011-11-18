@@ -45,6 +45,7 @@ LOOPALLO = LoopAll.$(ObjSuf) \
 	   SampleContainer.o \
 	   PhotonReducedInfo.o \
 	   RooContainer.o \
+	   MassResolution.o \
 	   Cut.o \
 	   TriggerSelection.o \
 	   PhotonFix.o \
@@ -54,7 +55,9 @@ DICTS = LoopAll.h BaseAnalysis.h BaseSmearer.h EnergySmearer.h EfficiencySmearer
 	VertexAnalysis/interface/VertexAlgoParameters.h\
 	PhotonAnalysis/interface/PhotonAnalysis.h\
 	PhotonAnalysis/interface/StatAnalysis.h\
-	RooContainer.h
+	PhotonAnalysis/interface/MvaAnalysis.h\
+	RooContainer.h \
+	MassResolution.h
 
 
 ROOFIT_BASE=$(ROOFITSYS)
@@ -87,6 +90,7 @@ LoopAll.$(ObjSuf): CommonParameters.h LoopAll.h Tools.h \
 	CounterContainer.cc CounterContainer.h \
 	SampleContainer.cc SampleContainer.h \
 	RooContainer.cc RooContainer.h \
+	MassResolution.cc MassResolution.h \
 	TriggerSelection.h TriggerSelection.cc \
 	PhotonFix.h PhotonFix.cc \
 	Cut.cc Cut.h $(VTXSRC) $(PHOSRC)
@@ -101,9 +105,10 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
 	CounterContainer.h \
 	SampleContainer.h \
 	RooContainer.h \
+	MassResolution.h \
 	PhotonFix.h \
 	Cut.h \
-	VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h PhotonAnalysis/interface/StatAnalysis.h
+	VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h PhotonAnalysis/interface/StatAnalysis.h PhotonAnalysis/interface/MvaAnalysis.h
 
 	@echo "Generating dictionary $@..."
 	@rootcint -f $@ -c -I$(ROOFIT_BASE)/include $(DICTS)

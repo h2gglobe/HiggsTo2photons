@@ -7,10 +7,13 @@
 
 using namespace RooFit;
 
-RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false),save_systematics_data(false){}
+RooContainer::RooContainer(int n, int s):ncat(n),nsigmas(s),make_systematics(false),save_systematics_data(false){verbosity_=false;}
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::SetNCategories(int n){
    ncat = n;
+}
+void RooContainer::Verbose(bool noisy){
+	verbosity_=noisy;
 }
 void RooContainer::AddGlobalSystematic(std::string name,double val_sig, double val_bkg){
   global_systematics_[name] = std::pair<double,double>(val_sig,val_bkg);
@@ -24,17 +27,14 @@ void RooContainer::AddNormalisationSystematics(std::string name,std::vector<std:
   } else {
   	std::vector<std::pair<double,double> > sys;
   	if (type ==-1){ // Signal Systematics
+		
 		for (int cat=0;cat<ncat;cat++){	
 			double value = 1.+(vals[cat].second/vals[cat].first);
-			std::cout << "In RooContainer -- " << value << std::endl;
-			std::cout << "In RooContainer values -- " << vals[cat].first << " " << vals[cat].second <<std::endl;
 			sys.push_back(std::pair<double,double> (value,1.0));
 		}
     	} else if (type ==1){ // Background Systematics
 		for (int cat=0;cat<ncat;cat++){	
 			double value = 1.+(vals[cat].second/vals[cat].first);
-			std::cout << "In RooContainer -- " << value << std::endl;
-			std::cout << "In RooContainer values -- " << vals[cat].first << " " << vals[cat].second <<std::endl;
 			sys.push_back(std::pair<double,double> (1.0,value));
 		}
     	} else if (type ==0){ // Both
@@ -1138,16 +1138,20 @@ void RooContainer::addRealVar(std::string name ,double xmin,double xmax){
   RooRealVar temp(name.c_str(),name.c_str(),xmin,xmax);
   m_real_var_.insert(pair<std::string,RooRealVar >(name,temp));
 
-  std::cout << "RooContainer::AddRealVar -- Appended the variable " 
-	    << name <<std::endl; 
+  if (verbosity_){
+  	std::cout << "RooContainer::AddRealVar -- Appended the variable " 
+		  << name <<std::endl; 
+  }
 }
 
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::addRealVar(std::string name ,double init,double xmin,double xmax){
   RooRealVar temp(name.c_str(),name.c_str(),init,xmin,xmax);
   m_real_var_.insert(pair<std::string,RooRealVar>(name,temp));
-  std::cout << "RooContainer::AddRealVar -- Appended the variable " 
-	    << name <<std::endl;
+  if (verbosity_){
+            std::cout << "RooContainer::AddRealVar -- Appended the variable " 
+	              << name <<std::endl;
+  }
   
 }
 // ----------------------------------------------------------------------------------------------------
@@ -1156,8 +1160,10 @@ void RooContainer::addFormulaVar(std::string name ,std::string formula, std::str
   RooFormulaVar temp(name.c_str(),name.c_str(),formula.c_str(),RooArgList(m_real_var_[var]));
   m_form_var_.insert(pair<std::string,RooFormulaVar >(name,temp));
 
-  std::cout << "RooContainer::AddFormulaVar -- Appended the variable " 
-	    << name <<std::endl; 
+  if (verbosity_){
+        std::cout << "RooContainer::AddFormulaVar -- Appended the variable " 
+	          << name <<std::endl; 
+  }
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::addGenericPdf(std::string name,std::string formula,std::string obs_name
@@ -1873,9 +1879,11 @@ void RooContainer::createDataSet(std::string name,std::string data_name,int nbin
       tmp_hist.GetYaxis()->SetTitle(Form("Events / (%.3f)",tmp_hist.GetBinWidth(1)));
       m_th1f_[data_name] = tmp_hist;
 
-      cout << "RooContainer::CreateDataSet -- Created RooDataSet from " << name 
-	   << " with name " << data_name <<endl;
-      cout << "RooContainer::CreateDataSet -- Created TH1F from " << data_name << endl;
+      if (verbosity_){
+          cout << "RooContainer::CreateDataSet -- Created RooDataSet from " << name 
+	       << " with name " << data_name <<endl;
+          cout << "RooContainer::CreateDataSet -- Created TH1F from " << data_name << endl;
+      }
 
     } else {
       std::cerr << "WARNING -- RooContainer::CreateDataSet -- No RealVar found Named "
@@ -2382,7 +2390,7 @@ void RooContainer::writeRooDataHist(std::string name, TH1F *hist){
 
   if (save_roodatahists){
 
-       RooDataHist tmp(Form("roohist_%s",name.c_str()),name.c_str(),RooArgList(m_real_var_[hist->GetTitle()]),RooFit::Import(*hist,true));
+       RooDataHist tmp(Form("roohist_%s",name.c_str()),name.c_str(),RooArgList(m_real_var_[hist->GetTitle()]));
        ws.import(tmp);
   }
 

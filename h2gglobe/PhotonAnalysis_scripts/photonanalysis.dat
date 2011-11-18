@@ -4,9 +4,9 @@ Vertexe analysis parameters
 vtxAlgoParams vertex_selection.dat
 mvaVertexSelection=1
 addConversionToMva=1
-tmvaPerVtxWeights=/afs/cern.ch/user/m/musella/public/higgs/vertex_likelihoods/TMVAClassification_BDTCat_conversions_tmva_407.weights.xml
+tmvaPerVtxWeights=/vols/cms02/h2g/aux/TMVAClassification_BDTCat_conversions_tmva_407.weights.xml
 tmvaPerVtxMethod=BDTCat
-tmvaPerEvtWeights=/afs/cern.ch/user/m/musella/public/higgs/vertex_likelihoods/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xml
+tmvaPerEvtWeights=/vols/cms02/h2g/aux/TMVAClassification_evtBDTG_conversions_tmva_407.weights.xml
 tmvaPerEvtMethod=evtBDTG
 
 ->
@@ -42,8 +42,14 @@ tkIso_dxymax=0.1
 
 applyPtoverM=1
 doTriggerSelection=1
-puHist=/afs/cern.ch/user/m/musella/public/higgs/pileup111311/2011_0100_73500.pileup.weights.root
+puHist=/vols/cms02/h2g/aux/2011_0100_73500.pileup.weights.root
 puMap=pu_weights_map.dat
+
+-> 
+Usually PhotonAnalysis is Reducing so keep this on
+reRunCiC=1
+->
+massResolutionFileName=/vols/cms02/h2g/aux/dz_vs_hpt.root
 
 energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
@@ -51,5 +57,5 @@ doEcorrectionSyst=0
 
 scale_offset_file=energy_scale_offsets.dat
 
-photonFixDat=/afs/cern.ch/user/n/nckw/public/PhotonFixSTART42V13.dat
-regressionFile=/afs/cern.ch/user/n/nckw/public/gbrph.root
+photonFixDat=/vols/cms02/h2g/aux/PhotonFixSTART42V13.dat
+regressionFile=/vols/cms02/h2g/aux/gbrph.root

@@ -32,10 +32,11 @@ public:
 	void GetBranches(TTree *, std::set<TBranch *>& );
 	
 	virtual bool SelectEvents(LoopAll&, int);
+	virtual void ResetAnalysis();
 	virtual void Analysis(LoopAll&, Int_t);
 	
 	// Options
-	bool reRunCiC;
+	bool reRunCiCForData;
 	float leadEtCut;
 	float subleadEtCut;
 	std::string efficiencyFile;
