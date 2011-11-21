@@ -793,9 +793,7 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
 
           //draw hist
           TString histlike = " hist ";
-          TString datalike = " ";
           TString histlikesame = " hist same ";
-          TString datalikesame = " same ";
           if(DoSumw2)histlike="";
           if(DoSumw2)histlikesame="same";
           if(DoStack) {
@@ -877,16 +875,16 @@ void LoopAll::myPlotInteractive(TString hsmallname) {
               if(myStack->GetHists() || mySigStack->GetHists()){
                 if(RmTitles) myDataStack->SetTitle("");
 		cout << "993 drawing here 1" << endl; 
-                myDataStack->Draw("epsame");
+                myDataStack->Draw("same");
               } else {
                 if(RmTitles) myDataStack->SetTitle("");
 		cout << "994 drawing here 1" << endl; 
-                myDataStack->Draw("ep");
+                myDataStack->Draw();
                 if(xaxislabels[ivar] != "xaxis")myDataStack->GetXaxis()->SetTitle(xaxislabels[ivar]);
                 if(yaxislabels[ivar] != "yaxis")myDataStack->GetYaxis()->SetTitle(yaxislabels[ivar]);
                 if(RmTitles) myDataStack->SetTitle("");
 		cout << "995 drawing here 1" << endl; 
-                myDataStack->Draw("ep");
+                myDataStack->Draw();
               }
             }
 //            std::cout << "NStackLines: " << NStackLines << std::endl;
