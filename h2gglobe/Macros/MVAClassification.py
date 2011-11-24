@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python
-# @(#)root/tmva $Id: MVAClassification.py,v 1.1.2.4 2011/10/24 13:44:10 mjarvis Exp $
+# @(#)root/tmva $Id: MVAClassification.py,v 1.1.4.2 2011/11/18 13:41:56 nckw Exp $
 # ------------------------------------------------------------------------------
 # based on TMVA Python script: TMVAClassification.py
 # ------------------------------------------------------------------------------
@@ -20,7 +20,7 @@ DEFAULT_TREESIG  = "sig"
 DEFAULT_TREEBKG  = "bkg"
 DEFAULT_METHODS  = "BDT"
 DEFAULT_BACKGROUND = 1 # 1 uses the sidebands, 2 uses all
-DEFAULT_MASS     = 120
+DEFAULT_MASS     = 123
 DEFAULT_CAT      = -1
 
 # Print usage help
@@ -209,8 +209,8 @@ def main():
     factory.PrepareTrainingAndTestTree( mycutSig, mycutBkg, "nTrain_Signal=0:nTrain_Background=0:NormMode=NumEvents:!V")
     # Boosted Decision Trees
     # NEW PARAMETERS
-    factory.BookMethod( TMVA.Types.kBDT, "BDT_ada"+mass_str+cat_str,"!H:!V:NTrees=384:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.2:SeparationType=GiniIndex:nCuts=50:PruneMethod=NoPruning")
-    factory.BookMethod( TMVA.Types.kBDT, "BDT_grad"+mass_str+cat_str,"!H:!V:NTrees=128:nEventsMin=150:MaxDepth=6:BoostType=Grad:Shrinkage=0.30:SeparationType=GiniIndex:nCuts=50:PruneMethod=NoPruning:UseBaggedGrad:GradBaggingFraction=0.6")
+    factory.BookMethod( TMVA.Types.kBDT, "BDT_ada" +mass_str+cat_str,"!H:!V:NTrees=850:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=0.5:SeparationType=GiniIndex:nCuts=20:PruneMethod=NoPruning")
+    factory.BookMethod( TMVA.Types.kBDT, "BDT_grad"+mass_str+cat_str,"!H:!V:NTrees=1000:BoostType=Grad:Shrinkage=0.30:UseBaggedGrad:GradBaggingFraction=0.6:SeparationType=GiniIndex:nCuts=20:NNodesMax=5") 
     opt_string = "H:!V:VarTransform=G:!TransformOutput:NSmooth=0:PDFInterpol=Spline2:NAvEvtPerBin=12"
     #factory.BookMethod( TMVA.Types.kLikelihood, "Likelihood"+mass_str+cat_str,opt_string)
     #OLD PARAMETERS
