@@ -889,7 +889,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		  for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
 
 		   double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth) - sidebandShift;
-		   mass_hypothesis_low     = (mass_hypothesis*(1.-signalRegionWidth)/(1.+signalRegionWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1)) - sidebandShift;
+		   mass_hypothesis_low     = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1)) - sidebandShift;
 		   double sideband_boundaries_low = mass_hypothesis_low*(1.-sidebandWidth);
 		   double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
 
@@ -913,7 +913,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		  for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
 
 		   double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth) + sidebandShift;
-		   mass_hypothesis_high     = (mass_hypothesis*(1.+signalRegionWidth)/(1.-signalRegionWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1)) + sidebandShift;
+		   mass_hypothesis_high     = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1)) + sidebandShift;
 		   double sideband_boundaries_low = mass_hypothesis_high*(1.-sidebandWidth);
 		   double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
 
