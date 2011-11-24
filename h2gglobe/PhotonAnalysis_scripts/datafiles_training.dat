@@ -4,13 +4,13 @@ intL=4686. histfile=CMS-HGG_4686pb.root output=shifo.root
 Signal samples
 ->
 
-typ=-57 ind=1 draw=1  Nam=gluglu_H_gg_123_pu2011  Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_reduction/MC_Sig_Fall11_S6/Glu123_S6  red=0 lum=1000000.0  xsec=0.0360696 kfac=1.000000  scal=1.000000
-typ=-58 ind=2 draw=1  Nam=vbf_H_gg_123_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_reduction/MC_Sig_Fall11_S6/VBF123_S6      red=0 lum=1000000.0  xsec=0.00281352 kfac=1.000000  scal=1.000000
-typ=-60 ind=4 draw=1  Nam=wz_H_gg_123_pu2011      Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_reduction/MC_Sig_Fall11_S6/WZH123_S6    red=0 lum=1000000.0  xsec=0.002136816 kfac=1.000000  scal=1.000000
+typ=-57 ind=1 draw=1  Nam=gluglu_H_gg_123_pu2011  Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_01_reduction_11_15/MC_Sig_Fall11_S6/Glu123_S6  red=0 lum=1000000.0  xsec=0.0360696 kfac=1.000000  scal=1.000000
+typ=-58 ind=2 draw=1  Nam=vbf_H_gg_123_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_01_reduction_11_15/MC_Sig_Fall11_S6/VBF123_S6      red=0 lum=1000000.0  xsec=0.00281352 kfac=1.000000  scal=1.000000
+typ=-60 ind=4 draw=1  Nam=wz_H_gg_123_pu2011      Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_01_reduction_11_15/MC_Sig_Fall11_S6/WZH123_S6    red=0 lum=1000000.0  xsec=0.002136816 kfac=1.000000  scal=1.000000
 typ=-59 ind=3 draw=1  Nam=tt_H_gg_123_pu2011      Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_reduction/MC_Sig_Summer11_S4/TTH123      red=0 lum=1000000.0  xsec=0.0002066364 kfac=1.000000  scal=1.000000
 
-typ=-53 ind=1 draw=1  Nam=gluglu_H_gg_121_pu2011  Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_reduction/MC_Sig_Fall11_S6/Glu121_S6  red=0 lum=1000000.0  xsec=0.0369736 kfac=1.000000  scal=1.000000
-typ=-54 ind=2 draw=1  Nam=vbf_H_gg_121_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_reduction/MC_Sig_Fall11_S6/VBF121_S6      red=0 lum=1000000.0  xsec=0.00284082 kfac=1.000000  scal=1.000000
+typ=-53 ind=1 draw=1  Nam=gluglu_H_gg_121_pu2011  Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_01_reduction_11_15/MC_Sig_Fall11_S6/Glu121_S6  red=0 lum=1000000.0  xsec=0.0369736 kfac=1.000000  scal=1.000000
+typ=-54 ind=2 draw=1  Nam=vbf_H_gg_121_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_01_reduction_11_15/MC_Sig_Fall11_S6/VBF121_S6      red=0 lum=1000000.0  xsec=0.00284082 kfac=1.000000  scal=1.000000
 typ=-56 ind=4 draw=1  Nam=wz_H_gg_121_pu2011      Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_reduction/MC_Sig_Summer11_S4/WZH121    red=0 lum=1000000.0  xsec=0.002234914 kfac=1.000000  scal=1.000000
 typ=-55 ind=3 draw=1  Nam=tt_H_gg_121_pu2011      Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_reduction/MC_Sig_Summer11_S4/TTH121      red=0 lum=1000000.0  xsec=0.0002151068 kfac=1.000000  scal=1.000000
 
