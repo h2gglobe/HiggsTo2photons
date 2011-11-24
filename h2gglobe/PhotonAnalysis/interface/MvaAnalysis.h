@@ -36,6 +36,9 @@ public:
 	virtual bool SelectEvents(LoopAll&, int);
 	virtual void ResetAnalysis();
 	virtual void Analysis(LoopAll&, Int_t);
+	
+	void FillSignalLabelMap();
+	std::string GetSignalLabel(int);
 
 //	double GetPhotonResolution(LoopAll &,int);
 //	double GetAngleResolutionCorrVtx(LoopAll &,int, int, int);
@@ -110,9 +113,11 @@ protected:
 	HggVertexFromConversions vtxConv_;
 	
 	// RooStuff
-	RooContainer *rooContainer;
+	//RooContainer *rooContainer;
 
 	ofstream eventListText;
+
+	std::map<int,std::string> signalLabels;
 
 	//MVA variables
 	float _log_H_pt;     
