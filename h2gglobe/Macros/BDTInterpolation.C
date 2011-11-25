@@ -227,7 +227,7 @@ void plotDavid(TH1F* bkgT, TH1F* sigT, TH1F* dataT, std::string name){
   TPaveText *txt = new TPaveText(0.6,0.6,0.8,0.85,"NDC");
   txt->SetFillColor(0);
   txt->SetLineColor(0);
-  txt->AddText("#int L = 1.66 fb^{-1}");
+  txt->AddText("#int L = 4.7 fb^{-1}");
 
   bkg->GetYaxis()->SetRangeUser(0.0,2.*(data->GetMaximum()));
 
@@ -507,7 +507,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
   const int nMasses=7;
   std::string BDTtype[nBDTs] = {"ada","grad"};
   std::string BDTmasses[nMasses] = {"115.0","120.0","125.0","130.0","135.0","140.0","150.0"};
-
+  std::string productionTypes[4] = {"ggh","vbf","wzh","tth"};
 // ----- else can just get rebinned histograms straight out of workspace
 
   std::cout << "Extracting histograms from workspace........." << std::endl;
@@ -553,11 +553,11 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
     // store stuff for interpolation systematic
     for (int bdt=0; bdt<2; bdt++){
       for (int syst=0; syst<3; syst++){
-        if (name.Contains(("th1f_sig_"+BDTtype[bdt]+"_"+syst120mass[0]+"_"+syst120mass[syst]).c_str()) && !name.Contains("sigma")){
+        if (name.Contains(("th1f_sig_"+BDTtype[bdt]+"_"+productionTypes[0]+"_"+syst120mass[0]+"_"+syst120mass[syst]).c_str()) && !name.Contains("sigma")){
           systHists120[bdt][syst] = (TH1F*)inFile->Get(name.Data());
           systHists120[bdt][syst]->SetLineColor(syst+2);
         }
-        if (name.Contains(("th1f_sig_"+BDTtype[bdt]+"_"+syst135mass[0]+"_"+syst135mass[syst]).c_str()) && !name.Contains("sigma")){
+        if (name.Contains(("th1f_sig_"+BDTtype[bdt]+"_"+productionTypes[0]+"_"+syst135mass[0]+"_"+syst135mass[syst]).c_str()) && !name.Contains("sigma")){
           systHists135[bdt][syst] = (TH1F*)inFile->Get(name.Data());
           systHists135[bdt][syst]->SetLineColor(syst+2);
         }
@@ -639,7 +639,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
     c->Print(Form("plots/%s/fracs/systTest135.png",BDTtype[bdt].c_str()),"png");
 
     // get plus and minus templates
-    std::pair<TH1F*,TH1F*> result135 = GetPMSyst(systHists135[bdt][0],int135,"th1f_sig_"+BDTtype[bdt]+"_135.0_cat0_sigInt");
+    std::pair<TH1F*,TH1F*> result135 = GetPMSyst(systHists135[bdt][0],int135,"th1f_sig_"+BDTtype[bdt]+"_ggh_135.0_cat0_sigInt");
     TH1F* sigIntDown = (TH1F*)linearBin(result135.first);
     TH1F* sigIntUp = (TH1F*)linearBin(result135.second);
     TH1F* sigIntCent = (TH1F*)linearBin(int135);
@@ -663,45 +663,52 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
     // -------------------- systematic stuff done ----------------------
 
   // get lists of middle, upper and lower templates for each mass
-  TList *orgHistList[2][7];
-  TList *orgHistListBelow[2][7];
-  TList *orgHistListAbove[2][7];
+  TList *orgHistList[2][4][7];
+  TList *orgHistListBelow[2][4][7];
+  TList *orgHistListAbove[2][4][7];
   for (int i=0; i<2; i++) {
+   for (int pT=0;pT<4;pT++){
     for (int j=0; j<7; j++) {
-      orgHistList[i][j]=new TList();
-      orgHistListBelow[i][j]=new TList();
-      orgHistListAbove[i][j]=new TList();
+      orgHistList[i][pT][j]=new TList();
+      orgHistListBelow[i][pT][j]=new TList();
+      orgHistListAbove[i][pT][j]=new TList();
     }
+   }
   }
 
   for (int j=0; j<HistList->GetSize(); j++){
     TString HistName(HistList->At(j)->GetName());
     for (int bdt=0; bdt<nBDTs; bdt++){
+     for (int pT=0;pT<4;pT++){
       for (int bdtmass=0; bdtmass<nMasses; bdtmass++){
         for (int k=-1; k<2; k++){
           if ((bdtmass==0 && k==-1) || (bdtmass==nMasses-1 && k==1)) continue;
-          if (HistName.Contains(("sig_"+BDTtype[bdt]+"_"+BDTmasses[bdtmass]+"_"+BDTmasses[bdtmass+k]).c_str())){
+          if (HistName.Contains(("sig_"+BDTtype[bdt]+"_"+productionTypes[pT]+"_"+BDTmasses[bdtmass]+"_"+BDTmasses[bdtmass+k]).c_str())){
             TH1F *temp = (TH1F*)inFile->Get(HistName.Data());
-            if (k==-1) orgHistListBelow[bdt][bdtmass]->Add(temp);
-            if (k==0) orgHistList[bdt][bdtmass]->Add(temp);
-            if (k==1) orgHistListAbove[bdt][bdtmass]->Add(temp);
+            if (k==-1) orgHistListBelow[bdt][pT][bdtmass]->Add(temp);
+            if (k==0) orgHistList[bdt][pT][bdtmass]->Add(temp);
+            if (k==1) orgHistListAbove[bdt][pT][bdtmass]->Add(temp);
           }
         }
+       }
       }
     }
   }
   diagFile << "---------------------------------------------------------------------" << std::endl;
   diagFile << "Following histo's being used for interpolation: " << std::endl;
   for (int bdt=0; bdt<2; bdt++){
+   for (int pT=0;pT<4;pT++){
     for (int mass=0; mass<nMasses; mass++){
       diagFile << "BDT: " << BDTtype[bdt] << std::endl;
+      diagFile << "Production : " << productionTypes[pT] << std::endl;
       diagFile << "Mass: " << BDTmasses[mass] << std::endl;
-      for (int syst=0; syst<orgHistList[bdt][mass]->GetSize(); syst++){
-        diagFile << "   Central: " << orgHistList[bdt][mass]->At(syst)->GetName() << std::endl;
-        if (mass!=0) diagFile << "   Lower:   " << orgHistListBelow[bdt][mass]->At(syst)->GetName() << std::endl;
-        if (mass!=nMasses-1) diagFile << "   Upper:   " << orgHistListAbove[bdt][mass]->At(syst)->GetName() << std::endl;
+      for (int syst=0; syst<orgHistList[bdt][pT][mass]->GetSize(); syst++){
+        diagFile << "   Central: " << orgHistList[bdt][pT][mass]->At(syst)->GetName() << std::endl;
+        if (mass!=0) diagFile << "   Lower:   " << orgHistListBelow[bdt][pT][mass]->At(syst)->GetName() << std::endl;
+        if (mass!=nMasses-1) diagFile << "   Upper:   " << orgHistListAbove[bdt][pT][mass]->At(syst)->GetName() << std::endl;
       }
     }
+   }
   }
 
   // now have orgHistList for each BDT and above and below signals.
@@ -713,10 +720,10 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
   diagFile << "---------------------------------------------------------------------" << std::endl;
   diagFile << "Interpolating intermediate signals from following lower and upper templates" << std::endl;
 
-  TList *orgHistListInt[2][71];
-  for (int i=0; i<2; i++) for (int j=0; j<71; j++) orgHistListInt[i][j] = new TList();
+  TList *orgHistListInt[2][4][71];
+  for (int i=0; i<2; i++) for (int pT=0; pT<4; pT++) for (int j=0; j<71; j++) orgHistListInt[i][pT][j] = new TList();
   TH1F *systUp, *systDown, *systTrue;
-  TH1F *background, *data, *signal;
+  TH1F *background, *data, *signal, *sig_ggh, *sig_vbf, *sig_wzh, *sig_tth;
 
   int i=0;
   // loop over mass points etc.
@@ -724,20 +731,30 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
     if (int(mass)%2==0) std::cout << Form("%3.0f",((mass-115.)/35.)*100.) << "% done" << std::endl;
     //points we have signal for
     if (int(mass*2)%10==0 && mass!=145.0) {
+     for (int pT=0;pT<4;pT++){
       for (int bdt=0; bdt<2; bdt++){  
         background = (TH1F*)inFile->Get(Form("th1f_bkg_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
         data = (TH1F*)inFile->Get(Form("th1f_data_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
-        signal = (TH1F*)inFile->Get(Form("th1f_sig_%s_%3.1f_%3.1f_cat0",BDTtype[bdt].c_str(),mass,mass));
+        sig_ggh = (TH1F*)inFile->Get(Form("th1f_sig_%s_ggh_%3.1f_%3.1f_cat0",BDTtype[bdt].c_str(),mass,mass));
+        sig_vbf = (TH1F*)inFile->Get(Form("th1f_sig_%s_vbf_%3.1f_%3.1f_cat0",BDTtype[bdt].c_str(),mass,mass));
+        sig_wzh = (TH1F*)inFile->Get(Form("th1f_sig_%s_wzh_%3.1f_%3.1f_cat0",BDTtype[bdt].c_str(),mass,mass));
+        sig_tth = (TH1F*)inFile->Get(Form("th1f_sig_%s_tth_%3.1f_%3.1f_cat0",BDTtype[bdt].c_str(),mass,mass));
+	
+	signal = (TH1F*)sig_ggh->Clone();
+	signal->Add(sig_vbf);
+	signal->Add(sig_wzh);
+	signal->Add(sig_tth);
+
         std::string name = Form("%3.1f",mass);
         if (Diagnose) {
           plotDavid(background,signal,data,name);
           TList *systList = new TList();
           TH1F *central;
           int bdtmass = getIndex((findNearest(mass).first));
-          for (int syst=0; syst<orgHistList[bdt][bdtmass]->GetSize(); syst++){
-            if (syst==0) central = (TH1F*)orgHistList[bdt][bdtmass]->At(syst);
+          for (int syst=0; syst<orgHistList[bdt][pT][bdtmass]->GetSize(); syst++){
+            if (syst==0) central = (TH1F*)orgHistList[bdt][pT][bdtmass]->At(syst);
             else {
-              TH1F *tempSig = (TH1F*)orgHistList[bdt][bdtmass]->At(syst);
+              TH1F *tempSig = (TH1F*)orgHistList[bdt][pT][bdtmass]->At(syst);
               systList->Add(tempSig);
             }
           }
@@ -746,15 +763,15 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
         // store some systematic histograms
         if (int(mass)>115 && int(mass)<150){
           int bdtmass = getIndex(int(mass));
-          systTrue = (TH1F*)orgHistList[bdt][bdtmass]->At(0)->Clone();
-          systUp = (TH1F*)orgHistListAbove[bdt][bdtmass]->At(0)->Clone();
-          systDown = (TH1F*)orgHistListBelow[bdt][bdtmass]->At(0)->Clone();
+          systTrue = (TH1F*)orgHistList[bdt][pT][bdtmass]->At(0)->Clone();
+          systUp = (TH1F*)orgHistListAbove[bdt][pT][bdtmass]->At(0)->Clone();
+          systDown = (TH1F*)orgHistListBelow[bdt][pT][bdtmass]->At(0)->Clone();
 
           double trueNorm = systTrue->Integral();
           systUp->Scale(trueNorm/systUp->Integral());
           systDown->Scale(trueNorm/systDown->Integral());
-          systUp->SetName(Form("th1f_sig_%s_%3.1f_cat0_sigIntNewUp01_sigma",BDTtype[bdt].c_str(),mass));
-          systDown->SetName(Form("th1f_sig_%s_%3.1f_cat0_sigIntNewDown01_sigma",BDTtype[bdt].c_str(),mass));
+          systUp->SetName(Form("th1f_sig_%s_%s_%3.1f_cat0_sigIntNewUp01_sigma",BDTtype[bdt].c_str(),productionTypes[pT].c_str(),mass));
+          systDown->SetName(Form("th1f_sig_%s_%s_%3.1f_cat0_sigIntNewDown01_sigma",BDTtype[bdt].c_str(),productionTypes[pT].c_str(),mass));
           
           outFile->cd();
           systUp->Write();
@@ -765,10 +782,11 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
           systDown->Draw("e");
           systUp->Draw("same e");
           systTrue->Draw("same e");
-          lil->Print(Form("plots/%s/systNew_%3.1f.png",BDTtype[bdt].c_str(),mass),"png");
+          lil->Print(Form("plots/%s/systNew_%s_%3.1f.png",BDTtype[bdt].c_str(),productionTypes[pT].c_str(),mass),"png");
           delete lil;
         }
       }
+     }
       continue;
     }
     std::pair<int,int> nearestPair = findNearest(mass);
@@ -784,6 +802,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
 
     // loop bdt type
     for (int bdt=0; bdt<2; bdt++){
+     for (int pT=0;pT<4;pT++){
       diagFile << "Mass: " << mass << std::endl;
       diagFile << "BDT: " << BDTtype[bdt] << std::endl;
       // loop different histos in list (signal and systematics)
@@ -791,11 +810,11 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
       data = (TH1F*)inFile->Get(Form("th1f_data_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
       TList *systList = new TList();
       TH1F *central;
-      for (int syst=0; syst<orgHistList[bdt][bdtmass]->GetSize(); syst++){
-        TH1F *tempSig = (TH1F*)orgHistList[bdt][bdtmass]->At(syst);
+      for (int syst=0; syst<orgHistList[bdt][pT][bdtmass]->GetSize(); syst++){
+        TH1F *tempSig = (TH1F*)orgHistList[bdt][pT][bdtmass]->At(syst);
         central = (TH1F*)tempSig->Clone();
-        TH1F *tempAbove = (TH1F*)orgHistListAbove[bdt][bdtmass]->At(syst);
-        TH1F *tempBelow = (TH1F*)orgHistListBelow[bdt][bdtmass]->At(syst);
+        TH1F *tempAbove = (TH1F*)orgHistListAbove[bdt][pT][bdtmass]->At(syst);
+        TH1F *tempBelow = (TH1F*)orgHistListBelow[bdt][pT][bdtmass]->At(syst);
         TH1F* tempInt;
         TList* plotList = new TList();
         if (above){
@@ -840,12 +859,13 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
             else systList->Add(tempInt);
           }
         }
-        orgHistListInt[bdt][i]->Add(tempInt);
+        orgHistListInt[bdt][pT][i]->Add(tempInt);
         std::string name = Form("%3.1f",mass);
         if (syst==0 && Diagnose) plotDavid(background,tempInt,data,name);
         delete plotList;
       }
       if (Diagnose) plotSystFracs(systList,central,Form("%3.1f_systFracs",mass));
+     }
     }
     i++;
   }
@@ -854,9 +874,9 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
 
   diagFile << "---------------------------------------------------------------------" << std::endl;
   diagFile << "Writing following interpolated histograms to file: " << std::endl;
-  for (int l=0; l<2; l++) for (int j=0; j<71; j++) for (int k=0; k<orgHistListInt[l][j]->GetSize(); k++) {
-    orgHistListInt[l][j]->At(k)->Write();
-    diagFile << orgHistListInt[l][j]->At(k)->GetName() << std::endl;
+  for (int l=0; l<2; l++) for (int pT=0; pT<4; pT++)for (int j=0; j<71; j++) for (int k=0; k<orgHistListInt[l][pT][j]->GetSize(); k++) {
+    orgHistListInt[l][pT][j]->At(k)->Write();
+    diagFile << orgHistListInt[l][pT][j]->At(k)->GetName() << std::endl;
   }
   
   TList* endList = outFile->GetListOfKeys();
