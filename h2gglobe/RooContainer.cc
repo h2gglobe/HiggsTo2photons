@@ -1516,7 +1516,7 @@ std::vector<double> RooContainer::soverBOptimizedBinning(TH1F *hs,TH1F *hb,int n
                   double importance = SoB/maxSoB;
 
 		  while ( carryOn){
-			if (i<nNewBins){
+			if (k<=nNewBins){
 
 			  double S1 = hsnew->GetBinContent(k);
 			  double B1 = hbnew->GetBinContent(k);
