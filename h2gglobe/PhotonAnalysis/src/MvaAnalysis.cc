@@ -106,8 +106,13 @@ void MvaAnalysis::Term(LoopAll& l)
       }
       for (int i=2; i<nMasses; i++){
         // Need to binning on MC!
-        std::vector <std::vector<double> > optimizedGradBins =  l.rooContainer->OptimizedBinning("bkg_BDT_grad_all"+names[i],50,false,true,-1);
-        std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->OptimizedBinning("bkg_BDT_ada_all"+names[i],50,false,true,-1);
+        std::vector <std::vector<double> > optimizedGradBins =  l.rooContainer->OptimizedBinning("bkg_BDT_grad_all"+names[i],150,false,true,-1);
+        std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->OptimizedBinning("bkg_BDT_ada_all"+names[i],150,false,true,-1);
+
+	// use ggh as signal modell , should ideall sum them first	
+
+        //std::vector <std::vector<double> > optimizedGradBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_grad_ggh"+names[i],"bkg_BDT_grad_all"+names[i],20,0.15);
+        //std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_ada_ggh"+names[i],"bkg_BDT_ada_all"+names[i],20,0.15);
         
 	      double mass_h_low;      
               double mass_h_high;
@@ -495,8 +500,8 @@ void MvaAnalysis::Init(LoopAll& l)
         }
 
         // loop signal mass points signal datasets
-        for (double sig=115;sig<=150;sig+=5){  // We are ignoring masses 105 and 110 for now
-            if (sig=145) continue;
+        for (double sig=115.0;sig<=150;sig+=5.0){  // We are ignoring masses 105 and 110 for now
+            if (sig==145.0) continue;
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_grad_ggh_%3.1f",sig)      ,nBDTbins); 
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_grad_vbf_%3.1f",sig)      ,nBDTbins); 
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_grad_wzh_%3.1f",sig)      ,nBDTbins); 
@@ -893,6 +898,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		   double sideband_boundaries_low = mass_hypothesis_low*(1.-sidebandWidth);
 		   double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
 
+		   //cout << "sideband, "<< sideband_i << " mH, "<<mass_hypothesis_low<< " bands, " <<sideband_boundaries_low << " " << sideband_boundaries_high <<endl;
 		   if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
                     SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_low,evweight);
                     float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
