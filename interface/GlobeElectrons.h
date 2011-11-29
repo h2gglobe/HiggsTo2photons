@@ -135,7 +135,6 @@ class GlobeElectrons {
 
  private:
   const char* nome; 
-  bool doFastSim;
   bool doAodSim;
   GlobeCuts *gCUT;
   edm::InputTag electronColl, trackColl, trackColl2, vertexColl, beamSpotColl, conversionColl, pfColl;

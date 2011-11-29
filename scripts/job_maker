@@ -20,6 +20,7 @@ usage = """
 job_maker [options]
 
 --data/MC                          select data or MC
+--fastsim                          works with fastsim eventcontent (actually not the standard one ;-))
 --AOD/RECO                         AOD should be standard
 --caf                              send jobs using CAF (hadoop is std in SD)
 --skimworz                         skim for T&P
@@ -58,6 +59,7 @@ flagNoSkim = False
 flagMMgSkim = False
 flagAOD = False
 flagRECO = False
+flagFastSim = False
 flagT1 = False
 AddPdfWeight = False
 
@@ -80,7 +82,7 @@ blackList=""
 whiteList=""
 useServer = False
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'scheduler=', 'skim1el', 'AddPdfWeight'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'scheduler=', 'skim1el', 'AddPdfWeight', 'flagFastSim'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -90,6 +92,8 @@ for opt,argm in opts:
         flagData = True
     elif (opt == "--MC"):
         flagMC = True
+    elif (opt == "--fastsim"):
+        flagFastSim = True
     elif (opt == "--AOD"):
         flagAOD = True
     elif (opt == "--RECO"):
@@ -184,6 +188,8 @@ for run in runselection:
             file_out.write("flagData = \'ON\'\n")
         elif ("flagMC = 'OFF'" in line and flagMC):
             file_out.write("flagMC = \'ON\'\n")
+        elif ("flagFastSim = 'OFF'" in line and flagFastSim):
+            file_out.write("flagFastSim = \'ON\'\n")
         elif ("flagAOD = 'OFF'" in line and flagAOD):
             file_out.write("flagAOD = \'ON\'\n")
         elif ("flagAOD = 'ON'" in line and not flagAOD):

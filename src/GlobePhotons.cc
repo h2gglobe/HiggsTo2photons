@@ -288,30 +288,36 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   
   //// Get the Out In CKF tracks from conversions 
   bool validTrackInputs=true;
+  
   edm::Handle<reco::TrackCollection> outInTrkHandle;
-  iEvent.getByLabel("ckfOutInTracksFromConversions",  outInTrkHandle);
-
-  if (!outInTrkHandle.isValid()) {
-    std::cout << "Error! Can't get the conversionOITrack " << "\n";
-    validTrackInputs=false;
-    if (debug_level > 9)
-      std::cout  << "ConvertedPhotonProducer  outInTrack collection size " << (*outInTrkHandle).size() << "\n";
+  if (!doFastSim) {
+    iEvent.getByLabel("ckfOutInTracksFromConversions",  outInTrkHandle);
+    if (!outInTrkHandle.isValid()) {
+      std::cout << "Error! Can't get the conversionOITrack " << "\n";
+      validTrackInputs=false;
+      if (debug_level > 9)
+	std::cout  << "ConvertedPhotonProducer  outInTrack collection size " << (*outInTrkHandle).size() << "\n";
+    }
   }
 
   //// Get the association map between CKF Out In tracks and the SC where they originated
   edm::Handle<reco::TrackCaloClusterPtrAssociation> outInTrkSCAssocHandle;
-  iEvent.getByLabel("ckfOutInTracksFromConversions" , "outInTrackSCAssociationCollection", outInTrkSCAssocHandle);
-  if (!outInTrkSCAssocHandle.isValid()) {
-    //  std::cout << "Error! Can't get the product " <<  outInTrackSCAssociationCollection_.c_str() <<"\n";
-    validTrackInputs=false;
+  if (!doFastSim) {
+    iEvent.getByLabel("ckfOutInTracksFromConversions" , "outInTrackSCAssociationCollection", outInTrkSCAssocHandle);
+    if (!outInTrkSCAssocHandle.isValid()) {
+      //  std::cout << "Error! Can't get the product " <<  outInTrackSCAssociationCollection_.c_str() <<"\n";
+      validTrackInputs=false;
+    }
   }
-
-  std::vector<reco::TransientTrack> t_outInTrk = ( *theTTkBuilder).build(outInTrkHandle );
-
+ 
+  std::vector<reco::TransientTrack> t_outInTrk;
+  if (!doFastSim)
+    t_outInTrk = ( *theTTkBuilder).build(outInTrkHandle );
+  
   edm::Handle<reco::BeamSpot> bsHandle;
   iEvent.getByLabel(beamSpotColl, bsHandle);
   const reco::BeamSpot &thebs = *bsHandle.product();
-  
+
   edm::Handle<reco::ConversionCollection> hConversions;
   iEvent.getByLabel(convertedPhotonColl, hConversions);  
   iEvent.getByLabel(electronColl, hElectrons);
@@ -424,10 +430,10 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     // Regression Correction
     if (!ecorr_.IsInitialized()) {
-      char filename[200];
-      char* descr = getenv("CMSSW_BASE");
-      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrph.root", descr);
-      //std::string filename = "http://home.cern.ch/sani/gbrele.root";
+      //char filename[200];
+      //char* descr = getenv("CMSSW_BASE");
+      //sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrph.root", descr);
+      std::string filename = "http://home.cern.ch/sani/gbrph.root";
       ecorr_.Initialize(iSetup, filename);
     }
 
@@ -568,22 +574,24 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_smaj[pho_n]           = moments.sMaj; 
 
     // Added by Aris - Begin
-    int R_nphot = 0;
-    float nn = -1.;
-    pho_pi0disc[pho_n] = nn;
-    if (localPho->isEB()) {
-      iEvent.getByLabel("piZeroDiscriminators","PhotonPi0DiscriminatorAssociationMap",  map);
-      for( reco::PhotonCollection::const_iterator  R_phot_iter = R_photons.begin(); R_phot_iter != R_photons.end(); R_phot_iter++) { 
-        mapIter = map->find(edm::Ref<reco::PhotonCollection>(R_PhotonHandle,R_nphot));
-        if(mapIter!=map->end()) {
-          nn = mapIter->val;
-        }
-        if(localPho->p4() == R_phot_iter->p4()) 
-	  pho_pi0disc[pho_n] = nn;
-        R_nphot++;              
+    if (!doFastSim) {
+      int R_nphot = 0;
+      float nn = -1.;
+      pho_pi0disc[pho_n] = nn;
+      if (localPho->isEB()) {
+	iEvent.getByLabel("piZeroDiscriminators","PhotonPi0DiscriminatorAssociationMap",  map);
+	for( reco::PhotonCollection::const_iterator  R_phot_iter = R_photons.begin(); R_phot_iter != R_photons.end(); R_phot_iter++) { 
+	  mapIter = map->find(edm::Ref<reco::PhotonCollection>(R_PhotonHandle,R_nphot));
+	  if(mapIter!=map->end()) {
+	    nn = mapIter->val;
+	  }
+	  if(localPho->p4() == R_phot_iter->p4()) 
+	    pho_pi0disc[pho_n] = nn;
+	  R_nphot++;              
+	}
       }
     }
-    
+
     if (!doAodSim) {
       int iTrk=0;
       bool ConvMatch = false;
