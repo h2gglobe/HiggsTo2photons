@@ -5,6 +5,7 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 #DATA TYPE
 flagData = 'OFF'
 flagMC = 'OFF'
+flagFastSim = 'ON'
 
 #SKIM TYPE
 flagSkimDiphoton = 'OFF'
@@ -197,15 +198,14 @@ process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
 # event counters
 process.processedEvents = cms.EDProducer("EventCountProducer")
+process.eventCounters = cms.Sequence(process.processedEvents)
 
+if (flagFastSim == 'OFF'):
+  process.eventCounters = cms.Sequence(process.totalKinematicsFilter * process.processedEvents)
+  
 if (flagAddPdfWeight == 'ON'):
-  process.eventCounters = cms.Sequence(process.totalKinematicsFilter + process.processedEvents + process.pdfWeights)
-elif (flagData == 'ON'):
-  process.eventCounters = cms.Sequence(process.processedEvents)
-else:
-  process.eventCounters = cms.Sequence(process.totalKinematicsFilter + process.processedEvents)
-
-
+  process.eventCounters *= cms.Sequence(process.pdfWeights)
+  
 process.h2ganalyzer.globalCounters.extend(['processedEvents']) 
 
 # PFIsolation photons
@@ -213,63 +213,47 @@ process.load("HiggsAnalysis.HiggsTo2photons.pfIsolation_cff")
 
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 
-if flagAOD is 'ON':
-  process.p11 = cms.Path( process.eventCounters*
-                          process.eventFilter1*
-                          process.pfPileUp *
-                          #process.pfBasedPhotonIsoSequence*
-                          #process.pfSelectedPhotons *
-                          process.piZeroDiscriminators*
-                          process.kt6PFJets*
-                          process.ak5PFJets*
-                          process.kt6PFJetsForRhoCorrection*
-                          process.h2ganalyzerPath)
-  
-  process.p12 = cms.Path( process.eventCounters*
-                          process.eventFilter2*
-                          process.pfPileUp *
-                          process.piZeroDiscriminators*
-                          #process.pfBasedPhotonIsoSequence*
-                          #process.pfSelectedPhotons *
-                          process.kt6PFJets*
-                          process.ak5PFJets*
-                          process.kt6PFJetsForRhoCorrection*
-                          process.h2ganalyzerPath)
-else:
-  process.p11 = cms.Path( process.eventCounters*
-                          process.eventFilter1*
-                          process.pfPileUp *
-                          #process.pfBasedPhotonIsoSequence*
-                          #process.pfSelectedPhotons *
-                          process.kt6PFJets*
-                          process.ak5PFJets*
-                          process.kt6PFJetsForRhoCorrection*
-                          process.conversionTrackCandidates*
-                          process.ckfOutInTracksFromConversions*
-                          process.preshowerClusterShape*
-                          process.piZeroDiscriminators*
-                          process.h2ganalyzerPath)
+#################################################
+# Define path, first for AOD case then for RECO #
+#################################################
+#process.pfBasedPhotonIsoSequence
+#process.pfSelectedPhotons
 
-  process.p12 = cms.Path( process.eventCounters*
-                          process.eventFilter2*
-                          process.pfPileUp *
-                          #process.pfBasedPhotonIsoSequence*
-                          #process.pfSelectedPhotons *
-                          process.kt6PFJets*
-                          process.ak5PFJets*
-                          process.kt6PFJetsForRhoCorrection*
-                          process.conversionTrackCandidates*
-                          process.ckfOutInTracksFromConversions*
-                          process.preshowerClusterShape*
-                          process.piZeroDiscriminators*
-                          process.h2ganalyzerPath)
+process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfPileUp)
+  
+if (flagFastSim == 'OFF'):
+  process.p11 *= process.piZeroDiscriminators
+    
+process.p11 *= (process.kt6PFJets* process.ak5PFJets* process.kt6PFJetsForRhoCorrection* process.h2ganalyzerPath)
+  
+process.p12 = copy.deepcopy(process.p11)
+process.p12.replace(process.eventFilter1, process.eventFilter2)
+
+if (flagAOD is 'OFF'):
+  process.p11.insert(-1, (process.conversionTrackCandidates*process.ckfOutInTracksFromConversions*process.preshowerClusterShape*process.piZeroDiscriminators))
+
+  process.p12.insert(-1, (process.conversionTrackCandidates*process.ckfOutInTracksFromConversions*process.preshowerClusterShape*process.piZeroDiscriminators))
+
+#################################################
+# End of Path definition                        #
+#################################################
 
 process.h2ganalyzer.JobMaker = jobMaker
 
 if (flagAddPdfWeight == 'ON'):
   process.h2ganalyzer.doPdfWeight = True 
 
-if flagMC is 'ON':
+if (flagFastSim is 'ON'):
+  process.h2ganalyzer.doFastSim = True
+
+if (flagMC is 'ON' and flagFastSim is 'ON'):
+  process.h2ganalyzer.doGenJet_algo1 = False
+  process.h2ganalyzer.doGenJet_algo2 = False
+  process.h2ganalyzer.doGenJet_algo3 = False
+  process.h2ganalyzer.doGenParticles = False
+  process.h2ganalyzer.doGenMet = False
+  process.h2ganalyzer.doReducedGen = False
+elif (flagMC is 'ON' and flagFastSim is 'OFF'):
   process.h2ganalyzer.doGenJet_algo1 = True
   process.h2ganalyzer.doGenJet_algo2 = True
   process.h2ganalyzer.doGenJet_algo3 = True

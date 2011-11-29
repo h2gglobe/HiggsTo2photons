@@ -129,7 +129,6 @@ class GlobeConversions {
   edm::InputTag hcalHoColl; 
 
   int debug_level;
-  bool doFastSim;
   bool doAodSim;
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;
