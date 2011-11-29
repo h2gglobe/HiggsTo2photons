@@ -705,7 +705,8 @@ void RooContainer::SumBinnedDatasets(std::string new_name, std::string data_one,
 void RooContainer::SumMultiBinnedDatasets(std::string new_name, std::vector<std::string > data, std::vector<double> normalisation,bool scale){
 	// this version takes a vector of histograms and sums them to the total normalisations. 
 	// if scale == true, then each histogram is summed together and then the total scaled to N
-	// if scale ==false then each is scaled to N/numberofhists then added
+	// if scale == false then each is scaled to N/numberofhists then added
+	// if N < 0 then total histogram is not scaled (if scale=false then N=1)
    if (normalisation.size() != ncat ){
 	std::cerr << "WARNING!! -- RooContainer::SumMultiBinnedDataSets -- number of coefficients should be the same as number of categories " << std::endl;
    } else {
@@ -721,11 +722,29 @@ void RooContainer::SumMultiBinnedDatasets(std::string new_name, std::vector<std:
    }
 }
 
+void RooContainer::SumMultiBinnedDatasets(std::string new_name, std::vector<std::string > data, double normalisation,bool scale){
+	// this version takes a vector of histograms and sums them to the total normalisations. 
+	// if scale == true, then each histogram is summed together and then the total scaled to N
+	// if scale == false then each is scaled to N/numberofhists then added
+	// if N < 0 then total histogram is not scaled (if scale=false then N=1)
+
+	for (int cat=0;cat<ncat;cat++){
+	   std::vector<std::string> catNames;
+	   for (std::vector<string>::iterator it = data.begin() ; it!=data.end();it++){
+		catNames.push_back(getcatName(*it,cat));
+	   }
+	   sumMultiBinnedDatasets(getcatName(new_name,cat),catNames,normalisation,scale);
+	}
+	
+}
+
 void RooContainer::sumMultiBinnedDatasets(std::string new_name, std::vector<std::string > data, double normalisation,bool scale){
 	
 	int nHists = data.size();
    	std::map<std::string,TH1F>::iterator it_one = m_th1f_.find(data[0]); // Get The first histogram
 
+	if (!scale && normalisation<0) normalisation=1.0;
+	
    	if (it_one !=m_th1f_.end() ){
 
        	  TH1F *histOne = (TH1F*)((*it_one).second).Clone();
@@ -743,7 +762,7 @@ void RooContainer::sumMultiBinnedDatasets(std::string new_name, std::vector<std:
 		
 	   }
 	  } 
-	  histOne->Scale(normalisation/histOne->Integral());	
+	  if (normalisation > 0)  histOne->Scale(normalisation/histOne->Integral());	
    	  m_th1f_.insert(std::pair<std::string,TH1F>(new_name,*histOne));
 	  std::cout << "RooContainer::SumBinnedDatasets -- Created New Histogram called " << new_name << std::endl;
   
@@ -1487,7 +1506,14 @@ std::vector<double> RooContainer::soverBOptimizedBinning(TH1F *hs,TH1F *hb,int n
 	// Create new rebinned histograms (only temporary)
 	TH1F *hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,"hbnew",arrBins);
 	TH1F *hsnew =(TH1F*) hs->Rebin(binEdges.size()-1,"hsnew",arrBins);
-	
+	hsnew->Smooth(1000);
+	hbnew->Smooth(1000);
+	// Do we really need the background histogram ?  we will be assuming that the first step is nentries per bin
+
+	// Smooth signal new binned histograms, the size of smoothing should be ~1% of the total bins	
+	//int nSmooth = (int) 0.01*hsnew->GetNbinsX();
+	//hsnew->Smooth(nSmooth);
+
 	delete [] arrBins;
 
 	if (hbnew->Integral()==0 || hsnew->Integral()==0) return binEdges;
@@ -1552,6 +1578,34 @@ std::vector<double> RooContainer::soverBOptimizedBinning(TH1F *hs,TH1F *hb,int n
 	// now we have new Bin edges to return to the 
 	return newbinEdges;
 
+}
+// ----------------------------------------------------------------------------------------------------
+std::vector<std::vector<double> > RooContainer::RebinConstantEdges(std::string datasetname, int nTargetBins){
+
+	std::vector<std::vector<double> > return_bins;
+	for (int cat=0;cat<ncat;cat++){
+	   std::map<std::string,TH1F>::iterator it_th=m_th1f_.find(getcatName(datasetname,cat));
+	   if (it_th!=m_th1f_.end()){
+		return_bins.push_back(rebinConstantEdges(&(it_th->second),nTargetBins));
+
+	   } else {
+		std::cerr << "WARNING ! -- RooContainer::OptimizedBinning -- No such binned dataset as " << datasetname << std::endl;
+	   }
+	}
+
+	return return_bins;
+
+}
+// ----------------------------------------------------------------------------------------------------
+std::vector<double> RooContainer::rebinConstantEdges(TH1F *hb,int nTargetBins){
+	 
+	int nBins = hb->GetNbinsX();
+	std::vector<double> binEdges;
+	
+	for (int j=1;j<=nBins;j++) {
+		if (j%nTargetBins==0)	binEdges.push_back(hb->GetBinLowEdge(j+1));
+	}
+	return binEdges;
 }
 // ----------------------------------------------------------------------------------------------------
 std::vector<std::vector<double> > RooContainer::OptimizedBinning(std::string datasetname, int nTargetBins,bool revise_target,bool use_n_entries,int direction){

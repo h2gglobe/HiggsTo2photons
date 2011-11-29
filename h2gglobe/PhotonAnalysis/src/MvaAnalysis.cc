@@ -106,13 +106,30 @@ void MvaAnalysis::Term(LoopAll& l)
       }
       for (int i=2; i<nMasses; i++){
         // Need to binning on MC!
-        std::vector <std::vector<double> > optimizedGradBins =  l.rooContainer->OptimizedBinning("bkg_BDT_grad_all"+names[i],150,false,true,-1);
-        std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->OptimizedBinning("bkg_BDT_ada_all"+names[i],150,false,true,-1);
+//        std::vector <std::vector<double> > optimizedGradBins =  l.rooContainer->OptimizedBinning("bkg_BDT_grad_all"+names[i],20,false,true,-1);
+//        std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->OptimizedBinning("bkg_BDT_ada_all"+names[i],20,false,true,-1);
+//        std::vector <std::vector<double> > optimizedGradBins =  l.rooContainer->RebinConstantEdges("bkg_BDT_grad_all"+names[i],100);
+//        std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->RebinConstantEdges("bkg_BDT_ada_all"+names[i],100);
 
-	// use ggh as signal modell , should ideall sum them first	
+	// use ggh as signal modell , should ideall sum them first
 
-        //std::vector <std::vector<double> > optimizedGradBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_grad_ggh"+names[i],"bkg_BDT_grad_all"+names[i],20,0.15);
-        //std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_ada_ggh"+names[i],"bkg_BDT_ada_all"+names[i],20,0.15);
+	std::vector<std::string> grad_sigsets;
+	std::vector<std::string> ada_sigsets;
+	ada_sigsets.push_back("sig_BDT_ada_ggh"+names[i]);
+	ada_sigsets.push_back("sig_BDT_ada_vbf"+names[i]);
+	ada_sigsets.push_back("sig_BDT_ada_wzh"+names[i]);
+	ada_sigsets.push_back("sig_BDT_ada_tth"+names[i]);
+	grad_sigsets.push_back("sig_BDT_grad_ggh"+names[i]);
+	grad_sigsets.push_back("sig_BDT_grad_vbf"+names[i]);
+	grad_sigsets.push_back("sig_BDT_grad_wzh"+names[i]);
+	grad_sigsets.push_back("sig_BDT_grad_tth"+names[i]);
+
+        l.rooContainer->SumMultiBinnedDatasets("sig_BDT_ada_all"+names[i],ada_sigsets,-1.,true);
+        l.rooContainer->SumMultiBinnedDatasets("sig_BDT_grad_all"+names[i],grad_sigsets,-1.,true);
+
+        std::vector <std::vector<double> > optimizedGradBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_grad_all"+names[i],"bkg_BDT_grad_all"+names[i],20,0.1);
+        std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_ada_all"+names[i],"bkg_BDT_ada_all"+names[i],20,0.1);
+
         
 	      double mass_h_low;      
               double mass_h_high;
@@ -463,7 +480,7 @@ void MvaAnalysis::Init(LoopAll& l)
  		tmvaReader_->AddVariable("pho2_eta", &_pho2_eta);
  		tmvaReader_->AddVariable("pho1_ptOverM", &_pho1_ptOverM);
  		tmvaReader_->AddVariable("pho2_ptOverM", &_pho2_ptOverM);
- 	    tmvaReader_->AddVariable("deltaMOverM", &_deltaMOverM);
+ 	    	tmvaReader_->AddVariable("deltaMOverM", &_deltaMOverM);
  		tmvaReader_->AddVariable("sigmaMOverM", &_sigmaMOverM);
 
         //Invariant Mass Spectra
@@ -715,7 +732,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 	bool CorrectVertex;
 	// FIXME pass smeared R9
-	int category = 0;
+	int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
 	int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
 	if( cur_type != 0 && doMCSmearing ) {
 	    float pth = Higgs.Pt();
@@ -1048,7 +1065,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
 			       
 		    // FIXME pass smeared R9 and di-photon
-		    int category = 0; 
+		    int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0); 
 		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
 		    for(std::vector<BaseDiPhotonSmearer *>::iterator sj=diPhotonSmearers_.begin(); sj!= diPhotonSmearers_.end(); ++sj ) {
 			float swei=1.;
@@ -1161,7 +1178,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
 		    TLorentzVector Higgs = lead_p4 + sublead_p4; 	
 		   
-		    int category = 0; 
+		    int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0); 
 		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
 		    if( cur_type != 0 && doMCSmearing ) {
 			for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {

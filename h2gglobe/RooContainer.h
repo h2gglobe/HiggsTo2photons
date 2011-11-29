@@ -87,6 +87,7 @@ class RooContainer {
    void SumBinnedDatasets(std::string,std::string,std::string,std::vector<double>, std::vector<double>, bool scale=true);
    void SumBinnedDatasets(std::string,std::string,std::string,double,double, bool scale=true);
    void SumMultiBinnedDatasets(std::string,std::vector<std::string>,std::vector<double>,bool scale=true);
+   void SumMultiBinnedDatasets(std::string,std::vector<std::string>,double,bool scale=true);
    void CreateDataSet(std::string,std::string,int nbins,double x1=-990,double x2=-990); 
    void MakeSystematics(std::string,std::string,int);
 
@@ -106,6 +107,7 @@ class RooContainer {
 
    void RebinBinnedDataset(std::string,std::string,std::vector <std::vector<double> >, bool);
    std::vector<std::vector<double> >OptimizedBinning(std::string,int,bool,bool,int direction=1);
+   std::vector<std::vector<double> >RebinConstantEdges(std::string,int);
    std::vector<std::vector<double> >SoverBOptimizedBinning(std::string,std::string,int,double);
    void WriteDataCard(std::string,std::string,std::string,std::string);
    void WriteSpecificCategoryDataCards(std::string,std::string,std::string,std::string);
@@ -162,6 +164,7 @@ class RooContainer {
    void setAllParametersConstant();
    void rebinBinnedDataset(std::string,std::string,TH1F *,std::vector<double>);
    std::vector<double> optimizedBinning(TH1F *,int,bool,bool);
+   std::vector<double> rebinConstantEdges(TH1F *,int);
    std::vector<double> optimizedReverseBinning(TH1F *,int,bool,bool);
    std::vector<double> soverBOptimizedBinning(TH1F *,TH1F*,int,double);
 
