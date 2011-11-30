@@ -8,7 +8,7 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCuts.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeEcalClusters.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/interface/CiCPhotonID.h"
 
 #include "DataFormats/EgammaCandidates/interface/PhotonFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
@@ -91,7 +91,7 @@ class GlobePhotons {
   Float_t pho_sipip[MAX_PHOTONS];
   Float_t pho_sieip[MAX_PHOTONS];
   Float_t pho_e1x5[MAX_PHOTONS];
-  Float_t pho_e2x5[MAX_PHOTONS];
+  Float_t pho_e2x2[MAX_PHOTONS];
   Float_t pho_e3x3[MAX_PHOTONS];
   Float_t pho_e5x5[MAX_PHOTONS];
   Float_t pho_emaxxtal[MAX_PHOTONS];
@@ -108,6 +108,20 @@ class GlobePhotons {
   Float_t pho_zernike42[MAX_PHOTONS];
   Float_t pho_eseffsixix[MAX_PHOTONS];
   Float_t pho_eseffsiyiy[MAX_PHOTONS];
+  Float_t pho_r19[MAX_PHOTONS];
+  Float_t pho_maxoraw[MAX_PHOTONS];
+  Float_t pho_cep[MAX_PHOTONS];
+  Float_t pho_lambdaratio[MAX_PHOTONS];
+  Float_t pho_lambdadivcov[MAX_PHOTONS];
+  Float_t pho_etawidth[MAX_PHOTONS];
+  Float_t pho_brem[MAX_PHOTONS];
+  Float_t pho_smaj[MAX_PHOTONS];
+  Float_t pho_hcalbcsumetconedr03[MAX_PHOTONS];
+  Float_t pho_hcalbc1sumetconedr03[MAX_PHOTONS];
+  Float_t pho_hcalbc2sumetconedr03[MAX_PHOTONS];
+  Float_t pho_hcalbcsumetconedr04[MAX_PHOTONS];
+  Float_t pho_hcalbc1sumetconedr04[MAX_PHOTONS];
+  Float_t pho_hcalbc2sumetconedr04[MAX_PHOTONS];
 
 // pi0 disc variable
   Float_t pho_pi0disc[MAX_PHOTONS];
@@ -163,6 +177,8 @@ class GlobePhotons {
   Float_t pho_trksumpthollowconedr03[MAX_PHOTONS];
   Float_t pho_ntrksolidconedr03[MAX_PHOTONS];
   Float_t pho_ntrkhollowconedr03[MAX_PHOTONS];
+  std::vector<std::vector<float> >* pho_frixiso;
+  Float_t pho_must[MAX_PHOTONS];
 
   Int_t pho_barrel[MAX_PHOTONS];
   Int_t pho_scind[MAX_PHOTONS];
@@ -203,7 +219,9 @@ class GlobePhotons {
   Float_t pho_regr_energy[MAX_PHOTONS];
   Float_t pho_regr_energyerr[MAX_PHOTONS];
 
-  Int_t pho_id[MAX_PHOTONS];
+  Int_t pho_id_4cat[MAX_PHOTONS][100];  
+  Int_t pho_id_6cat[MAX_PHOTONS][100];
+  Int_t pho_id_6catpf[MAX_PHOTONS][100];
 
   TClonesArray *pho_p4;
   TClonesArray *pho_calopos;
@@ -218,6 +236,8 @@ class GlobePhotons {
   GlobeCuts *gCUT;
   GlobeEcalClusters *gES;
   edm::InputTag photonCollStd;
+
+  CiCPhotonID* cicPhotonId;
 
   // SUPER CLUSTERS
   edm::InputTag hybridSuperClusterColl;
@@ -282,11 +302,11 @@ class GlobePhotons {
   std::vector<double> cutsubleadr9[12];
   std::vector<double> cutsublead_drtotk[12];
 
-  ElectronHcalHelper *hcalHelper, *hcalHelperPflow;
-
   CaloGeometry geometry;
   const EcalSeverityLevelAlgo* sevLevel; 
   edm::ESHandle<TransientTrackBuilder> theTTkBuilder;
+
+  ElectronHcalHelper *hcalHelper, *hcalHelperPflow;
   ElectronHcalHelper::Configuration hcalCfg, hcalCfgPflow;
 
   EGEnergyCorrector ecorr_;

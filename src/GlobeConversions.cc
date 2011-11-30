@@ -5,7 +5,6 @@
 GlobeConversions::GlobeConversions(const edm::ParameterSet& iConfig, const char* n): nome(n) {
 
   debug_level = iConfig.getParameter<int>("Debug_Level");
-  doFastSim = iConfig.getParameter<bool>("doFastSim");
   doAodSim = iConfig.getParameter<bool>("doAodSim");
 
   // allConversions
