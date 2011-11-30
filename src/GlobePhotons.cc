@@ -358,9 +358,9 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   
   edm::Handle<reco::ConversionCollection> hConversions;
   iEvent.getByLabel(convertedPhotonColl, hConversions);
-  
-  //edm::Handle<reco::GsfElectronCollection> hElectrons;
   iEvent.getByLabel(electronColl, hElectrons);
+  iEvent.getByLabel(vtxCollection, hVertex);
+  iEvent.getByLabel(tkCollection, tkHandle);
 
   edm::Handle<double> rhoHandle;
   iEvent.getByLabel(rhoCollection, rhoHandle);
@@ -449,7 +449,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_id_6cat[pho_n][iv] = cicPhotonId->photonCutLevel6cat(localPho, iv);
       pho_id_6catpf[pho_n][iv] = cicPhotonId->photonCutLevel6catPF(localPho, iv);
     }
-    
+
     // FRIXIONE ISO
     //pfFrixIso->float pfFrixioneIso::mvaID(const reco::PFCandidateCollection* pfParticlesColl,const reco::Photon *recoPhoton, edm::Handle< reco::VertexCollection > recoVtx)
     pho_must[pho_n]    = 0;
@@ -581,7 +581,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_hoe_bc[pho_n]  = pho_h1oe_bc[pho_n] + pho_h2oe_bc[pho_n];
     }
     
-
     pho_r1x5[pho_n] = localPho->r1x5();
     pho_r2x5[pho_n] = localPho->r2x5();
     pho_r9[pho_n] = localPho->r9();
@@ -615,7 +614,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_brem[pho_n]           = localPho->superCluster()->phiWidth()/localPho->superCluster()->etaWidth();
     Cluster2ndMoments moments = EcalClusterTools::cluster2ndMoments(*seed_clu, *(prechits.product()), 0.8, 4.7, true);
     pho_smaj[pho_n]           = moments.sMaj; 
-    std::cout << moments.sMaj << " " << moments.sMin << " " << moments.alpha << std::endl;
 
     // Added by Aris - Begin
 

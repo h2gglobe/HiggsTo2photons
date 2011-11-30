@@ -29,6 +29,10 @@ process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_44X_cfi")
 #pi0 disc
 process.load("RecoEcal.EgammaClusterProducers.preshowerClusterShape_cfi")
 process.load("EgammaAnalysis.PhotonIDProducers.piZeroDiscriminators_cfi")
+#FIXME
+process.piZeroDiscriminators.preshClusterShapeProducer = cms.string('multi5x5PreshowerClusterShape')
+process.piZeroDiscriminators.preshClusterShapeCollectionX = cms.string('multi5x5PreshowerXClustersShape')    
+process.piZeroDiscriminators.preshClusterShapeCollectionY = cms.string('multi5x5PreshowerYClustersShape')
 
 if flagAOD is 'OFF':
   #rerun ConvId
