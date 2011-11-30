@@ -5,7 +5,7 @@ from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 #DATA TYPE
 flagData = 'OFF'
 flagMC = 'OFF'
-flagFastSim = 'ON'
+flagFastSim = 'OFF'
 
 #SKIM TYPE
 flagSkimDiphoton = 'OFF'
