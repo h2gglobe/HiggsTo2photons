@@ -107,9 +107,6 @@ class GlobeConversions {
   Int_t conv_validvtx[MAX_CONVERTEDPHOTONS];
   Float_t conv_MVALikelihood[MAX_CONVERTEDPHOTONS];
 
-
-
-
  private:
   const char* nome;
   GlobeCuts *gCUT;
@@ -135,7 +132,6 @@ class GlobeConversions {
   edm::InputTag pfColl;
 
   int debug_level;
-  bool doFastSim;
   bool doAodSim;
 
   edm::ESHandle<CaloGeometry> theCaloGeom_;

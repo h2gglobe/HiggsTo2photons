@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
+import copy
 
 #DATA TYPE
 flagData = 'OFF'
 flagMC = 'OFF'
+flagFastSim = 'OFF'
 
 #SKIM TYPE
 flagSkimDiphoton = 'OFF'
@@ -24,11 +26,11 @@ if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON'
 process = cms.Process("Globe") 
 process.load("Configuration.StandardSequences.GeometryDB_cff") 
 process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_44X_cfi")
+#pi0 disc
+process.load("RecoEcal.EgammaClusterProducers.preshowerClusterShape_cfi")
+process.load("EgammaAnalysis.PhotonIDProducers.piZeroDiscriminators_cfi")
+
 if flagAOD is 'OFF':
-  #pi0 disc
-  process.load("RecoEcal.EgammaClusterProducers.preshowerClusterShape_cfi")
-  process.load("EgammaAnalysis.PhotonIDProducers.piZeroDiscriminators_cfi")
-  
   #rerun ConvId
   process.load("RecoEgamma.EgammaPhotonProducers.conversionTrackSequence_cff")
   # NOTICE: You need the following two python files to rerun the conversion tracking with ECAL association
@@ -48,7 +50,12 @@ process.load('HiggsAnalysis.HiggsTo2photons.ZMuSkim_cff')
 process.load('HiggsAnalysis.HiggsTo2photons.photonReRecoForMMG_cfi')
 
 if flagSkimDiphoton == 'ON':
-  process.load('Configuration.Skimming.PDWG_DiPhoton_SD_cff')
+  process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
+  process.DiPhotonHltFilter = copy.deepcopy(hltHighLevel)
+  process.DiPhotonHltFilter.throw = cms.bool(False)
+  process.DiPhotonHltFilter.HLTPaths = ["HLT_Photon*_CaloId*_Iso*_Photon*_CaloId*_Iso*_*","HLT_Photon*_R9Id*_Photon*_R9Id*_*","HLT_Photon*_R9Id*_Photon*_CaloId*_Iso*_*","HLT_Photon*_CaloId*_Iso*_Photon*_R9Id*_*"]
+  #process.load('Configuration.Skimming.PDWG_DiPhoton_SD_cff')
+
 
 process.load("HiggsAnalysis.HiggsTo2photons.CMSSW_RelValDUMMY_cfi")
 #process.skipEvents = cms.untracked.PSet(input=cms.untracked.uint32(3500))
@@ -62,8 +69,6 @@ process.options = cms.untracked.PSet(
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
-
-
 
 
 process.superClusterMerger =  cms.EDProducer("EgammaSuperClusterMerger",
@@ -142,6 +147,7 @@ process.pdfWeights = cms.EDProducer("PdfWeightProducer",
                                     PdfInfoTag = cms.untracked.InputTag("generator"),
                                     PdfSetNames = cms.untracked.vstring("cteq66.LHgrid")
                                     )
+
 #process.goodEvents = cms.Sequence(process.noScraping * process.primaryVertexFilter)
 #process.pathToCheck = cms.Sequence(process.L10and34 *process.noScraping*process.primaryVertexFilter*process.HFCoincidence*process.L140or41)
 #process.pathToCheck2 = cms.Sequence(process.L10and34 *process.noScraping*process.primaryVertexFilter*process.L140or41*process.HFCoincidence)
@@ -152,8 +158,10 @@ if flagVLPreSelection == 'ON':
   process.eventFilter1 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut) # for bkg
   process.eventFilter2 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut) # for bkg
 elif flagSkimDiphoton == 'ON':
-  process.eventFilter1 = cms.Sequence(process.CaloIdIsoPhotonPairsFilter) # for some data
-  process.eventFilter2 = cms.Sequence(process.R9IdPhotonPairsFilter)      # for some data
+  process.eventFilter1 = cms.Sequence(process.DiPhotonHltFilter) # for some data
+  process.eventFilter2 = cms.Sequence(process.DiPhotonHltFilter)      # for some data
+  #process.eventFilter1 = cms.Sequence(process.CaloIdIsoPhotonPairsFilter) # for some data
+  #process.eventFilter2 = cms.Sequence(process.R9IdPhotonPairsFilter)      # for some data
 elif flagNoSkim == 'ON':    
   process.eventFilter1 = cms.Sequence(process.dummySelector)   #for signal MC
   process.eventFilter2 = cms.Sequence(process.dummySelector)   #for signal MC
@@ -174,22 +182,28 @@ process.h2ganalyzer.Debug_Level = 0
 
 ##-------------------- PFNoPU for PF Isolation Electrons -------------
 process.load("CommonTools.ParticleFlow.pfPileUp_cfi")
-process.pfPileUp.PFCandidates = cms.InputTag("particleFlow")
 ##-------------------- Import the JEC services -----------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-process.ak5PFL1Fastjet.srcRho = cms.InputTag('kt6PFJetsForRhoCorrection','rho')
 ##-------------------- Import the Jet RECO modules -----------------------
 process.load('RecoJets.Configuration.RecoPFJets_cff')
-process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(doRhoFastjet = True)
+process.kt6PFJets = process.kt6PFJets.clone(rParam = 0.6, doRhoFastjet = True)
+process.ak5PFJets.doAreaFastjet = True
+process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(rParam = 0.6, doRhoFastjet = True)
 process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
+
+##-------------------- Filter to skip bugged events with non conserved energy -------
+process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
 # event counters
 process.processedEvents = cms.EDProducer("EventCountProducer")
 
-if (flagAddPdfWeight == 'ON'):
-  process.eventCounters = cms.Sequence(process.processedEvents + process.pdfWeights)
-else:
-  process.eventCounters = cms.Sequence(process.processedEvents)
+process.eventCounters = cms.Sequence(process.processedEvents)
+
+if (flagFastSim == 'OFF' and flagMC == 'ON'):
+  process.eventCounters = cms.Sequence(process.totalKinematicsFilter * process.processedEvents)
+
+if (flagAddPdfWeight == 'ON' and flagMC == 'ON'):
+  process.eventCounters *= cms.Sequence(process.pdfWeights)
 
 process.h2ganalyzer.globalCounters.extend(['processedEvents']) 
 
@@ -198,56 +212,55 @@ process.load("HiggsAnalysis.HiggsTo2photons.pfIsolation_cff")
 
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 
-if flagAOD is 'ON':
-  process.p11 = cms.Path( process.eventCounters*
-                          process.eventFilter1*
-                          process.pfPileUp *
-                          process.pfBasedPhotonIsoSequence*
-                          process.kt6PFJetsForRhoCorrection*
-                          process.ak5PFJets*process.h2ganalyzerPath)
-  
-  process.p12 = cms.Path( process.eventCounters*
-                          process.eventFilter2*
-                          process.pfPileUp *
-                          process.pfBasedPhotonIsoSequence*
-                          process.kt6PFJetsForRhoCorrection*
-                          process.ak5PFJets*process.h2ganalyzerPath)
-else:
-  process.p11 = cms.Path( process.eventCounters*
-                          process.eventFilter1*
-                          process.pfPileUp *
-                          process.pfBasedPhotonIsoSequence*
-                          process.kt6PFJetsForRhoCorrection*
-                          process.ak5PFJets*
-                          process.conversionTrackCandidates*
-                          process.ckfOutInTracksFromConversions*
-                          process.preshowerClusterShape*
-                          process.piZeroDiscriminators*
-                          process.h2ganalyzerPath)
-  
-  process.p12 = cms.Path( process.eventCounters*
-                          process.eventFilter2*
-                          process.pfPileUp *
-                          process.pfBasedPhotonIsoSequence*
-                          process.kt6PFJetsForRhoCorrection*
-                          process.ak5PFJets*
-                          process.conversionTrackCandidates*
-                          process.ckfOutInTracksFromConversions*
-                          process.preshowerClusterShape*
-                          process.piZeroDiscriminators*
-                          process.h2ganalyzerPath)
+#################################################
+# Define path, first for AOD case then for RECO #
+#################################################
+#process.pfBasedPhotonIsoSequence
+#process.pfSelectedPhotons
+
+process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfPileUp)
+
+if (flagFastSim == 'OFF'):
+  process.p11 *= process.piZeroDiscriminators
+    
+process.p11 *= (process.kt6PFJets* process.ak5PFJets* process.kt6PFJetsForRhoCorrection* process.h2ganalyzerPath)
+
+process.p12 = copy.deepcopy(process.p11)
+process.p12.replace(process.eventFilter1, process.eventFilter2)
+
+if (flagAOD is 'OFF'):
+  process.p11.insert(-1, (process.conversionTrackCandidates*process.ckfOutInTracksFromConversions*process.preshowerClusterShape*process.piZeroDiscriminators))
+
+  process.p12.insert(-1, (process.conversionTrackCandidates*process.ckfOutInTracksFromConversions*process.preshowerClusterShape*process.piZeroDiscriminators))
+
+#################################################
+# End of Path definition                        #
+#################################################
 
 process.h2ganalyzer.JobMaker = jobMaker
 
 if (flagAddPdfWeight == 'ON'):
-  process.h2ganalyzer.doPdfWeight = True 
+  process.h2ganalyzer.doPdfWeight = True
 
-if flagMC is 'ON':
+if (flagFastSim is 'ON'):
+  process.h2ganalyzer.doFastSim = True
+  
+if (flagMC is 'ON' and flagFastSim is 'ON'):
+  process.h2ganalyzer.doGenJet_algo1 = False
+  process.h2ganalyzer.doGenJet_algo2 = False
+  process.h2ganalyzer.doGenJet_algo3 = False
+  process.h2ganalyzer.doGenParticles = False
+  process.h2ganalyzer.doGenMet = False
+  process.h2ganalyzer.doReducedGen = False
+  process.h2ganalyzer.doGenVertices = False
+elif (  flagMC is 'ON' and flagFastSim is 'OFF'):
   process.h2ganalyzer.doGenJet_algo1 = True
   process.h2ganalyzer.doGenJet_algo2 = True
   process.h2ganalyzer.doGenJet_algo3 = True
   process.h2ganalyzer.doGenParticles = True
+  process.h2ganalyzer.doGenMet = True
   process.h2ganalyzer.doReducedGen = True
+  process.h2ganalyzer.doGenVertices = True
 elif flagData is 'ON':
   process.h2ganalyzer.doPileup = False
   process.h2ganalyzer.doGenJet_algo1 = False
@@ -255,6 +268,7 @@ elif flagData is 'ON':
   process.h2ganalyzer.doGenJet_algo3 = False
   process.h2ganalyzer.doGenParticles = False
   process.h2ganalyzer.doGenVertices = False
+  process.h2ganalyzer.doGenMet = False
   process.h2ganalyzer.doReducedGen = False
 
 if flagMC is 'ON' and flagAOD is 'OFF':
@@ -265,10 +279,12 @@ if flagAOD is 'ON':
   process.h2ganalyzer.doAodSim = True
   process.h2ganalyzer.doHcal = False
   process.h2ganalyzer.doHFHcal = False
+  process.h2ganalyzer.doPreshowerHits = False
 else:
   process.h2ganalyzer.doAodSim = False
   process.h2ganalyzer.doHcal = True
   process.h2ganalyzer.doHFHcal = True
+  process.h2ganalyzer.doPreshowerHits = True
   process.h2ganalyzer.EcalHitEBColl = cms.InputTag("ecalRecHit","EcalRecHitsEB")
   process.h2ganalyzer.EcalHitEEColl = cms.InputTag("ecalRecHit","EcalRecHitsEE")
   process.h2ganalyzer.EcalHitESColl = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES")
