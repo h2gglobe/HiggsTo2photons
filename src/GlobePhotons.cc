@@ -430,10 +430,10 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     // Regression Correction
     if (!ecorr_.IsInitialized()) {
-      //char filename[200];
-      //char* descr = getenv("CMSSW_BASE");
-      //sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrph.root", descr);
-      std::string filename = "http://home.cern.ch/sani/gbrph.root";
+      char filename[200];
+      char* descr = getenv("CMSSW_BASE");
+      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrph.root", descr);
+      //std::string filename = "http://home.cern.ch/sani/gbrph.root";
       ecorr_.Initialize(iSetup, filename);
     }
 

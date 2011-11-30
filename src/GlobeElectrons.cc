@@ -522,10 +522,10 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     // Regression Correction
     if (!ecorr_.IsInitialized()) {   
-      //char filename[200];
-      //char* descr = getenv("CMSSW_BASE");
-      //sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrele.root", descr);
-      std::string filename("http://home.cern.ch/sani/gbrele.root");
+      char filename[200];
+      char* descr = getenv("CMSSW_BASE");
+      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrele.root", descr);
+      //std::string filename("http://home.cern.ch/sani/gbrele.root");
       ecorr_.Initialize(iSetup, filename);
     }
 
