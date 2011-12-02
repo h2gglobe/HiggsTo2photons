@@ -6,6 +6,8 @@ ROOT.gROOT.SetBatch(True)
 ROOT.gROOT.ProcessLine(".L quadInterpolate.C+")
 from ROOT import quadInterpolate
 
+from optparse import OptionParser
+
 def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
 	resL = quadInterpolate(-1*C,X1,X2,X3,Y1,Y2,Y3)
 	resH = quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3)
@@ -22,7 +24,7 @@ def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
 def getBinContent(hist,b):
   
 	res = hist.GetBinContent(b)
-	if res==0: return 0.000001
+	if res==0: return 0.0000001
 	else: return res
 
 def writeCard(tfile,mass,scaleErr):
@@ -34,6 +36,7 @@ def writeCard(tfile,mass,scaleErr):
   # Data ->
   dataHist = tfile.Get("th1f_data_grad_%3.1f_cat0"%mass)
   nBins    = dataHist.GetNbinsX()
+  print "Number of Channels -> ", nBins
   # bkg model ->
   bkgHist  = tfile.Get("th1f_bkg_grad_%3.1f_cat0"%mass)
   # 4 signal channels ->
@@ -65,7 +68,9 @@ def writeCard(tfile,mass,scaleErr):
   outPut.write("\nprocess    ")
   for b in range(1,nBins+1): outPut.write("   0      0      0      0    1    ")
   outPut.write("\nrate       ")
-  for b in range(1,nBins+1): outPut.write(" %.8f   %.8f   %.8f   %.8f   %.8f "%(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b),bkgHist.GetBinContent(b)))
+  for b in range(1,nBins+1): outPut.write(" %.12f   %.12f   %.12f   %.12f   %.12f "\
+    %(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b)\
+     ,bkgHist.GetBinContent(b)))
   outPut.write("\n--------------------------------------------------------------\n")
 
   # Some Globals #################################################################
@@ -99,10 +104,11 @@ def writeCard(tfile,mass,scaleErr):
   outPut.write("\n")
 
   # Now is the very tedious part of the signal shape systematics, for each shape, simply do -/+ sigma
-  print "Writing Systematics Part (coule be slow)"
   systematics = ["E_res","E_scale","idEff","r9Eff","kFactor","triggerEff","vtxEff"]
   
-  for sys in systematics:
+  if options.signalSys:
+   print "Writing Systematics Part (coule be slow)"
+   for sys in systematics:
 
     gghHistU  = tfile.Get("th1f_sig_grad_ggh_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
     vbfHistU  = tfile.Get("th1f_sig_grad_vbf_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
@@ -134,24 +140,30 @@ def writeCard(tfile,mass,scaleErr):
   outPut.write("\nbkg_norm lnN ")
   for b in range(1,nBins+1): outPut.write(" -   -   -   -  %.8f "%(scaleErr))
 
-  # bkg bins will be gmN errors 
-  bkgScale = bkgHist.Integral()/bkgHist.GetEntries()
-  for b in range(1,nBins+1):
+  if options.B2B:
+   # bkg bins will be gmN errors 
+   bkgScale = bkgHist.Integral()/bkgHist.GetEntries()
+   for b in range(1,nBins+1):
         outPut.write("\nbkg_stat%d gmN %d "%(b,int(bkgHist.GetBinContent(b)/bkgScale)))
 	for q in range(1,nBins+1):
 		if q==b: outPut.write(" - - - - %.8f "%bkgScale)
 		else:    outPut.write(" - - - - - ")
+
   outPut.write("\n")  # done
   outPut.close()
-  
-
-                     
-  
+    
 #################################################################################  
-print "Creating Binned Datacards from workspace -> ", sys.argv[1]
+
+parser = OptionParser()
+parser.add_option("-i","--input",dest="tfileName")
+parser.add_option("","--noB2B",action="store_false",dest="B2B",default=True)
+parser.add_option("","--noSignalSys",action="store_false",dest="signalSys",default=True)
+(options,args)=parser.parse_args()
+print "Creating Binned Datacards from workspace -> ", options.tfileName
 
 genMasses     = [115,120,125,130,135,140,145,150]
-scalingErrors = [1.00819,1.00764,1.00776,1.00794,1.00848,1.00917,1.0099,1.01143] # Takes from P.Dauncey studies
+#scalingErrors = [1.00819,1.00764,1.00776,1.00794,1.00848,1.00917,1.0099,1.01143] # Takes from P.Dauncey studies -> 7% window
+scalingErrors = [1.00198,1.00190,1.00194,1.00202,1.00214,1.00234,1.00253,1.00283] # Takes from P.Dauncey studies -> 2% window
 evalMasses    = numpy.arange(115,150.5,0.5)
 normG = ROOT.TGraph(len(genMasses))
 
@@ -163,12 +175,12 @@ normG.SetMarkerStyle(20)
 normG.GetXaxis().SetTitle("mH")
 normG.GetYaxis().SetTitle("(N+dN)/N")
 normG.Draw("ALP")
-print "Check the Errors Look Sensible -> plot saved to normErrors_%s"%sys.argv[1]
-can.SaveAs("normErrors_%s.pdf"%sys.argv[1])
+print "Check the Errors Look Sensible -> plot saved to normErrors_%s"%options.tfileName
+can.SaveAs("normErrors_%s.pdf"%options.tfileName)
 
 # Now we can write the cards
-tfileName = sys.argv[1]
-tfile = ROOT.TFile(tfileName)
+#tfileName = sys.argv[1]
+tfile = ROOT.TFile(options.tfileName)
 for m in evalMasses: writeCard(tfile,m,normG.Eval(m))
 print "Done Writing Cards"
 

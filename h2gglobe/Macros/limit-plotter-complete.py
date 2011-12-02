@@ -18,10 +18,10 @@ ROOT.gStyle.SetOptStat(0)
 
 #-------------------------------------------------------------------------
 # Configuration for the Plotter
-intlumi = str(4.69)
+intlumi = str(4.7)
 #EXPmasses = [110,115,120,125,130,135,140,150]       # Only used in Bayesian and PL method
-OBSmasses = range(110,151,1)
-EXPmasses = range(110,151,1)
+OBSmasses = numpy.arange(115,151,1.)
+EXPmasses = numpy.arange(115,151,1.)
 #OBSmasses = [110,115,120,125,130,135,140,150]
 theorySMScales = [5,10]  			# A list of the C x sigma to draw
 
@@ -34,7 +34,7 @@ FILLCOLOR_95=ROOT.kGreen
 FILLCOLOR_68=ROOT.kYellow
 FILLCOLOR_T=ROOT.kAzure+7			# Theory lines color
 RANGEYABS=[0.0,0.6]
-RANGEYRAT=[0.0,8]
+RANGEYRAT=[0.0,6]
 #-------------------------------------------------------------------------
 # UserInput
 parser=OptionParser()
@@ -43,8 +43,11 @@ parser.add_option("-s","--doSmooth",action="store_true")
 parser.add_option("-b","--bayes",dest="bayes")
 parser.add_option("-o","--outputLimits",dest="outputLimits")
 parser.add_option("-e","--expectedOnly",action="store_true")
+parser.add_option("","--pval",action="store_true")
 (options,args)=parser.parse_args()
 # ------------------------------------------------------------------------
+
+if options.pval: EXPmasses=[]
 
 # Overlay the Baysian observed Limit 
 if options.bayes:
@@ -190,7 +193,7 @@ MG = ROOT.TMultiGraph()
 
 #EXPECTED
 for i,mass,f in zip(range(len(EXPfiles)),EXPmasses,EXPfiles):
- 
+  if options.pval: continue
   sm = 1.
  
   median = array.array('d',[0])
@@ -426,7 +429,7 @@ C.SetGrid(True)
 
 dummyHist = ROOT.TH1D("dummy","",1,min(OBSmasses)-OFFSETLOW,max(OBSmasses)+OFFSETHIGH)
 dummyHist.Draw("AXIS")
-MG.Draw("C3P")
+MG.Draw("C3")
 dummyHist.Draw("AXIGSAME")
 
 #MG.GetXaxis().SetTitle("m_{H}(GeV/c^{2})")
