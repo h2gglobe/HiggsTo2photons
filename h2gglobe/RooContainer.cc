@@ -1493,6 +1493,13 @@ std::vector<double> RooContainer::soverBOptimizedBinning(TH1F *hs,TH1F *hb,int n
 	// First runs the optimizedBinning on background and rebins S and B clones, note, always performs 
 	// revise_target=false,direction=-1 and use_n_entries=true
 	// nTargetBins is used for the flat binning, decision to merge based on penaltyScale
+	int ninitBins = hb->GetNbinsX();
+	if (hs->Integral()==0 ||  hb->Integral()==0 || ninitBins < 2) {
+		std::vector<double> binEdges;
+		binEdges.push_back(hb->GetBinLowEdge(1));
+		binEdges.push_back(hb->GetBinLowEdge(ninitBins+1));
+		return binEdges;
+	}
 
 	std::vector<double> binEdges = optimizedReverseBinning(hb,nTargetBins,false,true);
 
@@ -1506,8 +1513,12 @@ std::vector<double> RooContainer::soverBOptimizedBinning(TH1F *hs,TH1F *hb,int n
 	// Create new rebinned histograms (only temporary)
 	TH1F *hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,"hbnew",arrBins);
 	TH1F *hsnew =(TH1F*) hs->Rebin(binEdges.size()-1,"hsnew",arrBins);
-	hsnew->Smooth(1000);
-	hbnew->Smooth(1000);
+	
+	
+	if (hsnew->Integral()!=0 && hbnew->Integral()!=0 && binEdges.size()-1 > 10){
+		hsnew->Smooth(1000);
+		hbnew->Smooth(1000);
+        }
 	// Do we really need the background histogram ?  we will be assuming that the first step is nentries per bin
 
 	// Smooth signal new binned histograms, the size of smoothing should be ~1% of the total bins	
@@ -1533,33 +1544,40 @@ std::vector<double> RooContainer::soverBOptimizedBinning(TH1F *hs,TH1F *hb,int n
 		double highEdge=hbnew->GetBinLowEdge(i+1);
 		double S = hsnew->GetBinContent(i);
 		double B = hbnew->GetBinContent(i);
-		double Serr = hsnew->GetBinError(i);
-		double Berr = hbnew->GetBinError(i);
+                double Stot =S;
+                double Btot =B;
+
 		if (B!=0){ 
-		  double SoB = S/B;
-		  double SoBerr = SoB*TMath::Sqrt((Serr/S)*(Serr/S) + (Berr/B)*(Berr/B));
 		  bool carryOn=true;
-                  double importance = SoB/maxSoB;
 
 		  while ( carryOn){
+
+		  	double SoB = S/B;
+
 			if (k<=nNewBins){
 
 			  double S1 = hsnew->GetBinContent(k);
 			  double B1 = hbnew->GetBinContent(k);
 			  if (B1==0) {
 				carryOn=true;
-			      	highEdge = hbnew->GetBinLowEdge(i+2);
+			      	highEdge = hbnew->GetBinLowEdge(k+1);
+				Stot+=S1;
 				k++;
 			  }
 			  else{
+
 			    double SoB1 = S1/B1;
-			    double Serr1 = hsnew->GetBinError(k);
-			    double Berr1 = hbnew->GetBinError(k);
-			    double SoBerr1 = SoB1*TMath::Sqrt((Serr1/S1)*(Serr1/S1) + (Berr1/B1)*(Berr1/B1));
-			  
-			  //  if (fabs(SoB-SoB1) < penaltyScale*TMath::Sqrt(SoBerr*SoBerr + SoBerr1*SoBerr1)){
-			      if (fabs(SoB-SoB1)/SoB < penaltyScale/importance ){
-			      highEdge = hbnew->GetBinLowEdge(i+2);
+			    double scaler=penaltyScale;
+                            double prob   = TMath::Prob((scaler*(Stot+S1))*(scaler*(Stot+S1))/(Btot+B1),1);
+                            double prob1  = TMath::Prob(((scaler*Stot)*(scaler*Stot)/(Btot)) + ((scaler*S1)*(scaler*S1)/(B1)),2);
+                  	    double importance = SoB/maxSoB;
+
+//			      if (fabs(SoB-SoB1)/SoB < penaltyScale/importance ){
+			      if ( prob<prob1 ){
+
+			      highEdge = hbnew->GetBinLowEdge(k+1);
+			      Stot+=S1;
+			      Btot+=B1;
 			      carryOn = true;
 			      k++;
 			    } else {carryOn=false;}
