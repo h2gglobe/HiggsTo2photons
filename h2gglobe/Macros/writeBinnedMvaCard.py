@@ -14,12 +14,13 @@ def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
 	if math.isnan(resL) or math.isinf(resL) or  math.isnan(resH) or math.isinf(resL): return " - "
 	if abs(resL - 1) < 0.001 or abs(resL - 1) > 1: return " - "
 	if abs(resH - 1) < 0.001 or abs(resH - 1) > 1: return " - "
-	#return " %.8f/%.8f "%(resL,resH) 
+	return " %.8f/%.8f "%(resL,resH) 
 	#combination tool doesnt like kappas wrong way so lets symmetrize (take largest) but always give the UP direction
-	diff = max(abs(1-resL),abs(1-resH))
+	#diff = max(abs(1-resL),abs(1-resH))
 	# now make direction, that of the up fluctuation
-	sign = (resH-1)/abs(resH-1)
-	return " %.8f "%(1+sign*diff)
+	#sign = (resH-1)/abs(resH-1)
+	#return " %.8f "%(1+sign*diff)
+#	return " %.8f/%.8f "%(resL,resH)
 
 def getBinContent(hist,b):
   
