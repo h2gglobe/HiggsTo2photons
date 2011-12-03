@@ -8,6 +8,8 @@ from ROOT import quadInterpolate
 
 from optparse import OptionParser
 
+r=ROOT.TRandom3(0)
+
 def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
 	resL = quadInterpolate(-1*C,X1,X2,X3,Y1,Y2,Y3)
 	resH = quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3)
@@ -27,6 +29,12 @@ def getBinContent(hist,b):
 	res = hist.GetBinContent(b)
 	if res==0: return 0.0000001
 	else: return res
+
+def getPoissonBinContent(hist,b,exp):
+  
+	res = exp*(hist.GetBinContent(b))
+	if res==0: return 0.0000001
+	else: return r.Poisson(res)
 
 def writeCard(tfile,mass,scaleErr):
 
@@ -59,7 +67,21 @@ def writeCard(tfile,mass,scaleErr):
   outPut.write("bin 	     ")
   for b in range(1,nBins+1): outPut.write(" cat%d "%b)
   outPut.write("\nobservation")
-  for b in range(1,nBins+1): outPut.write(" %d "%dataHist.GetBinContent(b))
+
+  if options.throwToy:
+	for b in range(1,nBins+1): 
+	  nd = r.Poisson(bkgHist.GetBinContent(b))
+	  ns = 0
+	  if options.expSig>0:
+		ns+=getPoissonBinContent(gghHist,b,options.expSig)
+		ns+=getPoissonBinContent(vbfHist,b,options.expSig)
+		ns+=getPoissonBinContent(wzhHist,b,options.expSig)
+		ns+=getPoissonBinContent(tthHist,b,options.expSig)
+
+	  outPut.write(" %.2f "%(nd+ns))
+
+  else:
+	for b in range(1,nBins+1): outPut.write(" %d "%dataHist.GetBinContent(b))
   outPut.write("\n--------------------------------------------------------------\n")
   ## Now we do the signal and background parts
   outPut.write("bin 	     ")
@@ -159,8 +181,14 @@ parser = OptionParser()
 parser.add_option("-i","--input",dest="tfileName")
 parser.add_option("","--noB2B",action="store_false",dest="B2B",default=True)
 parser.add_option("","--noSignalSys",action="store_false",dest="signalSys",default=True)
+parser.add_option("","--throwToy",action="store_true",dest="throwToy",default=False)
+parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
+parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
+
 (options,args)=parser.parse_args()
 print "Creating Binned Datacards from workspace -> ", options.tfileName
+if options.throwToy: print ("Throwing Toy dataset from BKG")
+if options.expSig > 0: print ("(Also throwing signal SMx%f)"%options.expSig)
 
 genMasses     = [115,120,125,130,135,140,145,150]
 #scalingErrors = [1.00819,1.00764,1.00776,1.00794,1.00848,1.00917,1.0099,1.01143] # Takes from P.Dauncey studies -> 7% window
@@ -182,6 +210,7 @@ can.SaveAs("normErrors_%s.pdf"%options.tfileName)
 # Now we can write the cards
 #tfileName = sys.argv[1]
 tfile = ROOT.TFile(options.tfileName)
+if options.singleMass>0: evalMasses=[options.singleMass]
 for m in evalMasses: writeCard(tfile,m,normG.Eval(m))
 print "Done Writing Cards"
 
