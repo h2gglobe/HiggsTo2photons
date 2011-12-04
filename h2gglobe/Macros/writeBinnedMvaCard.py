@@ -69,10 +69,12 @@ def writeCard(tfile,mass,scaleErr):
   outPut.write("\nobservation")
 
   if options.throwToy:
+	print "Throwing toy dataset"
 	for b in range(1,nBins+1): 
 	  nd = r.Poisson(bkgHist.GetBinContent(b))
 	  ns = 0
 	  if options.expSig>0:
+		print "Injecting %.f x SM"%expSig
 		ns+=getPoissonBinContent(gghHist,b,options.expSig)
 		ns+=getPoissonBinContent(vbfHist,b,options.expSig)
 		ns+=getPoissonBinContent(wzhHist,b,options.expSig)
@@ -192,7 +194,9 @@ if options.expSig > 0: print ("(Also throwing signal SMx%f)"%options.expSig)
 
 genMasses     = [115,120,125,130,135,140,145,150]
 #scalingErrors = [1.00819,1.00764,1.00776,1.00794,1.00848,1.00917,1.0099,1.01143] # Takes from P.Dauncey studies -> 7% window
-scalingErrors = [1.00198,1.00190,1.00194,1.00202,1.00214,1.00234,1.00253,1.00283] # Takes from P.Dauncey studies -> 2% window
+#scalingErrors = [1.00714,1.00688,1.00647,1.00772,1.00735,1.00836,1.00916,1.00986] # Takes from P.Dauncey studies -> 2% window
+#scalingErrors = [1.01308,1.01251,1.01187,1.01231,1.01394,1.01545,1.01604,1.01636] # Takes from P.Dauncey studies -> 7% window (100-180)
+scalingErrors = [1.01055,1.01008,1.00913,1.0108,1.011,1.01306,1.01396,1.01362] 	  # Takes from P.Dauncey studies -> 2% window (100-180)
 evalMasses    = numpy.arange(115,150.5,0.5)
 normG = ROOT.TGraph(len(genMasses))
 
