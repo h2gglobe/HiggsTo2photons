@@ -12,7 +12,7 @@
 
 //#include "HiggsAnalysis/HiggsTo2photons/interface/pfFrixioneIso.h"
 
-#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
+//#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include <cstdlib>
@@ -92,7 +92,7 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   LocalCorr = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection",iConfig);
 
   // Initialise PhotonFix
-  PhotonFix::initialiseParameters(iConfig);
+  //PhotonFix::initialiseParameters(iConfig);
 
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
@@ -305,7 +305,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   if (debug_level > 9) 
     std::cout << "GlobePhotons: Start analyze" << std::endl;
 
-  PhotonFix::initialiseGeometry(iSetup);
+  //PhotonFix::initialiseGeometry(iSetup);
   checkSetup(iSetup);
   hcalHelper->readEvent(const_cast<edm::Event &>(iEvent));
   hcalHelperPflow->readEvent(const_cast<edm::Event &>(iEvent));
@@ -455,20 +455,22 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_must[pho_n]    = 0;
     
     // Residual corrections
-    PhotonFix ResidCorrector(*localPho);
-    pho_residCorrEnergy[pho_n] = ResidCorrector.fixedEnergy();
-    pho_residCorrResn[pho_n] = ResidCorrector.sigmaEnergy();
+    //PhotonFix ResidCorrector(*localPho);
+    pho_residCorrEnergy[pho_n] = 0;//ResidCorrector.fixedEnergy();
+    pho_residCorrResn[pho_n] = 0;//ResidCorrector.sigmaEnergy();
 
     // Regression Correction
     if (!ecorr_.IsInitialized()) {
       char filename[200];
       char* descr = getenv("CMSSW_BASE");
-      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrph.root", descr);
-      //std::string filename = "http://home.cern.ch/sani/gbrph.root";
+      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ph.root", descr);
       ecorr_.Initialize(iSetup, filename);
     }
 
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*localPho);
+    EcalClusterLazyTools lazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);   
+    
+    //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*localPho);
+    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(*localPho, *(hVertex.product()), lazyTool, iSetup);
     pho_regr_energy[pho_n]    = cor.first;
     pho_regr_energyerr[pho_n] = cor.second;
 
@@ -525,8 +527,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     else pho_localcorr[pho_n] = 1.;
 
     // Rech-Hits related
-    EcalClusterLazyTools lazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);   
-    edm::Handle<EcalRecHitCollection> prechits;
+     edm::Handle<EcalRecHitCollection> prechits;
     iEvent.getByLabel( (localPho->isEB() ? ecalHitEBColl : ecalHitEEColl) ,prechits);
 
     edm::Handle<EcalRecHitCollection> ESRecHits;

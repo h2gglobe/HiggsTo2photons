@@ -26,7 +26,7 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
-#include "HiggsAnalysis/HiggsToGammaGamma/interface/EGEnergyCorrector.h"
+#include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"

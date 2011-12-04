@@ -614,12 +614,13 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     if (!ecorr_.IsInitialized()) {  
       char filename[200];
       char* descr = getenv("CMSSW_BASE");
-      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrele.root", descr); 
+      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ele.root", descr); 
       //std::string filename("http://home.cern.ch/sani/gbrele.root");
       ecorr_.Initialize(iSetup, filename);
     }
 
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(egsf, *ecalLazyTool);
+    //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(egsf, *ecalLazyTool);
+    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(egsf, *(vtxH.product()), *ecalLazyTool, iSetup);
     el_regr_energy[el_n]    = cor.first;
     el_regr_energyerr[el_n] = cor.second;
 
