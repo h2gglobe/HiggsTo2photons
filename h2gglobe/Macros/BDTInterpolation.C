@@ -124,16 +124,16 @@ void plotBkgModel(TList* HistList, std::string name){
   gStyle->SetOptStat(0);
   gROOT->SetStyle("Plain");
   gROOT->ForceStyle();
-  int color[4] = {kBlue,kMagenta,kRed,kGreen+2};
+  int color[6] = {kGreen+4,kGreen-1,kGreen,kRed,kRed-2,kRed+4};
 
   TCanvas *canv = new TCanvas();
-  TLegend *leg = new TLegend(0.15,0.6,0.55,0.85);
+  TLegend *leg = new TLegend(0.45,0.6,0.85,0.85);
   leg->SetLineColor(0);
   leg->SetFillColor(0);
-  TPaveText *txt = new TPaveText(0.6,0.6,0.8,0.85,"NDC");
+  TPaveText *txt = new TPaveText(0.2,0.1,0.4,0.35,"NDC");
   txt->SetFillColor(0);
   txt->SetLineColor(0);
-  txt->AddText("#int L = 1.66 fb^{-1}");
+  txt->AddText("#int L = 4.70 fb^{-1}");
 
   for (int i=1; i<HistList->GetEntries(); i++){
     if (((TH1F*)HistList->At(i))->GetNbinsX()!=((TH1F*)HistList->At(0))->GetNbinsX()) std::cout << "Plot problem: calling plot for histograms with different number of bins" << std::endl;
@@ -145,17 +145,20 @@ void plotBkgModel(TList* HistList, std::string name){
     temp->SetMarkerColor(color[i-1]);
     temp->SetTitle(Form("Background model in signal region from sidebands %s %s",bdt.c_str(),name.c_str()));
     temp->GetXaxis()->SetTitle("BDT Output Bin");
-    temp->GetYaxis()->SetRangeUser(0.0,2.*(((TH1F*)HistList->At(0))->GetMaximum()));
+    temp->GetYaxis()->SetRangeUser(1.0,2.*(((TH1F*)HistList->At(0))->GetMaximum()));
     if (i==1) temp->Draw("p");
     else temp->Draw("same p");
-    if (i==1) leg->AddEntry(temp,"Low 2 sideband","lep");
-    if (i==2) leg->AddEntry(temp,"Low 1 sideband","lep");
-    if (i==3) leg->AddEntry(temp,"High 1 sideband","lep");
-    if (i==4) leg->AddEntry(temp,"High 2 sideband","lep");
+    if (i==1) leg->AddEntry(temp,"Low 3 sideband","lep");
+    if (i==2) leg->AddEntry(temp,"Low 2 sideband","lep");
+    if (i==3) leg->AddEntry(temp,"Low 1 sideband","lep");
+    if (i==4) leg->AddEntry(temp,"High 1 sideband","lep");
+    if (i==5) leg->AddEntry(temp,"High 2 sideband","lep");
+    if (i==6) leg->AddEntry(temp,"High 3 sideband","lep");
   }
   leg->Draw("same");
   txt->Draw("same");
 
+  canv->SetLogy();
   canv->Print(("plots/"+bdt+"/bkgMod/"+name+".png").c_str(),"png");
   
   delete canv;
@@ -218,18 +221,18 @@ void plotDavid(TH1F* bkgT, TH1F* sigT, TH1F* dataT, std::string name){
   sig2->GetYaxis()->SetTitle("Events");
   data->GetYaxis()->SetTitle("Events");
 
-  TLegend *leg = new TLegend(0.15,0.6,0.55,0.85);
+  TLegend *leg = new TLegend(0.45,0.6,0.85,0.85);
   leg->SetLineColor(0);
   leg->SetFillColor(0);
   leg->AddEntry(bkg,"Background","f");
   leg->AddEntry(data,"Data","lep");
   leg->AddEntry(sig10,"Signal (2, 5, 10#~#times SM)","l");
-  TPaveText *txt = new TPaveText(0.6,0.6,0.8,0.85,"NDC");
+  TPaveText *txt = new TPaveText(0.2,0.1,0.4,0.35,"NDC");
   txt->SetFillColor(0);
   txt->SetLineColor(0);
   txt->AddText("#int L = 4.7 fb^{-1}");
 
-  bkg->GetYaxis()->SetRangeUser(0.0,2.*(data->GetMaximum()));
+  bkg->GetYaxis()->SetRangeUser(1.0,2.*(data->GetMaximum()));
 
   bkg->Draw("e2");
   sig2->Draw("same hist");
@@ -239,9 +242,11 @@ void plotDavid(TH1F* bkgT, TH1F* sigT, TH1F* dataT, std::string name){
   leg->Draw("same");
   txt->Draw("same");
 
+  canv->SetLogy();
   canv->Print(("plots/"+bdt+"/david/"+name+".png").c_str(),"png");
+  canv->SetLogy(false);
   canv->Clear();
-  TLegend *leg2 = new TLegend(0.15,0.6,0.55,0.85);
+  TLegend *leg2 = new TLegend(0.45,0.6,0.85,0.85);
   leg2->SetFillColor(0);
   leg2->SetLineColor(0);
   sig10->GetYaxis()->SetRangeUser((-1*sig10->GetMaximum())+10,sig10->GetMaximum()+20);
@@ -306,7 +311,7 @@ void plotFrac(TList* HistList, TH1F* compT, std::string name, bool fracAll){
   int mass;
   if (name=="syst120") mass=120;
   if (name=="syst135") mass=135;
-  TLegend *leg = new TLegend(0.2,0.2,0.6,0.8);
+  TLegend *leg = new TLegend(0.6,0.5,0.88,0.88);
   leg->SetLineColor(0);
   leg->SetFillColor(0);
   if (name=="syst120" || name=="syst135"){
@@ -529,13 +534,15 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
     for (int bdt=0; bdt<nBDTs; bdt++){
       for (double mass=115.; mass<150.5; mass+=0.5){
         TList *bkgModelList = new TList();
-        TH1F *bkgModel[5];
+        TH1F *bkgModel[7];
         bkgModel[0] = (TH1F*)inFile->Get(Form("th1f_bkg_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
-        bkgModel[1] = (TH1F*)inFile->Get(Form("th1f_bkg_2low_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
-        bkgModel[2] = (TH1F*)inFile->Get(Form("th1f_bkg_1low_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
-        bkgModel[3] = (TH1F*)inFile->Get(Form("th1f_bkg_1high_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
-        bkgModel[4] = (TH1F*)inFile->Get(Form("th1f_bkg_2high_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
-        for (int i=0; i<5; i++) {
+        bkgModel[1] = (TH1F*)inFile->Get(Form("th1f_bkg_3low_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
+        bkgModel[2] = (TH1F*)inFile->Get(Form("th1f_bkg_2low_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
+        bkgModel[3] = (TH1F*)inFile->Get(Form("th1f_bkg_1low_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
+        bkgModel[4] = (TH1F*)inFile->Get(Form("th1f_bkg_1high_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
+        bkgModel[5] = (TH1F*)inFile->Get(Form("th1f_bkg_2high_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
+        bkgModel[6] = (TH1F*)inFile->Get(Form("th1f_bkg_3high_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
+        for (int i=0; i<7; i++) {
           bkgModelList->Add(bkgModel[i]);
         }
         std::string name(Form("%3.1f",mass));
