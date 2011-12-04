@@ -17,7 +17,7 @@
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
-#include "HiggsAnalysis/HiggsToGammaGamma/interface/EGEnergyCorrector.h"
+#include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -121,6 +121,23 @@ class GlobeElectrons {
 
   Float_t el_regr_energy[MAX_ELECTRONS];
   Float_t el_regr_energyerr[MAX_ELECTRONS];
+  Float_t el_eleopout[MAX_ELECTRONS];
+  Float_t el_detaeleout[MAX_ELECTRONS];
+  Int_t el_kfhits[MAX_ELECTRONS];
+  Float_t  el_kfchi2[MAX_ELECTRONS];
+
+  Float_t el_psenergy[MAX_ELECTRONS];  
+  Int_t el_passmvapresel[MAX_ELECTRONS];
+  Int_t el_passcutpresel[MAX_ELECTRONS];
+  Float_t el_psenergypf[MAX_ELECTRONS];  
+  Int_t el_nbrempf[MAX_ELECTRONS];
+  Float_t el_eseedpf[MAX_ELECTRONS];
+  Float_t el_epf[MAX_ELECTRONS];
+  Float_t el_psly1[MAX_ELECTRONS];
+  Float_t el_psly2[MAX_ELECTRONS];
+  Int_t el_psnstriply1[MAX_ELECTRONS];
+  Int_t el_psnstriply2[MAX_ELECTRONS];
+  
 
   std::vector<std::vector<int> >* el_catbased;
 
