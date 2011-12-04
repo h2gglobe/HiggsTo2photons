@@ -152,16 +152,15 @@ protected:
 	//vector<double> weights;
 	TFile *kfacFile;
 	
-    	TMVA::Reader * tmvaReader_;
-	TTree * signalTrainTree_[12];
-	TTree * signalTestTree_[12];
+  TMVA::Reader * tmvaReader_;
 
-	TTree * backgroundTrainTree_[12];
-	TTree * backgroundTestTree_[12];
-
-	TTree * backgroundTrainTree_all; 
-	TTree * backgroundTestTree_all; 
-
+  // Used to create the training samples
+  TTree * signalTrainTree_[2];
+  TTree * signalTestTree_[2];
+  TTree * backgroundTrainTree_2pt_[2];
+  TTree * backgroundTestTree_2pt_[2];
+  TTree * backgroundTrainTree_7pt_[2];
+  TTree * backgroundTestTree_7pt_[2];
 	TFile * mvaFile_;
 	
 };

@@ -17,7 +17,11 @@ MvaAnalysis::MvaAnalysis()  :
 
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
-    nMasses  = 9;
+    if (doTraining){
+      nMasses  = 2;
+    } else {
+      nMasses  = 9;
+    }
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -37,18 +41,18 @@ void MvaAnalysis::Term(LoopAll& l)
             if (0<signalTestTree_[i]->GetEntries()    ){
                 signalTestTree_[i]->Write(("sig_test"+names[i]).c_str());
             }
-            if (0<backgroundTrainTree_[i]->GetEntries()    ){
-                backgroundTrainTree_[i]->Write(("bkg_train"+names[i]).c_str());
+            if (0<backgroundTrainTree_7pt_[i]->GetEntries()    ){
+                backgroundTrainTree_7pt_[i]->Write(("bkg_train_7pt"+names[i]).c_str());
             }
-            if (0<backgroundTestTree_[i]->GetEntries()    ){
-                backgroundTestTree_[i]->Write(("bkg_test"+names[i]).c_str());
+            if (0<backgroundTestTree_7pt_[i]->GetEntries()    ){
+                backgroundTestTree_7pt_[i]->Write(("bkg_test_7pt"+names[i]).c_str());
             }
-        }
-        if (0<backgroundTrainTree_all->GetEntries() ){
-            backgroundTrainTree_all->Write("bkg_train_all");
-        }
-        if (0<backgroundTestTree_all->GetEntries() ){
-            backgroundTestTree_all->Write("bkg_test_all");
+            if (0<backgroundTrainTree_2pt_[i]->GetEntries()    ){
+                backgroundTrainTree_2pt_[i]->Write(("bkg_train_2pt"+names[i]).c_str());
+            }
+            if (0<backgroundTestTree_2pt_[i]->GetEntries()    ){
+                backgroundTestTree_2pt_[i]->Write(("bkg_test_2pt"+names[i]).c_str());
+            }
         }
         mvaFile_->Close();
     }
@@ -199,6 +203,16 @@ void MvaAnalysis::Init(LoopAll& l)
     nevents=0., sumwei=0.; 
     sumaccept=0., sumsmear=0., sumev=0.;
     
+    if (doTraining) {
+      names[0]="_121.0";
+      BDTnames[0]="_121";
+      masses[0] = 121.;
+
+      names[1]="_123.0";
+      BDTnames[1]="_123";
+      masses[1] = 123.;
+    }
+    else {
     names[0]="_105.0";
     BDTnames[0]="_105";
     masses[0] = 105.;
@@ -243,6 +257,9 @@ void MvaAnalysis::Init(LoopAll& l)
     BDTnames[10]="_123";
     masses[10] = 123.;
 */
+    }
+
+
     for (float mass = 90.;
                mass<150.;
                mass*= (1+signalRegionWidth)/(1-signalRegionWidth)){
@@ -455,15 +472,15 @@ void MvaAnalysis::Init(LoopAll& l)
             signalTestTree_[i]  = new TTree(("sig_test"+names[i]).c_str(), ("SignalTestTree"+names[i]).c_str());
             SetBDTInputTree(signalTestTree_[i]);
 
-            backgroundTrainTree_[i] = new TTree(("bkg_train"+names[i]).c_str(),("BackgroundTrainTree"+names[i]).c_str());
-            SetBDTInputTree(backgroundTrainTree_[i]);
-            backgroundTestTree_[i]  = new TTree(("bkg_test"+names[i]).c_str(), ("BackgroundTestTree"+names[i]).c_str());
-            SetBDTInputTree(backgroundTestTree_[i]);
+            backgroundTrainTree_2pt_[i] = new TTree(("bkg_train_2pt"+names[i]).c_str(),("BackgroundTrainTree_2pt"+names[i]).c_str());
+            SetBDTInputTree(backgroundTrainTree_2pt_[i]);
+            backgroundTestTree_2pt_[i]  = new TTree(("bkg_test_2pt"+names[i]).c_str(), ("BackgroundTestTree_2pt"+names[i]).c_str());
+            SetBDTInputTree(backgroundTestTree_2pt_[i]);
+            backgroundTrainTree_7pt_[i] = new TTree(("bkg_train_7pt"+names[i]).c_str(),("BackgroundTrainTree_7pt"+names[i]).c_str());
+            SetBDTInputTree(backgroundTrainTree_2pt_[i]);
+            backgroundTestTree_7pt_[i]  = new TTree(("bkg_test_7pt"+names[i]).c_str(), ("BackgroundTestTree_7pt"+names[i]).c_str());
+            SetBDTInputTree(backgroundTestTree_2pt_[i]);
         }
-        backgroundTrainTree_all = new TTree("bkg_train_all" ,"BackgroundTrainTree_all");
-        SetBDTInputTree(backgroundTrainTree_all);
-        backgroundTestTree_all  = new TTree("bkg_test_all"   ,"BackgroundTestTree_all");
-        SetBDTInputTree(backgroundTestTree_all);
     }
     else{
 
@@ -759,71 +776,117 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	double massResolution = massResolutionCalculator->massResolution();
 
 
-        if (doTraining ){//train on EVEN!!!!! EVEN!!!!
-            if (cur_type > 0 ){// Background 
-                for (int i = 0; i<bkg_masses.size();i++) {//Nicks alternative background method
-                    float mass_hypothesis = bkg_masses[i];
-                    float boundaries[2];
-                    boundaries[0] = mass_hypothesis*(1-signalRegionWidth);
-                    boundaries[1] = mass_hypothesis*(1+signalRegionWidth);
-                    if( mass>boundaries[0] && mass<boundaries[1] ){//Signal mass window cut
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis,evweight,category);
-                        _sideband = i;
-                        if (jentry%2==0) backgroundTrainTree_all->Fill();
-                        else if (jentry%2==1) backgroundTestTree_all->Fill();
-                    }
-                }
-                for (int i = 0; i<nMasses;i++) {
-                    // define hypothesis masses for the sidebands
-                    float mass_hypothesis = masses[i];
-                    float mass_hypothesis_low = mass_hypothesis*(1-signalRegionWidth)/(1+signalRegionWidth);
-                    float mass_hypothesis_high = mass_hypothesis*(1+signalRegionWidth)/(1-signalRegionWidth);
-                    // define the sidebands
-                    float sideband_boundaries[4];
-                    sideband_boundaries[0] = mass_hypothesis_low*(1-signalRegionWidth);
-                    sideband_boundaries[1] = mass_hypothesis*(1-signalRegionWidth);
-                    sideband_boundaries[2] = mass_hypothesis*(1+signalRegionWidth);
-                    sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
+  if (doTraining ){//
+    if (cur_type > 0 ){
+      // Background:
+      //
+      // 2 Percent mass window N upper and N sidebands
+      for (int i = 0; i<nMasses;i++) {
+        // define hypothesis masses for the sidebands
+        float mass_hypothesis = masses[i];
+        float mass_hypothesis_low = 0.;//mass_hypothesis*(1-signalRegionWidth)/(1+signalRegionWidth) -sidebandShift;
+        float mass_hypothesis_high = 0.;//mass_hypothesis*(1+signalRegionWidth)/(1-signalRegionWidth)+sidebandShift;
 
-                    if( mass>sideband_boundaries[1] && mass<sideband_boundaries[2] ){//Signal mass window cut
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis,evweight,category);
-                        _sideband = 0;
-                        if (jentry%2==0) backgroundTrainTree_[i]->Fill();
-                        else if (jentry%2==1) backgroundTestTree_[i]->Fill();
-                    }
-                    else if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1] ){//lower sideband mass window cut
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_low,evweight,category);
-                        _sideband = -1;
-                        if (jentry%2==0) backgroundTrainTree_[i]->Fill();
-                        else if (jentry%2==1) backgroundTestTree_[i]->Fill();
-                    }
-                    else if( mass>sideband_boundaries[2] && mass<sideband_boundaries[3] ){//upper sideband mass window cut
-                        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_high,evweight,category);
-                        _sideband = 1;
-                        if (jentry%2==0) backgroundTrainTree_[i]->Fill();
-                        else if (jentry%2==1) backgroundTestTree_[i]->Fill();
-                    }
-                } 
-            }
-            else { //Signal 
-                int i0 = SignalType(cur_type); 
-                if (i0<0){
-                    cout<<"CAN'T TRAIN ON DATA!\n";
-                    return;
-                }
-                float mass_hypothesis = masses[i0];
-                float sideband_boundaries[2];
-                sideband_boundaries[0] = mass_hypothesis*(1-signalRegionWidth);
-                sideband_boundaries[1] = mass_hypothesis*(1+signalRegionWidth);
-                 
-                if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1] ){//Signal mass window cut
-                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,masses[i0],evweight,category);
-                    _sideband = 0;
-                    if (jentry%2==0) signalTrainTree_[i0]->Fill();
-                    else if (jentry%2==1) signalTestTree_[i0]->Fill();
-                }
-            }
+        float sideband_boundaries[2];
+        sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
+        sideband_boundaries[1] = mass_hypothesis*(1+sidebandWidth);
+
+        //Signal Window
+        if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
+          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis,evweight,category);
+          //std::cout<<_mgg<<", "<<mass<<std::endl;
+          _sideband = 0;
+          if (jentry%2==0) backgroundTrainTree_2pt_[i]->Fill();
+          else if (jentry%2==1) backgroundTestTree_2pt_[i]->Fill();
         }
+        // Loop over N lower sidebands
+        for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
+          double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth) - sidebandShift;
+          mass_hypothesis_low = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)
+            *(TMath::Power(hypothesisModifier,sideband_i-1)) - sidebandShift;
+          double sideband_boundaries_low = mass_hypothesis_low*(1.-sidebandWidth);
+          double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
+
+          if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
+            SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_low,evweight,category);
+            //std::cout<<_mgg<<", "<<mass<<std::endl;
+            _sideband = 1*sideband_i;
+            if (jentry%2==0) backgroundTrainTree_2pt_[i]->Fill();
+            else if (jentry%2==1) backgroundTestTree_2pt_[i]->Fill();
+          }
+        }
+        // Loop over N higher sidebands
+        for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
+          double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth) + sidebandShift;
+          mass_hypothesis_high = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)
+            *(TMath::Power(hypothesisModifier,sideband_i-1)) + sidebandShift;
+          double sideband_boundaries_low = mass_hypothesis_high*(1.-sidebandWidth);
+          double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
+          //std::cout<<sideband_boundaries_low<<", "<<sideband_boundaries_high<<std::endl;
+
+          if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
+            SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_high,evweight,category);
+            //std::cout<<_mgg<<", "<<mass<<std::endl;
+            _sideband = -1*sideband_i;
+            if (jentry%2==0) backgroundTrainTree_2pt_[i]->Fill();
+            else if (jentry%2==1) backgroundTestTree_2pt_[i]->Fill();
+          }
+        }
+      }
+
+
+      // 7 Percent mass window with single upper and lower sidebands
+      for (int i = 0; i<nMasses;i++) {
+        // define hypothesis masses for the sidebands
+        float mass_hypothesis = masses[i];
+        float mass_hypothesis_low = mass_hypothesis*(1-signalRegionWidth)/(1+signalRegionWidth);
+        float mass_hypothesis_high = mass_hypothesis*(1+signalRegionWidth)/(1-signalRegionWidth);
+        // define the sidebands
+        float sideband_boundaries[4];
+        sideband_boundaries[0] = mass_hypothesis_low*(1-signalRegionWidth);
+        sideband_boundaries[1] = mass_hypothesis*(1-signalRegionWidth);
+        sideband_boundaries[2] = mass_hypothesis*(1+signalRegionWidth);
+        sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
+
+        if( mass>sideband_boundaries[1] && mass<sideband_boundaries[2] ){//Signal mass window cut
+          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis,evweight,category);
+          _sideband = 0;
+          if (jentry%2==0) backgroundTrainTree_7pt_[i]->Fill();
+          else if (jentry%2==1) backgroundTestTree_7pt_[i]->Fill();
+        }
+        else if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1] ){//lower sideband mass window cut
+          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_low,evweight,category);
+          _sideband = -1;
+          if (jentry%2==0) backgroundTrainTree_7pt_[i]->Fill();
+          else if (jentry%2==1) backgroundTestTree_7pt_[i]->Fill();
+        }
+        else if( mass>sideband_boundaries[2] && mass<sideband_boundaries[3] ){//upper sideband mass window cut
+          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,mass_hypothesis_high,evweight,category);
+          _sideband = 1;
+          if (jentry%2==0) backgroundTrainTree_7pt_[i]->Fill();
+          else if (jentry%2==1) backgroundTestTree_7pt_[i]->Fill();
+        }
+      } 
+    }
+    else { //Signal 
+      int i0 = SignalType(cur_type); 
+      if (i0<0){
+        cout<<"CAN'T TRAIN ON DATA!\n";
+        return;
+      }
+      float mass_hypothesis = masses[i0];
+      float sideband_boundaries[2];
+      sideband_boundaries[0] = mass_hypothesis*(1-signalRegionWidth);
+      sideband_boundaries[1] = mass_hypothesis*(1+signalRegionWidth);
+
+      if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1] ){//Signal mass window cut
+        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolution,masses[i0],evweight,category);
+        _sideband = 0;
+        if (jentry%2==0) signalTrainTree_[i0]->Fill();
+        else if (jentry%2==1) signalTestTree_[i0]->Fill();
+      }
+    }
+  }
         else{
 
         // --- Fill invariant mass spectrum -------
@@ -1260,6 +1323,12 @@ bool MvaAnalysis::SelectEvents(LoopAll& l, int jentry)
 
 int MvaAnalysis::SignalType(int cur_type){
     int i0 = -1;
+    if (doTraining) {
+      if (cur_type == -53 || cur_type == -54 ||  cur_type == -55 || cur_type == -56){//121 
+        i0 = 0;}
+      else if (cur_type == -57 || cur_type == -58 ||  cur_type == -59 || cur_type == -60){//123 
+        i0 = 1;}
+    } else{
     if (cur_type == -13 || cur_type == -14 ||  cur_type == -15 || cur_type == -16){//105 
         i0 = 0;}
     else if (cur_type == -17 || cur_type == -18 ||  cur_type == -19 || cur_type == -20){//110 
@@ -1280,10 +1349,7 @@ int MvaAnalysis::SignalType(int cur_type){
 //        i0 = 8;}
     else if (cur_type == -49 || cur_type == -50 ||  cur_type == -51 || cur_type == -52){//150 
         i0 = 8;}
-//    else if (cur_type == -53 || cur_type == -54 ||  cur_type == -55 || cur_type == -56){//121 
-//        i0 = 10;}
-//    else if (cur_type == -57 || cur_type == -58 ||  cur_type == -59 || cur_type == -60){//123 
-//        i0 = 11;}
+    }
     return i0;
 }
 
