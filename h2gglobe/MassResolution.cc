@@ -38,7 +38,11 @@ void MassResolution::Setup(LoopAll &l, TLorentzVector *in_lead_p4, TLorentzVecto
   } else if (energyCorrectionMethod=="Bendavid"){
     lead_Eres = l.pho_regr_energyerr[lead_index];
     sublead_Eres = l.pho_regr_energyerr[sublead_index];
+  } else if (energyCorrectionMethod=="BendavidOTF"){
+    lead_Eres = l.pho_regr_energyerr_otf[lead_index];
+    sublead_Eres = l.pho_regr_energyerr_otf[sublead_index];
   }
+
 //	lead_r9 = l.pho_r9[lead_index];
 // sublead_r9 = l.pho_r9[sublead_index];
 	lead_phoCat = l.PhotonCategory(lead_index,nR9Categories,nEtaCategories);
