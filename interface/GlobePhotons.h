@@ -28,7 +28,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
-#include "HiggsAnalysis/HiggsToGammaGamma/interface/EGEnergyCorrector.h"
+#include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 
 
 #include "TTree.h"
