@@ -17,11 +17,7 @@ MvaAnalysis::MvaAnalysis()  :
 
     systRange  = 3.; // in units of sigma
     nSystSteps = 1;    
-    if (doTraining){
-      nMasses  = 2;
-    } else {
-      nMasses  = 9;
-    }
+    nMasses  = 9;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -210,6 +206,7 @@ void MvaAnalysis::Init(LoopAll& l)
     sumaccept=0., sumsmear=0., sumev=0.;
     
     if (doTraining) {
+      nMasses  = 2;
       names[0]="_121.0";
       BDTnames[0]="_121";
       masses[0] = 121.;

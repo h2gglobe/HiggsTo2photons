@@ -6,9 +6,9 @@ massMax=185.
 nDataBins=90
 
 signalRegionWidth=0.07
-sidebandWidth=0.07
-sidebandShift=0.
-numberOfSidebands=1
+sidebandWidth=0.02
+sidebandShift=0.00
+numberOfSidebands=3
 
 
 nEtaCategories=2
