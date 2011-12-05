@@ -19,7 +19,7 @@ doTriggerSelection=1
 
 reRunCiCForData=1
 
-doTraining=0
+doTraining=1
 splitSignalSample=0
 splitBackgroundSample=1
 
