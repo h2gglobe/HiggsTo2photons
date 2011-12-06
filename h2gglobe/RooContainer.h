@@ -102,6 +102,7 @@ class RooContainer {
    void FitToSystematicSet(std::string,std::string,std::string);
 
    void InputDataPoint(std::string,int,double,double w=1.);
+   void InputBinnedDataPoint(std::string,int,double,double w=1.);
    void InputSystematicSet(std::string s_name, std::string sys_name, std::vector<int> cats
 			   ,std::vector<double> x, std::vector<double> weights=std::vector<double>(0));
 

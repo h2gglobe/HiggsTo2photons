@@ -384,6 +384,15 @@ void MvaAnalysis::Init(LoopAll& l)
 	kFactorSmearer->init();
 	genLevelSmearers_.push_back(kFactorSmearer);
     }
+/*    if(doKFactorSmear2D) {
+	// kFactor efficiency
+	std::cerr << __LINE__ << std::endl; 
+	kFactorSmearer2D = new KFactorSmearer2D( kfacHist );
+	kFactorSmearer2D->name("kFactor2D");
+	kFactorSmearer2D->init();
+	genLevelSmearers_.push_back(kFactorSmearer2D);
+    }
+*/
 
     // Define the number of categories for the statistical analysis and
     // the systematic sets to be formed
@@ -444,6 +453,13 @@ void MvaAnalysis::Init(LoopAll& l)
 	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
 	l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
+/*    if(doKFactorSmear2D && doKFactorSyst2D) {
+	systGenLevelSmearers_.push_back(kFactorSmearer2D);
+	std::vector<std::string> sys(1,kFactorSmearer2D->name());
+	std::vector<int> sys_t(1,-1);	// -1 for signal, 1 for background 0 for both
+	l.rooContainer->MakeSystematicStudy(sys,sys_t);
+    }
+*/
 	
     // ----------------------------------------------------
     // ----------------------------------------------------
@@ -511,7 +527,6 @@ void MvaAnalysis::Init(LoopAll& l)
 	int nBDTbins = 5000;
 
         // Usual datasets
-
         for (double mass=115.0; mass<150.5; mass+=0.5){
 
             //Adaptive Boost
@@ -570,7 +585,6 @@ void MvaAnalysis::Init(LoopAll& l)
             l.rooContainer->MakeSystematics("BDT",Form("sig_BDT_ada_tth_%3.1f",sig) ,-1);
 
           }
-
         //TMVA Reader
         tmvaReader_->BookMVA("BDT_ada_123", mvaWeightsFolder+"/TMVAClassification_BDT_ada_123_all.weights.xml");
         tmvaReader_->BookMVA("BDT_grad_123",mvaWeightsFolder+"/TMVAClassification_BDT_grad_123_all.weights.xml");
@@ -625,7 +639,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     //PU reweighting
     unsigned int n_pu = l.pu_n;
-    if ( cur_type !=0 && puHist != "") {
+    if ( cur_type !=0 && puHist != "" && cur_type < 100) {
 	bool hasSpecificWeight = weights.find( cur_type ) != weights.end() ; 
 	if( cur_type < 0 && !hasSpecificWeight && jentry == 1 ) {
 	    std::cerr  << "WARNING no pu weights specific for sample " << cur_type << std::endl;
@@ -652,12 +666,14 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // ------------------------------------------------------------
     //PT-H K-factors
     double gPT = 0;
+    double gY  = 0;
     TLorentzVector gP4(0,0,0,0);
     if (cur_type<0){            // if background sample, gP4 remains 4vect(0)
 	for (int gi=0;gi<l.gp_n;gi++){
 	    if (l.gp_pdgid[gi]==25){
 		gP4 = *((TLorentzVector*)l.gp_p4->At(gi));
 		gPT = gP4.Pt();
+		gY  = fabs(gP4.Rapidity());
 		break;
 	    }
 	}
@@ -763,7 +779,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	// FIXME pass smeared R9
 	int category = 0;
 	int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
-	if( cur_type != 0 && doMCSmearing ) {
+	if( cur_type != 0 && doMCSmearing && cur_type < 100) {
 	    float pth = Higgs.Pt();
 	    for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
 		float rewei=1.;
@@ -914,8 +930,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
           if (cur_type==0){  // Data
             l.rooContainer->InputDataPoint("data_mass",category,mass);
           } else if (cur_type>0){ // Background MC
-            if (cur_type==6){l.rooContainer->InputDataPoint("zee_mass",category,mass,evweight);}
-	    else {l.rooContainer->InputDataPoint("bkg_mass",category,mass,evweight);}
+            if (cur_type==6){l.rooContainer->InputBinnedDataPoint("zee_mass",category,mass,evweight);}
+	    else {l.rooContainer->InputBinnedDataPoint("bkg_mass",category,mass,evweight);}
           }
            
           // ------ Deal with Signal MC first
@@ -936,8 +952,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
            	    bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
                     bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
-                    l.rooContainer->InputDataPoint("sig_BDT_ada_"+currentTypeSignalLabel  ,category,bdt_ada,evweight);
-                    l.rooContainer->InputDataPoint("sig_BDT_grad_"+currentTypeSignalLabel ,category,bdt_grad,evweight);
+                    l.rooContainer->InputBinnedDataPoint("sig_BDT_ada_"+currentTypeSignalLabel  ,category,bdt_ada,evweight);
+                    l.rooContainer->InputBinnedDataPoint("sig_BDT_grad_"+currentTypeSignalLabel ,category,bdt_grad,evweight);
                  }
            }
            // ---- Now deal with background MC and data
@@ -984,17 +1000,17 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                   //std::cout << "ada: " << bdt_ada << "  grad: " << bdt_grad << std::endl;
 
                   if (cur_type == 0 ){//data
-                      l.rooContainer->InputDataPoint(Form("data_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
-                      l.rooContainer->InputDataPoint(Form("data_BDT_grad_%3.1f",mass_hypothesis),category,bdt_grad,evweight);
+                      l.rooContainer->InputBinnedDataPoint(Form("data_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
+                      l.rooContainer->InputBinnedDataPoint(Form("data_BDT_grad_%3.1f",mass_hypothesis),category,bdt_grad,evweight);
                   }
                   if (cur_type > 0 ){// background MC
 		    if (cur_type==6){
-                      l.rooContainer->InputDataPoint(Form("zee_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
-                      l.rooContainer->InputDataPoint(Form("zee_BDT_grad_%3.1f",mass_hypothesis) ,category,bdt_grad,evweight);
+                      l.rooContainer->InputBinnedDataPoint(Form("zee_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
+                      l.rooContainer->InputBinnedDataPoint(Form("zee_BDT_grad_%3.1f",mass_hypothesis) ,category,bdt_grad,evweight);
 		    }
 		    else{
-                      l.rooContainer->InputDataPoint(Form("bkg_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
-                      l.rooContainer->InputDataPoint(Form("bkg_BDT_grad_%3.1f",mass_hypothesis) ,category,bdt_grad,evweight);
+                      l.rooContainer->InputBinnedDataPoint(Form("bkg_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
+                      l.rooContainer->InputBinnedDataPoint(Form("bkg_BDT_grad_%3.1f",mass_hypothesis) ,category,bdt_grad,evweight);
 	            }
                   }
                 }
@@ -1015,16 +1031,16 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
                     if (cur_type == 0 ){//data
-                         l.rooContainer->InputDataPoint(Form("data_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
-                         l.rooContainer->InputDataPoint(Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
+                         l.rooContainer->InputBinnedDataPoint(Form("data_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
+                         l.rooContainer->InputBinnedDataPoint(Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
                     }
                     else if (cur_type > 0 ){// background MC
 		      if (cur_type==6){
-                        l.rooContainer->InputDataPoint(Form("zee_%dlow_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
-                        l.rooContainer->InputDataPoint(Form("zee_%dlow_BDT_grad_%3.1f",mass_hypothesis) ,category,bdt_grad,evweight);
+                        l.rooContainer->InputBinnedDataPoint(Form("zee_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
+                        l.rooContainer->InputBinnedDataPoint(Form("zee_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
 		      } else {
-                        l.rooContainer->InputDataPoint(Form("bkg_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
-                        l.rooContainer->InputDataPoint(Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis),category,bdt_grad,evweight);
+                        l.rooContainer->InputBinnedDataPoint(Form("bkg_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
+                        l.rooContainer->InputBinnedDataPoint(Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis),category,bdt_grad,evweight);
 		      }
                     }
 		   }
@@ -1045,16 +1061,16 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
                     if (cur_type == 0 ){//data
-                         l.rooContainer->InputDataPoint(Form("data_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
-                         l.rooContainer->InputDataPoint(Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
+                         l.rooContainer->InputBinnedDataPoint(Form("data_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
+                         l.rooContainer->InputBinnedDataPoint(Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
                     }
                     else if (cur_type > 0 ){// background MC
 		      if (cur_type==6){
-                        l.rooContainer->InputDataPoint(Form("zee_%dhigh_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
-                        l.rooContainer->InputDataPoint(Form("zee_%dhigh_BDT_grad_%3.1f",mass_hypothesis) ,category,bdt_grad,evweight);
+                        l.rooContainer->InputBinnedDataPoint(Form("zee_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
+                        l.rooContainer->InputBinnedDataPoint(Form("zee_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
 		      } else {
-                        l.rooContainer->InputDataPoint(Form("bkg_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
-                        l.rooContainer->InputDataPoint(Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis),category,bdt_grad,evweight);
+                        l.rooContainer->InputBinnedDataPoint(Form("bkg_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
+                        l.rooContainer->InputBinnedDataPoint(Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis),category,bdt_grad,evweight);
 		      }
                     }
 		   }

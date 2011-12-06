@@ -458,7 +458,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     //PU reweighting
     unsigned int n_pu = l.pu_n;
-    if ( cur_type !=0 && puHist != "") {
+    if ( cur_type !=0 && puHist != "" && cur_type < 100 ) {
 	bool hasSpecificWeight = weights.find( cur_type ) != weights.end() ; 
 	if( cur_type < 0 && !hasSpecificWeight && jentry == 1 ) {
 	    std::cerr  << "WARNING no pu weights specific for sample " << cur_type << std::endl;
@@ -597,7 +597,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	// FIXME pass smeared R9
 	int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,nPtCategories);
 	int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
-	if( cur_type != 0 && doMCSmearing ) {
+	if( cur_type != 0 && doMCSmearing && cur_type < 100) { 
 	    float pth = Higgs.Pt();
 	    for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
 		float rewei=1.;

@@ -553,6 +553,30 @@ void RooContainer::InputDataPoint(std::string var_name, int cat, double x, doubl
   }
 }
 
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::InputBinnedDataPoint(std::string var_name, int cat, double x, double w){
+ 
+  if (cat>-1 && cat<ncat){
+    std::string name = getcatName(var_name,cat);
+    std::map<std::string, RooDataSet>::iterator it_var  = data_.find(name);
+    if (it_var == data_.end()) 
+      std::cerr << "WARNING -- RooContainer::InputDataPointBinned -- No DataSet named "<< name << std::endl;
+    else{
+      double min_x = m_var_min_[name];
+      double max_x = m_var_max_[name];
+
+      if (x > min_x && x < max_x){
+        m_th1f_[name].Fill(x,w);
+      }
+    }
+  }
+
+  else {
+    std::cerr << "WARNING -- RooContainer::InputDataPointBinned -- No Category Number " << cat 
+              << ", category must be from 0 to " << ncat-1
+	      << std::endl;
+  }
+}
 
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::InputSystematicSet(std::string s_name, std::string sys_name, std::vector<int> cats
