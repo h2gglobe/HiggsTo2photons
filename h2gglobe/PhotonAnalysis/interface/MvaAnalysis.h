@@ -48,7 +48,7 @@ public:
 //	double SecH(double);
 //	double TanH(double);
 	int SignalType(int);
-	void SetBDTInputVariables(TLorentzVector*, TLorentzVector*, double, double, double, double, double, int cat = 0);
+	void SetBDTInputVariables(TLorentzVector*, TLorentzVector*, double, double, MassResolution* ,double, double, double, int cat = 0);
 	void SetBDTInputTree(TTree *);
 	
 	// Options
@@ -131,8 +131,9 @@ protected:
 	float _pho1_ptOverM; 
 	float _pho2_ptOverM; 
 	float _sigmaMOverM;
-	float _deltaMOverM; 
-	float _deltaMOverSigmaM; 
+	float _sigmaMOverM_wrongVtx;
+	float _deltaMOverSigmaM;
+  float _deltaMOverM; 
 	float _mgg;          
 	float _pho1_phi;     
 	float _pho1_pt;      
@@ -145,6 +146,7 @@ protected:
 	float _d_eta;        
 	float _mod_d_eta;    
 	float _cos_theta_star;
+	float _vtx_prob;           
 	float _wt;           
 	int _cat;           
 	int _sideband;           

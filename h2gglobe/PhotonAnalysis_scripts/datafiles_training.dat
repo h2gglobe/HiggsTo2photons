@@ -38,5 +38,5 @@ syntax:
 
 analyzer PhotonAnalysis photonanalysis.dat	
 ->
-analyzer MvaAnalysis photonanalysis.dat mvaanalysis.dat
+analyzer MvaAnalysis photonanalysis.dat mvaanalysis.dat mvatraining.dat
  
