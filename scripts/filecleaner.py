@@ -24,13 +24,13 @@ def cleanfiles(dir):
 			continue
 		if testfile.IsZombie():
 			newfilename = filename[i].replace(".root",".resubmit")
-			print "Moving corrupted file %s to %s" %(filename[i], newfilename)
+			print "Moving corrupted file %s to %s" %(dir+filename[i], newfilename)
 			popen("rfrename "+dir+filename[i]+" "+dir+newfilename)
 		else:
 			TestTree = testfile.Get("event")
 			if TestTree.GetEntries()==0:
 				newfilename = filename[i].replace(".root",".empty")
-				print "Moving corrupted file %s to %s" %(filename[i], newfilename)
+				print "Moving corrupted file %s to %s" %(dir+filename[i], newfilename)
 				popen("rfrename "+dir+filename[i]+" "+dir+newfilename)
 
 def removeduplicated(dir):
@@ -56,14 +56,14 @@ def removeduplicated(dir):
 			if lastsubmission!=firstsubmission:
 				for j in range(jobnum.index(i),jobnum.index(i)+jobnum.count(i)-1):
 					newfilename = filename[j].replace(".root",".duplicate")
-					print "Moving duplicate file %s to %s" %(filename[j],newfilename)
+					print "Moving duplicate file %s to %s" %(dir+filename[j],newfilename)
 					popen("rfrename "+dir+filename[j]+" "+dir+newfilename)
 			elif lastsubmission==firstsubmission:
 				timesort = popen("rfdir "+dir+" | grep "+filename[jobnum.index(i)][:filename[jobnum.index(i)].rfind("_")]+" | sort -k 7,8 | awk '{print $9}' ").readlines()
 				for j in range(len(timesort)-1):
 					timesort[j] = timesort[j].strip("\n")
 					newfilename = timesort[j].replace(".root",".duplicate")
-					print "Moving duplicate file %s to %s" %(timesort[j],newfilename)
+					print "Moving duplicate file %s to %s" %(dir+timesort[j],newfilename)
 					popen("rfrename "+dir+timesort[j]+" "+dir+newfilename)
 
 dir = options.directory
