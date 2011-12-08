@@ -1,30 +1,15 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeElectrons.h"
+
 #include "DataFormats/Common/interface/ValueMap.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/CaloTopology/interface/EcalBarrelTopology.h"
-#include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
-#include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
-
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/Records/interface/CaloTopologyRecord.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollection.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
-
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
+
 #include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 
-#include <cstdlib>
 #include <iostream>
 
 GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
@@ -171,17 +156,9 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a2, "el_%s_hoed2[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_hoed2, a2);
 
-  sprintf(a1, "el_%s_hoebc", nome);
-  sprintf(a2, "el_%s_hoebc[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hoebc, a2);
-
-  sprintf(a1, "el_%s_hoebcd1", nome);
-  sprintf(a2, "el_%s_hoebcd1[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hoebcd1, a2);
-
-  sprintf(a1, "el_%s_hoebcd2", nome);
-  sprintf(a2, "el_%s_hoebcd2[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hoebcd2, a2);
+  sprintf(a1, "el_%s_h", nome);
+  sprintf(a2, "el_%s_h[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_h, a2);
   
   sprintf(a1, "el_%s_detain", nome);
   sprintf(a2, "el_%s_detain[el_%s_n]/F", nome, nome);
@@ -318,14 +295,6 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a2, "el_%s_hcaliso04[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_hcaliso04, a2);
 
-  sprintf(a1, "el_%s_hcalbciso03", nome);
-  sprintf(a2, "el_%s_hcalbciso03[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hcalbciso03, a2);
-
-  sprintf(a1, "el_%s_hcalbciso04", nome);
-  sprintf(a2, "el_%s_hcalbciso04[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hcalbciso04, a2);
-
   sprintf(a1, "el_%s_ecaliso04", nome);
   sprintf(a2, "el_%s_ecaliso04[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_ecaliso04, a2);
@@ -368,7 +337,7 @@ void GlobeElectrons::defineBranch(TTree* tree) {
 
   sprintf(a1, "el_%s_conv", nome);
   sprintf(a2, "el_%s_conv[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_conv, a2);
+  tree->Branch(a1, &el_conv, a2);  
 
   sprintf(a1, "el_%s_regr_energy", nome);
   sprintf(a2, "el_%s_regr_energy[el_%s_n]/F", nome, nome);
@@ -478,8 +447,11 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iSetup.get<CaloTopologyRecord>().get(theCaloTopo);
   const CaloTopology *topology = theCaloTopo.product();
 
-  edm::Handle<EBRecHitCollection> pEBRecHitH;
+  edm::Handle< HBHERecHitCollection > hbhe ;
+  iEvent.getByLabel(hcalHitColl, hbhe);
+
   edm::Handle<EERecHitCollection> pEERecHitH;
+  edm::Handle<EBRecHitCollection> pEBRecHitH;
   iEvent.getByLabel(ecalHitEBColl, pEBRecHitH);
   iEvent.getByLabel(ecalHitEEColl, pEERecHitH);
   const EcalRecHitCollection *barrelRecHits = pEBRecHitH.product();
@@ -488,10 +460,11 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
+
   const CaloSubdetectorGeometry *geometryES = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   CaloSubdetectorTopology *topology_p = 0;
   if (geometryES) topology_p = new EcalPreshowerTopology(geoHandle);
-
+  
   ecalLazyTool = new EcalClusterLazyTools(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);
 
   edm::Handle<EcalRecHitCollection> ESRecHits;
@@ -611,10 +584,10 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_sieie[el_n] = egsf.sigmaIetaIeta();
 
     // Regression Correction
-    if (!ecorr_.IsInitialized()) {  
+    if (!ecorr_.IsInitialized()) {   
       char filename[200];
       char* descr = getenv("CMSSW_BASE");
-      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ele.root", descr); 
+      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ele.root", descr);
       //std::string filename("http://home.cern.ch/sani/gbrele.root");
       ecorr_.Initialize(iSetup, filename);
     }
@@ -638,9 +611,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_hoed1[el_n] = egsf.hcalDepth1OverEcal();
     el_hoed2[el_n] = egsf.hcalDepth2OverEcal();
 
-    el_hoebc[el_n] = egsf.hcalOverEcalBc();
-    el_hoebcd1[el_n] = egsf.hcalDepth1OverEcalBc();
-    el_hoebcd2[el_n] = egsf.hcalDepth2OverEcalBc();
+    el_h[el_n] = hoeCalculator(&(*(egsf.superCluster()->seed())), geometry, hbhe);
 
     el_d0[el_n] = egsf.gsfTrack()->d0();
     el_z0[el_n] = egsf.gsfTrack()->dz(); 
@@ -731,9 +702,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
           if (&(*egsf.superCluster()) == &(*cluster)) {
             el_scind[el_n] = index; 
-	    el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(cluster), &(*barrelRecHits), &(*topology))[0]);
-	    std::vector<float> vCov = ecalLazyTool->localCovariances(*(cluster->seed()));
-	    //std::vector<float> vCov = EcalClusterTools::localCovariances( *(cluster->seed()), &(*barrelRecHits), &(*topology));
+            el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(cluster), &(*barrelRecHits), &(*topology))[0]);
+            std::vector<float> vCov = ecalLazyTool->localCovariances(*(cluster->seed()));
             el_sipip[el_n] = sqrt(vCov[2]);
             break;
           }
@@ -752,8 +722,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           if (&(*(egsf.superCluster())) == &(*cluster)) {
             el_scind[el_n] = index;
             el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(cluster), &(*endcapRecHits), &(*topology))[0]);
-	    std::vector<float> vCov = ecalLazyTool->localCovariances(*(cluster->seed()));
-	    el_sipip[el_n] = sqrt(vCov[2]);
+            std::vector<float> vCov = ecalLazyTool->localCovariances(*(cluster->seed()));
+            el_sipip[el_n] = sqrt(vCov[2]);
             break;
           }
           index++;
@@ -819,10 +789,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_tkiso03[el_n] = egsf.dr03TkSumPt();
     el_ecaliso03[el_n] = egsf.dr03EcalRecHitSumEt();
     el_hcaliso03[el_n] = egsf.dr03HcalTowerSumEt();
-
-    el_hcalbciso03[el_n] = egsf.dr03HcalTowerSumEtBc();
-    el_hcalbciso04[el_n] = egsf.dr04HcalTowerSumEtBc();
-
 
     if (egsf.isEB()) {
       std::vector<reco::PFCandidate::ParticleType> temp;

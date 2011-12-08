@@ -109,3 +109,26 @@ float pfTkIso(const reco::GsfElectron& egsf, edm::Handle<reco::PFCandidateCollec
   return sum;
 }
 
+float hoeCalculator(const reco::BasicCluster* clus, const CaloGeometry& geometry, edm::Handle<HBHERecHitCollection> hbhe) {
+  
+  float h = 0.;
+
+  GlobalPoint pclu(clus->x(),clus->y(),clus->z());
+
+  const HBHERecHitCollection* hithbhe_ = hbhe.product();
+  const CaloSubdetectorGeometry *geometry_p ; 
+  geometry_p = geometry.getSubdetectorGeometry (DetId::Hcal, 4);
+
+  DetId hcalDetId ;
+  hcalDetId = geometry_p->getClosestCell(pclu) ;
+
+  CaloRecHitMetaCollection f;
+  f.add(hithbhe_);
+  CaloRecHitMetaCollection::const_iterator iterRecHit; 
+  iterRecHit = f.find(hcalDetId) ;
+  if (iterRecHit!=f.end()) {
+    h = iterRecHit->energy() ;
+  }
+ 
+  return h;
+}

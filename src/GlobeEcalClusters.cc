@@ -38,7 +38,7 @@ GlobeEcalClusters::GlobeEcalClusters(const edm::ParameterSet& iConfig, const cha
   barrelBasicClusterColl = iConfig.getParameter<edm::InputTag>("BarrelBasicClusterColl");
   endcapBasicClusterColl = iConfig.getParameter<edm::InputTag>("EndcapBasicClusterColl");
   ecalHitEBColl = iConfig.getParameter<edm::InputTag>("EcalHitEBColl");
-  ecalHitEEColl = iConfig.getParameter<edm::InputTag>("EcalHitEEColl"); 
+  ecalHitEEColl = iConfig.getParameter<edm::InputTag>("EcalHitEEColl");
 
   CrackCorrFunc = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
   LocalCorrFunc = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection",iConfig);
@@ -85,6 +85,7 @@ void GlobeEcalClusters::defineBranch(TTree* tree) {
   tree->Branch("sc_bcseedind", &sc_bcseedind, "sc_bcseedind[sc_n]/I");
   sprintf (a2, "sc_bcind[sc_n][%d]/I", MAX_SUPERCLUSTER_BASICCLUSTERS);
   tree->Branch("sc_bcind", &sc_bcind, a2);
+
   sprintf (a2, "sc_bccrackcorr[sc_n][%d]/F", MAX_SUPERCLUSTER_BASICCLUSTERS);
   tree->Branch("sc_bccrackcorr",&sc_bccrackcorr, a2);
   sprintf (a2, "sc_bclocalcorr[sc_n][%d]/F", MAX_SUPERCLUSTER_BASICCLUSTERS);
@@ -154,7 +155,6 @@ bool GlobeEcalClusters::analyze(const edm::Event& iEvent, const edm::EventSetup&
     std::cout << "GlobeEcalClusters: hybridClustersBarrelH->size() "<< hybridClustersBarrelH->size() << std::endl;
     std::cout << "GlobeEcalClusters: basicClustersEndcapH->size() "<< basicClustersEndcapH->size() << std::endl;
   }
-  
 
   //----------------------------------------    
   // analyze super clusters
@@ -321,7 +321,7 @@ GlobeEcalClusters::analyzeBarrelSuperClusters() {
     else sc_brem[sc_n]=-1; // something is not ok with sigma_eta, in this case
 
     // SC r9
-    if (sc->rawEnergy()>0) sc_r9[sc_n] = EcalClusterTools::e3x3(  *(sc->seed()), &(*barrelRecHits), &(*topology)) / sc->rawEnergy();
+    if (sc->rawEnergy()>0) sc_r9[sc_n] = EcalClusterTools::e3x3(*(sc->seed()), &(*barrelRecHits), &(*topology)) / sc->rawEnergy();
     else sc_r9[sc_n]=-1;
 
     //SEED BC 
@@ -348,7 +348,7 @@ GlobeEcalClusters::analyzeBarrelSuperClusters() {
             break;
           }
         }
-	
+
 	const reco::CaloClusterPtr cc = *itClus;
 	sc_bccrackcorr[sc_n][limit] = CrackCorrFunc->getValue(*cc);
 	sc_bclocalcorr[sc_n][limit] = LocalCorrFunc->getValue(*cc);
@@ -432,7 +432,7 @@ GlobeEcalClusters::analyzeEndcapSuperClusters()
             break;
           }
         }
-
+	
 	const reco::CaloClusterPtr cc = *itClus;
 	sc_bccrackcorr[sc_n][limit] = CrackCorrFunc->getValue(*cc);
 	sc_bclocalcorr[sc_n][limit] = LocalCorrFunc->getValue(*cc);

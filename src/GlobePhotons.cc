@@ -12,10 +12,9 @@
 
 //#include "HiggsAnalysis/HiggsTo2photons/interface/pfFrixioneIso.h"
 
-//#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
+//#include "RecoEgamma/EgammaTools/interface/PhotonFix.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include <cstdlib>
 
 void GlobePhotons::checkSetup(const edm::EventSetup& iSetup) {
 
@@ -33,15 +32,10 @@ void GlobePhotons::checkSetup(const edm::EventSetup& iSetup) {
 
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-  sevLevel = sevlv.product(); 
-
-  hcalHelper->checkSetup(iSetup);
-  hcalHelperPflow->checkSetup(iSetup);
+  sevLevel = sevlv.product();
 }
 
-GlobePhotons::~GlobePhotons() { 
-  delete hcalHelper;
-  delete hcalHelperPflow;
+GlobePhotons::~GlobePhotons() {
 }
 
 GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
@@ -62,8 +56,6 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   ecalHitESColl = iConfig.getParameter<edm::InputTag>("EcalHitESColl");
 
   hcalBEColl =  iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
-  //hcalFColl =  iConfig.getParameter<edm::InputTag>("HcalHitsFColl");
-  //hcalHoColl =  iConfig.getParameter<edm::InputTag>("HcalHitsHoColl");
 
   convertedPhotonColl =  iConfig.getParameter<edm::InputTag>("ConvertedPhotonColl");
   beamSpotColl =  iConfig.getParameter<edm::InputTag>("BeamSpot");
@@ -73,7 +65,6 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   vtxCollection = iConfig.getParameter<edm::InputTag>("VertexColl_std");
   tkCollection  = iConfig.getParameter<edm::InputTag>("tkColl");
 
-  //hcalHitColl = iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
   pfColl = iConfig.getParameter<edm::InputTag>("PFCandidateColl");
 
   edm::ParameterSet isoVals03  = iConfig.getParameter<edm::ParameterSet> ("isolationValues03");
@@ -100,25 +91,11 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 
   pho_pfiso_mycharged03 = new std::vector<std::vector<float> >();
   pho_pfiso_mycharged04 = new std::vector<std::vector<float> >();
-
   pho_frixiso = new std::vector<std::vector<float> >();
 
   cicPhotonId = new CiCPhotonID(iConfig);
-  //pfFrixIso = new pfFrixioneIso(); 
-
-  hcalCfg.hOverEConeSize = 0.15;
-  hcalCfg.useTowers = true;
-  hcalCfg.hcalTowers = iConfig.getParameter<edm::InputTag>("CaloTowerColl");
-  hcalCfg.hOverEPtMin = 0;
-  hcalCfgPflow.hOverEConeSize = 0.15;
-  hcalCfgPflow.useTowers = true ;
-  hcalCfgPflow.hcalTowers = iConfig.getParameter<edm::InputTag>("CaloTowerColl");
-  hcalCfgPflow.hOverEPtMin = 0;
-
-  hcalHelper = new ElectronHcalHelper(hcalCfg);
-  hcalHelperPflow = new ElectronHcalHelper(hcalCfgPflow);
+  //pfFrixIso = new pfFrixioneIso();
 }
-
 
 void GlobePhotons::defineBranch(TTree* tree) {
 
@@ -154,13 +131,10 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_hoe",&pho_hoe,"pho_hoe[pho_n]/F");
   tree->Branch("pho_h1oe",&pho_h1oe,"pho_h1oe[pho_n]/F");
   tree->Branch("pho_h2oe",&pho_h2oe,"pho_h2oe[pho_n]/F");
-  tree->Branch("pho_hoe_bc",&pho_hoe_bc,"pho_hoe_bc[pho_n]/F");
-  tree->Branch("pho_h1oe_bc",&pho_h1oe_bc,"pho_h1oe_bc[pho_n]/F");
-  tree->Branch("pho_h2oe_bc",&pho_h2oe_bc,"pho_h2oe_bc[pho_n]/F");
+  tree->Branch("pho_h", &pho_h, "pho_h[pho_n]/F");
   tree->Branch("pho_r1x5", &pho_r1x5, "pho_r1x5[pho_n]/F");
   tree->Branch("pho_r2x5", &pho_r2x5, "pho_r2x5[pho_n]/F");
   tree->Branch("pho_r9", &pho_r9,"pho_r9[pho_n]/F");
-
   tree->Branch("pho_eseffsixix",&pho_eseffsixix,"pho_eseffsixix[pho_n]/F");
   tree->Branch("pho_eseffsiyiy",&pho_eseffsiyiy,"pho_eseffsiyiy[pho_n]/F");
 
@@ -208,13 +182,6 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_trksumpthollowconedr03",&pho_trksumpthollowconedr03,"pho_trksumpthollowconedr03[pho_n]/F");
   tree->Branch("pho_ntrksolidconedr03",&pho_ntrksolidconedr03,"pho_ntrksolidconedr03[pho_n]/F");
   tree->Branch("pho_ntrkhollowconedr03",&pho_ntrkhollowconedr03,"pho_ntrkhollowconedr03[pho_n]/F");
-
-  tree->Branch("pho_hcalbcsumetconedr03", &pho_hcalbcsumetconedr03, "pho_hcalbcsumetconedr03[pho_n]/F");
-  tree->Branch("pho_hcalbc1sumetconedr03",&pho_hcalbc1sumetconedr03,"pho_hcalbc1sumetconedr03[pho_n]/F");
-  tree->Branch("pho_hcalbc2sumetconedr03",&pho_hcalbc2sumetconedr03,"pho_hcalbc2sumetconedr03[pho_n]/F");
-  tree->Branch("pho_hcalbcsumetconedr04", &pho_hcalbcsumetconedr04, "pho_hcalbcsumetconedr04[pho_n]/F");
-  tree->Branch("pho_hcalbc1sumetconedr04",&pho_hcalbc1sumetconedr04,"pho_hcalbc1sumetconedr04[pho_n]/F");
-  tree->Branch("pho_hcalbc2sumetconedr04",&pho_hcalbc2sumetconedr04,"pho_hcalbc2sumetconedr04[pho_n]/F");
 
   tree->Branch("pho_p4", "TClonesArray", &pho_p4, 32000, 0);
   tree->Branch("pho_calopos", "TClonesArray", &pho_calopos, 32000, 0);
@@ -281,7 +248,7 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_isconv", &pho_isconv, "pho_isconv[pho_n]/I");
   tree->Branch("pho_residCorrEnergy", &pho_residCorrEnergy, "pho_residCorrEnergy[pho_n]/F");
   tree->Branch("pho_residCorrResn", &pho_residCorrResn, "pho_residCorrResn[pho_n]/F");
-
+  
   tree->Branch("pho_regr_energy", &pho_regr_energy, "pho_regr_energy[pho_n]/F");
   tree->Branch("pho_regr_energyerr", &pho_regr_energyerr, "pho_regr_energyerr[pho_n]/F");
 
@@ -301,14 +268,11 @@ void GlobePhotons::defineBranch(TTree* tree) {
 
 bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  
   if (debug_level > 9) 
     std::cout << "GlobePhotons: Start analyze" << std::endl;
 
   //PhotonFix::initialiseGeometry(iSetup);
   checkSetup(iSetup);
-  hcalHelper->readEvent(const_cast<edm::Event &>(iEvent));
-  hcalHelperPflow->readEvent(const_cast<edm::Event &>(iEvent));
 
   // get collections
   edm::Handle<reco::PhotonCollection> phoH;
@@ -324,11 +288,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   
   //// Get the Out In CKF tracks from conversions 
   bool validTrackInputs=true;
+  
   edm::Handle<reco::TrackCollection> outInTrkHandle;
-
   if (!doFastSim) {
     iEvent.getByLabel("ckfOutInTracksFromConversions",  outInTrkHandle);
-    
+
     if (!outInTrkHandle.isValid()) {
       std::cout << "Error! Can't get the conversionOITrack " << "\n";
       validTrackInputs=false;
@@ -338,8 +302,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   }
 
   //// Get the association map between CKF Out In tracks and the SC where they originated
-  edm::Handle<reco::TrackCaloClusterPtrAssociation> outInTrkSCAssocHandle; 
-
+  edm::Handle<reco::TrackCaloClusterPtrAssociation> outInTrkSCAssocHandle;
   if (!doFastSim) {
     iEvent.getByLabel("ckfOutInTracksFromConversions" , "outInTrackSCAssociationCollection", outInTrkSCAssocHandle);
     if (!outInTrkSCAssocHandle.isValid()) {
@@ -350,14 +313,14 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   std::vector<reco::TransientTrack> t_outInTrk;
   if (!doFastSim)
-   t_outInTrk = ( *theTTkBuilder).build(outInTrkHandle );
+    t_outInTrk = ( *theTTkBuilder).build(outInTrkHandle );
 
   edm::Handle<reco::BeamSpot> bsHandle;
   iEvent.getByLabel(beamSpotColl, bsHandle);
   const reco::BeamSpot &thebs = *bsHandle.product();
   
   edm::Handle<reco::ConversionCollection> hConversions;
-  iEvent.getByLabel(convertedPhotonColl, hConversions);
+  iEvent.getByLabel(convertedPhotonColl, hConversions);  
   iEvent.getByLabel(electronColl, hElectrons);
   iEvent.getByLabel(vtxCollection, hVertex);
   iEvent.getByLabel(tkCollection, tkHandle);
@@ -365,10 +328,13 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<double> rhoHandle;
   iEvent.getByLabel(rhoCollection, rhoHandle);
   rho = *(rhoHandle.product());
-  
+
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
+
+  edm::Handle< HBHERecHitCollection > hbhe ;
+  iEvent.getByLabel(hcalBEColl, hbhe);
 
   const CaloSubdetectorGeometry *geometryES = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   CaloSubdetectorTopology *topology_p = 0;
@@ -377,7 +343,10 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   // FOR PF ISOLATION
   edm::Handle<reco::PFCandidateCollection> pfCollection;
   iEvent.getByLabel(pfColl, pfCollection);
-
+ 
+  //edm::Handle<reco::PFCandidateCollection> pfHandle;
+  //iEvent.getByLabel("pfSelectedPhotons", pfHandle);
+ 
   if (debug_level > 9) {
     std::cout << "GlobePhotons: Start analyze" << std::endl;
   }
@@ -390,7 +359,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.getByLabel(barrelHybridClusterShapeColl, hybridClusterShapeBarrelH);
   iEvent.getByLabel(endcapBasicClusterShapeColl, basicClusterShapeEndcapH);
 
-  iEvent.getByLabel(hybridSuperClusterColl, superClustersHybridH);
+  iEvent.getByLabel(hybridSuperClusterColl,superClustersHybridH);
   iEvent.getByLabel(endcapSuperClusterColl, superClustersEndcapH);
 
   // pass the collection to the ID calculator
@@ -423,7 +392,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
     
     reco::PhotonRef localPho(phoH, iPho);
-    
+
     if(gCUT->cut(*localPho)) 
       continue;
 
@@ -450,15 +419,16 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_id_6catpf[pho_n][iv] = cicPhotonId->photonCutLevel6catPF(localPho, iv);
     }
 
-    // FRIXIONE ISO
-    //pfFrixIso->float pfFrixioneIso::mvaID(const reco::PFCandidateCollection* pfParticlesColl,const reco::Photon *recoPhoton, edm::Handle< reco::VertexCollection > recoVtx)
-    pho_must[pho_n]    = 0;
-    
     // Residual corrections
     //PhotonFix ResidCorrector(*localPho);
     pho_residCorrEnergy[pho_n] = 0;//ResidCorrector.fixedEnergy();
     pho_residCorrResn[pho_n] = 0;//ResidCorrector.sigmaEnergy();
 
+    // FRIXIONE ISO
+    //pfFrixIso->float pfFrixioneIso::mvaID(const reco::PFCandidateCollection* pfParticlesColl,const reco::Photon *recoPhoton, edm::Handle< reco::VertexCollection > recoVtx)
+    pho_must[pho_n]    = 0;
+
+    EcalClusterLazyTools lazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);       
     // Regression Correction
     if (!ecorr_.IsInitialized()) {
       char filename[200];
@@ -467,14 +437,13 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       ecorr_.Initialize(iSetup, filename);
     }
 
-    EcalClusterLazyTools lazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);   
-    
     //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*localPho);
     std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(*localPho, *(hVertex.product()), lazyTool, iSetup);
     pho_regr_energy[pho_n]    = cor.first;
     pho_regr_energyerr[pho_n] = cor.second;
 
     int index = 0;
+
     for(int isuperClusterType=0; isuperClusterType<3; ++isuperClusterType) {
       if (isuperClusterType == 0) {
         for(reco::SuperClusterCollection::size_type j = 0; j<superClustersHybridH->size(); ++j){
@@ -482,11 +451,10 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
           reco::SuperClusterRef sc(superClustersHybridH, j);
 
           //apply cuts
-          if(gCUT->cut(*sc))
-	    continue;
-
+          if(gCUT->cut(*sc))continue;
           //passed cuts
           if (&(*localPho->superCluster()) == &(*sc)) {
+
             pho_scind[pho_n] = index;
             break;
           }
@@ -499,10 +467,9 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
           reco::SuperClusterRef sc(superClustersEndcapH, j);
           //apply cuts
-          if(gCUT->cut(*sc))
-	    continue;
-
+          if(gCUT->cut(*sc))continue;
           //passed cuts
+
           if (&(*(localPho->superCluster())) == &(*sc)) {
             pho_scind[pho_n] = index;
             break;
@@ -527,7 +494,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     else pho_localcorr[pho_n] = 1.;
 
     // Rech-Hits related
-     edm::Handle<EcalRecHitCollection> prechits;
+    edm::Handle<EcalRecHitCollection> prechits;
     iEvent.getByLabel( (localPho->isEB() ? ecalHitEBColl : ecalHitEEColl) ,prechits);
 
     edm::Handle<EcalRecHitCollection> ESRecHits;
@@ -570,23 +537,13 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_h1oe[pho_n] = localPho->hadronicDepth1OverEm();
     pho_h2oe[pho_n] = localPho->hadronicDepth2OverEm();
 
-    if (!(localPho->isStandardPhoton())) {
-      std::vector<CaloTowerDetId> caloTwId = hcalHelperPflow->hcalTowersBehindClusters(*(localPho->superCluster()));
-      pho_h1oe_bc[pho_n] = hcalHelperPflow->hcalESumDepth1BehindClusters(caloTwId)/localPho->superCluster()->energy();
-      pho_h2oe_bc[pho_n] = hcalHelperPflow->hcalESumDepth2BehindClusters(caloTwId)/localPho->superCluster()->energy();
-      pho_hoe_bc[pho_n]  = pho_h1oe_bc[pho_n] + pho_h2oe_bc[pho_n];
-    } else {
-      std::vector<CaloTowerDetId> caloTwId = hcalHelper->hcalTowersBehindClusters(*(localPho->superCluster()));
-      pho_h1oe_bc[pho_n] = hcalHelper->hcalESumDepth1BehindClusters(caloTwId)/localPho->superCluster()->energy();
-      pho_h2oe_bc[pho_n] = hcalHelper->hcalESumDepth2BehindClusters(caloTwId)/localPho->superCluster()->energy();
-      pho_hoe_bc[pho_n]  = pho_h1oe_bc[pho_n] + pho_h2oe_bc[pho_n];
-    }
+    pho_h[pho_n] = hoeCalculator(&(*(theClus->seed())), geometry, hbhe);
     
     pho_r1x5[pho_n] = localPho->r1x5();
     pho_r2x5[pho_n] = localPho->r2x5();
     pho_r9[pho_n] = localPho->r9();
 
-// more cluster shapes from Lazy Tools
+    // more cluster shapes from Lazy Tools
     std::vector<float> viCov;
     viCov = lazyTool.localCovariances(*seed_clu);
     pho_sipip[pho_n] = viCov[2];
@@ -617,7 +574,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_smaj[pho_n]           = moments.sMaj; 
 
     // Added by Aris - Begin
-
     if (!doFastSim) {
       int R_nphot = 0;
       float nn = -1.;
@@ -663,7 +619,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_IsConvOutIn[pho_n] = (int)ConvMatch; 
     }
     // Added by Aris - End
-
+    
     //spike-ID
     //pho_e2overe9[pho_n] = EcalSeverityLevelAlgo::E2overE9( id, *prechits, 5.0, 0.0);
     pho_seed_severity[pho_n] = sevLevel->severityLevel(id, *prechits);
@@ -688,7 +644,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     temp.push_back(reco::PFCandidate::h);
     pho_pfiso_mycharged03->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.3, 0.02, temp)); 
     pho_pfiso_mycharged04->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.4, 0.02, temp)); 
-        
+    
     pho_ecalsumetconedr04[pho_n] = localPho->ecalRecHitSumEtConeDR04();
     pho_hcalsumetconedr04[pho_n] = localPho->hcalTowerSumEtConeDR04();
     pho_hcal1sumetconedr04[pho_n] = localPho->hcalDepth1TowerSumEtConeDR04();
@@ -705,13 +661,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_trksumpthollowconedr03[pho_n] = localPho->trkSumPtHollowConeDR03();
     pho_ntrksolidconedr03[pho_n] = localPho->nTrkSolidConeDR03();
     pho_ntrkhollowconedr03[pho_n] = localPho->nTrkHollowConeDR03();
-
-    //pho_hcalbcsumetconedr03[MAX_PHOTONS];
-    //pho_hcalbc1sumetconedr03[MAX_PHOTONS];
-    //pho_hcalbc2sumetconedr03[MAX_PHOTONS];
-    //pho_hcalbcsumetconedr04[MAX_PHOTONS];
-    //pho_hcalbc1sumetconedr04[MAX_PHOTONS];
-    //pho_hcalbc2sumetconedr04[MAX_PHOTONS];
 
     bool passelectronveto = !ConversionTools::hasMatchedPromptElectron(localPho->superCluster(), hElectrons, hConversions, thebs.position());
     pho_isconv[pho_n] = int(passelectronveto);
