@@ -627,6 +627,7 @@ void GlobeAnalyzer::endJob() {
 
   tree->Write();
   tree2->Write();
+  lumitree->Write();
 
   file->Close();
 }
