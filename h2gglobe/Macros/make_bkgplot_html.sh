@@ -25,11 +25,6 @@ cat > ${2}.html <<@EOF
 Sideband configuration:&nbsp;&nbsp;
 <table border="0">
 <tr>
-<td><a href="../../7percent_1sideband/${M}/${2}.html">7percent_1sideband</a>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="../../7percent_1sideband_loose/${M}/${2}.html">7percent_1sideband_loose</a>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="../../7percent_1sideband_veryloose/${M}/${2}.html">7percent_1sideband_veryloose</a>&nbsp;&nbsp;&nbsp;</td>
-</tr>
-<tr>
 <td><a href="../../2percent_3sidebands/${M}/${2}.html">2percent_3sidebands</a>&nbsp;&nbsp;&nbsp;</td>
 <td><a href="../../2percent_3sidebands_loose/${M}/${2}.html">2percent_3sidebands_loose</a>&nbsp;&nbsp;&nbsp;</td>
 <td><a href="../../2percent_3sidebands_veryloose/${M}/${2}.html">2percent_3sidebands_veryloose</a>&nbsp;&nbsp;&nbsp;</td>
@@ -48,8 +43,6 @@ Mass hypothesis:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs
 <table border="0">
 <tr>
 <td>BDT Output:</td>
-<td><a href="bdtOutBin_grad_nominalbins.html">Gradient boost</a>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="bdtOutBin_ada_nominalbins.html">Adaptive boost</a>&nbsp;&nbsp;&nbsp;</td>
 <td><a href="bdtOutBin_grad_sob_nominalbins.html">Gradient boost (S/B binning)</a>&nbsp;&nbsp;&nbsp;</td>
 <td><a href="bdtOutBin_ada_sob_nominalbins.html">Adaptive boost (S/B binning)</a>&nbsp;&nbsp;&nbsp;</td>
 </tr>

@@ -6,10 +6,6 @@ if ($1 == "") then
 endif
 
 ./make_bkgplot_html.sh $1 mass
-./make_bkgplot_html.sh $1 bdtOutBin_ada
-./make_bkgplot_html.sh $1 bdtOutBin_grad
-./make_bkgplot_html.sh $1 bdtOutBin_ada_sob
-./make_bkgplot_html.sh $1 bdtOutBin_grad_sob
 ./make_bkgplot_html.sh $1 bdtOutBin_ada_nominalbins
 ./make_bkgplot_html.sh $1 bdtOutBin_grad_nominalbins
 ./make_bkgplot_html.sh $1 bdtOutBin_ada_sob_nominalbins
