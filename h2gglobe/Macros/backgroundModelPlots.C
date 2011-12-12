@@ -7,7 +7,7 @@
 #include <set>
 #include <vector>
 
-void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirname="BDTplots_all", int sbwidth=2, int loose=0, bool sob=1) {
+void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="BDTplots_all", int sbwidth=2, int loose=0, bool sob=1) {
 
   bool rebin=true;
 
@@ -15,7 +15,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
   bool fakes=true;
   bool data=true;
 
-  bool logy=false;
+  bool logy=true;
   float sidebandWidth, nperbin;
   int nSB;
   TString sb_str;
@@ -111,12 +111,12 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     TH1* hist_nominal_grad;
     TH1* hist_nominal_ada;
 
-    //TFile *f_bdtout_nominal = TFile::Open("CMS-HGG_4721pb"+sb_str+sob_str+".root");
-    if (sbwidth==2) {
-      TFile *f_bdtout_nominal = TFile::Open("/tmp/futyand/CMS-HGG_4700pb_02-12-11.root");
-    } else if (sbwidth==7) {
-      TFile *f_bdtout_nominal = TFile::Open("/tmp/futyand/CMS-HGG_4700pb_02-12-11_7pSB.root");
-    }
+    TFile *f_bdtout_nominal = TFile::Open("CMS-HGG_4721pb_9Dec_binning.root");
+    //if (sbwidth==2) {
+    //  TFile *f_bdtout_nominal = TFile::Open("/tmp/futyand/CMS-HGG_4700pb_02-12-11.root");
+    //} else if (sbwidth==7) {
+    //  TFile *f_bdtout_nominal = TFile::Open("/tmp/futyand/CMS-HGG_4700pb_02-12-11_7pSB.root");
+    //}
     hist_nominal_grad = (TH1*)(f_bdtout_nominal->Get("th1f_data_grad_"+mass_str+".0_cat0"))->Clone();
     hist_nominal_ada = (TH1*)(f_bdtout_nominal->Get("th1f_data_ada_"+mass_str+".0_cat0"))->Clone();
 
@@ -132,8 +132,8 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
 
   }
 
-  TFile *f_bdtout = TFile::Open("CMS-HGG_4721pb"+sb_str+loose_str+sob_str+".root");
-  TFile *f_bdtin = TFile::Open("histograms_CMS-HGG_4721pb"+sb_str+loose_str+".root");
+  TFile *f_bdtout = TFile::Open("CMS-HGG_4721pb_9Dec"+loose_str+".root");
+  TFile *f_bdtin = TFile::Open("histograms_CMS-HGG_4721pb_9Dec"+loose_str+".root");
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -486,8 +486,8 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
   hist_mass_gjet_pf = (TH1*)all_mass_cat0_GJet->Clone();
   hist_mass_qcd_pf = (TH1*)all_mass_cat0_QCD40PF->Clone();
   hist_mass_qcd_pf->Add(all_mass_cat0_QCD30PF);
-  //hist_mass_qcd_ff = (TH1*)all_mass_cat0_QCD40FF->Clone();
-  //hist_mass_qcd_ff->Add(all_mass_cat0_QCD30FF);
+  hist_mass_qcd_ff = (TH1*)all_mass_cat0_QCD40FF->Clone();
+  hist_mass_qcd_ff->Add(all_mass_cat0_QCD30FF);
   hist_mass_dy = (TH1*)all_mass_cat0_DYJetsToLL->Clone();
 
   TString var[24] = {"ptOverMH","eta","deltaPhi","cosDeltaPhi","pho1_pt","pho2_pt","pho1_eta","pho2_eta","pho_minr9","maxeta","ptOverMH","pho1_ptOverMH","pho2_ptOverMH","sigmaMOverM","deltaEta","deltaMOverMH","pho1_ptOverMH","pho2_ptOverMH","sigmaMOverMH","sigmaMOverMH_Eonly","deltaMOverSigmaM","sigmaM","bdtOut_grad","bdtOut_ada"};
@@ -576,20 +576,20 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     hist_qcd_pf[5][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mhigh2_cat"+cat_str+"_QCD30PF")));
     hist_qcd_pf[6][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mhigh3_cat"+cat_str+"_QCD30PF")));
 
-//     hist_qcd_ff[0][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mlow3_cat"+cat_str+"_QCD40FF"))->Clone();
-//     hist_qcd_ff[1][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mlow2_cat"+cat_str+"_QCD40FF"))->Clone();
-//     hist_qcd_ff[2][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mlow_cat"+cat_str+"_QCD40FF"))->Clone();
-//     hist_qcd_ff[3][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_msig_cat"+cat_str+"_QCD40FF"))->Clone();
-//     hist_qcd_ff[4][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mhigh_cat"+cat_str+"_QCD40FF"))->Clone();
-//     hist_qcd_ff[5][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mhigh2_cat"+cat_str+"_QCD40FF"))->Clone();
-//     hist_qcd_ff[6][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mhigh3_cat"+cat_str+"_QCD40FF"))->Clone();
-//     hist_qcd_ff[0][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mlow3_cat"+cat_str+"_QCD30FF")));
-//     hist_qcd_ff[1][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mlow2_cat"+cat_str+"_QCD30FF")));
-//     hist_qcd_ff[2][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mlow_cat"+cat_str+"_QCD30FF")));
-//     hist_qcd_ff[3][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_msig_cat"+cat_str+"_QCD30FF")));
-//     hist_qcd_ff[4][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mhigh_cat"+cat_str+"_QCD30FF")));
-//     hist_qcd_ff[5][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mhigh2_cat"+cat_str+"_QCD30FF")));
-//     hist_qcd_ff[6][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mhigh3_cat"+cat_str+"_QCD30FF")));
+    hist_qcd_ff[0][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mlow3_cat"+cat_str+"_QCD40FF"))->Clone();
+    hist_qcd_ff[1][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mlow2_cat"+cat_str+"_QCD40FF"))->Clone();
+    hist_qcd_ff[2][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mlow_cat"+cat_str+"_QCD40FF"))->Clone();
+    hist_qcd_ff[3][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_msig_cat"+cat_str+"_QCD40FF"))->Clone();
+    hist_qcd_ff[4][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mhigh_cat"+cat_str+"_QCD40FF"))->Clone();
+    hist_qcd_ff[5][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mhigh2_cat"+cat_str+"_QCD40FF"))->Clone();
+    hist_qcd_ff[6][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mhigh3_cat"+cat_str+"_QCD40FF"))->Clone();
+    hist_qcd_ff[0][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mlow3_cat"+cat_str+"_QCD30FF")));
+    hist_qcd_ff[1][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mlow2_cat"+cat_str+"_QCD30FF")));
+    hist_qcd_ff[2][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mlow_cat"+cat_str+"_QCD30FF")));
+    hist_qcd_ff[3][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_msig_cat"+cat_str+"_QCD30FF")));
+    hist_qcd_ff[4][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mhigh_cat"+cat_str+"_QCD30FF")));
+    hist_qcd_ff[5][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mhigh2_cat"+cat_str+"_QCD30FF")));
+    hist_qcd_ff[6][ivar]->Add((TH1*)(f_bdtin->Get(var[ivar]+"_mhigh3_cat"+cat_str+"_QCD30FF")));
 
     hist_dy[0][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mlow3_cat"+cat_str+"_DYJetsToLL"))->Clone();
     hist_dy[1][ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_mlow2_cat"+cat_str+"_DYJetsToLL"))->Clone();
@@ -673,7 +673,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
 	hist_box[i][ivar]->Rebin(2);
 	hist_gjet_pf[i][ivar]->Rebin(2);
 	hist_qcd_pf[i][ivar]->Rebin(2);
- 	//hist_qcd_ff[i][ivar]->Rebin(2);
+ 	hist_qcd_ff[i][ivar]->Rebin(2);
 	hist_dy[i][ivar]->Rebin(2);
 	if (!madgraph) {
 	  hist_gjet_pp[i][ivar]->Rebin(2);
@@ -698,7 +698,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     hist_box[7][ivar] = (TH1*)hist_box[0][ivar]->Clone();
     hist_gjet_pf[7][ivar] = (TH1*)hist_gjet_pf[0][ivar]->Clone();
     hist_qcd_pf[7][ivar] = (TH1*)hist_qcd_pf[0][ivar]->Clone();
-    //hist_qcd_ff[7][ivar] = (TH1*)hist_qcd_ff[0][ivar]->Clone();
+    hist_qcd_ff[7][ivar] = (TH1*)hist_qcd_ff[0][ivar]->Clone();
     hist_dy[7][ivar] = (TH1*)hist_dy[0][ivar]->Clone();
     if (!madgraph) {
       hist_gjet_pp[7][ivar] = (TH1*)hist_gjet_pp[0][ivar]->Clone();
@@ -710,7 +710,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
       hist_box[7][ivar]->Add(hist_box[i][ivar]);
       hist_gjet_pf[7][ivar]->Add(hist_gjet_pf[i][ivar]);
       hist_qcd_pf[7][ivar]->Add(hist_qcd_pf[i][ivar]);
-      //hist_qcd_ff[7][ivar]->Add(hist_qcd_ff[i][ivar]);
+      hist_qcd_ff[7][ivar]->Add(hist_qcd_ff[i][ivar]);
       hist_dy[7][ivar]->Add(hist_dy[i][ivar]);
       if (!madgraph) {
 	hist_gjet_pp[7][ivar]->Add(hist_gjet_pp[i][ivar]);
@@ -740,7 +740,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
       hist_box[i][ivar]->Scale(dataMC_sf);
       hist_gjet_pf[i][ivar]->Scale(dataMC_sf);
       hist_qcd_pf[i][ivar]->Scale(dataMC_sf);
-      //hist_qcd_ff[i][ivar]->Scale(dataMC_sf);
+      hist_qcd_ff[i][ivar]->Scale(dataMC_sf);
       hist_dy[i][ivar]->Scale(dataMC_sf);
       if (!madgraph) {
 	hist_gjet_pp[i][ivar]->Scale(dataMC_sf);
@@ -758,7 +758,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
 	  hist_box[i][ivar]->SetBinContent(ibin+1,hist_box[i][ivar]->GetBinContent(ibin+1)+hist_box[i][ivar]->GetBinContent(50-ibin));
 	  hist_gjet_pf[i][ivar]->SetBinContent(ibin+1,hist_gjet_pf[i][ivar]->GetBinContent(ibin+1)+hist_gjet_pf[i][ivar]->GetBinContent(50-ibin));
 	  hist_qcd_pf[i][ivar]->SetBinContent(ibin+1,hist_qcd_pf[i][ivar]->GetBinContent(ibin+1)+hist_qcd_pf[i][ivar]->GetBinContent(50-ibin));
-	  //hist_qcd_ff[i][ivar]->SetBinContent(ibin+1,hist_qcd_ff[i][ivar]->GetBinContent(ibin+1)+hist_qcd_ff[i][ivar]->GetBinContent(50-ibin));
+	  hist_qcd_ff[i][ivar]->SetBinContent(ibin+1,hist_qcd_ff[i][ivar]->GetBinContent(ibin+1)+hist_qcd_ff[i][ivar]->GetBinContent(50-ibin));
 	  hist_dy[i][ivar]->SetBinContent(ibin+1,hist_dy[i][ivar]->GetBinContent(ibin+1)+hist_dy[i][ivar]->GetBinContent(50-ibin));
 	  if (!madgraph) {
 	    hist_gjet_pp[i][ivar]->SetBinContent(ibin+1,hist_gjet_pp[i][ivar]->GetBinContent(ibin+1)+hist_gjet_pp[i][ivar]->GetBinContent(50-ibin));
@@ -774,7 +774,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
 	  hist_box[i][ivar]->SetBinContent(ibin+1,0.);
 	  hist_gjet_pf[i][ivar]->SetBinContent(ibin+1,0.);
 	  hist_qcd_pf[i][ivar]->SetBinContent(ibin+1,0.);
-	  //hist_qcd_ff[i][ivar]->SetBinContent(ibin+1,0.);
+	  hist_qcd_ff[i][ivar]->SetBinContent(ibin+1,0.);
 	  hist_dy[i][ivar]->SetBinContent(ibin+1,0.);
 	  if (!madgraph) {
 	    hist_gjet_pp[i][ivar]->SetBinContent(ibin+1,0.);
@@ -790,7 +790,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
       SetHistogramErrors(hist_box[i][ivar]);
       SetHistogramErrors(hist_gjet_pf[i][ivar]);
       SetHistogramErrors(hist_qcd_pf[i][ivar]);
-      //SetHistogramErrors(hist_qcd_ff[i][ivar]);
+      SetHistogramErrors(hist_qcd_ff[i][ivar]);
       SetHistogramErrors(hist_dy[i][ivar]);
       if (!madgraph) {
 	SetHistogramErrors(hist_gjet_pp[i][ivar]);
@@ -809,7 +809,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
       hist_box[i][ivar]->SetFillColor(kGreen-1);
       hist_gjet_pf[i][ivar]->SetFillColor(kOrange-2);
       hist_qcd_pf[i][ivar]->SetFillColor(kOrange-3);
-      //hist_qcd_ff[i][ivar]->SetFillColor(kOrange+2);
+      hist_qcd_ff[i][ivar]->SetFillColor(kOrange+2);
       hist_dy[i][ivar]->SetFillColor(38);
       if (!madgraph) {
 	hist_gjet_pp[i][ivar]->SetFillColor(kGreen-3);
@@ -832,10 +832,10 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     if (fakes) {
       hist_bkg_stack[ivar]->Add(hist_gjet_pf[7][ivar]);
       hist_bkg_stack[ivar]->Add(hist_qcd_pf[7][ivar]);
-      //hist_bkg_stack[ivar]->Add(hist_qcd_ff[7][ivar]);
+      hist_bkg_stack[ivar]->Add(hist_qcd_ff[7][ivar]);
       hist_bkg_stack_sig[ivar]->Add(hist_gjet_pf[3][ivar]);
       hist_bkg_stack_sig[ivar]->Add(hist_qcd_pf[3][ivar]);
-      //hist_bkg_stack_sig[ivar]->Add(hist_qcd_ff[3][ivar]);
+      hist_bkg_stack_sig[ivar]->Add(hist_qcd_ff[3][ivar]);
     }    
     hist_bkg_stack[ivar]->Add(hist_dy[7][ivar]);
     hist_bkg_stack_sig[ivar]->Add(hist_dy[3][ivar]);
@@ -851,7 +851,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
       if (fakes) {
 	hist_bkg[i][ivar]->Add(hist_gjet_pf[i][ivar]);
 	hist_bkg[i][ivar]->Add(hist_qcd_pf[i][ivar]);
-	//hist_bkg[i][ivar]->Add(hist_qcd_ff[i][ivar]);
+	hist_bkg[i][ivar]->Add(hist_qcd_ff[i][ivar]);
       }
       hist_bkg[i][ivar]->Add(hist_dy[i][ivar]);
       hist_bkg[i][ivar]->GetXaxis()->SetTitle(title[ivar]);
@@ -883,7 +883,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     leg->AddEntry(hist_sig[ivar],"GluGlu"+mass_str);
     leg->AddEntry(hist_dy[3][ivar],"DYee+Z","F");
     if (fakes) {
-      //leg->AddEntry(hist_qcd_ff[3][ivar],"QCD fake-fake","F");
+      leg->AddEntry(hist_qcd_ff[3][ivar],"QCD fake-fake","F");
       leg->AddEntry(hist_qcd_pf[3][ivar],"QCD prompt-fake","F");
       leg->AddEntry(hist_gjet_pf[3][ivar],"GJet prompt-fake","F");
     }
@@ -1580,7 +1580,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
   hist_mass_box->SetFillColor(kGreen-1);
   hist_mass_gjet_pf->SetFillColor(kOrange-2);
   hist_mass_qcd_pf->SetFillColor(kOrange-3);
-  //hist_mass_qcd_ff->SetFillColor(kOrange+2);
+  hist_mass_qcd_ff->SetFillColor(kOrange+2);
   hist_mass_dy->SetFillColor(38);
   if (!madgraph) {
     hist_mass_gjet_pp->SetFillColor(kGreen-3);
@@ -1597,7 +1597,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
   if (fakes) {
     hist_mass_bkg_stack->Add(hist_mass_gjet_pf);
     hist_mass_bkg_stack->Add(hist_mass_qcd_pf);
-    //hist_mass_bkg_stack->Add(hist_mass_qcd_ff);
+    hist_mass_bkg_stack->Add(hist_mass_qcd_ff);
   }    
   hist_mass_bkg_stack->Add(hist_mass_dy);
   
@@ -1610,7 +1610,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
   if (fakes) {
     hist_mass_bkg->Add(hist_mass_gjet_pf);
     hist_mass_bkg->Add(hist_mass_qcd_pf);
-    //hist_mass_bkg->Add(hist_mass_qcd_ff);
+    hist_mass_bkg->Add(hist_mass_qcd_ff);
   }
   hist_mass_bkg->Add(hist_mass_dy);
   hist_mass_sig->Scale(10.);
@@ -1684,7 +1684,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
   leg_mass->AddEntry(hist_mass_sig,"GluGlu"+mass_str+" #times10");
   leg_mass->AddEntry(hist_mass_dy,"DYee+Z","F");
   if (fakes) {
-    //leg_mass->AddEntry(hist_mass_qcd_ff,"QCD fake-fake","F");
+    leg_mass->AddEntry(hist_mass_qcd_ff,"QCD fake-fake","F");
     leg_mass->AddEntry(hist_mass_qcd_pf,"QCD prompt-fake","F");
     leg_mass->AddEntry(hist_mass_gjet_pf,"GJet prompt-fake","F");
   }
