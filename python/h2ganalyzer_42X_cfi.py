@@ -11,7 +11,7 @@ import FWCore.ParameterSet.Config as cms
 # OTHER
 
 from HiggsAnalysis.HiggsTo2photons.hggPhotonIDCuts_cfi import *
-from HiggsAnalysis.HiggsToGammaGamma.PhotonFixParams4_2_cfi import *
+#from HiggsAnalysis.HiggsToGammaGamma.PhotonFixParams4_2_cfi import *
 
 h2ganalyzer = cms.EDAnalyzer(
     "GlobeAnalyzer",
@@ -20,7 +20,7 @@ h2ganalyzer = cms.EDAnalyzer(
     globalCounters = cms.vstring(),
     
     #PhotonFIX parameters
-    PFParameters = PhotonFixParameters,
+    #PFParameters = PhotonFixParameters,
     
     # COLLECTIONS
     GeneratorColl = cms.InputTag("generator"),
