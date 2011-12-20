@@ -10,6 +10,16 @@ from optparse import OptionParser
 
 r=ROOT.TRandom3(0)
 
+def getBinningMass(mass):
+
+	if mass >= 115.0 and mass <= 117.0: return "115"
+	if mass >= 117.5 and mass <= 122.0: return "120"
+	if mass >= 122.5 and mass <= 127.0: return "125"
+	if mass >= 127.5 and mass <= 132.0: return "130"
+	if mass >= 132.5 and mass <= 137.0: return "135"
+	if mass >= 137.5 and mass <= 144.5: return "140"
+	if mass >= 145.0 and mass <= 150.0: return "150"
+
 def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
 	resL = quadInterpolate(-1*C,X1,X2,X3,Y1,Y2,Y3)
 	resH = quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3)
@@ -93,9 +103,27 @@ def writeCard(tfile,mass,scaleErr):
   outPut.write("\nprocess    ")
   for b in range(1,nBins+1): outPut.write("   0      0      0      0    1    ")
   outPut.write("\nrate       ")
+
+  backgroundContents = [bkgHist.GetBinContent(b) for b in range(1,nBins+1)]
+
+  if options.biasFile:
+	print "Correcting for mass bias"
+	totBackground = sum(backgroundContents)
+	biasfactor  = biasROOTFile.Get("hist_biasfactor")
+	binningMass = getBinningMass(mass)
+	biasSlope = biasROOTFile.Get("tgraph_biasslopes_data_grad_%s"%binningMass)
+	X = ROOT.Double()
+	Y = ROOT.Double()
+	for b in range(1,nBins+1):
+	  biasSlope.GetPoint(b-1,X,Y)
+	  biasShift  = biasfactor.GetBinContent(biasfactor.FindBin(mass))*Y
+	  backgroundContents[b-1]*=(1.-biasShift)		# if the bias is negative then we apply a positive correction
+	newTot = sum(backgroundContents)
+	backgroundContents = [B*totBackground/newTot for B in backgroundContents]
+	
   for b in range(1,nBins+1): outPut.write(" %.12f   %.12f   %.12f   %.12f   %.12f "\
     %(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b)\
-     ,bkgHist.GetBinContent(b)))
+     ,backgroundContents[b-1]))
   outPut.write("\n--------------------------------------------------------------\n")
 
   # Some Globals #################################################################
@@ -165,11 +193,47 @@ def writeCard(tfile,mass,scaleErr):
   outPut.write("\nbkg_norm lnN ")
   for b in range(1,nBins+1): outPut.write(" -   -   -   -  %.8f "%(scaleErr))
 
+  ## now for the David errors
+  if options.biasFile:
+	print "Including Mass Bias nuisances"
+	biasfactor  = biasROOTFile.Get("hist_biasfactor")
+	binningMass = getBinningMass(mass)
+	biasSlope = biasROOTFile.Get("tgraph_biasslopes_data_grad_%s"%binningMass)
+
+	# Since the errors have no "direction" i suppose we have to make them independant
+#	biassyst  = [biasfactor.GetBinContent(biasfactor.FindBin(mass))*biasSlope.GetErrorY(b) for b in range(nBins)]
+
+	# make sure bias cannot vary overall normalisation!
+#	backgroundSum = sum(backgroundContents)
+#	newSum 	      = sum([(1.+bias)*(bkg) for bias,bkg in zip(biassyst,backgroundContents)])
+#	biassyst      = [(((1.+bias)*bkg*backgroundSum/newSum )/bkg) -1. for bias,bkg in zip(biassyst,backgroundContents)]
+	
+	for b in range(1,nBins+1):
+           outPut.write("\ndavidBias%d lnN"%b)
+	   bias = biasfactor.GetBinContent(biasfactor.FindBin(mass))*biasSlope.GetErrorY(b-1)
+	   for q in range(1,nBins+1):
+		if q==b: outPut.write(" - - - - %.8f "%(1.+abs(bias)))
+		else   : outPut.write(" - - - - - ")
+        	
+        outPut.write("\n")
+	
+
+  """
+  if (mass==120.0 or mass==140.0) and (options.addBias):
+	if mass==120.0 : biassyst = [-0.001024,-0.002493,0.008147,0.003569,0.05406,0.0429,0.07137,0.01265]
+	if mass==140.0 : biassyst = [ -0.001432,0.0002283,-0.0006841,0.008454,0.03148,0.02435]
+
+        outPut.write("\ndavidBias lnN")
+	for bias in biassyst:
+        	outPut.write(" - - - - %.8f "%(1.+bias))
+        outPut.write("\n")
+  """
+
   if options.B2B:
    # bkg bins will be gmN errors 
-   bkgScale = bkgHist.Integral()/bkgHist.GetEntries()
+   bkgScale = sum(backgroundContents)/bkgHist.GetEntries()
    for b in range(1,nBins+1):
-        outPut.write("\nbkg_stat%d gmN %d "%(b,int(bkgHist.GetBinContent(b)/bkgScale)))
+        outPut.write("\nbkg_stat%d gmN %d "%(b,int(backgroundContents[b-1]/bkgScale)))
 	for q in range(1,nBins+1):
 		if q==b: outPut.write(" - - - - %.8f "%bkgScale)
 		else:    outPut.write(" - - - - - ")
@@ -182,6 +246,7 @@ def writeCard(tfile,mass,scaleErr):
 parser = OptionParser()
 parser.add_option("-i","--input",dest="tfileName")
 parser.add_option("","--noB2B",action="store_false",dest="B2B",default=True)
+parser.add_option("","--addBias",dest="biasFile",default=None)
 parser.add_option("","--noSignalSys",action="store_false",dest="signalSys",default=True)
 parser.add_option("","--throwToy",action="store_true",dest="throwToy",default=False)
 parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
@@ -192,11 +257,14 @@ print "Creating Binned Datacards from workspace -> ", options.tfileName
 if options.throwToy: print ("Throwing Toy dataset from BKG")
 if options.expSig > 0: print ("(Also throwing signal SMx%f)"%options.expSig)
 
+if options.biasFile:
+	biasROOTFile = ROOT.TFile(options.biasFile)
+
 genMasses     = [115,120,125,130,135,140,145,150]
-#scalingErrors = [1.00819,1.00764,1.00776,1.00794,1.00848,1.00917,1.0099,1.01143] # Takes from P.Dauncey studies -> 7% window
-#scalingErrors = [1.00714,1.00688,1.00647,1.00772,1.00735,1.00836,1.00916,1.00986] # Takes from P.Dauncey studies -> 2% window
-#scalingErrors = [1.01308,1.01251,1.01187,1.01231,1.01394,1.01545,1.01604,1.01636] # Takes from P.Dauncey studies -> 7% window (100-180)
-scalingErrors = [1.01055,1.01008,1.00913,1.0108,1.011,1.01306,1.01396,1.01362] 	  # Takes from P.Dauncey studies -> 2% window (100-180)
+#scalingErrors = [1.008,1.008,1.008,1.008,1.008,1.009,1.01,1.011] # Takes from P.Dauncey studies -> 7% window
+#scalingErrors =  [1.007,1.007,1.006,1.008,1.007,1.008,1.009,1.01] # Takes from P.Dauncey studies -> 2% window
+#scalingErrors = [1.013,1.013,1.012,1.012,1.014,1.015,1.016,1.016] # Takes from P.Dauncey studies -> 7% window (100-180)
+scalingErrors = [1.011,1.01,1.009,1.011,1.011,1.013,1.014,1.014] 	  # Takes from P.Dauncey studies -> 2% window (100-180)
 evalMasses    = numpy.arange(115,150.5,0.5)
 normG = ROOT.TGraph(len(genMasses))
 
@@ -214,7 +282,7 @@ can.SaveAs("normErrors_%s.pdf"%options.tfileName)
 # Now we can write the cards
 #tfileName = sys.argv[1]
 tfile = ROOT.TFile(options.tfileName)
-if options.singleMass>0: evalMasses=[options.singleMass]
+if options.singleMass>0: evalMasses=[float(options.singleMass)]
 for m in evalMasses: writeCard(tfile,m,normG.Eval(m))
 print "Done Writing Cards"
 
