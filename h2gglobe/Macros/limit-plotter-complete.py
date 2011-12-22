@@ -412,10 +412,10 @@ if not options.doRatio:
   MG.Add(myGraphXSecSMScales[j])
 
 # extend the dummy graph so that the limit plot has extra pieces.
-dummyGraph.SetPoint(1,min(OBSmasses)-OFFSETLOW,0)
-dummyGraph.SetPoint(1,max(OBSmasses)+OFFSETHIGH,0)
+#dummyGraph.SetPoint(1,min(OBSmasses)-OFFSETLOW,0)
+#dummyGraph.SetPoint(1,max(OBSmasses)+OFFSETHIGH,0)
 
-MG.Add(dummyGraph)
+#MG.Add(dummyGraph)
 
 if not options.expectedOnly:
   MG.Add(graphObs)

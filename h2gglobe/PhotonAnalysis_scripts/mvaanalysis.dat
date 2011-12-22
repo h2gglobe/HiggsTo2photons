@@ -1,9 +1,9 @@
 leadEtCut=40.0
 subleadEtCut=30.0
 
-massMin=95.
-massMax=185.
-nDataBins=90
+massMin=100.
+massMax=180.
+nDataBins=80
 
 signalRegionWidth=0.07
 sidebandWidth=0.02
@@ -57,7 +57,7 @@ doR9Syst=1
 doKFactorSmear=1
 doKFactorSyst=1
 
-mvaWeightsFolder=/vols/cms02/h2g/weights/wt_25Nov_2pt/
+mvaWeightsFolder=/vols/cms02/h2g/weights/wt_6Dec_var/
 
 ->
 Inputs for reweighing
