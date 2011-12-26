@@ -473,9 +473,6 @@ void LoopAll::InitReal(Int_t typerunpass) {
   
   if(LDEBUG) cout << "finished InitRealPhotonAnalysis" << endl;
 
-  // Initialize all MVA
-  SetAllMVA();
-
   if (makeOutputTree) 
     outputFile->cd();
   cout<< "LoopAll::InitReal END" <<endl;

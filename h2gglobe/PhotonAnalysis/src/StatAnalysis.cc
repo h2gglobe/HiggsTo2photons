@@ -167,41 +167,6 @@ void StatAnalysis::Init(LoopAll& l)
     l.SetCutVariables("cut_VBFR_Mgg10",        &myVBF_Mgg);
 
     // CP
-    l.SetCutVariables("cutnm1hir9EB_r9",             &sublead_r9);
-    l.SetCutVariables("cutnm1hir9EB_isoOverEt",      &sublead_isoOverEt);
-    l.SetCutVariables("cutnm1hir9EB_badisoOverEt",   &sublead_badisoOverEt);
-    l.SetCutVariables("cutnm1hir9EB_trkisooet",      &sublead_trkisooet);
-    l.SetCutVariables("cutnm1hir9EB_sieie",          &sublead_sieie);
-    l.SetCutVariables("cutnm1hir9EB_drtotk",         &sublead_drtotk);
-    l.SetCutVariables("cutnm1hir9EB_hovere",         &sublead_hovere);
-    l.SetCutVariables("cutnm1hir9EB_Mgg",            &sublead_mgg);
-
-    l.SetCutVariables("cutnm1lor9EB_r9",             &sublead_r9);
-    l.SetCutVariables("cutnm1lor9EB_isoOverEt",      &sublead_isoOverEt);
-    l.SetCutVariables("cutnm1lor9EB_badisoOverEt",   &sublead_badisoOverEt);
-    l.SetCutVariables("cutnm1lor9EB_trkisooet",      &sublead_trkisooet);
-    l.SetCutVariables("cutnm1lor9EB_sieie",          &sublead_sieie);
-    l.SetCutVariables("cutnm1lor9EB_drtotk",         &sublead_drtotk);
-    l.SetCutVariables("cutnm1lor9EB_hovere",         &sublead_hovere);
-    l.SetCutVariables("cutnm1lor9EB_Mgg",            &sublead_mgg);
-
-    l.SetCutVariables("cutnm1hir9EE_r9",             &sublead_r9);
-    l.SetCutVariables("cutnm1hir9EE_isoOverEt",      &sublead_isoOverEt);
-    l.SetCutVariables("cutnm1hir9EE_badisoOverEt",   &sublead_badisoOverEt);
-    l.SetCutVariables("cutnm1hir9EE_trkisooet",      &sublead_trkisooet);
-    l.SetCutVariables("cutnm1hir9EE_sieie",          &sublead_sieie);
-    l.SetCutVariables("cutnm1hir9EE_drtotk",         &sublead_drtotk);
-    l.SetCutVariables("cutnm1hir9EE_hovere",         &sublead_hovere);
-    l.SetCutVariables("cutnm1hir9EE_Mgg",            &sublead_mgg);
-
-    l.SetCutVariables("cutnm1lor9EE_r9",             &sublead_r9);
-    l.SetCutVariables("cutnm1lor9EE_isoOverEt",      &sublead_isoOverEt);
-    l.SetCutVariables("cutnm1lor9EE_badisoOverEt",   &sublead_badisoOverEt);
-    l.SetCutVariables("cutnm1lor9EE_trkisooet",      &sublead_trkisooet);
-    l.SetCutVariables("cutnm1lor9EE_sieie",          &sublead_sieie);
-    l.SetCutVariables("cutnm1lor9EE_drtotk",         &sublead_drtotk);
-    l.SetCutVariables("cutnm1lor9EE_hovere",         &sublead_hovere);
-    l.SetCutVariables("cutnm1lor9EE_Mgg",            &sublead_mgg);
 
 
     effSmearPars.categoryType = "2CatR9_EBEE";
@@ -424,31 +389,31 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("ff_XSBR_wzh_105",0.1609787);
 
     // Background modeling 
-    l.rooContainer->AddRealVar("CMS_hgg_pol0",-0.1,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_pol1",-0.1,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_pol2",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_pol3",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_pol4",-0.01,-1.5,1.5);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol0","@0*@0","CMS_hgg_pol0");
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol1","@0*@0","CMS_hgg_pol1");
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol2","@0*@0","CMS_hgg_pol2");
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol3","@0*@0","CMS_hgg_pol3");
-    l.rooContainer->AddFormulaVar("CMS_hgg_modpol4","@0*@0","CMS_hgg_pol4");
+    l.rooContainer->AddRealVar("pol0",-0.1,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol1",-0.1,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol2",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol3",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol4",-0.01,-1.5,1.5);
+    l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
+    l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
+    l.rooContainer->AddFormulaVar("modpol2","@0*@0","pol2");
+    l.rooContainer->AddFormulaVar("modpol3","@0*@0","pol3");
+    l.rooContainer->AddFormulaVar("modpol4","@0*@0","pol4");
 
-    l.rooContainer->AddRealVar("CMS_hgg_quad0",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_quad1",-0.01,-1.5,1.5);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modquad0","@0*@0","CMS_hgg_quad0");
-    l.rooContainer->AddFormulaVar("CMS_hgg_modquad1","@0*@0","CMS_hgg_quad1");
+    l.rooContainer->AddRealVar("quad0",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("quad1",-0.01,-1.5,1.5);
+    l.rooContainer->AddFormulaVar("modquad0","@0*@0","quad0");
+    l.rooContainer->AddFormulaVar("modquad1","@0*@0","quad1");
     
-    l.rooContainer->AddRealVar("CMS_hgg_cubic0",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_cubic1",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("CMS_hgg_cubic2",-0.01,-1.5,1.5);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modcubic0","@0*@0","CMS_hgg_cubic0");
-    l.rooContainer->AddFormulaVar("CMS_hgg_modcubic1","@0*@0","CMS_hgg_cubic1");
-    l.rooContainer->AddFormulaVar("CMS_hgg_modcubic2","@0*@0","CMS_hgg_cubic2");
+    l.rooContainer->AddRealVar("cubic0",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("cubic1",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("cubic2",-0.01,-1.5,1.5);
+    l.rooContainer->AddFormulaVar("modcubic0","@0*@0","cubic0");
+    l.rooContainer->AddFormulaVar("modcubic1","@0*@0","cubic1");
+    l.rooContainer->AddFormulaVar("modcubic2","@0*@0","cubic2");
     
-    l.rooContainer->AddRealVar("CMS_hgg_lin0",-0.01,-1.5,1.5);
-    l.rooContainer->AddFormulaVar("CMS_hgg_modlin0","@0*@0","CMS_hgg_lin0");
+    l.rooContainer->AddRealVar("lin0",-0.01,-1.5,1.5);
+    l.rooContainer->AddFormulaVar("modlin0","@0*@0","lin0");
     
     // Generic PDF ok in the std analysis but excluisve channels need different models CP
     //l.rooContainer->AddGenericPdf("data_pol_model",
@@ -487,32 +452,32 @@ void StatAnalysis::Init(LoopAll& l)
 
 
     std::vector<std::string> data_pol_pars(5,"p");	 
-    data_pol_pars[0] = "CMS_hgg_modpol0";
-    data_pol_pars[1] = "CMS_hgg_modpol1";
-    data_pol_pars[2] = "CMS_hgg_modpol2";
-    data_pol_pars[3] = "CMS_hgg_modpol3";
-    data_pol_pars[4] = "CMS_hgg_modpol4";
+    data_pol_pars[0] = "modpol0";
+    data_pol_pars[1] = "modpol1";
+    data_pol_pars[2] = "modpol2";
+    data_pol_pars[3] = "modpol3";
+    data_pol_pars[4] = "modpol4";
     l.rooContainer->AddSpecificCategoryPdf(cats_with_std,"data_pol_model",
 	  "0","CMS_hgg_mass",data_pol_pars,75);	// >= 71 means RooBernstein of order >= 1
     
 
     std::vector<std::string> data_quad_pars(2,"p");	 
-    data_quad_pars[0] = "CMS_hgg_modquad0";
-    data_quad_pars[1] = "CMS_hgg_modquad1";
+    data_quad_pars[0] = "modquad0";
+    data_quad_pars[1] = "modquad1";
     
     l.rooContainer->AddSpecificCategoryPdf(cats_with_quad, "data_pol_model",
 	  "0","CMS_hgg_mass",data_quad_pars,72);	// >= 71 means RooBernstein of order >= 1
 
     std::vector<std::string> data_cubic_pars(3,"p");	 
-    data_cubic_pars[0] = "CMS_hgg_modcubic0";
-    data_cubic_pars[1] = "CMS_hgg_modcubic1";
-    data_cubic_pars[2] = "CMS_hgg_modcubic2";
+    data_cubic_pars[0] = "modcubic0";
+    data_cubic_pars[1] = "modcubic1";
+    data_cubic_pars[2] = "modcubic2";
     
     l.rooContainer->AddSpecificCategoryPdf(cats_with_cubic, "data_pol_model",
 	  "0","CMS_hgg_mass",data_cubic_pars,73);	// >= 71 means RooBernstein of order >= 1
     
     std::vector<std::string> data_lin_pars(1,"p");	 
-    data_lin_pars[0] = "CMS_hgg_modlin0";
+    data_lin_pars[0] = "modlin0";
     
     l.rooContainer->AddSpecificCategoryPdf(cats_with_lin, "data_pol_model",
 	  "0","CMS_hgg_mass",data_lin_pars,71);	// >= 71 means RooBernstein of order >= 1
@@ -752,39 +717,6 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     sumev += weight;
     // FIXME pass smeared R9
     int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
-    int diphoton_nm1_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoNOCUTS, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
-
-    if(diphoton_nm1_id>-1)
-    {
-      TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_nm1_id], l.dipho_vtxind[diphoton_nm1_id], &smeared_pho_energy[0]);
-      TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_nm1_id], l.dipho_vtxind[diphoton_nm1_id], &smeared_pho_energy[0]);
-      TLorentzVector diphoton = lead_p4+sublead_p4;
-      
-      int photon_category   = l.PhotonCategory(l.dipho_subleadind[diphoton_nm1_id],2,2);
-      sublead_r9            = l.pho_r9[l.dipho_subleadind[diphoton_nm1_id]];
-      sublead_trkisooet     = (*l.pho_tkiso_recvtx_030_002_0000_10_01)[l.dipho_subleadind[diphoton_nm1_id]][l.dipho_vtxind[diphoton_nm1_id]]*50/sublead_p4.Et();
-      sublead_isoOverEt     = (l.pho_hcalsumetconedr04[l.dipho_subleadind[diphoton_nm1_id]]
-                            +  l.pho_ecalsumetconedr03[l.dipho_subleadind[diphoton_nm1_id]]
-                            +  (*l.pho_tkiso_recvtx_030_002_0000_10_01)[l.dipho_subleadind[diphoton_nm1_id]][l.dipho_vtxind[diphoton_nm1_id]]
-                            - 0.17*l.rho)*50/sublead_p4.Et();
-      sublead_badisoOverEt  = (l.pho_hcalsumetconedr04[l.dipho_subleadind[diphoton_nm1_id]]
-                            +  l.pho_ecalsumetconedr04[l.dipho_subleadind[diphoton_nm1_id]]
-                            +  l.pho_tkiso_badvtx_040_002_0000_10_01[l.dipho_subleadind[diphoton_nm1_id]]
-                            - 0.52*l.rho)*50/sublead_p4.Et();
-      
-      sublead_sieie         = l.pho_sieie[l.dipho_subleadind[diphoton_nm1_id]];
-      sublead_drtotk        = l.pho_drtotk_25_99[l.dipho_subleadind[diphoton_nm1_id]];
-      sublead_hovere        = l.pho_hoe[l.dipho_subleadind[diphoton_nm1_id]];
-      sublead_mgg           = diphoton.M();
-
-      int applyCutsType = 15 + photon_category;
-
-      float evweight = newweight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight * pileupWeight;
-      float myweight=1.;
-      if(evweight*newweight!=0) myweight=evweight/newweight;
-      l.ApplyCutsFill(0,applyCutsType, evweight, myweight);
-
-    }
 
     if(diphoton_id>-1)
     {
@@ -857,7 +789,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     }
 
     if((includeVBF || includeVHad)) {
-      if(includeVBF) diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true ); 
+      if(includeVBF) diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0] ); 
       if(includeVHad) diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,false, &smeared_pho_energy[0] ); 
 
       if(diphotonVBF_id>-1){
@@ -1235,7 +1167,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     bool VHadevent = false;
     std::pair<int,int> highestPtJets(-1,-1);
     if((includeVBF || includeVHad)&&l.jet_algoPF1_n>1) {
-      if(includeVBF) diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0], true); 
+      if(includeVBF) diphotonVBF_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVBFCut, subleadEtVBFCut, 4,false, &smeared_pho_energy[0] ); 
       if(includeVHad) diphotonVHad_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtVHadCut, subleadEtVHadCut, 4,false, &smeared_pho_energy[0] ); 
 
       if(diphotonVBF_id>-1){
