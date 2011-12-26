@@ -472,7 +472,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     } 
 
     // Load up instances of PhotonFix for local coordinate calculations
-	
+    /*	
     PhotonFix::initialise("4_2",photonFixDat);	
     std::cout << "Regression corrections from -> " << regressionFile.c_str() << std::endl;
     fgbr = new TFile(regressionFile.c_str(),"READ");
@@ -481,6 +481,7 @@ void PhotonAnalysis::Init(LoopAll& l)
     fReaderee = (GBRForest*)fgbr->Get("EECorrection");
     fReadereevariance = (GBRForest*)fgbr->Get("EEUncertainty");      
     fgbr->Close();
+    */
 	
     // -------------------------------------------------------------------- 
 	if(PADEBUG) 
@@ -839,7 +840,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 
 	// TEMPORARY FIX TO CALCULATE CORRECTED ENERGIES SINCE REGRESSION WAS NOT STORED IN NTUPLES 
 	// The following Fills the arrays with the ON-THE-FLY calculations
-	GetRegressionCorrections(l);  // need to pass LoopAll
+	//GetRegressionCorrections(l);  // need to pass LoopAll
 	// -------------------------------------------------------------------------------------------//
 	for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 		std::vector<std::vector<bool> > p;
@@ -1197,6 +1198,7 @@ void PhotonAnalysis::ReducedOutputTree(LoopAll &l, TTree * outputTree)
 	
 }
 
+/*
 void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
 
   // PhotonFix's have been initialised correctly and so we just need to use the correct 
@@ -1280,3 +1282,4 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
 
  }
 }
+*/

@@ -1,3 +1,9 @@
+TBranch *b_pho_pfiso_myneutral03;
+TBranch *b_pho_pfiso_myneutral04;
+TBranch *b_pho_pfiso_myphoton03;
+TBranch *b_pho_pfiso_myphoton04;
+TBranch *b_pho_pfiso_mycharged03;
+TBranch *b_pho_pfiso_mycharged04;
     TBranch *b_event;
     TBranch *b_run;
     TBranch *b_process_id;
@@ -312,8 +318,16 @@
     TBranch *b_mu_glo_charge;
     TBranch *b_mu_glo_losthits;
     TBranch *b_mu_glo_validhits;
+    TBranch *b_mu_glo_innerhits;
     TBranch *b_mu_glo_type;
     TBranch *b_mu_glo_iso;
+    TBranch *b_mu_glo_pixelhits;
+    TBranch *b_mu_glo_validChmbhits;
+    TBranch *b_mu_glo_tkpterr;
+    TBranch *b_mu_glo_ecaliso03;
+    TBranch *b_mu_glo_hcaliso03;
+    TBranch *b_mu_glo_tkiso03;
+    TBranch *b_mu_glo_dz;
     TBranch *b_pho_n;
     TBranch *b_pho_feta;
     TBranch *b_pho_crackcorr;

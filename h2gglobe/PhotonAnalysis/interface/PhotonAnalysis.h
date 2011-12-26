@@ -12,7 +12,7 @@
 #include "PhotonFix.h"
 #include "MassResolution.h"
 //#include "../../../../HiggsToGammaGamma/interface/GBRForest.h"
-#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
+//#include "HiggsAnalysis/HiggsToGammaGamma/interface/GBRForest.h"
 
 // ------------------------------------------------------------------------------------
 class PhotonAnalysis : public BaseAnalysis 
@@ -38,7 +38,7 @@ public:
 	virtual bool SelectEvents(LoopAll&, int);
 	virtual void Analysis(LoopAll&, Int_t);
 
-	void GetRegressionCorrections(LoopAll&);	
+//	void GetRegressionCorrections(LoopAll&);	
 	// Public parameters to be read from config file
 	VertexAlgoParameters vtxAlgoParams;	 
 	std::vector<std::string> vtxVarNames;
@@ -106,8 +106,8 @@ public:
         bool mvaVertexSelection, addConversionToMva;     
 
 	// PhotonFix
-	std::string photonFixDat;
-	std::string regressionFile;
+	//std::string photonFixDat;
+	//std::string regressionFile;
 
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
@@ -136,12 +136,13 @@ protected:
 	TMVA::Reader *tmvaPerVtxReader_;
 	TMVA::Reader *tmvaPerEvtReader_;
 
+/*
 	TFile *fgbr;
 	GBRForest *fReadereb;
         GBRForest *fReaderebvariance;
         GBRForest *fReaderee;
         GBRForest *fReadereevariance;      
-
+*/
 	MassResolution *massResolutionCalculator;
 
 };

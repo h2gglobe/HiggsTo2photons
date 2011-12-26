@@ -1,4 +1,4 @@
-#include "../interface/StatAnalysis.h"
+#include "../interface/MassFactorizedMvaAnalysis.h"
 
 #include "Sorters.h"
 #include "PhotonReducedInfo.h"
@@ -10,8 +10,8 @@
 using namespace std;
 
 // ----------------------------------------------------------------------------------------------------
-StatAnalysis::StatAnalysis()  : 
-    name_("StatAnalysis"),
+MassFactorizedMvaAnalysis::MassFactorizedMvaAnalysis()  : 
+    name_("MassFactorizedMvaAnalysis"),
     vtxAna_(vtxAlgoParams), vtxConv_(vtxAlgoParams)
 {
 
@@ -20,40 +20,27 @@ StatAnalysis::StatAnalysis()  :
 }
 
 // ----------------------------------------------------------------------------------------------------
-StatAnalysis::~StatAnalysis() 
+MassFactorizedMvaAnalysis::~MassFactorizedMvaAnalysis() 
 {
 }
 
 // ----------------------------------------------------------------------------------------------------
-void StatAnalysis::Term(LoopAll& l) 
+void MassFactorizedMvaAnalysis::Term(LoopAll& l) 
 {
 
     std::string outputfilename = (std::string) l.histFileName;
-    // Make Fits to the data-sets and systematic sets
     l.rooContainer->FitToData("data_pol_model","data_mass");  // Fit to full range of dataset
-  
-//    l.rooContainer->WriteSpecificCategoryDataCards(outputfilename,"data_mass","sig_mass","data_pol_model");
-//    l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","data_pol_model");
-    // mode 0 as above, 1 if want to bin in sub range from fit,
-
-    // Write the data-card for the Combinations Code, needs the output filename, makes binned analysis DataCard
-    // Assumes the signal datasets will be called signal_name+"_mXXX"
-//    l.rooContainer->GenerateBinnedPdf("bkg_mass_rebinned","data_pol_model","data_mass",1,50,1); // 1 means systematics from the fit effect only the backgroundi. last digit mode = 1 means this is an internal constraint fit 
-//    l.rooContainer->WriteDataCard(outputfilename,"data_mass","sig_mass","bkg_mass_rebinned");
 
     eventListText.close();
-
     std::cout << " nevents " <<  nevents << " " << sumwei << std::endl;
 
-//	kfacFile->Close();
-//	PhotonAnalysis::Term(l);
 }
 
 // ----------------------------------------------------------------------------------------------------
-void StatAnalysis::Init(LoopAll& l) 
+void MassFactorizedMvaAnalysis::Init(LoopAll& l) 
 {
     if(PADEBUG) 
-	cout << "InitRealStatAnalysis START"<<endl;
+	cout << "InitRealMassFactorizedMvaAnalysis START"<<endl;
 
     nevents=0., sumwei=0.; 
     sumaccept=0., sumsmear=0., sumev=0.;
@@ -66,7 +53,7 @@ void StatAnalysis::Init(LoopAll& l)
     std::cout
 	<< "\n"
 	<< "-------------------------------------------------------------------------------------- \n"
-	<< "StatAnalysis " << "\n"
+	<< "MassFactorizedMvaAnalysis " << "\n"
 	<< "-------------------------------------------------------------------------------------- \n"
 	<< "leadEtCut "<< leadEtCut << "\n"
 	<< "subleadEtCut "<< subleadEtCut << "\n"
@@ -86,10 +73,6 @@ void StatAnalysis::Init(LoopAll& l)
 	<< "-------------------------------------------------------------------------------------- \n"
 	<< std::endl;
 
-    // avoid recalculated the CIC ID every time
-    // PhotonAnalysis has this in init so no need to explicitly put it here
-    //l.runCiC = reRunCiC;
-    // call the base class initializer
     PhotonAnalysis::Init(l);
 
     // Avoid reweighing from histo conainer
@@ -101,10 +84,6 @@ void StatAnalysis::Init(LoopAll& l)
     l.countersred.resize(diPhoCounter_+1);
 
     // initialize the analysis variables
-    nCategories_ = nEtaCategories;
-    if( nR9Categories != 0 ) nCategories_ *= nR9Categories;
-    if( nPtCategories != 0 ) nCategories_ *= nPtCategories;
-
     nPhotonCategories_ = nEtaCategories;
     if( nR9Categories != 0 ) nPhotonCategories_ *= nR9Categories;
     
@@ -183,13 +162,12 @@ void StatAnalysis::Init(LoopAll& l)
     // the systematic sets to be formed
 
     // FIXME move these params to config file
-    l.rooContainer->SetNCategories(nCategories_);
+    l.rooContainer->SetNCategories(5);	// Use 5 BDT categories?
     l.rooContainer->nsigmas = nSystSteps;
     l.rooContainer->sigmaRange = systRange;
     l.rooContainer->SaveRooDataHists();
     l.rooContainer->Verbose(false);
-    // RooContainer does not support steps different from 1 sigma
-    //assert( ((float)nSystSteps) == systRange );
+
     if( doEcorrectionSmear && doEcorrectionSyst ) {
         // instance of this smearer done in PhotonAnalysis
         systPhotonSmearers_.push_back(eCorrSmearer);
@@ -240,14 +218,11 @@ void StatAnalysis::Init(LoopAll& l)
 	l.rooContainer->MakeSystematicStudy(sys,sys_t);
     }
 	
-    // ----------------------------------------------------
-    // ----------------------------------------------------
     // Global systematics - Lumi
     l.rooContainer->AddGlobalSystematic("lumi",1.045,1.00);
     // ----------------------------------------------------
 
     // Create observables for shape-analysis with ranges
-    // l.rooContainer->AddObservable("mass" ,100.,150.);
     l.rooContainer->AddObservable("CMS_hgg_mass" ,massMin,massMax);
 
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
@@ -328,7 +303,7 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("ff_XSBR_vbf_105",0.151616);
     l.rooContainer->AddConstant("ff_XSBR_wzh_105",0.1609787);
 
-    // Background modeling 
+    // Background modeling - Separate Polynomial models for the different categories in MVA
     l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
     l.rooContainer->AddRealVar("pol2",-0.01,-1.5,1.5);
@@ -340,16 +315,26 @@ void StatAnalysis::Init(LoopAll& l)
     l.rooContainer->AddFormulaVar("modpol3","@0*@0","pol3");
     l.rooContainer->AddFormulaVar("modpol4","@0*@0","pol4");
 
-    std::vector<std::string> data_pol_pars(5,"p");	 
-    data_pol_pars[0] = "modpol0";
-    data_pol_pars[1] = "modpol1";
-    data_pol_pars[2] = "modpol2";
-    data_pol_pars[3] = "modpol3";
-    data_pol_pars[4] = "modpol4";
-    l.rooContainer->AddGenericPdf("data_pol_model",
-	  "0","CMS_hgg_mass",data_pol_pars,75);	// >= 71 means RooBernstein of order >= 1
+    int poly3cats[5] = {1,1,0,0,0};
+    int poly5cats[5] = {0,0,1,1,1};
+
+    std::vector<std::string> data_pol5_pars(5,"p");	 
+    data_pol5_pars[0] = "modpol0";
+    data_pol5_pars[1] = "modpol1";
+    data_pol5_pars[2] = "modpol2";
+    data_pol5_pars[3] = "modpol3";
+    data_pol5_pars[4] = "modpol4";
+    l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model",
+	  "0","CMS_hgg_mass",data_pol5_pars,75);	// >= 71 means RooBernstein of order >= 1
         
+    std::vector<std::string> data_pol3_pars(3,"p");	 
+    data_pol3_pars[0] = "modpol0";
+    data_pol3_pars[1] = "modpol1";
+    data_pol3_pars[2] = "modpol2";
+    l.rooContainer->AddSpecificCategoryPdf(poly3cats,"data_pol_model",
+	  "0","CMS_hgg_mass",data_pol3_pars,73);		// >= 71 means RooBernstein of order >= 1
     // -----------------------------------------------------
+
     // Make some data sets from the observables to fill in the event loop		  
     // Binning is for histograms (will also produce unbinned data sets)
 
@@ -431,14 +416,25 @@ void StatAnalysis::Init(LoopAll& l)
     // Make sure the Map is filled
     FillSignalLabelMap();
 
+    // Initialize all MVA ---------------------------------------------------//
+    l.SetAllMVA();
+    // UCSD
+    l.tmvaReaderID_UCSD->BookMVA("Gradient"      ,photonLevelMvaUCSD.c_str()  );
+    l.tmvaReader_dipho_UCSD->BookMVA("Gradient"  ,eventLevelMvaUCSD.c_str()   );
+    // MIT 
+    l.tmvaReaderID_MIT_Barrel->BookMVA("AdaBoost",photonLevelMvaMIT_EB.c_str());
+    l.tmvaReaderID_MIT_Endcap->BookMVA("AdaBoost",photonLevelMvaMIT_EE.c_str());
+    l.tmvaReader_dipho_MIT->BookMVA("Gradient"   ,eventLevelMvaMIT.c_str()    );
+    // ----------------------------------------------------------------------//
+
     if(PADEBUG) 
-	cout << "InitRealStatAnalysis END"<<endl;
+	cout << "InitRealMassFactorizedMvaAnalysis END"<<endl;
 	
     // FIXME book of additional variables
 }
 
 // ----------------------------------------------------------------------------------------------------
-void StatAnalysis::Analysis(LoopAll& l, Int_t jentry) 
+void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry) 
 {
     if(PADEBUG) 
 	cout << "Analysis START; cur_type is: " << l.itype[l.current] <<endl;
@@ -577,8 +573,10 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
     }
    
     sumev += weight;
+
+    // Divergence from StatAnalysis Here! Apply loose pre-selection to select photons
     // FIXME pass smeared R9
-    int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+    int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
     /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
     if (diphoton_id > -1 ) {
 
@@ -598,7 +596,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 	bool CorrectVertex;
 	// FIXME pass smeared R9
-	int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,nPtCategories);
+	int category = 0;
 	int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
 	if( cur_type != 0 && doMCSmearing && cur_type < 100) { 
 	    float pth = Higgs.Pt();
@@ -615,7 +613,26 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	}
 	float mass    = Higgs.M();
 	float ptHiggs = Higgs.Pt();
-      
+
+	 // Mass Resolution of the Event
+	 massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+
+        float vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
+	float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
+	float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+	// easy to calculate vertex probability from vtx mva output
+	float vtxProb 	= 1.-0.49*(vtx_mva+1.0);
+
+	float diphobdt_output = l.diphotonMVA(diphoton_index.first,diphoton_index.second
+				   ,l.dipho_vtxind[diphoton_id]
+				   ,vtxProb,lead_p4,sublead_p4
+				   ,sigmaMrv,sigmaMwv
+				   ,bdtTrainingPhilosophy.c_str());
+	float phoid_mvaout_lead = l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4 
+				   ,bdtTrainingPhilosophy.c_str());
+	float phoid_mvaout_sublead = l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4 
+				   ,bdtTrainingPhilosophy.c_str());
+
 	assert( evweight >= 0. ); 
 
 	l.FillCounter( "Accepted", weight );
@@ -627,6 +644,16 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	l.FillHist("all_mass",0, Higgs.M(), evweight);
 	l.FillHist("all_mass",category+1, Higgs.M(), evweight);
 	if( mass>=massMin && mass<=massMax  ) {
+		
+		l.FillHist("bdtout",category,diphobdt_output,evweight);
+		if (fabs(lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442)){
+		   l.FillHist("bdtoutEB",category,diphobdt_output,evweight);
+		} else {
+	  	   l.FillHist("bdtoutEE",category,diphobdt_output,evweight);
+		}
+		l.FillHist("phoid_mvaout_lead",category,phoid_mvaout_lead,evweight);
+		l.FillHist("phoid_mvaout_sublead",category,phoid_mvaout_sublead,evweight);
+
 		l.FillHist("mass",0, Higgs.M(), evweight);
 		l.FillHist("pt",0, Higgs.Pt(), evweight);
 		l.FillHist("eta",0, Higgs.Eta(), evweight);
@@ -705,7 +732,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    if( syst_shift == 0. ) { continue; } // skip the central value
 		    TLorentzVector Higgs = lead_p4 + sublead_p4; 	
 	     
-		    int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,nPtCategories);
+		    int category = 0;
 		    double genLevWeightSyst=1; 
 	     
 		    for(std::vector<BaseGenLevelSmearer *>::iterator sj=genLevelSmearers_.begin(); sj!= genLevelSmearers_.end(); ++sj ) {
@@ -744,7 +771,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
 			       
 		    // FIXME pass smeared R9 and di-photon
-		    int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,nPtCategories);
+		    int category = 0;
 		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,nEtaCategories,0);
 		    for(std::vector<BaseDiPhotonSmearer *>::iterator sj=diPhotonSmearers_.begin(); sj!= diPhotonSmearers_.end(); ++sj ) {
 			float swei=1.;
@@ -808,7 +835,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	       
 		// analyze the event
 		// FIXME pass smeared R9
-		int diphoton_id = l.DiphotonCiCSelection(l.phoSUPERTIGHT, l.phoSUPERTIGHT, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+		int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
 	       
 		if (diphoton_id > -1 ) {
 		   
@@ -820,7 +847,7 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
 		    TLorentzVector Higgs = lead_p4 + sublead_p4; 	
 		   
-		    int category = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,nPtCategories);
+		    int category = 0;
 		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
 		    if( cur_type != 0 && doMCSmearing ) {
 			for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
@@ -859,19 +886,19 @@ void StatAnalysis::Analysis(LoopAll& l, Int_t jentry)
 // ----------------------------------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------------------------------
-void StatAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s ) 
+void MassFactorizedMvaAnalysis::GetBranches(TTree *t, std::set<TBranch *>& s ) 
 {
     vtxAna_.setBranchAdresses(t,"vtx_std_");
     vtxAna_.getBranches(t,"vtx_std_",s);
 }
 
 // ----------------------------------------------------------------------------------------------------
-bool StatAnalysis::SelectEvents(LoopAll& l, int jentry) 
+bool MassFactorizedMvaAnalysis::SelectEvents(LoopAll& l, int jentry) 
 {
     return true;
 }
 // ----------------------------------------------------------------------------------------------------
-double StatAnalysis::GetDifferentialKfactor(double gPT, int Mass)
+double MassFactorizedMvaAnalysis::GetDifferentialKfactor(double gPT, int Mass)
 {
 
 /*  
@@ -915,7 +942,7 @@ double StatAnalysis::GetDifferentialKfactor(double gPT, int Mass)
 */
 }
 
-void StatAnalysis::FillSignalLabelMap(){
+void MassFactorizedMvaAnalysis::FillSignalLabelMap(){
 
 	// Basically A Map of the ID (type) to the signal's name which can be filled Now:
   signalLabels[-57]="ggh_mass_m123";
@@ -980,7 +1007,7 @@ void StatAnalysis::FillSignalLabelMap(){
   signalLabels[-71]="tth_mass_m100";
 }
 
-std::string StatAnalysis::GetSignalLabel(int id){
+std::string MassFactorizedMvaAnalysis::GetSignalLabel(int id){
 	
 	// For the lazy man, can return a memeber of the map rather than doing it yourself
 	std::map<int,std::string>::iterator it = signalLabels.find(id);
@@ -996,7 +1023,7 @@ std::string StatAnalysis::GetSignalLabel(int id){
 	
 }
 
-void StatAnalysis::ResetAnalysis(){
+void MassFactorizedMvaAnalysis::ResetAnalysis(){
     // Reset Random Variable on the EnergyResolution Smearer
     eResolSmearer->resetRandom();
 }

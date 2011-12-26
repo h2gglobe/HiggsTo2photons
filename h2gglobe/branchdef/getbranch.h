@@ -1,3 +1,9 @@
+b_pho_pfiso_myneutral03 = fChain->GetBranch("pho_pfiso_myneutral03");
+b_pho_pfiso_myneutral04 = fChain->GetBranch("pho_pfiso_myneutral04");
+b_pho_pfiso_myphoton03 = fChain->GetBranch("pho_pfiso_myphoton03");
+b_pho_pfiso_myphoton04 = fChain->GetBranch("pho_pfiso_myphoton04");
+b_pho_pfiso_mycharged03 = fChain->GetBranch("pho_pfiso_mycharged03");
+b_pho_pfiso_mycharged04 = fChain->GetBranch("pho_pfiso_mycharged04");
    b_event = fChain->GetBranch("event"); 
    b_run = fChain->GetBranch("run"); 
    b_process_id = fChain->GetBranch("process_id"); 
@@ -312,8 +318,16 @@
    b_mu_glo_charge = fChain->GetBranch("mu_glo_charge"); 
    b_mu_glo_losthits = fChain->GetBranch("mu_glo_losthits"); 
    b_mu_glo_validhits = fChain->GetBranch("mu_glo_validhits"); 
+   b_mu_glo_innerhits = fChain->GetBranch("mu_glo_innerhits"); 
    b_mu_glo_type = fChain->GetBranch("mu_glo_type"); 
    b_mu_glo_iso = fChain->GetBranch("mu_glo_iso"); 
+   b_mu_glo_pixelhits = fChain->GetBranch("mu_glo_pixelhits"); 
+   b_mu_glo_validChmbhits = fChain->GetBranch("mu_glo_validChmbhits"); 
+   b_mu_glo_ecaliso03 = fChain->GetBranch("mu_glo_tkpterr"); 
+   b_mu_glo_ecaliso03 = fChain->GetBranch("mu_glo_ecaliso03"); 
+   b_mu_glo_hcaliso03 = fChain->GetBranch("mu_glo_hcaliso03"); 
+   b_mu_glo_tkiso03 = fChain->GetBranch("mu_glo_tkiso03"); 
+   b_mu_glo_dz = fChain->GetBranch("mu_glo_dz"); 
    b_pho_n = fChain->GetBranch("pho_n"); 
    b_pho_feta = fChain->GetBranch("pho_feta"); 
    b_pho_crackcorr = fChain->GetBranch("pho_crackcorr"); 

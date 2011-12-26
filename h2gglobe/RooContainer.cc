@@ -84,7 +84,7 @@ void RooContainer::AddRealVar(std::string name,double init,double xmin, double x
   for (int cat=0;cat<ncat;cat++){
     
     addRealVar(getcatName(name,cat),init,xmin,xmax);
-    if (make_systematics){
+    if (make_systematics && fit_systematics){
 	for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
 	  for (int sys=1;sys<=nsigmas;sys++)
 	    addRealVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,-1),init,xmin,xmax);
@@ -98,7 +98,7 @@ void RooContainer::AddRealVar(std::string name,double init,double xmin, double x
 void RooContainer::AddFormulaVar(std::string name,std::string formula,std::string var){
   for (int cat=0;cat<ncat;cat++){
     addFormulaVar(getcatName(name,cat),formula,getcatName(var,cat));
-    if (make_systematics){
+    if (make_systematics && fit_systematics){
 	for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
 	  for (int sys=1;sys<=nsigmas;sys++)
 	    addFormulaVar(getsysindexName(getcatName(name,cat),(it_sys->first),sys,-1),formula,getsysindexName(getcatName(var,cat),(it_sys->first),sys,-1));
@@ -123,7 +123,7 @@ void RooContainer::AddSpecificCategoryPdf(int *categories,std::string name,std::
     }  
     addGenericPdf(getcatName(name,cat),formula,obs_name,cat_var,form,norm_guess,norm_min,norm_max);
 
-    if (make_systematics){
+    if (make_systematics && fit_systematics){
       
       for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){
        for (int sys=1;sys<=nsigmas;sys++){
@@ -1538,10 +1538,13 @@ std::vector<double> RooContainer::soverBOptimizedBinning(TH1F *hs,TH1F *hb,int n
 	TH1F *hbnew =(TH1F*) hb->Rebin(binEdges.size()-1,"hbnew",arrBins);
 	TH1F *hsnew =(TH1F*) hs->Rebin(binEdges.size()-1,"hsnew",arrBins);
 	
-	
+
+	// Better smoothing which doesn't use the first and last bins	
 	if (hsnew->Integral()!=0 && hbnew->Integral()!=0 && binEdges.size()-1 > 10){
-		hsnew->Smooth(1000);
-		hbnew->Smooth(1000);
+		histogramSmoothing(hsnew,1000);
+		histogramSmoothing(hbnew,1000);
+		//hsnew->Smooth(1000);
+		//hbnew->Smooth(1000);
         }
 	// Do we really need the background histogram ?  we will be assuming that the first step is nentries per bin
 
@@ -2530,6 +2533,27 @@ void RooContainer::removeDuplicateElements(std::vector<RooAbsPdf*> &k){
      if (tmpset.insert(*r).second ){ *w++ = *r;}
   }
         k.erase( w , k.end() );
+}
+// ----------------------------------------------------------------------------------------------------
+void RooContainer::histogramSmoothing(TH1F* h, int n){
+   // Nothing too special, a function which will smooth a histogram but ignore the first and last
+   // bins, useful for the "flat-binning" approach! 
+   if (h->GetNbinsX()>3){
+     int nbin = h->GetNbinsX();
+     TH1F *h2 = new TH1F(Form("hn%s",h->GetName()),Form("hn%s",h->GetName()),nbin-2,0,1);
+     for (int i=1;i<=nbin-2;i++){
+           h2->SetBinContent(i,h->GetBinContent(i+1));
+     }
+     h2->Smooth(n);
+     for (int i=2;i<=nbin-1;i++){
+           h->SetBinContent(i,h2->GetBinContent(i-1));
+     }
+
+   }
+
+   return;
+
+   
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::makeSystematics(std::string observable,std::string s_name, int effect){

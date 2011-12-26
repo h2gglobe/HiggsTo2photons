@@ -162,6 +162,7 @@ class RooContainer {
    void writeRooPlot(RooPlot *,double);
    void writeSpecificCategoryDataCard(int,std::string,std::string,std::string,std::string);
    void removeDuplicateElements(std::vector<RooAbsPdf*> &);
+   void histogramSmoothing(TH1F*, int);
    void setAllParametersConstant();
    void rebinBinnedDataset(std::string,std::string,TH1F *,std::vector<double>);
    std::vector<double> optimizedBinning(TH1F *,int,bool,bool);

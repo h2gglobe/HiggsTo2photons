@@ -740,8 +740,8 @@ void LoopAll::WriteCounters() {
   if(LDEBUG) std::cout<<"msName is "<< msName <<std::endl;
   if(LDEBUG) std::cout<<"s2 is "<< s2 <<std::endl;
   
-  for(unsigned int i=0; i<counterContainer[0].mapSize(); i++) {
-    if(LDEBUG) std::cout<<"counterContainer[0].mapSize() is "<< counterContainer[0].mapSize() <<std::endl;
+  for(unsigned int i=0; i<counterContainer[0].size(); i++) {
+    if(LDEBUG) std::cout<<"counterContainer[0].mapSize() is "<< counterContainer[0].size() <<std::endl;
     fprintf(file, "Number, Sample, Counter Name, Counted, TotalEvents, Sigma, Selection 1, Eff, Selection 2, Eff, Selection 3, Eff");
     fprintf(file, ",indexfiles, namefile, scale, lumi, intlum, weight");
     fprintf(file, "\n");

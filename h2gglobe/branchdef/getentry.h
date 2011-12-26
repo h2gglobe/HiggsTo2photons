@@ -1,3 +1,9 @@
+b_pho_pfiso_myneutral03->GetEntry(jentry);
+b_pho_pfiso_myneutral04->GetEntry(jentry);
+b_pho_pfiso_myphoton03->GetEntry(jentry);
+b_pho_pfiso_myphoton04->GetEntry(jentry);
+b_pho_pfiso_mycharged03->GetEntry(jentry);
+b_pho_pfiso_mycharged04->GetEntry(jentry);
    b_event->GetEntry(jentry); 
    b_run->GetEntry(jentry); 
    b_process_id->GetEntry(jentry); 
@@ -312,8 +318,16 @@
    b_mu_glo_charge->GetEntry(jentry); 
    b_mu_glo_losthits->GetEntry(jentry); 
    b_mu_glo_validhits->GetEntry(jentry); 
+   b_mu_glo_innerhits->GetEntry(jentry); 
    b_mu_glo_type->GetEntry(jentry); 
    b_mu_glo_iso->GetEntry(jentry); 
+   b_mu_glo_pixelhits->GetEntry(jentry); 
+   b_mu_glo_validChmbhits->GetEntry(jentry); 
+   b_mu_glo_tkpterr->GetEntry(jentry); 
+   b_mu_glo_ecaliso03->GetEntry(jentry); 
+   b_mu_glo_hcaliso03->GetEntry(jentry); 
+   b_mu_glo_tkiso03->GetEntry(jentry); 
+   b_mu_glo_dz->GetEntry(jentry); 
    b_pho_n->GetEntry(jentry); 
    b_pho_feta->GetEntry(jentry); 
    b_pho_crackcorr->GetEntry(jentry); 

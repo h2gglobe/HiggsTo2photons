@@ -19,9 +19,9 @@ doTriggerSelection=1
 
 reRunCiCForData=1
 
-doTraining=0
+doTraining=1
 splitSignalSample=0
-splitBackgroundSample=1
+splitBackgroundSample=0
 
 
 ->
@@ -38,7 +38,7 @@ doEscaleSyst=1
 doEresolSmear=1
 doEresolSyst=1
 
-energyCorrectionMethod=BendavidOTF
+energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
 doEcorrectionSyst=0
 
@@ -57,7 +57,7 @@ doR9Syst=1
 doKFactorSmear=1
 doKFactorSyst=1
 
-mvaWeightsFolder=/vols/cms02/h2g/weights/wt_6Dec_var/
+mvaWeightsFolder=/vols/cms02/h2g/weights/wt_5Dec_var/
 
 ->
 Inputs for reweighing
@@ -66,8 +66,8 @@ Inputs for reweighing
 ->
 
 kfacHist=/vols/cms02/h2g/aux/KFactors_AllScales_interpolated.root
-efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v15.root
-puHist=/vols/cms02/h2g/aux/2011_0100_73500.weights2.root
+efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v16.root
+puHist=/vols/cms02/h2g/aux/2011_0100_73500.weights3.root
 
 puMap=pu_weights_map.dat
 

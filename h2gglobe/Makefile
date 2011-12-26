@@ -55,6 +55,7 @@ DICTS = LoopAll.h BaseAnalysis.h BaseSmearer.h EnergySmearer.h EfficiencySmearer
 	VertexAnalysis/interface/VertexAlgoParameters.h\
 	PhotonAnalysis/interface/PhotonAnalysis.h\
 	PhotonAnalysis/interface/StatAnalysis.h\
+	PhotonAnalysis/interface/MassFactorizedMvaAnalysis.h\
 	PhotonAnalysis/interface/MvaAnalysis.h\
 	RooContainer.h \
 	MassResolution.h
@@ -108,7 +109,7 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
 	MassResolution.h \
 	PhotonFix.h \
 	Cut.h \
-	VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h PhotonAnalysis/interface/StatAnalysis.h PhotonAnalysis/interface/MvaAnalysis.h
+	VertexAnalysis/interface/VertexAlgoParameters.h PhotonAnalysis/interface/PhotonAnalysis.h PhotonAnalysis/interface/StatAnalysis.h PhotonAnalysis/interface/MassFactorizedMvaAnalysis.h PhotonAnalysis/interface/MvaAnalysis.h
 
 	@echo "Generating dictionary $@..."
 	@rootcint -f $@ -c -I$(ROOFIT_BASE)/include -I$(CMSSW_BASE)/src $(DICTS)
