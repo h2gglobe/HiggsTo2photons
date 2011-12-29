@@ -20,5 +20,7 @@ class Cut {
   std::vector<float> cut;
   std::vector<float> cutintervall;
   std::vector<float> cutintervalh;
+  float* mycutvar;
+
 };
 #endif

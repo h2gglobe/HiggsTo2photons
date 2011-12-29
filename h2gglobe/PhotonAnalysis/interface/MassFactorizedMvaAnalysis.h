@@ -48,6 +48,7 @@ public:
 	double GetDifferentialKfactor(double, int);
 
 	void FillSignalLabelMap();
+	int GetBDTBoundaryCategory(float,bool);
 	std::string GetSignalLabel(int) ;
 
 	bool  doMCSmearing;

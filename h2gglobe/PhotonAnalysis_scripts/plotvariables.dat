@@ -1,6 +1,8 @@
 default=2
 
 htyp=0 plot=-1  ncat=1  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtout
+htyp=0 plot=-1  ncat=1  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtoutEB
+htyp=0 plot=-1  ncat=1  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=bdtoutEE
 htyp=0 plot=-1  ncat=1  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=phoid_mvaout_lead
 htyp=0 plot=-1  ncat=1  xbins=100   ybins=0  xmin=-1.0  xmax=1.0  ymin=0 ymax=0 name=phoid_mvaout_sublead
 
