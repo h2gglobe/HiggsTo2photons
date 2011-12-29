@@ -40,15 +40,8 @@ public:
 	void FillSignalLabelMap();
 	std::string GetSignalLabel(int);
 
-//	double GetPhotonResolution(LoopAll &,int);
-//	double GetAngleResolutionCorrVtx(LoopAll &,int, int, int);
-//	double GetAngleResolutionWrongVtx(LoopAll &, int, int, int);
-//	double PropagateDz(LoopAll &, int, int, int, double);
-
-//	double SecH(double);
-//	double TanH(double);
 	int SignalType(int);
-	void SetBDTInputVariables(TLorentzVector*, TLorentzVector*, double, double, MassResolution* ,double, double, double, int cat = 0);
+	void SetBDTInputVariables(TLorentzVector*, TLorentzVector*, double, double, MassResolution* ,double, double, double, double, double, int cat = 0);
 	void SetBDTInputTree(TTree *);
 	
 	// Options
@@ -74,7 +67,14 @@ public:
         float sidebandShift;
         int numberOfSidebands;
 	
+	std::string bdtTrainingPhilosophy;
+	std::string photonLevelMvaUCSD  ;
+	std::string eventLevelMvaUCSD   ;                    
+	std::string photonLevelMvaMIT_EB;
+	std::string photonLevelMvaMIT_EE;
+	std::string eventLevelMvaMIT    ;
 	std::string kfacHist;
+  std::string MVAtype;
 
 	int nMasses;
 
@@ -124,6 +124,7 @@ protected:
 	float _H_ptOverM;     
 	float _H_eta;        
 	float _d_phi;        
+	float _cos_d_phi;        
 	float _max_eta;      
 	float _min_r9;       
 	float _pho1_eta;    
@@ -148,6 +149,8 @@ protected:
 	float _cos_theta_star;
 	float _vtx_prob;           
 	float _wt;           
+  float _mitbdt;
+  float _ucsdbdt;
 	int _cat;           
 	int _sideband;           
 
