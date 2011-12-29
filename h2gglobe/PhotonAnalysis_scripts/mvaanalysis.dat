@@ -19,10 +19,22 @@ doTriggerSelection=1
 
 reRunCiCForData=1
 
-doTraining=1
+doTraining=0
 splitSignalSample=0
-splitBackgroundSample=0
+splitBackgroundSample=1
 
+->
+choose between UCSD and MIT trainings
+->
+
+bdtTrainingPhilosophy=UCSD
+photonLevelMvaUCSD=/vols/cms02/h2g/aux/ID_UCSD.weights.xml
+eventLevelMvaUCSD=/vols/cms02/h2g/aux/diphoton_UCSD.weights.xml
+photonLevelMvaMIT_EB=/vols/cms02/h2g/aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml
+photonLevelMvaMIT_EE=/vols/cms02/h2g/aux/TMVAClassificationPhotonID_Endcap_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml
+eventLevelMvaMIT=/vols/cms02/h2g/aux/HggBambu_SM_Dec9_BDTG.weights.xml
+
+MVAtype=BDT
 
 ->
 Turn on-off all smearings 
@@ -57,7 +69,7 @@ doR9Syst=1
 doKFactorSmear=1
 doKFactorSyst=1
 
-mvaWeightsFolder=/vols/cms02/h2g/weights/wt_5Dec_var/
+mvaWeightsFolder=/vols/cms03/mk1009/h2g/MVA/weights/wt_28Dec/
 
 ->
 Inputs for reweighing
