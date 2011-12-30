@@ -1,3 +1,9 @@
+Float_t  pho_pfiso_myneutral03[MAX_PHOTONS];
+Float_t  pho_pfiso_myneutral04[MAX_PHOTONS];
+Float_t  pho_pfiso_myphoton03[MAX_PHOTONS];
+Float_t  pho_pfiso_myphoton04[MAX_PHOTONS];
+std::vector<std::vector<float> >* pho_pfiso_mycharged03;
+std::vector<std::vector<float> >* pho_pfiso_mycharged04;
 Int_t lumis;
 Int_t bx;
 Int_t event;
