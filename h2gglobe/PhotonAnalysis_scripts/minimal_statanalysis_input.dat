@@ -36,6 +36,12 @@ pho_regr_energy
 pho_regr_energyerr
 pho_regr_energy_otf
 pho_regr_energyerr_otf
+pho_pfiso_mycharged03
+pho_pfiso_mycharged04
+pho_pfiso_myneutral03
+pho_pfiso_myneutral04
+pho_pfiso_myphoton03
+pho_pfiso_myphoton04
 
 ->
 CiC inputs
