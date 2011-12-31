@@ -22,16 +22,12 @@ cat > ${2}.html <<@EOF
 <html>
 <body>
 <big>
-Sideband configuration:&nbsp;&nbsp;
-<table border="0">
-<tr>
-<td><a href="../../2percent_3sidebands/${M}/${2}.html">2percent_3sidebands</a>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="../../2percent_3sidebands_loose/${M}/${2}.html">2percent_3sidebands_loose</a>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="../../2percent_3sidebands_veryloose/${M}/${2}.html">2percent_3sidebands_veryloose</a>&nbsp;&nbsp;&nbsp;</td>
-</tr>
-</table> 
-<br>
-Mass hypothesis:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Photon ID tightness:&nbsp;&nbsp;
+<a href="../../2percent_3sidebands/${M}/${2}.html">nominal</a>&nbsp;&nbsp;&nbsp;
+<a href="../../2percent_3sidebands_loose/${M}/${2}.html">loose</a>&nbsp;&nbsp;&nbsp;
+<a href="../../2percent_3sidebands_veryloose/${M}/${2}.html">veryloose</a>&nbsp;&nbsp;&nbsp;
+<br><br>
+Mass hypothesis:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <a href="../115/${2}.html">115</a>&nbsp;&nbsp;&nbsp;
 <a href="../120/${2}.html">120</a>&nbsp;&nbsp;&nbsp;
 <a href="../125/${2}.html">125</a>&nbsp;&nbsp;&nbsp;
@@ -62,8 +58,6 @@ Mass hypothesis:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs
 </tr>
 <tr>
 <td>BDT inputs NOT used:</td>
-<td><a href="pho1_pt.html">pho1_pt</a>&nbsp;&nbsp;&nbsp;</td>
-<td><a href="pho2_pt.html">pho2_pt</a>&nbsp;&nbsp;&nbsp;</td>
 <td><a href="sigmaMOverMH.html">sigmaMOverMH</a>&nbsp;&nbsp;&nbsp;</td>
 <td><a href="deltaMOverSigmaM.html">deltaMOverSigmaM</a>&nbsp;&nbsp;&nbsp;</td>
 <td><a href="deltaEta.html">deltaEta</a>&nbsp;&nbsp;&nbsp;</td>
@@ -82,13 +76,3 @@ Mass hypothesis:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbs
     cd ..
     setenv M `expr $M + 5`
 end
-
-#<a href="sigmaM_cat.html">sigmaM in categories</a> (for mass hypothesis = 120)
-
-#<td>BDT Output:</td>
-#<td><a href="bdtOutBin_grad.html">Gradient boost</a>&nbsp;&nbsp;&nbsp;</td>
-#<td><a href="bdtOutBin_ada.html">Adaptive boost</a>&nbsp;&nbsp;&nbsp;</td>
-#<td><a href="bdtOutBin_grad_sob.html">Gradient boost (S/B binning)</a>&nbsp;&nbsp;&nbsp;</td>
-#<td><a href="bdtOutBin_ada_sob.html">Adaptive boost (S/B binning)</a>&nbsp;&nbsp;&nbsp;</td>
-#</tr>
-#<tr>

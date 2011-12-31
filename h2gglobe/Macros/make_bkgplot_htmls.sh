@@ -6,8 +6,6 @@ if ($1 == "") then
 endif
 
 ./make_bkgplot_html.sh $1 mass
-./make_bkgplot_html.sh $1 bdtOutBin_ada_nominalbins
-./make_bkgplot_html.sh $1 bdtOutBin_grad_nominalbins
 ./make_bkgplot_html.sh $1 bdtOutBin_ada_sob_nominalbins
 ./make_bkgplot_html.sh $1 bdtOutBin_grad_sob_nominalbins
 ./make_bkgplot_html.sh $1 sigmaMOverM
@@ -22,8 +20,6 @@ endif
 ./make_bkgplot_html.sh $1 maxeta
 ./make_bkgplot_html.sh $1 pho1_eta
 ./make_bkgplot_html.sh $1 pho2_eta
-./make_bkgplot_html.sh $1 pho1_pt
-./make_bkgplot_html.sh $1 pho2_pt
 ./make_bkgplot_html.sh $1 pho1_ptOverMH
 ./make_bkgplot_html.sh $1 pho2_ptOverMH
 ./make_bkgplot_html.sh $1 pho_minr9
