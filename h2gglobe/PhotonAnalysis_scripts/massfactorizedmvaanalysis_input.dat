@@ -19,7 +19,10 @@ SuperClusters
 ->
 pho_scind
 sc_xyz
-
+sc_sphi
+sc_seta
+sc_raw
+sc_pre
 
 ->
 Photons 
@@ -66,6 +69,9 @@ pho_pfiso_mycharged04
 pho_pfiso_myphoton04
 pho_pfiso_mycharged03
 pho_pfiso_myphoton03
+pho_sieip
+pho_sipip
+pho_e5x5
 
 ->
 MC truth

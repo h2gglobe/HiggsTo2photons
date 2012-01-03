@@ -170,7 +170,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
 
     l.rooContainer->nsigmas = nSystSteps;
     l.rooContainer->sigmaRange = systRange;
-    l.rooContainer->SaveRooDataHists();
+    l.rooContainer->SaveRooDataHists(true);
     l.rooContainer->Verbose(false);
 
     if( doEcorrectionSmear && doEcorrectionSyst ) {
@@ -308,11 +308,11 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("ff_XSBR_vbf_105",0.151616);
     l.rooContainer->AddConstant("ff_XSBR_wzh_105",0.1609787);
 
-    l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol2",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol3",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol4",-0.01,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol0",-0.05,-2.0,2.0);
+    l.rooContainer->AddRealVar("pol1",-0.05,-2.0,2.0);
+    l.rooContainer->AddRealVar("pol2",-0.05,-2.0,2.0);
+    l.rooContainer->AddRealVar("pol3",-0.01,-2.0,2.0);
+    l.rooContainer->AddRealVar("pol4",-0.01,-2.0,2.0);
     l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
     l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
     l.rooContainer->AddFormulaVar("modpol2","@0*@0","pol2");
@@ -345,7 +345,6 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
       data_pol5_pars[4] = "modpol4";
       l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model",
 	  "0","CMS_hgg_mass",data_pol5_pars,75);	// >= 71 means RooBernstein of order >= 1
-        
       std::vector<std::string> data_pol3_pars(3,"p");	 
       data_pol3_pars[0] = "modpol0";
       data_pol3_pars[1] = "modpol1";
@@ -724,8 +723,9 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	if (cur_type == 0 ){
 	    l.rooContainer->InputDataPoint("data_mass",category,mass);
 	}
-	if (cur_type > 0 && cur_type != 3 && cur_type != 4)
+	if (cur_type > 0 && cur_type != 3 && cur_type != 4){
 	    l.rooContainer->InputDataPoint("bkg_mass",category,mass,evweight);
+	}
 	else if (cur_type < 0){
 	    l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type),category,mass,evweight);
 	    if (CorrectVertex) l.rooContainer->InputDataPoint("sig_"+GetSignalLabel(cur_type)+"_rv",category,mass,evweight);
@@ -1095,21 +1095,22 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB){
 
 	if (bdtTrainingPhilosophy=="UCSD"){
 		if (isEB) { // 6 Categories for the EB-EB 
-		   if (bdtout < -0.34) return 5;
-		   if (bdtout >=-0.34 && bdtout < 0.04) return 4;
-		   if (bdtout >= 0.04 && bdtout < 0.34) return 3;
-		   if (bdtout >= 0.34 && bdtout < 0.60) return 2;
-		   if (bdtout >= 0.60 && bdtout < 0.80) return 1;
-		   if (bdtout >= 0.80) return 0;
+		   if (bdtout < -0.30) return 5;
+		   if (bdtout >=-0.30 && bdtout < 0.00) return 4;
+		   if (bdtout >= 0.00 && bdtout < 0.30) return 3;
+		   if (bdtout >= 0.30 && bdtout < 0.60) return 2;
+		   if (bdtout >= 0.60 && bdtout < 0.70) return 1;
+		   if (bdtout >= 0.70) return 0;
 		}
 		else {// 2 Categories for the EB/EE 
-		   if (bdtout <  0.05) return 7;
-		   if (bdtout >= 0.05) return 6;
+		   if (bdtout <  0.1) return 7;
+		   if (bdtout >= 0.1) return 6;
 		}
 
 	} else if (bdtTrainingPhilosophy=="MIT"){
 
-		   if (bdtout >=-0.50 && bdtout < 0.23) return 4;
+//		   if (bdtout >=-0.50 && bdtout < 0.23) return 4;
+		   if (bdtout < 0.23) return 4;
 		   if (bdtout >= 0.23 && bdtout < 0.65) return 3;
 		   if (bdtout >= 0.65 && bdtout < 0.84) return 2;
 		   if (bdtout >= 0.84 && bdtout < 0.90) return 1;

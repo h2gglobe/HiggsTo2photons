@@ -29,7 +29,7 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
 
   TH1* hist_nominal[2];
 
-  TFile *workspace = TFile::Open("/vols/cms02/h2g/latest_workspace/CMS-HGG-15-12-11.root_interpolated.root");
+  TFile *workspace = TFile::Open("CMS-HGG_2var_mva.root");
   for (int j=0; j<2; j++) {
     hist_nominal[j] = (TH1*)(workspace->Get("th1f_data_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
     nbins[j] = hist_nominal[j]->GetNbinsX();

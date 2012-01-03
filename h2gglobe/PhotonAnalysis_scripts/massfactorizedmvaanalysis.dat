@@ -17,7 +17,7 @@ reRunCiCForData=1
 choose between UCSD and MIT trainings
 ->
 
-bdtTrainingPhilosophy=UCSD
+bdtTrainingPhilosophy=MIT
 photonLevelMvaUCSD=ID_UCSD.weights.xml
 eventLevelMvaUCSD=diphoton_UCSD.weights.xml
 photonLevelMvaMIT_EB=TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml
