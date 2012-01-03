@@ -12,16 +12,16 @@ See MassResolution.h for instructions
 */
 
 MassResolution::MassResolution(){
-  dz_file = TFile::Open("../PhotonAnalysis/data/dz_vs_hpt.root");
-  dz_plot = (TGraph*)dz_file->Get("dz_vs_hpt");
-  dz_file->Close();
+//  dz_file = TFile::Open("../PhotonAnalysis/data/dz_vs_hpt.root");
+  //dz_plot = (TGraph*)dz_file->Get("dz_vs_hpt");
+  //dz_file->Close();
 }
 
-MassResolution::MassResolution(std::string fileName,std::string ecorrmethod){
+MassResolution::MassResolution(std::string ecorrmethod){
   energyCorrectionMethod = ecorrmethod;
-  dz_file = TFile::Open(fileName.c_str());
-  dz_plot = (TGraph*)dz_file->Get("dz_vs_hpt");
-  dz_file->Close();
+ // dz_file = TFile::Open(fileName.c_str());
+ // dz_plot = (TGraph*)dz_file->Get("dz_vs_hpt");
+ // dz_file->Close();
 }
 
 void MassResolution::Setup(LoopAll &l, TLorentzVector *in_lead_p4, TLorentzVector *in_sublead_p4, int lead_index, int sublead_index, int diphoton_index, double higgsPt, double higgsM, EnergySmearer::energySmearingParameters eSmearPars, int nR9Categories, int nEtaCategories){
@@ -52,11 +52,12 @@ void MassResolution::Setup(LoopAll &l, TLorentzVector *in_lead_p4, TLorentzVecto
   lead_iDet = (bool)l.pho_isEB[lead_index];
   sublead_iDet =(bool) l.pho_isEB[sublead_index];
 
-  dz = dz_plot->Eval(higgsPt);
+//  dz = dz_plot->Eval(higgsPt);
   higgsMass = higgsM;
 }
   
 // return the mass resolution
+/*
 double MassResolution::massResolution(){
   
   double lead_E = lead_p4->E();
@@ -64,12 +65,12 @@ double MassResolution::massResolution(){
   double alpha = lead_p4->Angle(sublead_p4->Vect());
   double lead_sig = leadPhotonResolution();
   double sublead_sig = subleadPhotonResolution();
-  double alpha_sig = angleResolution();
+  double alpha_sig = angleResolutionCorrVtx();
   
   return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
 
 }
-
+*/
 // return the mass resolution given correct vertex
 double MassResolution::massResolutionCorrVtx(){
   
@@ -112,7 +113,7 @@ double MassResolution::massResolutionEonly() {
 double MassResolution::massResolutionAonly() {
 
   double alpha = lead_p4->Angle(sublead_p4->Vect());
-  double alpha_sig = angleResolution();
+  double alpha_sig = angleResolutionCorrVtx();
 
   return 0.5*higgsMass*(alpha_sig*TMath::Sin(alpha)/(1.-TMath::Cos(alpha)));
 }

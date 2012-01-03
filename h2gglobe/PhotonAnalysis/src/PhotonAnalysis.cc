@@ -445,7 +445,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 	}
 
 	// MassResolution 
-	massResolutionCalculator = new MassResolution(massResolutionFileName,energyCorrectionMethod);	
+	massResolutionCalculator = new MassResolution(energyCorrectionMethod);	
     /* -------------------------------------------------------------------------------------------
     Pileup Reweighting
     https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupReweighting

@@ -61,10 +61,14 @@ class MassResolution {
 
   public:
     MassResolution();
-    MassResolution(std::string,std::string);
+    MassResolution(std::string);
 
     void Setup(LoopAll&,TLorentzVector *,TLorentzVector *,int,int,int,double,double,EnergySmearer::energySmearingParameters,int,int);
 
+    double massResolutionCorrVtx();
+    double massResolutionWrongVtx();
+
+  private:
     double leadPhotonResolution();
     double subleadPhotonResolution();
     double getPhotonResolution(double,double,double,int,double,bool);
@@ -80,9 +84,7 @@ class MassResolution {
     double dzResolutionCorrVtx();
     double dzResolutionWrongVtx();
     
-    double massResolution();
-    double massResolutionCorrVtx();
-    double massResolutionWrongVtx();
+   // double massResolution();
     double massResolutionEonly();
     double massResolutionAonly();
     double massResolutionEonlyNoSmear();
