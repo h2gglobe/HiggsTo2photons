@@ -55,6 +55,12 @@ pho_drtotk_25_99
 pho_haspixseed
 
 ->
+MIT Pre-selection
+->
+pho_trksumptsolidconedr03
+pho_trksumpthollowconedr03
+
+->
 CiC
 ->
 pho_cic4cutlevel_lead

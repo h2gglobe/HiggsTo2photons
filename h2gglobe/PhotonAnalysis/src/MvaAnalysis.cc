@@ -801,7 +801,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	bool CorrectVertex;
 	// FIXME pass smeared R9
 	int category = 0;
-	int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
+	int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 	if( cur_type != 0 && doMCSmearing && cur_type < 100) {
 	    float pth = Higgs.Pt();
 	    for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
@@ -833,7 +833,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	// Mass Resolution of the Event
 	massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
-	double massResolution = massResolutionCalculator->massResolution();
+//	double massResolution = massResolutionCalculator->massResolution();  //no longer use one or other
   double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
   float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
   float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -1121,7 +1121,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
          l.FillHist2D("bdtgrad_vs_subleadeta"	,histoplace,bdt_grad,eta_sublead,evweight);
          l.FillHist2D("bdtgrad_vs_dphi"		,histoplace,bdt_grad,delta_phi,evweight);
          l.FillHist2D("bdtgrad_vs_heta"		,histoplace,bdt_grad,etaHiggs,evweight);
-         l.FillHist2D("bdtgrad_vs_sigmamoverm"	,histoplace,bdt_grad,massResolution/mass,evweight);
+         l.FillHist2D("bdtgrad_vs_sigmamoverm"	,histoplace,bdt_grad,sigmaMrv/mass,evweight);
          l.FillHist2D("bdtgrad_vs_leadr9"	,histoplace,bdt_grad,lead_r9,evweight);
          l.FillHist2D("bdtgrad_vs_subleadr9"	,histoplace,bdt_grad,sublead_r9,evweight);
 
@@ -1133,7 +1133,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
          l.FillHist2D("bdtada_vs_subleadeta"	,histoplace,bdt_ada,eta_sublead,evweight);
          l.FillHist2D("bdtada_vs_dphi"		,histoplace,bdt_ada,delta_phi,evweight);
          l.FillHist2D("bdtada_vs_heta"		,histoplace,bdt_ada,etaHiggs,evweight);
-         l.FillHist2D("bdtada_vs_sigmamoverm"	,histoplace,bdt_ada,massResolution/mass,evweight);
+         l.FillHist2D("bdtada_vs_sigmamoverm"	,histoplace,bdt_ada,sigmaMrv/mass,evweight);
          l.FillHist2D("bdtada_vs_leadr9"	,histoplace,bdt_ada,lead_r9,evweight);
          l.FillHist2D("bdtada_vs_subleadr9"	,histoplace,bdt_ada,sublead_r9,evweight);
 
@@ -1145,7 +1145,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
          l.FillHist2D("bdtgrad_vs_subleadeta"	,8,bdt_grad,eta_sublead,evweight);
          l.FillHist2D("bdtgrad_vs_dphi"		,8,bdt_grad,delta_phi,evweight);
          l.FillHist2D("bdtgrad_vs_heta"		,8,bdt_grad,etaHiggs,evweight);
-         l.FillHist2D("bdtgrad_vs_sigmamoverm"	,8,bdt_grad,massResolution/mass,evweight);
+         l.FillHist2D("bdtgrad_vs_sigmamoverm"	,8,bdt_grad,sigmaMrv/mass,evweight);
          l.FillHist2D("bdtgrad_vs_leadr9"	,8,bdt_grad,lead_r9,evweight);
          l.FillHist2D("bdtgrad_vs_subleadr9"	,8,bdt_grad,sublead_r9,evweight);
 
@@ -1157,7 +1157,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
          l.FillHist2D("bdtada_vs_subleadeta"	,8,bdt_ada,eta_sublead,evweight);
          l.FillHist2D("bdtada_vs_dphi"		,8,bdt_ada,delta_phi,evweight);
          l.FillHist2D("bdtada_vs_heta"		,8,bdt_ada,etaHiggs,evweight);
-         l.FillHist2D("bdtada_vs_sigmamoverm"	,8,bdt_ada,massResolution/mass,evweight);
+         l.FillHist2D("bdtada_vs_sigmamoverm"	,8,bdt_ada,sigmaMrv/mass,evweight);
          l.FillHist2D("bdtada_vs_leadr9"	,8,bdt_ada,lead_r9,evweight);
          l.FillHist2D("bdtada_vs_subleadr9"	,8,bdt_ada,sublead_r9,evweight);
       }
@@ -1217,7 +1217,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    // Mass Resolution of the Event
 		    massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
-		    double massResolution = massResolutionCalculator->massResolution();
+//		    double massResolution = massResolutionCalculator->massResolution();
         double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -1275,7 +1275,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 			       
 		    // FIXME pass smeared R9 and di-photon
 		    int category = 0; 
-		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
+		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 		    for(std::vector<BaseDiPhotonSmearer *>::iterator sj=diPhotonSmearers_.begin(); sj!= diPhotonSmearers_.end(); ++sj ) {
 			float swei=1.;
 			float pth = Higgs.Pt();
@@ -1291,7 +1291,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    // Mass Resolution of the Event
 		    massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
-		    double massResolution = massResolutionCalculator->massResolution();
+//		    double massResolution = massResolutionCalculator->massResolution();
         double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -1395,7 +1395,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    TLorentzVector Higgs = lead_p4 + sublead_p4; 	
 		   
 		    int category = 0; 
-		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
+		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 		    if( cur_type != 0 && doMCSmearing ) {
 			for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
 			    float rewei=1.;
@@ -1410,7 +1410,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    // Mass Resolution of the Event
 		    massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
-		    double massResolution = massResolutionCalculator->massResolution();
+//		    double massResolution = massResolutionCalculator->massResolution();
         double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();

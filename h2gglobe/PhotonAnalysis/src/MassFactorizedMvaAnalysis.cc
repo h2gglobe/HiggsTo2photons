@@ -595,7 +595,13 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     // Divergence from StatAnalysis Here! Apply loose pre-selection to select photons
     // FIXME pass smeared R9
-    int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+    int diphoton_id=-1;
+    if (bdtTrainingPhilosophy=="MIT"){
+    	int diphoton_id = l.DiphotonMITPreSelection(subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+    } else if (bdtTrainingPhilosophy=="UCSD"){
+    	int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+    }
+
     /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
     if (diphoton_id > -1 ) {
 
@@ -615,7 +621,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 	bool CorrectVertex;
 	// FIXME pass smeared R9
-	int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
+	int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 	if( cur_type != 0 && doMCSmearing && cur_type < 100) { 
 	    float pth = Higgs.Pt();
 	    for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
@@ -767,7 +773,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 			genLevWeightSyst *= swei;
 		    }
 		    float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeightSyst;
-	    	    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
+	    	    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 	     
 		    float mass = Higgs.M();
 		    float ptHiggs = Higgs.Pt();
@@ -815,7 +821,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 			       
 		    // FIXME pass smeared R9 and di-photon
 
-		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,nEtaCategories,0);
+		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 		    bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
 		    for(std::vector<BaseDiPhotonSmearer *>::iterator sj=diPhotonSmearers_.begin(); sj!= diPhotonSmearers_.end(); ++sj ) {
 			float swei=1.;
@@ -898,7 +904,12 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	       
 		// analyze the event
 		// FIXME pass smeared R9
-		int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+    		int diphoton_id=-1;
+    		if (bdtTrainingPhilosophy=="MIT"){
+    			int diphoton_id = l.DiphotonMITPreSelection(subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+    		} else if (bdtTrainingPhilosophy=="UCSD"){
+    			int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+    		}
 	       
 		if (diphoton_id > -1 ) {
 		   
@@ -911,7 +922,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    TLorentzVector Higgs = lead_p4 + sublead_p4; 
 
 
-		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nR9Categories,nEtaCategories,0);
+		    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 		    if( cur_type != 0 && doMCSmearing ) {
 			for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
 			    float rewei=1.;
