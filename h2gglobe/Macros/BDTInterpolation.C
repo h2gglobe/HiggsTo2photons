@@ -226,7 +226,7 @@ void plotDavid(TH1F* bkgT, TH1F* sigT, TH1F* dataT, std::string name){
   leg->SetFillColor(0);
   leg->AddEntry(bkg,"Background","f");
   leg->AddEntry(data,"Data","lep");
-  leg->AddEntry(sig10,"Signal (2, 5, 10#~#times SM)","l");
+  leg->AddEntry(sig10,"Signal (2, 5, 10 #times SM)","l");
   TPaveText *txt = new TPaveText(0.2,0.1,0.4,0.35,"NDC");
   txt->SetFillColor(0);
   txt->SetLineColor(0);
@@ -692,6 +692,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
           if ((bdtmass==0 && k==-1) || (bdtmass==nMasses-1 && k==1)) continue;
           if (HistName.Contains(("sig_"+BDTtype[bdt]+"_"+productionTypes[pT]+"_"+BDTmasses[bdtmass]+"_"+BDTmasses[bdtmass+k]).c_str())){
             TH1F *temp = (TH1F*)inFile->Get(HistName.Data());
+            cout << temp->GetName() << " " << temp->GetEntries() << endl;
             if (k==-1) orgHistListBelow[bdt][pT][bdtmass]->Add(temp);
             if (k==0) orgHistList[bdt][pT][bdtmass]->Add(temp);
             if (k==1) orgHistListAbove[bdt][pT][bdtmass]->Add(temp);
@@ -809,6 +810,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
 
     // loop bdt type
     for (int bdt=0; bdt<2; bdt++){
+     TH1F *combSignal;
      for (int pT=0;pT<4;pT++){
       diagFile << "Mass: " << mass << std::endl;
       diagFile << "BDT: " << BDTtype[bdt] << std::endl;
@@ -867,8 +869,12 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
           }
         }
         orgHistListInt[bdt][pT][i]->Add(tempInt);
-        std::string name = Form("%3.1f",mass);
-        if (syst==0 && Diagnose) plotDavid(background,tempInt,data,name);
+        if (syst==0 && Diagnose){
+          if (pT==0) combSignal = (TH1F*)tempInt->Clone();
+          else combSignal->Add(tempInt,1.);
+          std::string name = Form("%3.1f",mass);
+          if (pT==3) plotDavid(background,combSignal,data,name);
+        }
         delete plotList;
       }
       if (Diagnose) plotSystFracs(systList,central,Form("%3.1f_systFracs",mass));
