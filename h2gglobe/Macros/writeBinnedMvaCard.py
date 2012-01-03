@@ -233,7 +233,6 @@ def writeCard(tfile,mass,scaleErr):
    # bkg bins will be gmN errors 
    bkgScale = sum(backgroundContents)/bkgHist.GetEntries()
    for b in range(1,nBins+1):
-	bkgScale*=backgroundContents[b-1]/bkgHist.GetBinContent(b)  #(there is an additional scale if a bias was included)
         outPut.write("\nbkg_stat%d gmN %d "%(b,int(backgroundContents[b-1]/bkgScale)))
 	for q in range(1,nBins+1):
 		if q==b: outPut.write(" - - - - %.8f "%bkgScale)
