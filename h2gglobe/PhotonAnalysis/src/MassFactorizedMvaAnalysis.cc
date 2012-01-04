@@ -1120,9 +1120,9 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB){
 
 	} else if (bdtTrainingPhilosophy=="MIT"){
 
-//		   if (bdtout >=-0.50 && bdtout < 0.23) return 4;
-		   if (bdtout < 0.23) return 4;
-		   if (bdtout >= 0.23 && bdtout < 0.65) return 3;
+		   if (bdtout >=-0.50 && bdtout < 0.3) return 4;
+	//	   if (bdtout < 0.3) return 4;
+		   if (bdtout >= 0.3 && bdtout < 0.65) return 3;
 		   if (bdtout >= 0.65 && bdtout < 0.84) return 2;
 		   if (bdtout >= 0.84 && bdtout < 0.90) return 1;
 		   if (bdtout >= 0.90) return 0;

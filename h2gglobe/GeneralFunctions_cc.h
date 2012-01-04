@@ -968,6 +968,7 @@ void LoopAll::SetPhotonCutsInCategories(phoCiCIDLevel cutlevel, float * cic6_all
   const unsigned int ncat_cic4 = 4;
   switch(cutlevel) {
 
+    std::cout << "FFFSSSSSSSSSSSSSSSSSS!!!!!!!!!!!!" << cutlevel << std::endl;
 
     case(phoNOCUTS) : {
                         float cic6_allcuts_temp_lead[] = { 
@@ -1490,8 +1491,18 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
 
   std::sort(passing_dipho.begin(),passing_dipho.end(),
 	    SimpleSorter<float,std::greater<double> >(&passing_sumpt[0]));
-
-  return passing_dipho[0];
+  int selected_dipho_ind     = passing_dipho[0];
+  int selected_dipho_lead    = dipho_leadind[selected_dipho_ind];
+  int selected_dipho_sublead = dipho_subleadind[selected_dipho_ind];
+  int selected_dipho_vtx     = dipho_vtxind[selected_dipho_ind];
+  TLorentzVector selected_lead_p4 = get_pho_p4(selected_dipho_lead,selected_dipho_vtx,pho_energy_array); 
+  TLorentzVector selected_sublead_p4 = get_pho_p4(selected_dipho_sublead,selected_dipho_vtx,pho_energy_array);
+ 
+  if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT") <= -0.3
+    || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")	<= -0.3
+     ) {return -1;}
+  
+  return selected_dipho_ind;
 
 }
 // Define newfunction to calculate MIT (Pre-)Selection                                                      
