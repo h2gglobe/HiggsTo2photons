@@ -528,7 +528,8 @@ std::vector<double> RooContainer::GetFitNormalisations(std::string pdf_name, std
 }
 // ----------------------------------------------------------------------------------------------------
 void RooContainer::InputDataPoint(std::string var_name, int cat, double x, double w){
- 
+
+  if (cat < 0) return;
   if (cat>-1 && cat<ncat){
     std::string name = getcatName(var_name,cat);
     std::map<std::string, RooDataSet>::iterator it_var  = data_.find(name);
