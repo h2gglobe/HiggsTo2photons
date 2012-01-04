@@ -597,9 +597,9 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // FIXME pass smeared R9
     int diphoton_id=-1;
     if (bdtTrainingPhilosophy=="MIT"){
-    	int diphoton_id = l.DiphotonMITPreSelection(subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+    	diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
     } else if (bdtTrainingPhilosophy=="UCSD"){
-    	int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+    	diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
     }
 
     /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
@@ -906,9 +906,9 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		// FIXME pass smeared R9
     		int diphoton_id=-1;
     		if (bdtTrainingPhilosophy=="MIT"){
-    			int diphoton_id = l.DiphotonMITPreSelection(subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+    			diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
     		} else if (bdtTrainingPhilosophy=="UCSD"){
-    			int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+    			diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
     		}
 	       
 		if (diphoton_id > -1 ) {
