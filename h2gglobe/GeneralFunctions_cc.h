@@ -1509,7 +1509,8 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
 bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *pho_energy_array ) {
 
    int r9_category = (int) pho_r9[photon_index] < 0.9;                                                      
-   int photon_category = r9_category + 2*PhotonEtaCategory(photon_index,4);                                 
+   int photon_category = r9_category + 2*PhotonEtaCategory(photon_index,2);                                 
+   int photon_cic_category = PhotonCategory(photon_index,2,2);
    
    float mitCuts_hoe[4]                 = {0.082,0.075,0.075,0.075};                                        
    float mitCuts_sieie[4]               = {0.014,0.014,0.034,0.034};                                        
@@ -1518,7 +1519,8 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    float mitCuts_trkiso[4]              = {50,4,50,4};                                                      
    float mitCuts_hcalecal[4]            = {3,3,3,3};                                                        
    float mitCuts_abstrkiso[4]           = {2.8,2.8,2.8,2.8};                                                
-   float mitCuts_trkiso_hollow03[4]     = {4,4,4,4};                                                        
+   float mitCuts_trkiso_hollow03[4]     = {4,4,4,4};                                                       
+   float mitCuts_drtotk_25_99[4]	= {0.26,0.029,0.0062,0.0055};
 
    TLorentzVector phop4 = get_pho_p4( photon_index, vertex_index, pho_energy_array  );                      
    TLorentzVector phop4_badvtx = get_pho_p4( photon_index, pho_tkiso_badvtx_id[photon_index], pho_energy_array  );
@@ -1533,6 +1535,7 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    float val_hcalecal   = (val_ecaliso+val_hcaliso-rho*rhofac);                                             
    float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vtx_std_sel];                
    float val_trkiso_hollow03 = pho_trksumpthollowconedr03[photon_index];                                    
+   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
 
    if (val_hoe             >= mitCuts_hoe[photon_category]         ) return false;                                           
    if (val_sieie           >= mitCuts_sieie[photon_category]       ) return false;
@@ -1540,8 +1543,10 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    if (val_hcaliso         >= mitCuts_hcaliso[photon_category]     ) return false;                                           
    if (val_trkiso          >= mitCuts_trkiso[photon_category]      ) return false;
    if (val_hcalecal        >= mitCuts_hcalecal[photon_category]    ) return false;
-   if (val_abstrkiso       >= mitCuts_abstrkiso[photon_category]   ) return false;                                           
+   if (val_abstrkiso       >= mitCuts_abstrkiso[photon_category]   ) return false;                   
+   if (val_drtotk_25_99    <  mitCuts_drtotk_25_99[photon_category]   ) return false; // Electron Rejection based on CiC for now
    if (val_trkiso_hollow03 >= mitCuts_trkiso_hollow03[photon_category]) return false;                                        
+
    return true;
 
 }

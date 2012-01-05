@@ -78,7 +78,7 @@ Inputs for reweighing
 ->
 
 kfacHist=/vols/cms02/h2g/aux/KFactors_AllScales_interpolated.root
-efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v16.root
+efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v16_mit.root
 puHist=/vols/cms02/h2g/aux/2011_0100_73500.weights3.root
 
 puMap=pu_weights_map.dat
