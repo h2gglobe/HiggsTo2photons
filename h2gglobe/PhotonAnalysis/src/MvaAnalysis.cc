@@ -294,7 +294,11 @@ void MvaAnalysis::Init(LoopAll& l)
 	<< "doKFactorSyst "<< doKFactorSyst << "\n"
 	<< "-------------------------------------------------------------------------------------- \n"
 	<< std::endl;
-
+    
+    cout << "using bdt philosophy:       " << bdtTrainingPhilosophy << endl;
+    if (doTraining) cout << "Training ON:    saving trees" << endl;
+    else cout << "Training OFF:     running analysis" << endl;
+    if (!doTraining) cout << "Reading MVA of type:       " << MVAtype << endl; 
     // call the base class initializer
     PhotonAnalysis::Init(l);
 
@@ -471,7 +475,7 @@ void MvaAnalysis::Init(LoopAll& l)
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
  
     l.rooContainer->AddRealVar("r1",-4,-10.,0);
-    l.rooContainer->AddRealVar("r2",-1,-10.,0);
+    l.rooContainer->AddRealVar("r2",-8,-20.,0);
     l.rooContainer->AddRealVar("f2",0.2,0.,1.);
 
     // Power law
@@ -519,9 +523,7 @@ void MvaAnalysis::Init(LoopAll& l)
         //Set up TMVA reader (only two variables)
         tmvaReader_= new TMVA::Reader();
         
-        
-        if (bdtTrainingPhilosophy=="MIT") tmvaReader_->AddVariable("mitbdt",&_mitbdt);
-        else tmvaReader_->AddVariable("ucsdbdt",&_ucsdbdt);
+        tmvaReader_->AddVariable("bdtoutput",&_bdtoutput);
         tmvaReader_->AddVariable("deltaMOverM", &_deltaMOverM);
 
         //Invariant Mass Spectra
@@ -781,7 +783,12 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
    
     sumev += weight;
     // FIXME pass smeared R9
-    int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    int diphoton_id=-1;
+    if (bdtTrainingPhilosophy=="MIT"){
+    	diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+    } else if (bdtTrainingPhilosophy=="UCSD"){
+      diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    }
     /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
     if (diphoton_id > -1 ) {
 
@@ -833,14 +840,24 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	// Mass Resolution of the Event
 	massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
+<<<<<<< MvaAnalysis.cc
+	double massResolution = massResolutionCalculator->massResolutionCorrVtx();
+=======
 //	double massResolution = massResolutionCalculator->massResolution();  //no longer use one or other
+>>>>>>> 1.1.4.15
   double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
   float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
   float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
   float vtxProb = 1.-0.49*(vtx_mva+1.0);
 
-  float mitbdt = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"MIT");
-  float ucsdbdt = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"UCSD");
+  float bdtoutput;
+  if (bdtTrainingPhilosophy=="MIT"){
+    bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"MIT");
+    if (bdtoutput < -0.5) category = -1;
+  } 
+  else if (bdtTrainingPhilosophy=="UCSD"){
+    bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"UCSD");
+  }
 
 	float bdt_grad,bdt_ada;
 
@@ -861,7 +878,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
         //Signal Window
         if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
-          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,mitbdt,ucsdbdt,evweight,category);
+          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight,category);
           //std::cout<<_mgg<<", "<<mass<<std::endl;
           _sideband = 0;
           if (jentry%2==0) backgroundTrainTree_2pt_[i]->Fill();
@@ -876,7 +893,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
           double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
 
           if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
-            SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_low,mitbdt,ucsdbdt,evweight,category);
+            SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_low,bdtoutput,evweight,category);
             //std::cout<<_mgg<<", "<<mass<<std::endl;
             _sideband = 1*sideband_i;
             if (jentry%2==0) backgroundTrainTree_2pt_[i]->Fill();
@@ -893,7 +910,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
           //std::cout<<sideband_boundaries_low<<", "<<sideband_boundaries_high<<std::endl;
 
           if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
-            SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_high,mitbdt,ucsdbdt,evweight,category);
+            SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_high,bdtoutput,evweight,category);
             //std::cout<<_mgg<<", "<<mass<<std::endl;
             _sideband = -1*sideband_i;
             if (jentry%2==0) backgroundTrainTree_2pt_[i]->Fill();
@@ -917,19 +934,19 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         sideband_boundaries[3] = mass_hypothesis_high*(1+signalRegionWidth);
 
         if( mass>sideband_boundaries[1] && mass<sideband_boundaries[2] ){//Signal mass window cut
-          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,mitbdt,ucsdbdt,evweight,category);
+          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight,category);
           _sideband = 0;
           if (jentry%2==0) backgroundTrainTree_7pt_[i]->Fill();
           else if (jentry%2==1) backgroundTestTree_7pt_[i]->Fill();
         }
         else if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1] ){//lower sideband mass window cut
-          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_low,mitbdt,ucsdbdt,evweight,category);
+          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_low,bdtoutput,evweight,category);
           _sideband = -1;
           if (jentry%2==0) backgroundTrainTree_7pt_[i]->Fill();
           else if (jentry%2==1) backgroundTestTree_7pt_[i]->Fill();
         }
         else if( mass>sideband_boundaries[2] && mass<sideband_boundaries[3] ){//upper sideband mass window cut
-          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_high,mitbdt,ucsdbdt,evweight,category);
+          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_high,bdtoutput,evweight,category);
           _sideband = 1;
           if (jentry%2==0) backgroundTrainTree_7pt_[i]->Fill();
           else if (jentry%2==1) backgroundTestTree_7pt_[i]->Fill();
@@ -948,7 +965,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
       sideband_boundaries[1] = mass_hypothesis*(1+signalRegionWidth);
 
       if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1] ){//Signal mass window cut
-        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,masses[i0],mitbdt,ucsdbdt,evweight,category);
+        SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,masses[i0],bdtoutput,evweight,category);
         _sideband = 0;
         if (jentry%2==0) signalTrainTree_[i0]->Fill();
         else if (jentry%2==1) signalTestTree_[i0]->Fill();
@@ -978,7 +995,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 //Signal Window
                 if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
 		    histoplace=1;
-                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,mitbdt,ucsdbdt,evweight);
+                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight);
 
            	    bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
                     bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
@@ -1023,7 +1040,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
                   //std::cout << "sig region" << std::endl;
 		  histoplace=1;
-                  SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,mitbdt,ucsdbdt,evweight);
+                  SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight);
                     
                   bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
                   bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
@@ -1057,7 +1074,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 		   //cout << "sideband, "<< sideband_i << " mH, "<<mass_hypothesis_low<< " bands, " <<sideband_boundaries_low << " " << sideband_boundaries_high <<endl;
 		   if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
-                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_low,mitbdt,ucsdbdt,evweight);
+                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_low,bdtoutput,evweight);
                     bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
                     bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
@@ -1087,7 +1104,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		   double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
 
 		   if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
-                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_high,mitbdt,ucsdbdt,evweight);
+                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_high,bdtoutput,evweight);
                     bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
                     bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
@@ -1217,14 +1234,24 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    // Mass Resolution of the Event
 		    massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
+<<<<<<< MvaAnalysis.cc
+		    double massResolution = massResolutionCalculator->massResolutionCorrVtx();
+=======
 //		    double massResolution = massResolutionCalculator->massResolution();
+>>>>>>> 1.1.4.15
         double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
         float vtxProb = 1.-0.49*(vtx_mva+1.0);
 
-        float mitbdt = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"MIT");
-        float ucsdbdt = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"UCSD");
+        float bdtoutput;
+        if (bdtTrainingPhilosophy=="MIT"){
+          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"MIT");
+          if (bdtoutput < -0.5) category = -1;
+        } 
+        else if (bdtTrainingPhilosophy=="UCSD"){
+          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"UCSD");
+        }
 
         // define hypothesis masses for the sidebands
         float mass_hypothesis = masses[SignalType(cur_type)];
@@ -1235,7 +1262,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 		    //Signal Window
 		    if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
-			    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,mitbdt,ucsdbdt,evweight);
+			    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight);
 			    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
 			    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
@@ -1291,14 +1318,24 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    // Mass Resolution of the Event
 		    massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
+<<<<<<< MvaAnalysis.cc
+		    double massResolution = massResolutionCalculator->massResolutionCorrVtx();
+=======
 //		    double massResolution = massResolutionCalculator->massResolution();
+>>>>>>> 1.1.4.15
         double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
         float vtxProb = 1.-0.49*(vtx_mva+1.0);
 
-        float mitbdt = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"MIT");
-        float ucsdbdt = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"UCSD");
+        float bdtoutput;
+        if (bdtTrainingPhilosophy=="MIT"){
+          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"MIT");
+          if (bdtoutput < -0.5) category = -1;
+        } 
+        else if (bdtTrainingPhilosophy=="UCSD"){
+          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"UCSD");
+        }
 
 		    // define hypothesis masses for the sidebands
 		    float mass_hypothesis = masses[SignalType(cur_type)];
@@ -1309,7 +1346,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 		    //Signal Window
 		    if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
-			    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,mitbdt,ucsdbdt,evweight);
+			    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight);
 			    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
 			    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
@@ -1410,14 +1447,24 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    // Mass Resolution of the Event
 		    massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
+<<<<<<< MvaAnalysis.cc
+		    double massResolution = massResolutionCalculator->massResolutionCorrVtx();
+=======
 //		    double massResolution = massResolutionCalculator->massResolution();
+>>>>>>> 1.1.4.15
         double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
         float vtxProb = 1.-0.49*(vtx_mva+1.0);
 
-        float mitbdt = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"MIT");
-        float ucsdbdt = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"UCSD");
+        float bdtoutput;
+        if (bdtTrainingPhilosophy=="MIT"){
+          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"MIT");
+          if (bdtoutput < -0.5) category = -1;
+        } 
+        else if (bdtTrainingPhilosophy=="UCSD"){
+          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"UCSD");
+        }
 
 		    // define hypothesis masses for the sidebands
 		    float mass_hypothesis = masses[SignalType(cur_type)];
@@ -1428,7 +1475,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
 		    //Signal Window
 		    if( mass>sideband_boundaries[0] && mass<sideband_boundaries[1]){//Signal mass window cut
-			    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,mitbdt,ucsdbdt,evweight);
+			    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis,bdtoutput,evweight);
 			    float bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
 			    float bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
@@ -1594,7 +1641,7 @@ std::string MvaAnalysis::GetSignalLabel(int id){
 	
 }
 
-void MvaAnalysis::SetBDTInputVariables(TLorentzVector *lead_p4, TLorentzVector *sublead_p4, double lead_r9, double sublead_r9, MassResolution *massResolutionCalculator, double vtx_mva, double mass_hypothesis, double mitbdt, double ucsdbdt, double evweight, int cat){
+void MvaAnalysis::SetBDTInputVariables(TLorentzVector *lead_p4, TLorentzVector *sublead_p4, double lead_r9, double sublead_r9, MassResolution *massResolutionCalculator, double vtx_mva, double mass_hypothesis, double bdtoutput, double evweight, int cat){
 
 	TLorentzVector Higgs = *lead_p4 + *sublead_p4; 	
 	float mass    = Higgs.M();
@@ -1639,9 +1686,7 @@ void MvaAnalysis::SetBDTInputVariables(TLorentzVector *lead_p4, TLorentzVector *
     _sigmaMOverM_wrongVtx = massResolutionCalculator->massResolutionWrongVtx()/mass;
     _H_ptOverM    = Higgs.Pt()/mass_hypothesis;
     _cat        = cat;
-    _mitbdt = mitbdt;
-    _ucsdbdt = ucsdbdt;
-
+    _bdtoutput = bdtoutput;
 }
 
 void MvaAnalysis::SetBDTInputTree(TTree *tree){
@@ -1676,8 +1721,7 @@ void MvaAnalysis::SetBDTInputTree(TTree *tree){
     TBranch *b_wt                   = tree->Branch("wt", &_wt, "wt/F");
     TBranch *b_cat                  = tree->Branch("cat", &_cat, "cat/I");
     TBranch *b_sideband             = tree->Branch("sideband", &_sideband, "sideband/I");
-    TBranch *b_mitbdt               = tree->Branch("mitbdt", &_mitbdt, "mitbdt/F");
-    TBranch *b_ucsdbdt               = tree->Branch("ucsdbdt", &_ucsdbdt, "ucsdbdt/F");
+    TBranch *b_bdtoutput            = tree->Branch("bdtoutput", &_bdtoutput, "bdtoutput/F");
 }
 
 void MvaAnalysis::ResetAnalysis(){
