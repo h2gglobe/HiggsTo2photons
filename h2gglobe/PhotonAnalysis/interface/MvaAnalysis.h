@@ -41,7 +41,7 @@ public:
 	std::string GetSignalLabel(int);
 
 	int SignalType(int);
-	void SetBDTInputVariables(TLorentzVector*, TLorentzVector*, double, double, MassResolution* ,double, double, double, double, double, int cat = 0);
+	void SetBDTInputVariables(TLorentzVector*, TLorentzVector*, double, double, MassResolution* ,double, double, double, double, int cat = 0);
 	void SetBDTInputTree(TTree *);
 	
 	// Options
@@ -149,8 +149,7 @@ protected:
 	float _cos_theta_star;
 	float _vtx_prob;           
 	float _wt;           
-  float _mitbdt;
-  float _ucsdbdt;
+	float _bdtoutput;
 	int _cat;           
 	int _sideband;           
 
