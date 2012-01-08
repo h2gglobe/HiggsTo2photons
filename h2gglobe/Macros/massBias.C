@@ -422,7 +422,7 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
     mG_slope[j]->GetYaxis()->SetTitleSize(0.05);
     mG_slope[j]->GetXaxis()->SetTitle("BDT output bin number");
     mG_slope[j]->GetYaxis()->SetTitle("Fractional change in bin content / GeV");
-    mG_slope[j]->GetYaxis()->SetRangeUser(-0.01,0.01);
+    mG_slope[j]->GetYaxis()->SetRangeUser(-0.02,0.02);
     if (j==0) {
       txt->DrawLatex(0.4,0.8,"Gradient");
     } else {
@@ -453,7 +453,7 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
     mG_bias[j]->GetYaxis()->SetTitleSize(0.05);
     mG_bias[j]->GetXaxis()->SetTitle("BDT output bin number");
     mG_bias[j]->GetYaxis()->SetTitle("Bias");
-    mG_bias[j]->GetYaxis()->SetRangeUser(-0.06,0.06);
+    mG_bias[j]->GetYaxis()->SetRangeUser(-0.1,0.1);
     if (j==0) {
       txt->DrawLatex(0.4,0.8,"Gradient");
     } else {
