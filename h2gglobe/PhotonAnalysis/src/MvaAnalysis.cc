@@ -840,11 +840,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	// Mass Resolution of the Event
 	massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
-<<<<<<< MvaAnalysis.cc
 	double massResolution = massResolutionCalculator->massResolutionCorrVtx();
-=======
 //	double massResolution = massResolutionCalculator->massResolution();  //no longer use one or other
->>>>>>> 1.1.4.15
   double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
   float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
   float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -1234,11 +1231,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    // Mass Resolution of the Event
 		    massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
-<<<<<<< MvaAnalysis.cc
 		    double massResolution = massResolutionCalculator->massResolutionCorrVtx();
-=======
-//		    double massResolution = massResolutionCalculator->massResolution();
->>>>>>> 1.1.4.15
         double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -1318,11 +1311,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    // Mass Resolution of the Event
 		    massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
-<<<<<<< MvaAnalysis.cc
 		    double massResolution = massResolutionCalculator->massResolutionCorrVtx();
-=======
-//		    double massResolution = massResolutionCalculator->massResolution();
->>>>>>> 1.1.4.15
         double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -1447,11 +1436,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		    // Mass Resolution of the Event
 		    massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
-<<<<<<< MvaAnalysis.cc
 		    double massResolution = massResolutionCalculator->massResolutionCorrVtx();
-=======
-//		    double massResolution = massResolutionCalculator->massResolution();
->>>>>>> 1.1.4.15
         double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
