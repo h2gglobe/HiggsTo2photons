@@ -845,15 +845,16 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
   double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
   float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
   float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+  float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
   float vtxProb = 1.-0.49*(vtx_mva+1.0);
 
   float bdtoutput;
   if (bdtTrainingPhilosophy=="MIT"){
-    bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"MIT");
+    bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"MIT");
     if (bdtoutput < -0.5) category = -1;
   } 
   else if (bdtTrainingPhilosophy=="UCSD"){
-    bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"UCSD");
+    bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"UCSD");
   }
 
 	float bdt_grad,bdt_ada;
@@ -1235,15 +1236,16 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+	float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
         float vtxProb = 1.-0.49*(vtx_mva+1.0);
 
         float bdtoutput;
         if (bdtTrainingPhilosophy=="MIT"){
-          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"MIT");
+          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"MIT");
           if (bdtoutput < -0.5) category = -1;
         } 
         else if (bdtTrainingPhilosophy=="UCSD"){
-          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"UCSD");
+          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"UCSD");
         }
 
         // define hypothesis masses for the sidebands
@@ -1315,15 +1317,16 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+	float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
         float vtxProb = 1.-0.49*(vtx_mva+1.0);
 
         float bdtoutput;
         if (bdtTrainingPhilosophy=="MIT"){
-          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"MIT");
+          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"MIT");
           if (bdtoutput < -0.5) category = -1;
         } 
         else if (bdtTrainingPhilosophy=="UCSD"){
-          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"UCSD");
+          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"UCSD");
         }
 
 		    // define hypothesis masses for the sidebands
@@ -1440,15 +1443,16 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
         float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
         float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
+	float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
         float vtxProb = 1.-0.49*(vtx_mva+1.0);
 
         float bdtoutput;
         if (bdtTrainingPhilosophy=="MIT"){
-          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"MIT");
+          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"MIT");
           if (bdtoutput < -0.5) category = -1;
         } 
         else if (bdtTrainingPhilosophy=="UCSD"){
-          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,"UCSD");
+          bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"UCSD");
         }
 
 		    // define hypothesis masses for the sidebands
