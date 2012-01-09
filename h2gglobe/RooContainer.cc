@@ -573,11 +573,13 @@ void RooContainer::InputBinnedDataPoint(std::string var_name, int cat, double x,
     }
   }
 
+/*
   else {
     std::cerr << "WARNING -- RooContainer::InputDataPointBinned -- No Category Number " << cat 
               << ", category must be from 0 to " << ncat-1
 	      << std::endl;
   }
+*/
 }
 
 // ----------------------------------------------------------------------------------------------------
