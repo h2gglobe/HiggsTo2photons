@@ -66,13 +66,26 @@ void MvaAnalysis::Term(LoopAll& l)
             sideband_boundaries[0] = mass_hypothesis*(1.-sidebandWidth);
             sideband_boundaries[1] = mass_hypothesis*(1.+sidebandWidth);
 
-            l.rooContainer->FitToData("data_pow_model", "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax);
-            std::vector<std::pair<double,double> > N_sigErr = l.rooContainer->GetFitNormalisationsAndErrors("data_pow_model","data_mass",sideband_boundaries[0],sideband_boundaries[1]);
+            // -----------------------------
+            l.rooContainer->AddRealVar(Form("r1_%3.1f",mass),-4,-20.,0.);
+            l.rooContainer->AddRealVar(Form("r2_%3.1f",mass),-5,-20.,0.);
+            l.rooContainer->AddRealVar(Form("f2_%3.1f",mass),0.2,0.,1.);
+
+            // Power law
+            std::vector<std::string> data_pow_pars(3,Form("p_%3.1f",mass));	 
+            data_pow_pars[0] = Form("r1_%3.1f",mass);
+            data_pow_pars[1] = Form("r2_%3.1f",mass);
+            data_pow_pars[2] = Form("f2_%3.1f",mass);
+            l.rooContainer->AddGenericPdf(Form("data_pow_model_%3.1f",mass), "(1-@3)*TMath::Power(@0,@1) + @3*TMath::Power(@0,@2)","CMS_hgg_mass",data_pow_pars,0);
+               
+            // -----------------------------
+            l.rooContainer->FitToData(Form("data_pow_model_%3.1f",mass), "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax);
+            std::vector<std::pair<double,double> > N_sigErr = l.rooContainer->GetFitNormalisationsAndErrors(Form("data_pow_model_%3.1f",mass),"data_mass",sideband_boundaries[0],sideband_boundaries[1]);
             
             l.rooContainer->AddNormalisationSystematics(Form("bkg_norm_%3.1f",mass),N_sigErr, 1); // 1 means it effect the background only
 
             // Calculate weights to apply to the sidebands
-            std::vector<double> N_sig = l.rooContainer->GetFitNormalisations("data_pow_model","data_mass",sideband_boundaries[0],sideband_boundaries[1]);
+            std::vector<double> N_sig = l.rooContainer->GetFitNormalisations(Form("data_pow_model_%3.1f",mass),"data_mass",sideband_boundaries[0],sideband_boundaries[1]);
 
             bool scale = true;//true;
 	    std::vector<string> ada_bkgsets;
@@ -474,8 +487,8 @@ void MvaAnalysis::Init(LoopAll& l)
 
     l.rooContainer->AddConstant("IntLumi",l.intlumi_);
  
-    l.rooContainer->AddRealVar("r1",-4,-10.,0);
-    l.rooContainer->AddRealVar("r2",-8,-20.,0);
+    l.rooContainer->AddRealVar("r1",-4,-20.,0.);
+    l.rooContainer->AddRealVar("r2",-5,-20.,0.);
     l.rooContainer->AddRealVar("f2",0.2,0.,1.);
 
     // Power law
