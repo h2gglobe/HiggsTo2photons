@@ -231,8 +231,9 @@ def writeCard(tfile,mass,scaleErr):
 
   if options.B2B:
    # bkg bins will be gmN errors 
-   bkgScale = sum(backgroundContents)/bkgHist.GetEntries()
    for b in range(1,nBins+1):
+        bkgScale = sum(backgroundContents)/bkgHist.GetEntries()
+	bkgScale*=backgroundContents[b-1]/bkgHist.GetBinContent(b)  #(there is an additional scale !=1 if a bias was included)
         outPut.write("\nbkg_stat%d gmN %d "%(b,int(backgroundContents[b-1]/bkgScale)))
 	for q in range(1,nBins+1):
 		if q==b: outPut.write(" - - - - %.8f "%bkgScale)
@@ -264,7 +265,9 @@ genMasses     = [115,120,125,130,135,140,145,150]
 #scalingErrors = [1.008,1.008,1.008,1.008,1.008,1.009,1.01,1.011] # Takes from P.Dauncey studies -> 7% window
 #scalingErrors =  [1.007,1.007,1.006,1.008,1.007,1.008,1.009,1.01] # Takes from P.Dauncey studies -> 2% window
 #scalingErrors = [1.013,1.013,1.012,1.012,1.014,1.015,1.016,1.016] # Takes from P.Dauncey studies -> 7% window (100-180)
-scalingErrors = [1.011,1.01,1.009,1.011,1.011,1.013,1.014,1.014] 	  # Takes from P.Dauncey studies -> 2% window (100-180)
+#scalingErrors = [1.011,1.01,1.009,1.011,1.011,1.013,1.014,1.014] 	  # Takes from P.Dauncey studies -> 2% window (100-180)
+scalingErrors = [1.00815,1.01024,1.01076,1.01197,1.0099,1.009,1.00928,1.01054 ] 	  # Takes from P.Dauncey studies -> 2% window (100-180) / MIT Preselection
+
 evalMasses    = numpy.arange(115,150.5,0.5)
 normG = ROOT.TGraph(len(genMasses))
 
