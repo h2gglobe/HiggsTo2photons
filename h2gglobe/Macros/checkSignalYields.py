@@ -42,10 +42,10 @@ if doInterp:
 else:
   m = [115,120,125,130,135,140,150]
   for mass in m :
-	ggh = fil.Get("th1f_sig_ada_ggh_%d.0_%d.0_cat0"%mass)
-	vbf = fil.Get("th1f_sig_ada_vbf_%d.0_%d.0_cat0"%mass)
-	wzh = fil.Get("th1f_sig_ada_wzh_%d.0_%d.0_cat0"%mass)
-	tth = fil.Get("th1f_sig_ada_tth_%d.0_%d.0_cat0"%mass)
+	ggh = fil.Get("th1f_sig_ada_ggh_%d.0_%d.0_cat0"%(mass,mass))
+	vbf = fil.Get("th1f_sig_ada_vbf_%d.0_%d.0_cat0"%(mass,mass))
+	wzh = fil.Get("th1f_sig_ada_wzh_%d.0_%d.0_cat0"%(mass,mass))
+	tth = fil.Get("th1f_sig_ada_tth_%d.0_%d.0_cat0"%(mass,mass))
 	h = ggh.Clone()
 	h.Add(vbf)
 	h.Add(wzh)
@@ -54,10 +54,10 @@ else:
 	print "Mass-%d Signal     (ada) -> "%mass ,h.Integral(), "Mass-%d Background (ada) -> "%mass ,hB.Integral(), " S/B ",h.Integral()/hB.Integral()
   print
   for mass in m :
-	ggh = fil.Get("th1f_sig_grad_ggh_%d.0_%d.0_cat0"%mass)
-	vbf = fil.Get("th1f_sig_grad_vbf_%d.0_%d.0_cat0"%mass)
-	wzh = fil.Get("th1f_sig_grad_wzh_%d.0_%d.0_cat0"%mass)
-	tth = fil.Get("th1f_sig_grad_tth_%d.0_%d.0_cat0"%mass)
+	ggh = fil.Get("th1f_sig_grad_ggh_%d.0_%d.0_cat0"%(mass,mass))
+	vbf = fil.Get("th1f_sig_grad_vbf_%d.0_%d.0_cat0"%(mass,mass))
+	wzh = fil.Get("th1f_sig_grad_wzh_%d.0_%d.0_cat0"%(mass,mass))
+	tth = fil.Get("th1f_sig_grad_tth_%d.0_%d.0_cat0"%(mass,mass))
 	h = ggh.Clone()
 	h.Add(vbf)
 	h.Add(wzh)
