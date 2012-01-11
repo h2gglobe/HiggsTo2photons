@@ -7,7 +7,7 @@
 #include <set>
 #include <vector>
 
-void massBias(int mass_in=120, bool doBiasfactor=false) {
+void massBias(int mass_in=120) {
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -28,7 +28,7 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
   TString mass_str2= mass_str;
   if (mass_in==150) mass_str2="145";
 
-  int shift=2;
+  int shift=0;
   float basemass[5];
   if (shift==0) {
     basemass[0] = 118.5;
@@ -219,38 +219,39 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
 
   }
 
-  //TFile *f_bias = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/BkgBias_mit_2var_07_01_12_v2.root");
-  TFile *f_bias = TFile::Open("BkgBias_shift0.root");
-  float slope_data_in[100][2];
-  float slope_mc_in[100][2];
-  for (int j=0; j<2; j++) {
-    for (int ibin=1; ibin<hist_data[0][j]->GetNbinsX()+1; ibin++) {
-      graph_data = (TGraph*)(f_bias->Get("tgraph_biasslopes_data_"+boost_str[j]+"_"+mass_str))->Clone();
-      graph_mc = (TGraph*)(f_bias->Get("tgraph_biasslopes_mc_"+boost_str[j]+"_"+mass_str))->Clone();
-      slope_data_in[ibin][j] = graph_data->Eval(float(ibin)-0.5);
-      slope_mc_in[ibin][j] = graph_mc->Eval(float(ibin)-0.5);
-    }
-  }
+  if (correctShape) {
 
-  for (int j=0; j<2; j++) {
-    for(int isb=0; isb<15; isb++) {
-      hist_data_corrected[isb][j] = (TH1*)hist_data[isb][j]->Clone();
-      hist_bkg_corrected[isb][j] = (TH1*)hist_bkg[isb][j]->Clone();
-      for (int ibin=1; ibin<hist_data[isb][j]->GetNbinsX()+1; ibin++) {
-	float deltam = mass[isb]-float(mass_in);
-	float corrfac_data = 1./(1.+(slope_data_in[ibin][j]*deltam));
-	float corrfac_mc = 1./(1.+(slope_mc_in[ibin][j]*deltam));
-	if (ibin==6) cout << j << " " << isb << " "  << deltam << " " << ibin << " " << hist_data[isb][j]->GetBinContent(ibin) << " " << slope_data_in[ibin][j] << " " << corrfac_data << endl; 
-	hist_data_corrected[isb][j]->SetBinContent(ibin,hist_data[isb][j]->GetBinContent(ibin)*corrfac_data);
-	hist_bkg_corrected[isb][j]->SetBinContent(ibin,hist_bkg[isb][j]->GetBinContent(ibin)*corrfac_mc);
+    TFile *f_bias = TFile::Open("BkgBias_in.root");
+    float slope_data_in[100][2];
+    float slope_mc_in[100][2];
+    for (int j=0; j<2; j++) {
+      for (int ibin=1; ibin<hist_data[0][j]->GetNbinsX()+1; ibin++) {
+	graph_data = (TGraphErrors*)(f_bias->Get("tgraph_biasslopes_data_"+boost_str[j]+"_"+mass_str))->Clone();
+	graph_mc = (TGraphErrors*)(f_bias->Get("tgraph_biasslopes_mc_"+boost_str[j]+"_"+mass_str))->Clone();
+	slope_data_in[ibin][j] = graph_data->Eval(float(ibin)-0.5);
+	slope_mc_in[ibin][j] = graph_mc->Eval(float(ibin)-0.5);
       }
-      hist_data_corrected[isb][j]->Scale(hist_data[isb][j]->Integral()/hist_data_corrected[isb][j]->Integral());
-      hist_bkg_corrected[isb][j]->Scale(hist_bkg[isb][j]->Integral()/hist_bkg_corrected[isb][j]->Integral());
-      if (correctShape) {
+    }
+
+    for (int j=0; j<2; j++) {
+      for(int isb=0; isb<15; isb++) {
+	hist_data_corrected[isb][j] = (TH1*)hist_data[isb][j]->Clone();
+	hist_bkg_corrected[isb][j] = (TH1*)hist_bkg[isb][j]->Clone();
+	for (int ibin=1; ibin<hist_data[isb][j]->GetNbinsX()+1; ibin++) {
+	  float deltam = mass[isb]-float(mass_in);
+	  float corrfac_data = 1./(1.+(slope_data_in[ibin][j]*deltam));
+	  float corrfac_mc = 1./(1.+(slope_mc_in[ibin][j]*deltam));
+	  if (ibin==6) cout << j << " " << isb << " "  << deltam << " " << ibin << " " << hist_data[isb][j]->GetBinContent(ibin) << " " << slope_data_in[ibin][j] << " " << corrfac_data << endl; 
+	  hist_data_corrected[isb][j]->SetBinContent(ibin,hist_data[isb][j]->GetBinContent(ibin)*corrfac_data);
+	  hist_bkg_corrected[isb][j]->SetBinContent(ibin,hist_bkg[isb][j]->GetBinContent(ibin)*corrfac_mc);
+	}
+	hist_data_corrected[isb][j]->Scale(hist_data[isb][j]->Integral()/hist_data_corrected[isb][j]->Integral());
+	hist_bkg_corrected[isb][j]->Scale(hist_bkg[isb][j]->Integral()/hist_bkg_corrected[isb][j]->Integral());
 	hist_data[isb][j] = hist_data_corrected[isb][j];
 	hist_bkg[isb][j] = hist_bkg_corrected[isb][j];
       }
     }
+
   }
 
   TH1* hist_data_sidebands[7];
@@ -275,31 +276,18 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
 
   float nentries_sidebands[7];
   for (int i=0; i<7; i++) nentries_sidebands[i] = hist_data_sidebands[i]->Integral();
-  
-  float bias_sf=0.;
-  float ntot = 0.;
-  for (int i=0; i<7; i++) {
-    if (i!=3) {
-      bias_sf+= nentries_sidebands[i]*(mass_sidebands[i]-mass_sidebands[3]);
-      ntot+=nentries_sidebands[i];
-    }
-  }
-  bias_sf/=ntot;
 
   TCanvas *canvas[2];
 
-  TGraph *G_bdtout_data[10][2];
-  TGraph *G_bdtout_mc[10][2];
-  TGraph *G_slope_data[2];
-  TGraph *G_slope_mc[2];
-  TGraph *G_bias_data[2];
-  TGraph *G_bias_mc[2];
-  TGraph *G_chi2pol1_data[2];
-  TGraph *G_chi2pol1_mc[2];
-  TGraph *G_chi2pol2_data[2];
-  TGraph *G_chi2pol2_mc[2];
+  TGraphErrors *G_bdtout_data[10][2];
+  TGraphErrors *G_bdtout_mc[10][2];
+  TGraphErrors *G_slope_data[2];
+  TGraphErrors *G_slope_mc[2];
+  TGraphErrors *G_chi2pol1_data[2];
+  TGraphErrors *G_chi2pol1_mc[2];
+  TGraphErrors *G_chi2pol2_data[2];
+  TGraphErrors *G_chi2pol2_mc[2];
   TMultiGraph *mG_slope[2];
-  TMultiGraph *mG_bias[2];
   TMultiGraph *mG_chi2pol1[2];
   TMultiGraph *mG_chi2pol2[2];
   float slope_data[10][2];
@@ -320,10 +308,6 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
   float chi2pol1_mc[10][2];
   float chi2pol2_data[10][2];
   float chi2pol2_mc[10][2];
-  float bias_data[10];
-  float bias_mc[10];
-  float bias_data_err[10];
-  float bias_mc_err[10];
 
   float mass_err[15];
   for(int i=0; i<15; i++) mass_err[i]=0.;
@@ -415,8 +399,19 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
 	bdtout_mc_err[i] = hist_bkg_scaled[i][j]->GetBinError(bdtbin+1);
       }
 
-      canvas[j]->cd(bdtbin+1);
       G_bdtout_data[bdtbin][j] = new TGraphErrors(15,mass,bdtout_data,mass_err,bdtout_data_err);
+      for(int fitItr=0; fitItr<3; fitItr++) {
+	G_bdtout_data[bdtbin][j]->Fit("pol1","Q");
+	func = G_bdtout_data[bdtbin][j]->GetFunction("pol1");
+	for(int i=0; i<15; i++) {
+	  float error_scalefac = sqrt(func->Eval(mass[i])/bdtout_data[i]);
+	  //if (i==11 && j==1 && bdtbin==5) cout << fitItr << " " << error_scalefac << " " << G_bdtout_data[bdtbin][j]->GetErrorY(i) << " ";
+	  G_bdtout_data[bdtbin][j]->SetPointError(i,0.,bdtout_data_err[i]*error_scalefac);
+	  //if (i==11 && j==1 && bdtbin==5) cout << G_bdtout_data[bdtbin][j]->GetErrorY(i) << endl;
+	}
+      }
+
+      canvas[j]->cd(bdtbin+1);
       G_bdtout_data[bdtbin][j]->SetMarkerSize(.8);
       G_bdtout_data[bdtbin][j]->SetMarkerColor(1);
       G_bdtout_data[bdtbin][j]->SetMarkerStyle(20);
@@ -437,8 +432,19 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
       chi2pol1_data[bdtbin][j] = func->GetChisquare()/func->GetNDF();
       G_bdtout_data[bdtbin][j]->GetYaxis()->SetRangeUser(fitval_msig[bdtbin]*0.,fitval_msig[bdtbin]*2.);
 
-      canvas[j]->cd(bdtbin+1+nbins[j]);
       G_bdtout_mc[bdtbin][j] = new TGraphErrors(15,mass,bdtout_mc,mass_err,bdtout_mc_err);
+      for(int fitItr=0; fitItr<3; fitItr++) {
+	G_bdtout_mc[bdtbin][j]->Fit("pol1","Q");
+	func = G_bdtout_mc[bdtbin][j]->GetFunction("pol1");
+	for(int i=0; i<15; i++) {
+	  float error_scalefac = sqrt(func->Eval(mass[i])/bdtout_mc[i]);
+	  //if (i==12 && j==1 && bdtbin==5) cout << fitItr << " " << error_scalefac << " " << G_bdtout_mc[bdtbin][j]->GetErrorY(i) << " ";
+	  G_bdtout_mc[bdtbin][j]->SetPointError(i,0.,bdtout_mc_err[i]*error_scalefac);
+	  //if (i==12 && j==1 && bdtbin==5) cout << G_bdtout_mc[bdtbin][j]->GetErrorY(i) << endl;
+	}
+      }
+
+      canvas[j]->cd(bdtbin+1+nbins[j]);
       G_bdtout_mc[bdtbin][j]->SetMarkerSize(.8);
       G_bdtout_mc[bdtbin][j]->SetMarkerColor(4);
       G_bdtout_mc[bdtbin][j]->SetMarkerStyle(20);
@@ -463,7 +469,6 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
     Double_t nentries_bin;
 
     mG_slope[j] = new TMultiGraph();
-    mG_bias[j] = new TMultiGraph();
     mG_chi2pol1[j] = new TMultiGraph();
     mG_chi2pol2[j] = new TMultiGraph();
     for(int bdtbin=0; bdtbin<nbins[j]; bdtbin++) {
@@ -471,10 +476,6 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
       slope_mc_temp[bdtbin]=slope_mc[bdtbin][j]/slope_mc_norm[bdtbin][j];
       slope_data_err_temp[bdtbin]=slope_data_err[bdtbin][j]/slope_data_norm[bdtbin][j];
       slope_mc_err_temp[bdtbin]=slope_mc_err[bdtbin][j]/slope_mc_norm[bdtbin][j];
-      bias_data[bdtbin]=slope_data_temp[bdtbin]*bias_sf;
-      bias_mc[bdtbin]=slope_mc_temp[bdtbin]*bias_sf;
-      bias_data_err[bdtbin]=slope_data_err_temp[bdtbin]*fabs(bias_sf);
-      bias_mc_err[bdtbin]=slope_mc_err_temp[bdtbin]*fabs(bias_sf);
       chi2pol1_data_temp[bdtbin]=chi2pol1_data[bdtbin][j];
       chi2pol2_data_temp[bdtbin]=chi2pol2_data[bdtbin][j]-chi2pol1_data[bdtbin][j];
       chi2pol1_mc_temp[bdtbin]=chi2pol1_mc[bdtbin][j];
@@ -485,15 +486,11 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
     G_slope_data[j]->SetMarkerSize(1.);
     G_slope_data[j]->SetMarkerColor(1);
     G_slope_data[j]->SetMarkerStyle(20);
-    G_bias_data[j] = new TGraphErrors(nbins[j],bin_shifted,bias_data,bin_err,bias_data_err);
-    G_bias_data[j]->SetMarkerSize(1.);
-    G_bias_data[j]->SetMarkerColor(1);
-    G_bias_data[j]->SetMarkerStyle(20);
-    G_chi2pol1_data[j] = new TGraph(nbins[j],bin_shifted,chi2pol1_data_temp);
+    G_chi2pol1_data[j] = new TGraphErrors(nbins[j],bin_shifted,chi2pol1_data_temp);
     G_chi2pol1_data[j]->SetMarkerSize(1.);
     G_chi2pol1_data[j]->SetMarkerColor(1);
     G_chi2pol1_data[j]->SetMarkerStyle(20);
-    G_chi2pol2_data[j] = new TGraph(nbins[j],bin_shifted,chi2pol2_data_temp);
+    G_chi2pol2_data[j] = new TGraphErrors(nbins[j],bin_shifted,chi2pol2_data_temp);
     G_chi2pol2_data[j]->SetMarkerSize(1.);
     G_chi2pol2_data[j]->SetMarkerColor(1);
     G_chi2pol2_data[j]->SetMarkerStyle(20);
@@ -502,31 +499,23 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
     G_slope_mc[j]->SetMarkerSize(1.);
     G_slope_mc[j]->SetMarkerColor(4);
     G_slope_mc[j]->SetMarkerStyle(20);
-    G_bias_mc[j] = new TGraphErrors(nbins[j],bin_shifted,bias_mc,bin_err,bias_mc_err);
-    G_bias_mc[j]->SetMarkerSize(1.);
-    G_bias_mc[j]->SetMarkerColor(4);
-    G_bias_mc[j]->SetMarkerStyle(20);
-    G_chi2pol1_mc[j] = new TGraph(nbins[j],bin_shifted,chi2pol1_mc_temp);
+    G_chi2pol1_mc[j] = new TGraphErrors(nbins[j],bin_shifted,chi2pol1_mc_temp);
     G_chi2pol1_mc[j]->SetMarkerSize(1.);
     G_chi2pol1_mc[j]->SetMarkerColor(4);
     G_chi2pol1_mc[j]->SetMarkerStyle(20);
-    G_chi2pol2_mc[j] = new TGraph(nbins[j],bin_shifted,chi2pol2_mc_temp);
+    G_chi2pol2_mc[j] = new TGraphErrors(nbins[j],bin_shifted,chi2pol2_mc_temp);
     G_chi2pol2_mc[j]->SetMarkerSize(1.);
     G_chi2pol2_mc[j]->SetMarkerColor(4);
     G_chi2pol2_mc[j]->SetMarkerStyle(20);
     mG_slope[j]->Add(G_slope_data[j]);
     mG_slope[j]->Add(G_slope_mc[j]);
-    mG_bias[j]->Add(G_bias_data[j]);
-    mG_bias[j]->Add(G_bias_mc[j]);
     mG_chi2pol1[j]->Add(G_chi2pol1_data[j]);
     mG_chi2pol1[j]->Add(G_chi2pol1_mc[j]);
     mG_chi2pol2[j]->Add(G_chi2pol2_data[j]);
     mG_chi2pol2[j]->Add(G_chi2pol2_mc[j]);
   }
 
-  TCanvas *canvas_slope = new TCanvas("canvas_slope","canvas_slope",1400,300);
-  canvas_slope->SetFillColor(0);
-  canvas_slope->Divide(2,1);
+  TCanvas *canvas_summary[2];
 
   txt = new TLatex();
   txt->SetNDC();
@@ -540,7 +529,10 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
 
   for(int j=0; j<2; j++) {
 
-    canvas_slope->cd(1+j);
+    canvas_summary[j] = new TCanvas("canvas_summary_"+boost_str[j],"canvas_summary_"+boost_str[j],800,400);
+    canvas_summary[j]->SetFillColor(0);
+    canvas_summary[j]->Divide(2,1);
+
     gPad->SetGrid();
     mG_slope[j]->Draw("AP");
     mG_slope[j]->GetXaxis()->SetLimits(0.,float(nbins[j]));
@@ -559,38 +551,6 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
     txt->Draw();
     line[j]->Draw();    
     leg->Draw();
-  }
-
-  TCanvas *canvas_bias = new TCanvas("canvas_bias","canvas_bias",1400,300);
-  canvas_bias->SetFillColor(0);
-  canvas_bias->Divide(2,1);
-
-  txt = new TLatex();
-  txt->SetNDC();
-  txt->SetTextSize(0.07);
-
-  for(int j=0; j<2; j++) {
-
-    canvas_bias->cd(1+j);
-    gPad->SetGrid();
-    mG_bias[j]->Draw("AP");
-    mG_bias[j]->GetXaxis()->SetLimits(0.,float(nbins[j]));
-    mG_bias[j]->GetXaxis()->SetLabelSize(0.05);
-    mG_bias[j]->GetYaxis()->SetLabelSize(0.05);
-    mG_bias[j]->GetXaxis()->SetTitleSize(0.05);
-    mG_bias[j]->GetYaxis()->SetTitleSize(0.05);
-    mG_bias[j]->GetXaxis()->SetTitle("BDT output bin number");
-    mG_bias[j]->GetYaxis()->SetTitle("Bias");
-    mG_bias[j]->GetYaxis()->SetRangeUser(-0.1,0.1);
-    if (j==0) {
-      txt->DrawLatex(0.4,0.8,"Gradient");
-    } else {
-      txt->DrawLatex(0.4,0.8,"Adaptive");
-    }
-    txt->Draw();
-    line[j]->Draw();    
-    leg->Draw();
-
   }
 
   TCanvas *canvas_chi2pol1;
@@ -670,75 +630,19 @@ void massBias(int mass_in=120, bool doBiasfactor=false) {
   if (saveGifs) {
     canvas[0]->SaveAs("slope_grad_"+mass_str+".gif");
     canvas[1]->SaveAs("slope_ada_"+mass_str+".gif");
-    canvas_slope->SaveAs("slope_summary_"+mass_str+".gif");
-    canvas_bias->SaveAs("bias_"+mass_str+".gif");
+    canvas_summary[0]->SaveAs("slope_grad_summary_"+mass_str+".gif");
+    canvas_summary[1]->SaveAs("slope_ada_summary_"+mass_str+".gif");
   }
-
-  TString mass_str_part[2] = {".0",".5"};
-  float mass_part[2] = {.0,.5};
-
-  TH1F *hist_biasfactor = new TH1F("hist_biasfactor","hist_biasfactor",71,114.75,150.25);
-
-  if (doBiasfactor) {
-
-    for (int imass=115; imass<151; imass++){
-      for (int j=0; j<2; j++) {
-	if (j==1 && imass==150) continue;
-
-	TString allmass_str;
-	allmass_str+=imass;
-	allmass_str+=mass_str_part[j];
-
-	TH1* hist_data_sb[7];
-
-	hist_data_sb[0] = (TH1*)(workspace->Get("th1f_bkg_3low_grad_"+allmass_str+"_cat0"))->Clone();
-	hist_data_sb[1] = (TH1*)(workspace->Get("th1f_bkg_2low_grad_"+allmass_str+"_cat0"))->Clone();
-	hist_data_sb[2] = (TH1*)(workspace->Get("th1f_bkg_1low_grad_"+allmass_str+"_cat0"))->Clone();
-	hist_data_sb[3] = (TH1*)(workspace->Get("th1f_data_grad_"+allmass_str+"_cat0"))->Clone();
-	hist_data_sb[4] = (TH1*)(workspace->Get("th1f_bkg_1high_grad_"+allmass_str+"_cat0"))->Clone();
-	hist_data_sb[5] = (TH1*)(workspace->Get("th1f_bkg_2high_grad_"+allmass_str+"_cat0"))->Clone();
-	hist_data_sb[6] = (TH1*)(workspace->Get("th1f_bkg_3high_grad_"+allmass_str+"_cat0"))->Clone();
-
-	float nentries_sb[7];
-	for (int i=0; i<7; i++) nentries_sb[i] = hist_data_sb[i]->Integral();
-
-	float mass_sb[7];
-	float mass_sig = float(imass) + mass_part[j];
-	mass_sb[2] = mass_sig*(1-signalRegionWidth)/(1+sidebandWidth);
-	mass_sb[1] = mass_sb[2]*(1-sidebandWidth)/(1+sidebandWidth);
-	mass_sb[0] = mass_sb[1]*(1-sidebandWidth)/(1+sidebandWidth);
-	mass_sb[3] = mass_sig;
-	mass_sb[4] = mass_sig*(1+signalRegionWidth)/(1-sidebandWidth);
-	mass_sb[5] = mass_sb[4]*(1+sidebandWidth)/(1-sidebandWidth);
-	mass_sb[6] = mass_sb[5]*(1+sidebandWidth)/(1-sidebandWidth);
-
-	float biasfactor=0.;
-	ntot = 0.;
-	for (int i=0; i<7; i++) {
-	  if (i!=3) {
-	    biasfactor+= nentries_sb[i]*(mass_sb[i]-mass_sb[3]);
-	    ntot+=nentries_sb[i];
-	  }
-	}
-	biasfactor/=ntot;
-      
-	hist_biasfactor->Fill(mass_sig,biasfactor);
-
-      }
-    }
-  }
-
 
   TFile *fout_slopes = new TFile("BkgBias.root","update");
   fout_slopes->cd();
-  TGraphErrors *tgraph_biasslopes_data_grad =  (TGraph*)G_slope_data[0]->Clone("tgraph_biasslopes_data_grad_"+mass_str);
-  TGraphErrors *tgraph_biasslopes_data_ada =  (TGraph*)G_slope_data[1]->Clone("tgraph_biasslopes_data_ada_"+mass_str);
-  TGraphErrors *tgraph_biasslopes_mc_grad =  (TGraph*)G_slope_mc[0]->Clone("tgraph_biasslopes_mc_grad_"+mass_str);
-  TGraphErrors *tgraph_biasslopes_mc_ada =  (TGraph*)G_slope_mc[1]->Clone("tgraph_biasslopes_mc_ada_"+mass_str);
+  TGraphErrors *tgraph_biasslopes_data_grad =  (TGraphErrors*)G_slope_data[0]->Clone("tgraph_biasslopes_data_grad_"+mass_str);
+  TGraphErrors *tgraph_biasslopes_data_ada =  (TGraphErrors*)G_slope_data[1]->Clone("tgraph_biasslopes_data_ada_"+mass_str);
+  TGraphErrors *tgraph_biasslopes_mc_grad =  (TGraphErrors*)G_slope_mc[0]->Clone("tgraph_biasslopes_mc_grad_"+mass_str);
+  TGraphErrors *tgraph_biasslopes_mc_ada =  (TGraphErrors*)G_slope_mc[1]->Clone("tgraph_biasslopes_mc_ada_"+mass_str);
   tgraph_biasslopes_data_grad->Write();
   tgraph_biasslopes_data_ada->Write();
   tgraph_biasslopes_mc_grad->Write();
   tgraph_biasslopes_mc_ada->Write();
-  if (doBiasfactor) hist_biasfactor->Write();
 
 }
