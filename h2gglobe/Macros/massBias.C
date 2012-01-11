@@ -254,31 +254,6 @@ void massBias(int mass_in=120) {
 
   }
 
-  TH1* hist_data_sidebands[7];
-
-  hist_data_sidebands[0] = (TH1*)(workspace->Get("th1f_bkg_3low_grad_"+mass_str+".0_cat0"))->Clone();
-  hist_data_sidebands[1] = (TH1*)(workspace->Get("th1f_bkg_2low_grad_"+mass_str+".0_cat0"))->Clone();
-  hist_data_sidebands[2] = (TH1*)(workspace->Get("th1f_bkg_1low_grad_"+mass_str+".0_cat0"))->Clone();
-  hist_data_sidebands[3] = (TH1*)(workspace->Get("th1f_data_grad_"+mass_str+".0_cat0"))->Clone();
-  hist_data_sidebands[4] = (TH1*)(workspace->Get("th1f_bkg_1high_grad_"+mass_str+".0_cat0"))->Clone();
-  hist_data_sidebands[5] = (TH1*)(workspace->Get("th1f_bkg_2high_grad_"+mass_str+".0_cat0"))->Clone();
-  hist_data_sidebands[6] = (TH1*)(workspace->Get("th1f_bkg_3high_grad_"+mass_str+".0_cat0"))->Clone();
-
-  float mass_sidebands[7];
-
-  mass_sidebands[2] = float(mass_in)*(1-signalRegionWidth)/(1+sidebandWidth);
-  mass_sidebands[1] = mass_sidebands[2]*(1-sidebandWidth)/(1+sidebandWidth);
-  mass_sidebands[0] = mass_sidebands[1]*(1-sidebandWidth)/(1+sidebandWidth);
-  mass_sidebands[3] = float(mass_in);
-  mass_sidebands[4] = float(mass_in)*(1+signalRegionWidth)/(1-sidebandWidth);
-  mass_sidebands[5] = mass_sidebands[4]*(1+sidebandWidth)/(1-sidebandWidth);
-  mass_sidebands[6] = mass_sidebands[5]*(1+sidebandWidth)/(1-sidebandWidth);
-
-  float nentries_sidebands[7];
-  for (int i=0; i<7; i++) nentries_sidebands[i] = hist_data_sidebands[i]->Integral();
-
-  TCanvas *canvas[2];
-
   TGraphErrors *G_bdtout_data[10][2];
   TGraphErrors *G_bdtout_mc[10][2];
   TGraphErrors *G_slope_data[2];
@@ -374,6 +349,7 @@ void massBias(int mass_in=120) {
     }
   }
 
+  TCanvas *canvas[2];
   TLine *line[2];
 
   for(int j=0; j<2; j++) {
