@@ -16,7 +16,6 @@ nR9Categories=2
 nPtCategories=1
 
 doTriggerSelection=1
-
 reRunCiCForData=1
 
 doTraining=0
@@ -27,7 +26,7 @@ splitBackgroundSample=1
 choose between UCSD and MIT trainings
 ->
 
-bdtTrainingPhilosophy=UCSD
+bdtTrainingPhilosophy=MIT
 photonLevelMvaUCSD=/vols/cms02/h2g/aux/ID_UCSD.weights.xml
 eventLevelMvaUCSD=/vols/cms02/h2g/aux/diphoton_UCSD.weights.xml
 photonLevelMvaMIT_EB=/vols/cms02/h2g/aux/TMVAClassificationPhotonID_Barrel_PassPreSel_Variable_6_BDTnCuts2000_BDT.weights.xml
@@ -69,7 +68,7 @@ doR9Syst=1
 doKFactorSmear=1
 doKFactorSyst=1
 
-mvaWeightsFolder=/vols/cms03/mk1009/h2g/MVA/weights/wt_28Dec/
+mvaWeightsFolder=/vols/cms03/mk1009/h2g/MVA/weights/wt_07Jan/
 
 ->
 Inputs for reweighing
