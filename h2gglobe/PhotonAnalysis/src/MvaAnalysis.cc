@@ -53,7 +53,19 @@ void MvaAnalysis::Term(LoopAll& l)
         mvaFile_->Close();
     }
     else{
-        // loop hypothesis
+         // -----------------------------
+        //l.rooContainer->AddRealVar("r1",-8,-15.,0.);
+        //l.rooContainer->AddRealVar("r2",-0.05,-15.,0.);
+        //l.rooContainer->AddRealVar("f2",0.01,0.,1.);
+
+        // Power law
+        //std::vector<std::string> data_pow_pars(3,"p");	 
+        //data_pow_pars[0] = "r1";
+        //data_pow_pars[1] = "r2";
+        //data_pow_pars[2] = "f2";
+        //l.rooContainer->AddGenericPdf("data_pow_model", "(1-@3)*TMath::Power(@0,@1) + @3*TMath::Power(@0,@2)","CMS_hgg_mass",data_pow_pars,0);
+
+        // loop hypothesis	
         for (double mass=115.0; mass<150.2; mass+=0.5){
 	    if (mass < masses[2] || mass > masses[nMasses-1] ) continue;	
 
@@ -67,9 +79,9 @@ void MvaAnalysis::Term(LoopAll& l)
             sideband_boundaries[1] = mass_hypothesis*(1.+sidebandWidth);
 
             // -----------------------------
-            l.rooContainer->AddRealVar(Form("r1_%3.1f",mass),-4,-20.,0.);
-            l.rooContainer->AddRealVar(Form("r2_%3.1f",mass),-5,-20.,0.);
-            l.rooContainer->AddRealVar(Form("f2_%3.1f",mass),0.2,0.,1.);
+            l.rooContainer->AddRealVar(Form("r1_%3.1f",mass),-8.,-10.,0.);
+            l.rooContainer->AddRealVar(Form("r2_%3.1f",mass),-0.05,-10.,0.);
+            l.rooContainer->AddRealVar(Form("f2_%3.1f",mass),0.01,0.,1.);
 
             // Power law
             std::vector<std::string> data_pow_pars(3,Form("p_%3.1f",mass));	 
@@ -81,11 +93,14 @@ void MvaAnalysis::Term(LoopAll& l)
             // -----------------------------
             l.rooContainer->FitToData(Form("data_pow_model_%3.1f",mass), "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax);
             std::vector<std::pair<double,double> > N_sigErr = l.rooContainer->GetFitNormalisationsAndErrors(Form("data_pow_model_%3.1f",mass),"data_mass",sideband_boundaries[0],sideband_boundaries[1]);
+        //    l.rooContainer->FitToData("data_pow_model", "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax);
+        //    std::vector<std::pair<double,double> > N_sigErr = l.rooContainer->GetFitNormalisationsAndErrors("data_pow_model","data_mass",sideband_boundaries[0],sideband_boundaries[1]);
             
             l.rooContainer->AddNormalisationSystematics(Form("bkg_norm_%3.1f",mass),N_sigErr, 1); // 1 means it effect the background only
 
             // Calculate weights to apply to the sidebands
             std::vector<double> N_sig = l.rooContainer->GetFitNormalisations(Form("data_pow_model_%3.1f",mass),"data_mass",sideband_boundaries[0],sideband_boundaries[1]);
+//            std::vector<double> N_sig = l.rooContainer->GetFitNormalisations("data_pow_model","data_mass",sideband_boundaries[0],sideband_boundaries[1]);
 
             bool scale = true;//true;
 	    std::vector<string> ada_bkgsets;
@@ -1422,7 +1437,13 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	       
 		// analyze the event
 		// FIXME pass smeared R9
-		int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+//		int diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    		int diphoton_id=-1;
+    		if (bdtTrainingPhilosophy=="MIT"){
+    			diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+    		} else if (bdtTrainingPhilosophy=="UCSD"){
+      			diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, 4,applyPtoverM, &smeared_pho_energy[0] ); 
+    		}
 	       
 		if (diphoton_id > -1 ) {
 		   
