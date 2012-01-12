@@ -19,7 +19,10 @@ SuperClusters
 ->
 pho_scind
 sc_xyz
-
+sc_sphi
+sc_seta
+sc_raw
+sc_pre
 
 ->
 Photons 
@@ -36,12 +39,6 @@ pho_regr_energy
 pho_regr_energyerr
 pho_regr_energy_otf
 pho_regr_energyerr_otf
-pho_pfiso_mycharged03
-pho_pfiso_mycharged04
-pho_pfiso_myneutral03
-pho_pfiso_myneutral04
-pho_pfiso_myphoton03
-pho_pfiso_myphoton04
 
 ->
 CiC inputs
@@ -58,12 +55,29 @@ pho_drtotk_25_99
 pho_haspixseed
 
 ->
+MIT Pre-selection
+->
+pho_trksumptsolidconedr03
+pho_trksumpthollowconedr03
+
+->
 CiC
 ->
 pho_cic4cutlevel_lead
 pho_cic4passcuts_lead
 pho_cic4cutlevel_sublead
 pho_cic4passcuts_sublead
+
+->
+Photon MVA ID inputs
+->
+pho_pfiso_mycharged04
+pho_pfiso_myphoton04
+pho_pfiso_mycharged03
+pho_pfiso_myphoton03
+pho_sieip
+pho_sipip
+pho_e5x5
 
 ->
 MC truth
