@@ -1,8 +1,11 @@
-void correctBkgModel() {
+void correctBkgModel(bool updateWorkspace=false) {
 
-  TFile *workspace_out = TFile::Open("CMS-HGG_biascorr.root","recreate");
+  TString option;
+  option = updateWorkspace ? "UPDATE" : "READ";
+
+  TFile *workspace_temp = TFile::Open("CMS-HGG_biascorr.root","RECREATE");
   TFile *f_bias = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/BkgBias_12Jan.root");
-  TFile *workspace = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/CMS-HGG_mit_2var_07_01_12_v2.root");
+  TFile *workspace = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/CMS-HGG_mit_2var_07_01_12_v2.root",option);
   
   TString boost_str[2] = {"grad","ada"};
   TString mass_str_part[2] = {".0",".5"};
@@ -86,7 +89,11 @@ void correctBkgModel() {
 	  }
 	}
 
-	workspace_out->cd();
+	if (updateWorkspace) {
+	  workspace->cd();
+	} else {
+	  workspace_temp->cd();
+	}
 	hist_data_corrected->Write();
 	hist_data_corrected_up->Write();
 	hist_data_corrected_down->Write();
