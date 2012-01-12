@@ -3,10 +3,12 @@ void correctBkgModel(bool updateWorkspace=false) {
   TString option;
   option = updateWorkspace ? "UPDATE" : "READ";
 
-  TFile *workspace_temp = TFile::Open("CMS-HGG_biascorr.root","RECREATE");
-  TFile *f_bias = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/BkgBias_12Jan.root");
   TFile *workspace = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/CMS-HGG_mit_2var_07_01_12_v2.root",option);
-  
+  TFile *f_bias = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/BkgBias_12Jan.root");
+
+  //TFile *workspace_temp;
+  //if (!updateWorkspace) workspace_temp = TFile::Open("CMS-HGG_biascorr.root","RECREATE");
+
   TString boost_str[2] = {"grad","ada"};
   TString mass_str_part[2] = {".0",".5"};
   float mass_part[2] = {.0,.5};
@@ -27,8 +29,9 @@ void correctBkgModel(bool updateWorkspace=false) {
 
 	graph_data = (TGraph*)(f_bias->Get("tgraph_biasslopes_data_"+boost_str[boost]+"_"+binningmass_str))->Clone();
 
-	TH1* hist_data_sb[7];
+	TH1* hist_bkgModel = (TH1*)(workspace->Get("th1f_bkg_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
 
+	TH1* hist_data_sb[7];
 	hist_data_sb[0] = (TH1*)(workspace->Get("th1f_bkg_3low_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
 	hist_data_sb[1] = (TH1*)(workspace->Get("th1f_bkg_2low_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
 	hist_data_sb[2] = (TH1*)(workspace->Get("th1f_bkg_1low_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
@@ -88,12 +91,12 @@ void correctBkgModel(bool updateWorkspace=false) {
 	    hist_data_corrected_down->Add(hist_data_corrected_down_sb[isb]);
 	  }
 	}
+	hist_data_corrected->Scale(hist_bkgModel->Integral()/hist_data_corrected->Integral());
+	hist_data_corrected_up->Scale(hist_bkgModel->Integral()/hist_data_corrected_up->Integral());
+	hist_data_corrected_down->Scale(hist_bkgModel->Integral()/hist_data_corrected_down->Integral());
 
-	if (updateWorkspace) {
-	  workspace->cd();
-	} else {
-	  workspace_temp->cd();
-	}
+	workspace->cd();
+	//if (!updateWorkspace) workspace_temp->cd();
 	hist_data_corrected->Write();
 	hist_data_corrected_up->Write();
 	hist_data_corrected_down->Write();
