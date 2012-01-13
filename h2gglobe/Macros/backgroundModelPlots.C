@@ -7,7 +7,7 @@
 #include <set>
 #include <vector>
 
-void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirname="BDTplots_all", int sbwidth=2, int loose=0, bool sob=1) {
+void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="BDTplots_all", int sbwidth=2, int loose=0, bool sob=1) {
 
   bool rebin=true;
 
