@@ -69,7 +69,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   TString mass_str;
   mass_str+=mass_in;
   TString mass_str2= mass_str;
-  if (mass_in==150) mass_str2="145";
+  //if (mass_in==150) mass_str2="145";
 
   TString cat_str;
   if (mass_in==115) cat_str="0";
@@ -98,42 +98,41 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     sb_high=6;
   }
 
-  int nbins_nominal_grad;
-  int nbins_nominal_ada;
-  Double_t xbins_nominal_grad[100];
-  Double_t xbins_nominal_ada[100];
+  int nbins_nominal[2];
+  Double_t xbins_nominal[100][2];
+  TString boost_str[2] = {"grad","ada"};
   TString nominal_str="";
 
   if (rebin) {
 
     nominal_str="_nominal";
 
-    TH1* hist_nominal_grad;
-    TH1* hist_nominal_ada;
+    TH1* hist_nominal[2];
 
-    TFile *f_bdtout_nominal = TFile::Open("CMS-HGG_4721pb_9Dec_binning.root");
+    TFile *f_bdtout_nominal = TFile::Open("CMS-HGG_mva_30Dec_MIT.root");
     //if (sbwidth==2) {
     //  TFile *f_bdtout_nominal = TFile::Open("/tmp/futyand/CMS-HGG_4700pb_02-12-11.root");
     //} else if (sbwidth==7) {
     //  TFile *f_bdtout_nominal = TFile::Open("/tmp/futyand/CMS-HGG_4700pb_02-12-11_7pSB.root");
     //}
-    hist_nominal_grad = (TH1*)(f_bdtout_nominal->Get("th1f_data_grad_"+mass_str+".0_cat0"))->Clone();
-    hist_nominal_ada = (TH1*)(f_bdtout_nominal->Get("th1f_data_ada_"+mass_str+".0_cat0"))->Clone();
 
-    nbins_nominal_grad = hist_nominal_grad->GetNbinsX();
-    for (int ibin=0; ibin<nbins_nominal_grad+1; ibin++) {
-      xbins_nominal_grad[ibin] = hist_nominal_grad->GetBinLowEdge(ibin+1);
+    for (int j=0; j<2; j++) {
+      hist_nominal[j] = (TH1*)(f_bdtout_nominal->Get("th1f_data_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      nbins_nominal[j] = hist_nominal[j]->GetNbinsX();
+      for (int ibin=0; ibin<nbins_nominal[j]+1; ibin++) {
+	xbins_nominal[ibin][j] = hist_nominal[j]->GetBinLowEdge(ibin+1);
+      }
     }
-    nbins_nominal_ada = hist_nominal_ada->GetNbinsX();
-    for (int ibin=0; ibin<nbins_nominal_ada+1; ibin++) {
-      xbins_nominal_ada[ibin] = hist_nominal_ada->GetBinLowEdge(ibin+1);
-    }
+
     f_bdtout_nominal->Close();
 
   }
 
-  TFile *f_bdtout = TFile::Open("CMS-HGG_4721pb_9Dec"+loose_str+".root");
-  TFile *f_bdtin = TFile::Open("histograms_CMS-HGG_4721pb_9Dec"+loose_str+".root");
+  TFile *f_bdtout = TFile::Open("CMS-HGG_mva_30Dec_MIT"+loose_str+".root");
+  TFile *f_bdtin = TFile::Open("histograms_CMS-HGG_mva_30Dec_MIT"+loose_str+".root");
+
+  TFile *f_bdtout_fastsim = TFile::Open("CMS-HGG_mva_fastsim_30Dec_MIT.root");
+  TFile *f_bdtin_fastsim = TFile::Open("histograms_CMS-HGG_mva_fastsim_30Dec_MIT.root");
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -163,11 +162,16 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   TH1* hist_data_reweight[24];
   TH1* hist_data_reweight_rebin[24];
   TH1* hist_bkg_ratio[24];
-  TH1* hist_bkg_ratio_low[24];
-  TH1* hist_bkg_ratio_high[24];
   TH1* hist_data_ratio[24];
   THStack* hist_bkg_stack[24];
   THStack* hist_bkg_stack_sig[24];
+
+  TH1* hist_born_fastsim[8][24];
+  TH1* hist_box_fastsim[8][24];
+  TH1* hist_bkg_fastsim[8][24];
+  TH1* hist_bkg_fastsim_reweight[24];
+  TH1* hist_bkg_fastsim_sig[24];
+  TH1* hist_bkg_fastsim_scaled[8][24];
 
   TH1 *hist_mass_sig;
   TH1 *hist_mass_data;
@@ -187,243 +191,214 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   TH1* hist_bkg_fine[8][24];
   TH1* hist_bkgModel_fine[24];
   TH1* hist_balg_fine[24];
+  TH1* hist_bkg_fastsim_fine[8][24];
+  TH1* hist_bkg_fastsim_ratio[24];
 
   f_bdtout->cd();
 
   if (!equalBinWidths) {
 
-    hist_sig[22] = (TH1*)(f_bdtout->Get("th1f_sig_grad_ggh_"+mass_str+".0_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>2) hist_data[0][22] = (TH1*)(f_bdtout->Get("th1f_bkg_3low_grad_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>1) hist_data[1][22] = (TH1*)(f_bdtout->Get("th1f_bkg_2low_grad_"+mass_str+".0_cat0"))->Clone();
-    hist_data[2][22] = (TH1*)(f_bdtout->Get("th1f_bkg_1low_grad_"+mass_str+".0_cat0"))->Clone();
-    hist_data[3][22] = (TH1*)(f_bdtout->Get("th1f_data_grad_"+mass_str+".0_cat0"))->Clone();
-    hist_data[4][22] = (TH1*)(f_bdtout->Get("th1f_bkg_1high_grad_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>1) hist_data[5][22] = (TH1*)(f_bdtout->Get("th1f_bkg_2high_grad_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>2) hist_data[6][22] = (TH1*)(f_bdtout->Get("th1f_bkg_3high_grad_"+mass_str+".0_cat0"))->Clone();
-    hist_bkgModel[22] = (TH1*)(f_bdtout->Get("th1f_bkg_grad_"+mass_str+".0_cat0"))->Clone();
-    hist_balg[22] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_balg_grad_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>2) hist_bkg[0][22] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_3low_grad_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>1) hist_bkg[1][22] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_2low_grad_"+mass_str+".0_cat0"))->Clone();
-    hist_bkg[2][22] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_1low_grad_"+mass_str+".0_cat0"))->Clone();
-    hist_bkg[3][22] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_grad_"+mass_str+".0_cat0"))->Clone();
-    hist_bkg[4][22] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_1high_grad_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>1) hist_bkg[5][22] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_2high_grad_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>2) hist_bkg[6][22] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_3high_grad_"+mass_str+".0_cat0"))->Clone();
+    for (int j=0; j<2; j++) {
 
-    hist_sig[23] = (TH1*)(f_bdtout->Get("th1f_sig_ada_ggh_"+mass_str+".0_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>2) hist_data[0][23] = (TH1*)(f_bdtout->Get("th1f_bkg_3low_ada_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>1) hist_data[1][23] = (TH1*)(f_bdtout->Get("th1f_bkg_2low_ada_"+mass_str+".0_cat0"))->Clone();
-    hist_data[2][23] = (TH1*)(f_bdtout->Get("th1f_bkg_1low_ada_"+mass_str+".0_cat0"))->Clone();
-    hist_data[3][23] = (TH1*)(f_bdtout->Get("th1f_data_ada_"+mass_str+".0_cat0"))->Clone();
-    hist_data[4][23] = (TH1*)(f_bdtout->Get("th1f_bkg_1high_ada_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>1) hist_data[5][23] = (TH1*)(f_bdtout->Get("th1f_bkg_2high_ada_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>2) hist_data[6][23] = (TH1*)(f_bdtout->Get("th1f_bkg_3high_ada_"+mass_str+".0_cat0"))->Clone();
-    hist_bkgModel[23] = (TH1*)(f_bdtout->Get("th1f_bkg_ada_"+mass_str+".0_cat0"))->Clone();
-    hist_balg[23] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_balg_ada_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>2) hist_bkg[0][23] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_3low_ada_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>1) hist_bkg[1][23] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_2low_ada_"+mass_str+".0_cat0"))->Clone();
-    hist_bkg[2][23] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_1low_ada_"+mass_str+".0_cat0"))->Clone();
-    hist_bkg[3][23] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_ada_"+mass_str+".0_cat0"))->Clone();
-    hist_bkg[4][23] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_1high_ada_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>1) hist_bkg[5][23] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_2high_ada_"+mass_str+".0_cat0"))->Clone();
-    if (nSB>2) hist_bkg[6][23] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_3high_ada_"+mass_str+".0_cat0"))->Clone();
+      hist_sig[22+j] = (TH1*)(f_bdtout->Get("th1f_sig_"+boost_str[j]+"_ggh_"+mass_str+".0_"+mass_str+".0_cat0"))->Clone();
+      if (nSB>2) hist_data[0][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_3low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      if (nSB>1) hist_data[1][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_2low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      hist_data[2][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_1low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      hist_data[3][22+j] = (TH1*)(f_bdtout->Get("th1f_data_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      hist_data[4][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_1high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      if (nSB>1) hist_data[5][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_2high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      if (nSB>2) hist_data[6][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      hist_bkgModel[22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      hist_balg[22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_balg_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      if (nSB>2) hist_bkg[0][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_3low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      if (nSB>1) hist_bkg[1][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_2low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      hist_bkg[2][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_1low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      hist_bkg[3][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      hist_bkg[4][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_1high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      if (nSB>1) hist_bkg[5][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_2high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      if (nSB>2) hist_bkg[6][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+
+    }
 
   } else {
 
-    if (rebin) {
+    for (int j=0; j<2; j++) {
 
-      hist_sig_fine[22] = (TH1*)(f_bdtout->Get("th1f_sig_BDT_grad_ggh_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>2) hist_data_fine[0][22] = (TH1*)(f_bdtout->Get("th1f_data_3low_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>1) hist_data_fine[1][22] = (TH1*)(f_bdtout->Get("th1f_data_2low_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      hist_data_fine[2][22] = (TH1*)(f_bdtout->Get("th1f_data_1low_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      hist_data_fine[3][22] = (TH1*)(f_bdtout->Get("th1f_data_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      hist_data_fine[4][22] = (TH1*)(f_bdtout->Get("th1f_data_1high_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>1) hist_data_fine[5][22] = (TH1*)(f_bdtout->Get("th1f_data_2high_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>2) hist_data_fine[6][22] = (TH1*)(f_bdtout->Get("th1f_data_3high_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      hist_bkgModel_fine[22] = (TH1*)(f_bdtout->Get("th1f_data_BDT_sideband_grad_"+mass_str+".0_cat0"))->Clone();
-      hist_balg_fine[22] = (TH1*)(f_bdtout->Get("th1f_bkg_BDT_grad_all_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>2) hist_bkg_fine[0][22] = (TH1*)(f_bdtout->Get("th1f_bkg_3low_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>1) hist_bkg_fine[1][22] = (TH1*)(f_bdtout->Get("th1f_bkg_2low_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      hist_bkg_fine[2][22] = (TH1*)(f_bdtout->Get("th1f_bkg_1low_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      hist_bkg_fine[3][22] = (TH1*)(f_bdtout->Get("th1f_bkg_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      hist_bkg_fine[4][22] = (TH1*)(f_bdtout->Get("th1f_bkg_1high_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>1) hist_bkg_fine[5][22] = (TH1*)(f_bdtout->Get("th1f_bkg_2high_BDT_grad_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>2) hist_bkg_fine[6][22] = (TH1*)(f_bdtout->Get("th1f_bkg_3high_BDT_grad_"+mass_str+".0_cat0"))->Clone();
+      if (rebin) {
 
-      hist_sig_fine[23] = (TH1*)(f_bdtout->Get("th1f_sig_BDT_ada_ggh_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>2) hist_data_fine[0][23] = (TH1*)(f_bdtout->Get("th1f_data_3low_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>1) hist_data_fine[1][23] = (TH1*)(f_bdtout->Get("th1f_data_2low_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      hist_data_fine[2][23] = (TH1*)(f_bdtout->Get("th1f_data_1low_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      hist_data_fine[3][23] = (TH1*)(f_bdtout->Get("th1f_data_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      hist_data_fine[4][23] = (TH1*)(f_bdtout->Get("th1f_data_1high_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>1) hist_data_fine[5][23] = (TH1*)(f_bdtout->Get("th1f_data_2high_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>2) hist_data_fine[6][23] = (TH1*)(f_bdtout->Get("th1f_data_3high_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      hist_bkgModel_fine[23] = (TH1*)(f_bdtout->Get("th1f_data_BDT_sideband_ada_"+mass_str+".0_cat0"))->Clone();
-      hist_balg_fine[22] = (TH1*)(f_bdtout->Get("th1f_bkg_BDT_ada_all_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>2) hist_bkg_fine[0][23] = (TH1*)(f_bdtout->Get("th1f_bkg_3low_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>1) hist_bkg_fine[1][23] = (TH1*)(f_bdtout->Get("th1f_bkg_2low_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      hist_bkg_fine[2][23] = (TH1*)(f_bdtout->Get("th1f_bkg_1low_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      hist_bkg_fine[3][23] = (TH1*)(f_bdtout->Get("th1f_bkg_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      hist_bkg_fine[4][23] = (TH1*)(f_bdtout->Get("th1f_bkg_1high_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>1) hist_bkg_fine[5][23] = (TH1*)(f_bdtout->Get("th1f_bkg_2high_BDT_ada_"+mass_str+".0_cat0"))->Clone();
-      if (nSB>2) hist_bkg_fine[6][23] = (TH1*)(f_bdtout->Get("th1f_bkg_3high_BDT_ada_"+mass_str+".0_cat0"))->Clone();
+	hist_sig_fine[22+j] = (TH1*)(f_bdtout->Get("th1f_sig_BDT_"+boost_str[j]+"_ggh_"+mass_str+".0_cat0"))->Clone();
+	if (nSB>2) hist_data_fine[0][22+j] = (TH1*)(f_bdtout->Get("th1f_data_3low_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	if (nSB>1) hist_data_fine[1][22+j] = (TH1*)(f_bdtout->Get("th1f_data_2low_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	hist_data_fine[2][22+j] = (TH1*)(f_bdtout->Get("th1f_data_1low_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	hist_data_fine[3][22+j] = (TH1*)(f_bdtout->Get("th1f_data_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	hist_data_fine[4][22+j] = (TH1*)(f_bdtout->Get("th1f_data_1high_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	if (nSB>1) hist_data_fine[5][22+j] = (TH1*)(f_bdtout->Get("th1f_data_2high_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	if (nSB>2) hist_data_fine[6][22+j] = (TH1*)(f_bdtout->Get("th1f_data_3high_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	hist_bkgModel_fine[22+j] = (TH1*)(f_bdtout->Get("th1f_data_BDT_sideband_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	hist_balg_fine[22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_BDT_"+boost_str[j]+"_all_"+mass_str+".0_cat0"))->Clone();
+	if (nSB>2) hist_bkg_fine[0][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_3low_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	if (nSB>1) hist_bkg_fine[1][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_2low_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	hist_bkg_fine[2][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_1low_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	hist_bkg_fine[3][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	hist_bkg_fine[4][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_1high_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	if (nSB>1) hist_bkg_fine[5][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_2high_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	if (nSB>2) hist_bkg_fine[6][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_3high_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
 
-      hist_sig_fine[22]->Rebin(nbins_nominal_grad,"th1f_nominal_sig_grad_ggh_"+mass_str+".0_"+mass_str+".0_cat0",xbins_nominal_grad);
-      if (nSB>2) hist_data_fine[0][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_3low_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      if (nSB>1) hist_data_fine[1][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_2low_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      hist_data_fine[2][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_1low_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      hist_data_fine[3][22]->Rebin(nbins_nominal_grad,"th1f_nominal_data_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      hist_data_fine[4][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_1high_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      if (nSB>1) hist_data_fine[5][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_2high_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      if (nSB>2) hist_data_fine[6][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_3high_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      hist_bkgModel_fine[22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      hist_balg_fine[22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_mc_balg_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      if (nSB>2) hist_bkg_fine[0][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_mc_3low_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      if (nSB>1) hist_bkg_fine[1][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_mc_2low_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      hist_bkg_fine[2][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_mc_1low_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      hist_bkg_fine[3][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_mc_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      hist_bkg_fine[4][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_mc_1high_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      if (nSB>1) hist_bkg_fine[5][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_mc_2high_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
-      if (nSB>2) hist_bkg_fine[6][22]->Rebin(nbins_nominal_grad,"th1f_nominal_bkg_mc_3high_grad_"+mass_str+".0_cat0",xbins_nominal_grad);
+	Double_t xbins[100];
+	for (int i=0; i<nbins_nominal[j]+1; i++) xbins[i]= xbins_nominal[i][j];
+	hist_sig_fine[22+j]->Rebin(nbins_nominal[j],"th1f_nominal_sig_"+boost_str[j]+"_ggh_"+mass_str+".0_"+mass_str+".0_cat0",xbins);
+	if (nSB>2) hist_data_fine[0][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_3low_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	if (nSB>1) hist_data_fine[1][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_2low_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	hist_data_fine[2][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_1low_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	hist_data_fine[3][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_data_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	hist_data_fine[4][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_1high_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	if (nSB>1) hist_data_fine[5][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_2high_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	if (nSB>2) hist_data_fine[6][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_3high_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	hist_bkgModel_fine[22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	hist_balg_fine[22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_balg_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	if (nSB>2) hist_bkg_fine[0][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_3low_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	if (nSB>1) hist_bkg_fine[1][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_2low_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	hist_bkg_fine[2][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_1low_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	hist_bkg_fine[3][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	hist_bkg_fine[4][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_1high_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	if (nSB>1) hist_bkg_fine[5][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_2high_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	if (nSB>2) hist_bkg_fine[6][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_3high_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
 
-      hist_sig_fine[23]->Rebin(nbins_nominal_ada,"th1f_nominal_sig_ada_ggh_"+mass_str+".0_"+mass_str+".0_cat0",xbins_nominal_ada);
-      if (nSB>2) hist_data_fine[0][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_3low_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      if (nSB>1) hist_data_fine[1][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_2low_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      hist_data_fine[2][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_1low_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      hist_data_fine[3][23]->Rebin(nbins_nominal_ada,"th1f_nominal_data_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      hist_data_fine[4][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_1high_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      if (nSB>1) hist_data_fine[5][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_2high_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      if (nSB>2) hist_data_fine[6][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_3high_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      hist_bkgModel_fine[23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      hist_balg_fine[22]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_mc_balg_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      if (nSB>2) hist_bkg_fine[0][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_mc_3low_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      if (nSB>1) hist_bkg_fine[1][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_mc_2low_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      hist_bkg_fine[2][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_mc_1low_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      hist_bkg_fine[3][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_mc_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      hist_bkg_fine[4][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_mc_1high_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      if (nSB>1) hist_bkg_fine[5][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_mc_2high_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
-      if (nSB>2) hist_bkg_fine[6][23]->Rebin(nbins_nominal_ada,"th1f_nominal_bkg_mc_3high_ada_"+mass_str+".0_cat0",xbins_nominal_ada);
+      }
+
+      int nbins = ((TH1*)f_bdtout->Get("th1f"+nominal_str+"_data_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetNbinsX();
+      int binshift=0;
+      if (rebinBdtOut && nbins%2!=0) {
+	nbins-=1;
+	binshift=1;
+      }
+      hist_sig[22+j] = new TH1F("hist_sig_"+boost_str[j]+"_ggh","hist_sig_"+boost_str[j]+"_ggh",nbins,0,float(nbins));
+      if (nSB>2) hist_data[0][22+j] = new TH1F("hist_data_3low_"+boost_str[j]+"","hist_data_3low_"+boost_str[j]+"",nbins,0,float(nbins));
+      if (nSB>1) hist_data[1][22+j] = new TH1F("hist_data_2low_"+boost_str[j]+"","hist_data_2low_"+boost_str[j]+"",nbins,0,float(nbins));
+      hist_data[2][22+j] = new TH1F("hist_data_1low_"+boost_str[j]+"","hist_data_1low_"+boost_str[j]+"",nbins,0,float(nbins));
+      hist_data[3][22+j] = new TH1F("hist_data_sig_"+boost_str[j]+"_ggh","hist_data_sig_"+boost_str[j]+"_ggh",nbins,0,float(nbins));
+      hist_data[4][22+j] = new TH1F("hist_data_1high_"+boost_str[j]+"","hist_data_1high_"+boost_str[j]+"",nbins,0,float(nbins));
+      if (nSB>1) hist_data[5][22+j] = new TH1F("hist_data_2high_"+boost_str[j]+"","hist_data_2high_"+boost_str[j]+"",nbins,0,float(nbins));
+      if (nSB>2) hist_data[6][22+j] = new TH1F("hist_data_3high_"+boost_str[j]+"","hist_data_3high_"+boost_str[j]+"",nbins,0,float(nbins));
+      hist_bkgModel[22+j] = new TH1F("hist_bkgModel_"+boost_str[j]+"","hist_bkgModel_"+boost_str[j]+"",nbins,0,float(nbins));
+      hist_balg[22+j] = new TH1F("hist_balg_"+boost_str[j]+"","hist_balg_"+boost_str[j]+"",nbins,0,float(nbins));
+      if (nSB>2) hist_bkg[0][22+j] = new TH1F("hist_bkg_3low_"+boost_str[j]+"","hist_bkg_3low_"+boost_str[j]+"",nbins,0,float(nbins));
+      if (nSB>1) hist_bkg[1][22+j] = new TH1F("hist_bkg_2low_"+boost_str[j]+"","hist_bkg_2low_"+boost_str[j]+"",nbins,0,float(nbins));
+      hist_bkg[2][22+j] = new TH1F("hist_bkg_1low_"+boost_str[j]+"","hist_bkg_1low_"+boost_str[j]+"",nbins,0,float(nbins));
+      hist_bkg[3][22+j] = new TH1F("hist_bkg_sig_"+boost_str[j]+"_ggh","hist_bkg_sig_"+boost_str[j]+"_ggh",nbins,0,float(nbins));
+      hist_bkg[4][22+j] = new TH1F("hist_bkg_1high_"+boost_str[j]+"","hist_bkg_1high_"+boost_str[j]+"",nbins,0,float(nbins));
+      if (nSB>1) hist_bkg[5][22+j] = new TH1F("hist_bkg_2high_"+boost_str[j]+"","hist_bkg_2high_"+boost_str[j]+"",nbins,0,float(nbins));
+      if (nSB>2) hist_bkg[6][22+j] = new TH1F("hist_bkg_3high_"+boost_str[j]+"","hist_bkg_3high_"+boost_str[j]+"",nbins,0,float(nbins));
+      for (int ibin=0; ibin<nbins+1; ibin++) {
+	hist_sig[22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_sig_"+boost_str[j]+"_ggh_"+mass_str+".0_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	hist_sig[22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_sig_"+boost_str[j]+"_ggh_"+mass_str+".0_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	if (nSB>2) hist_data[0][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>2) hist_data[0][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	if (nSB>1) hist_data[1][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_2low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>1) hist_data[1][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_2low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_data[2][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_1low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	hist_data[2][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_1low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_data[3][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_data_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	hist_data[3][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_data_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_data[4][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_1high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	hist_data[4][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_1high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	if (nSB>1) hist_data[5][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_2high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>1) hist_data[5][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_2high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	if (nSB>2) hist_data[6][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>2) hist_data[6][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_bkgModel[22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_bkgModel[22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	hist_balg[22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_balg_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_balg[22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_balg_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>2) hist_bkg[0][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>2) hist_bkg[0][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	if (nSB>1) hist_bkg[1][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>1) hist_bkg[1][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_bkg[2][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_1low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	hist_bkg[2][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_1low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_bkg[3][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	hist_bkg[3][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_bkg[4][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_1high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	hist_bkg[4][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_1high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	if (nSB>1) hist_bkg[5][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>1) hist_bkg[5][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	if (nSB>2) hist_bkg[6][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>2) hist_bkg[6][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+      }
 
     }
 
-    int nbins = ((TH1*)f_bdtout->Get("th1f"+nominal_str+"_data_grad_"+mass_str+".0_cat0"))->GetNbinsX();
-    int binshift=0;
-    if (rebinBdtOut && nbins%2!=0) {
-      nbins-=1;
-      binshift=1;
-    }
-    hist_sig[22] = new TH1F("hist_sig_grad_ggh","hist_sig_grad_ggh",nbins,0,float(nbins));
-    if (nSB>2) hist_data[0][22] = new TH1F("hist_data_3low_grad","hist_data_3low_grad",nbins,0,float(nbins));
-    if (nSB>1) hist_data[1][22] = new TH1F("hist_data_2low_grad","hist_data_2low_grad",nbins,0,float(nbins));
-    hist_data[2][22] = new TH1F("hist_data_1low_grad","hist_data_1low_grad",nbins,0,float(nbins));
-    hist_data[3][22] = new TH1F("hist_data_sig_grad_ggh","hist_data_sig_grad_ggh",nbins,0,float(nbins));
-    hist_data[4][22] = new TH1F("hist_data_1high_grad","hist_data_1high_grad",nbins,0,float(nbins));
-    if (nSB>1) hist_data[5][22] = new TH1F("hist_data_2high_grad","hist_data_2high_grad",nbins,0,float(nbins));
-    if (nSB>2) hist_data[6][22] = new TH1F("hist_data_3high_grad","hist_data_3high_grad",nbins,0,float(nbins));
-    hist_bkgModel[22] = new TH1F("hist_bkgModel_grad","hist_bkgModel_grad",nbins,0,float(nbins));
-    hist_balg[22] = new TH1F("hist_balg_grad","hist_balg_grad",nbins,0,float(nbins));
-    if (nSB>2) hist_bkg[0][22] = new TH1F("hist_bkg_3low_grad","hist_bkg_3low_grad",nbins,0,float(nbins));
-    if (nSB>1) hist_bkg[1][22] = new TH1F("hist_bkg_2low_grad","hist_bkg_2low_grad",nbins,0,float(nbins));
-    hist_bkg[2][22] = new TH1F("hist_bkg_1low_grad","hist_bkg_1low_grad",nbins,0,float(nbins));
-    hist_bkg[3][22] = new TH1F("hist_bkg_sig_grad_ggh","hist_bkg_sig_grad_ggh",nbins,0,float(nbins));
-    hist_bkg[4][22] = new TH1F("hist_bkg_1high_grad","hist_bkg_1high_grad",nbins,0,float(nbins));
-    if (nSB>1) hist_bkg[5][22] = new TH1F("hist_bkg_2high_grad","hist_bkg_2high_grad",nbins,0,float(nbins));
-    if (nSB>2) hist_bkg[6][22] = new TH1F("hist_bkg_3high_grad","hist_bkg_3high_grad",nbins,0,float(nbins));
-    for (int ibin=0; ibin<nbins+1; ibin++) {
-      hist_sig[22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_sig_grad_ggh_"+mass_str+".0_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_sig[22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_sig_grad_ggh_"+mass_str+".0_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>2) hist_data[0][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3low_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>2) hist_data[0][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3low_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>1) hist_data[1][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_2low_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>1) hist_data[1][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_2low_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_data[2][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_1low_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_data[2][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_1low_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_data[3][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_data_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_data[3][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_data_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_data[4][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_1high_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_data[4][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_1high_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>1) hist_data[5][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_2high_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>1) hist_data[5][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_2high_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>2) hist_data[6][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3high_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>2) hist_data[6][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3high_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_bkgModel[22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_bkgModel[22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_balg[22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_balg_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_balg[22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_balg_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>2) hist_bkg[0][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3low_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>2) hist_bkg[0][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3low_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>1) hist_bkg[1][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2low_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>1) hist_bkg[1][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2low_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_bkg[2][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_1low_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_bkg[2][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_1low_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_bkg[3][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_bkg[3][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_bkg[4][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_1high_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_bkg[4][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_1high_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>1) hist_bkg[5][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2high_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>1) hist_bkg[5][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2high_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>2) hist_bkg[6][22]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3high_grad_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>2) hist_bkg[6][22]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3high_grad_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-    }
+  }
 
-    nbins = ((TH1*)f_bdtout->Get("th1f"+nominal_str+"_data_ada_"+mass_str+".0_cat0"))->GetNbinsX();
-    binshift=0;
-    if (rebinBdtOut && nbins%2!=0) {
-      nbins-=1;
-      binshift=1;
-    }
-    hist_sig[23] = new TH1F("hist_sig_ada_ggh","hist_sig_ada_ggh",nbins,0,float(nbins));
-    if (nSB>2) hist_data[0][23] = new TH1F("hist_data_3low_ada","hist_data_3low_ada",nbins,0,float(nbins));
-    if (nSB>1) hist_data[1][23] = new TH1F("hist_data_2low_ada","hist_data_2low_ada",nbins,0,float(nbins));
-    hist_data[2][23] = new TH1F("hist_data_1low_ada","hist_data_1low_ada",nbins,0,float(nbins));
-    hist_data[3][23] = new TH1F("hist_data_sig_ada_ggh","hist_data_sig_ada_ggh",nbins,0,float(nbins));
-    hist_data[4][23] = new TH1F("hist_data_1high_ada","hist_data_1high_ada",nbins,0,float(nbins));
-    if (nSB>1) hist_data[5][23] = new TH1F("hist_data_2high_ada","hist_data_2high_ada",nbins,0,float(nbins));
-    if (nSB>2) hist_data[6][23] = new TH1F("hist_data_3high_ada","hist_data_3high_ada",nbins,0,float(nbins));
-    hist_bkgModel[23] = new TH1F("hist_bkgModel_ada","hist_bkgModel_ada",nbins,0,float(nbins));
-    hist_balg[23] = new TH1F("hist_balg_ada","hist_balg_ada",nbins,0,float(nbins));
-    if (nSB>2) hist_bkg[0][23] = new TH1F("hist_bkg_3low_ada","hist_bkg_3low_ada",nbins,0,float(nbins));
-    if (nSB>1) hist_bkg[1][23] = new TH1F("hist_bkg_2low_ada","hist_bkg_2low_ada",nbins,0,float(nbins));
-    hist_bkg[2][23] = new TH1F("hist_bkg_1low_ada","hist_bkg_1low_ada",nbins,0,float(nbins));
-    hist_bkg[3][23] = new TH1F("hist_bkg_sig_ada_ggh","hist_bkg_sig_ada_ggh",nbins,0,float(nbins));
-    hist_bkg[4][23] = new TH1F("hist_bkg_1high_ada","hist_bkg_1high_ada",nbins,0,float(nbins));
-    if (nSB>1) hist_bkg[5][23] = new TH1F("hist_bkg_2high_ada","hist_bkg_2high_ada",nbins,0,float(nbins));
-    if (nSB>2) hist_bkg[6][23] = new TH1F("hist_bkg_3high_ada","hist_bkg_3high_ada",nbins,0,float(nbins));
-    for (int ibin=0; ibin<nbins+1; ibin++) {
-      hist_sig[23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_sig_ada_ggh_"+mass_str+".0_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_sig[23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_sig_ada_ggh_"+mass_str+".0_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>2) hist_data[0][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3low_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>2) hist_data[0][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3low_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>1) hist_data[1][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_2low_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>1) hist_data[1][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_2low_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_data[2][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_1low_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_data[2][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_1low_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_data[3][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_data_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_data[3][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_data_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_data[4][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_1high_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_data[4][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_1high_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>1) hist_data[5][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_2high_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>1) hist_data[5][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_2high_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>2) hist_data[6][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3high_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>2) hist_data[6][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3high_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_bkgModel[23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_bkgModel[23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_balg[23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_balg_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_balg[23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_balg_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>2) hist_bkg[0][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3low_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>2) hist_bkg[0][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3low_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>1) hist_bkg[1][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2low_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>1) hist_bkg[1][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2low_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_bkg[2][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_1low_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_bkg[2][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_1low_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_bkg[3][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_bkg[3][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      hist_bkg[4][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_1high_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      hist_bkg[4][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_1high_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>1) hist_bkg[5][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2high_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>1) hist_bkg[5][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2high_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
-      if (nSB>2) hist_bkg[6][23]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3high_ada_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
-      if (nSB>2) hist_bkg[6][23]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3high_ada_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+
+  f_bdtout_fastsim->cd();
+
+  if (!equalBinWidths) {
+
+    if (nSB>2) hist_bkg_fastsim[0][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_mc_3low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+    if (nSB>1) hist_bkg_fastsim[1][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_mc_2low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+    hist_bkg_fastsim[2][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_mc_1low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+    hist_bkg_fastsim[3][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_mc_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+    hist_bkg_fastsim[4][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_mc_1high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+    if (nSB>1) hist_bkg_fastsim[5][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_mc_2high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+    if (nSB>2) hist_bkg_fastsim[6][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_mc_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+
+  } else {
+
+    for (int j=0; j<2; j++) {
+
+      if (rebin) {
+
+	if (nSB>2) hist_bkg_fastsim_fine[0][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_3low_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	if (nSB>1) hist_bkg_fastsim_fine[1][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_2low_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	hist_bkg_fastsim_fine[2][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_1low_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	hist_bkg_fastsim_fine[3][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	hist_bkg_fastsim_fine[4][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_1high_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	if (nSB>1) hist_bkg_fastsim_fine[5][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_2high_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+	if (nSB>2) hist_bkg_fastsim_fine[6][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_3high_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+
+	Double_t xbins[100];
+	for (int i=0; i<nbins_nominal[j]+1; i++) xbins[i]= xbins_nominal[i][j];
+	if (nSB>2) hist_bkg_fastsim_fine[0][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_3low_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	if (nSB>1) hist_bkg_fastsim_fine[1][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_2low_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	hist_bkg_fastsim_fine[2][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_1low_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	hist_bkg_fastsim_fine[3][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	hist_bkg_fastsim_fine[4][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_1high_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	if (nSB>1) hist_bkg_fastsim_fine[5][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_2high_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+	if (nSB>2) hist_bkg_fastsim_fine[6][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_3high_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
+
+      }
+
+      int nbins = nbins_nominal[j];
+      int binshift=0;
+      if (rebinBdtOut && nbins%2!=0) {
+	nbins-=1;
+	binshift=1;
+      }
+      if (nSB>2) hist_bkg_fastsim[0][22+j] = new TH1F("hist_bkg_3low_"+boost_str[j]+"","hist_bkg_3low_"+boost_str[j]+"",nbins,0,float(nbins));
+      if (nSB>1) hist_bkg_fastsim[1][22+j] = new TH1F("hist_bkg_2low_"+boost_str[j]+"","hist_bkg_2low_"+boost_str[j]+"",nbins,0,float(nbins));
+      hist_bkg_fastsim[2][22+j] = new TH1F("hist_bkg_1low_"+boost_str[j]+"","hist_bkg_1low_"+boost_str[j]+"",nbins,0,float(nbins));
+      hist_bkg_fastsim[3][22+j] = new TH1F("hist_bkg_sig_"+boost_str[j]+"_ggh","hist_bkg_sig_"+boost_str[j]+"_ggh",nbins,0,float(nbins));
+      hist_bkg_fastsim[4][22+j] = new TH1F("hist_bkg_1high_"+boost_str[j]+"","hist_bkg_1high_"+boost_str[j]+"",nbins,0,float(nbins));
+      if (nSB>1) hist_bkg_fastsim[5][22+j] = new TH1F("hist_bkg_2high_"+boost_str[j]+"","hist_bkg_2high_"+boost_str[j]+"",nbins,0,float(nbins));
+      if (nSB>2) hist_bkg_fastsim[6][22+j] = new TH1F("hist_bkg_3high_"+boost_str[j]+"","hist_bkg_3high_"+boost_str[j]+"",nbins,0,float(nbins));
+      for (int ibin=0; ibin<nbins+1; ibin++) {
+	if (nSB>2) hist_bkg_fastsim[0][22+j]->SetBinContent(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_3low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>2) hist_bkg_fastsim[0][22+j]->SetBinError(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_3low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	if (nSB>1) hist_bkg_fastsim[1][22+j]->SetBinContent(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_2low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>1) hist_bkg_fastsim[1][22+j]->SetBinError(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_2low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_bkg_fastsim[2][22+j]->SetBinContent(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_1low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	hist_bkg_fastsim[2][22+j]->SetBinError(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_1low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_bkg_fastsim[3][22+j]->SetBinContent(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	hist_bkg_fastsim[3][22+j]->SetBinError(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_bkg_fastsim[4][22+j]->SetBinContent(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_1high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	hist_bkg_fastsim[4][22+j]->SetBinError(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_1high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	if (nSB>1) hist_bkg_fastsim[5][22+j]->SetBinContent(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_2high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>1) hist_bkg_fastsim[5][22+j]->SetBinError(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_2high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	if (nSB>2) hist_bkg_fastsim[6][22+j]->SetBinContent(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	if (nSB>2) hist_bkg_fastsim[6][22+j]->SetBinError(ibin,((TH1*)f_bdtout_fastsim->Get("th1f"+nominal_str+"_bkg_mc_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+      }
+
     }
 
   }
@@ -434,20 +409,28 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_data[6][j]=(TH1*)hist_data[3][j]->Clone();
       hist_bkg[0][j]=(TH1*)hist_bkg[3][j]->Clone();
       hist_bkg[6][j]=(TH1*)hist_bkg[3][j]->Clone();
+      hist_bkg_fastsim[0][j]=(TH1*)hist_bkg[3][j]->Clone();
+      hist_bkg_fastsim[6][j]=(TH1*)hist_bkg[3][j]->Clone();
       hist_data[0][j]->Reset();
       hist_data[6][j]->Reset();
       hist_bkg[0][j]->Reset();
       hist_bkg[6][j]->Reset();
+      hist_bkg_fastsim[0][j]->Reset();
+      hist_bkg_fastsim[6][j]->Reset();
     }
     if (nSB<2) {
       hist_data[1][j]=(TH1*)hist_data[3][j]->Clone();
       hist_data[5][j]=(TH1*)hist_data[3][j]->Clone();
       hist_bkg[1][j]=(TH1*)hist_bkg[3][j]->Clone();
       hist_bkg[5][j]=(TH1*)hist_bkg[3][j]->Clone();
+      hist_bkg_fastsim[1][j]=(TH1*)hist_bkg[3][j]->Clone();
+      hist_bkg_fastsim[5][j]=(TH1*)hist_bkg[3][j]->Clone();
       hist_data[1][j]->Reset();
       hist_data[5][j]->Reset();
       hist_bkg[1][j]->Reset();
       hist_bkg[5][j]->Reset();
+      hist_bkg_fastsim[1][j]->Reset();
+      hist_bkg_fastsim[5][j]->Reset();
     }
     if (!equalBinWidths) {
       hist_sig[j]->GetYaxis()->SetTitle("");
@@ -456,6 +439,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       for (int i=0; i<7; i++) {
 	hist_data[i][j]->GetYaxis()->SetTitle("");
 	hist_bkg[i][j]->GetYaxis()->SetTitle("");
+	hist_bkg_fastsim[i][j]->GetYaxis()->SetTitle("");
       }
     }
 
@@ -464,6 +448,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       for (int i=0; i<7; i++) {
 	hist_data[i][j]->Rebin(2);
 	hist_bkg[i][j]->Rebin(2);
+	hist_bkg_fastsim[i][j]->Rebin(2);
 	hist_bkgModel[j]->Rebin(2);
 	hist_balg[j]->Rebin(2);
       }
@@ -490,10 +475,9 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   hist_mass_qcd_ff->Add(all_mass_cat0_QCD30FF);
   hist_mass_dy = (TH1*)all_mass_cat0_DYJetsToLL->Clone();
 
-  TString var[24] = {"ptOverMH","eta","deltaPhi","cosDeltaPhi","pho1_pt","pho2_pt","pho1_eta","pho2_eta","pho_minr9","maxeta","ptOverMH","pho1_ptOverMH","pho2_ptOverMH","sigmaMOverM","deltaEta","deltaMOverMH","pho1_ptOverMH","pho2_ptOverMH","sigmaMOverMH","sigmaMOverMH_Eonly","deltaMOverSigmaM","sigmaM","bdtOut_grad","bdtOut_ada"};
+  TString var[24] = {"ptOverMH","eta","deltaPhi","cosDeltaPhi","pho1_phoidMva","pho2_phoidMva","pho1_eta","pho2_eta","pho_minr9","maxeta","ptOverM","pho1_ptOverM","pho2_ptOverM","sigmaMOverM","deltaEta","deltaMOverMH","pho1_ptOverMH","pho2_ptOverMH","vtxProb","sigmaMOverM_wrongVtx","ucsdbdt","mitbdt","bdtOut_grad","bdtOut_ada"};
 
-  for (int ivar=0; ivar<1; ivar++) {
-    if (ivar==10 || ivar==16 || ivar==17) continue;
+  for (int ivar=0; ivar<22; ivar++) {
     cout << var[ivar] << endl;
     hist_sig[ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_msig_cat"+cat_str+"_gluglu_H_gg_"+mass_str2+"_pu2011"))->Clone();
 
@@ -601,7 +585,29 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
   }
 
-  TString title[24] = {"Diphoton p_{T}/M_{H}","Diphoton #eta","#Delta#phi","cos#Delta#phi","lead p_{T} (GeV)","sublead p_{T} (GeV)","lead #eta","sublead #eta","min(R9)","max #eta","Diphoton p_{T}/M_{H}","p_{T1}/M_{H}","p_{T2}/M_{H}","#sigma_{M}/M_{#gamma#gamma}","#Delta#eta","#DeltaM/M_{H}","p_{T1}/M_{H}","p_{T2}/M_{H}","#sigma_{M}/M_{H}","#sigma_{M}/M_{H} (energy only)","#DeltaM/#sigma_{M}","#sigma_{M}","BDT output (gradient boost)","BDT output (adaptive boost)"};
+  f_bdtin_fastsim->cd();
+
+  for (int ivar=0; ivar<22; ivar++) {
+
+    hist_born_fastsim[0][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mlow3_cat"+cat_str+"_Born25"))->Clone();
+    hist_born_fastsim[1][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mlow2_cat"+cat_str+"_Born25"))->Clone();
+    hist_born_fastsim[2][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mlow_cat"+cat_str+"_Born25"))->Clone();
+    hist_born_fastsim[3][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_msig_cat"+cat_str+"_Born25"))->Clone();
+    hist_born_fastsim[4][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mhigh_cat"+cat_str+"_Born25"))->Clone();
+    hist_born_fastsim[5][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mhigh2_cat"+cat_str+"_Born25"))->Clone();
+    hist_born_fastsim[6][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mhigh3_cat"+cat_str+"_Born25"))->Clone();
+
+    hist_box_fastsim[0][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mlow3_cat"+cat_str+"_Box25"))->Clone();
+    hist_box_fastsim[1][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mlow2_cat"+cat_str+"_Box25"))->Clone();
+    hist_box_fastsim[2][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mlow_cat"+cat_str+"_Box25"))->Clone();
+    hist_box_fastsim[3][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_msig_cat"+cat_str+"_Box25"))->Clone();
+    hist_box_fastsim[4][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mhigh_cat"+cat_str+"_Box25"))->Clone();
+    hist_box_fastsim[5][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mhigh2_cat"+cat_str+"_Box25"))->Clone();
+    hist_box_fastsim[6][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mhigh3_cat"+cat_str+"_Box25"))->Clone();
+
+  }
+
+  TString title[24] = {"Diphoton p_{T}/M_{H}","Diphoton #eta","#Delta#phi","cos#Delta#phi","lead photon ID MVA output","sublead photon ID MVA output","lead #eta","sublead #eta","min(R9)","max #eta","Diphoton p_{T}/M_{#gamma#gamma}","p_{T1}/M_{#gamma#gamma}","p_{T2}/M_{#gamma#gamma}","#sigma_{M}/M_{#gamma#gamma} (right vertex)","#Delta#eta","#DeltaM/M_{H}","p_{T1}/M_{H}","p_{T2}/M_{H}","vertex probability","#sigma_{M}/M_{#gamma#gamma} (wrong vertex)","BDT output (UCSD)","BDT output (MIT)","BDT output (gradient boost)","BDT output (adaptive boost)"};
   if (equalBinWidths) {
     title[22]="BDT output bin number (gradient boost)";
     title[23]="BDT output bin number (adaptive boost)";
@@ -655,17 +661,20 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   for (int i=0; i<8; i++) cout << sideband_boundaries[i] << " ";
   cout << endl;
 
-  float frac_signal = hist_mass_sig->Integral(hist_mass_sig->FindBin(signalRegion_boundaries[0]),hist_mass_sig->FindBin(signalRegion_boundaries[1]))/hist_mass_sig->Integral();
-  cout << "fraction of signal in signal region = " << frac_signal << endl;
+  //float frac_signal = hist_mass_sig->Integral(hist_mass_sig->FindBin(signalRegion_boundaries[0]),hist_mass_sig->FindBin(signalRegion_boundaries[1]))/hist_mass_sig->Integral();
+  //cout << "fraction of signal in signal region = " << frac_signal << endl;
 
   float Ndata_sig = hist_bkgModel[22]->Integral();
   cout << Ndata_sig << endl;
 
-  for (int ivar=0; ivar<1; ivar++) {
+  for (int ivar=0; ivar<22; ivar++) {
 
-    if (ivar==10 || ivar==16 || ivar==17) continue;
+    //if (ivar==10 || ivar==16 || ivar==17) continue;
 
-    if (ivar==0 || ivar==10) {
+    int RebinFactor = 1;
+    if (ivar==0 || ivar==10) RebinFactor = 2;
+    if (ivar==20 || ivar==21) RebinFactor = 4;
+    if (RebinFactor>1) {
       hist_sig[ivar]->Rebin(2);
       for (int i=0; i<7; i++) {
 	hist_data[i][ivar]->Rebin(2);
@@ -679,6 +688,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	  hist_gjet_pp[i][ivar]->Rebin(2);
 	  hist_qcd_pp[i][ivar]->Rebin(2);
 	}
+	hist_born_fastsim[i][ivar]->Rebin(2);
+	hist_box_fastsim[i][ivar]->Rebin(2);
       }
     }
 
@@ -690,6 +701,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	  hist_gjet_pp[i][ivar]->Scale(1./0.6767);
 	  hist_qcd_pp[i][ivar]->Scale(1./0.6767);
 	}
+	hist_born_fastsim[i][ivar]->Scale(1./0.6767);
+	hist_box_fastsim[i][ivar]->Scale(1./0.6767);
       }
     }
 
@@ -704,6 +717,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_gjet_pp[7][ivar] = (TH1*)hist_gjet_pp[0][ivar]->Clone();
       hist_qcd_pp[7][ivar] = (TH1*)hist_qcd_pp[0][ivar]->Clone();
     }
+    hist_born_fastsim[7][ivar] = (TH1*)hist_born[0][ivar]->Clone();
+    hist_box_fastsim[7][ivar] = (TH1*)hist_box[0][ivar]->Clone();
     for (int i=1; i<7; i++) {
       if (data) hist_data[7][ivar]->Add(hist_data[i][ivar]);
       hist_born[7][ivar]->Add(hist_born[i][ivar]);
@@ -716,6 +731,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	hist_gjet_pp[7][ivar]->Add(hist_gjet_pp[i][ivar]);
 	hist_qcd_pp[7][ivar]->Add(hist_qcd_pp[i][ivar]);
       }
+      hist_born_fastsim[7][ivar]->Add(hist_born[i][ivar]);
+      hist_box_fastsim[7][ivar]->Add(hist_box[i][ivar]);
     }
 
     /*
@@ -754,16 +771,29 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	hist_sig[ivar]->SetBinContent(ibin+1,hist_sig[ivar]->GetBinContent(ibin+1)+hist_sig[ivar]->GetBinContent(50-ibin));
 	for (int i=0; i<8; i++) {
 	  hist_data[i][ivar]->SetBinContent(ibin+1,hist_data[i][ivar]->GetBinContent(ibin+1)+hist_data[i][ivar]->GetBinContent(50-ibin));
+	  hist_data[i][ivar]->SetBinError(ibin+1,sqrt(TMath::Power(hist_data[i][ivar]->GetBinError(ibin+1),2)+TMath::Power(hist_data[i][ivar]->GetBinError(50-ibin),2)));
 	  hist_born[i][ivar]->SetBinContent(ibin+1,hist_born[i][ivar]->GetBinContent(ibin+1)+hist_born[i][ivar]->GetBinContent(50-ibin));
+	  hist_born[i][ivar]->SetBinError(ibin+1,sqrt(TMath::Power(hist_born[i][ivar]->GetBinError(ibin+1),2)+TMath::Power(hist_born[i][ivar]->GetBinError(50-ibin),2)));
 	  hist_box[i][ivar]->SetBinContent(ibin+1,hist_box[i][ivar]->GetBinContent(ibin+1)+hist_box[i][ivar]->GetBinContent(50-ibin));
+	  hist_box[i][ivar]->SetBinError(ibin+1,sqrt(TMath::Power(hist_box[i][ivar]->GetBinError(ibin+1),2)+TMath::Power(hist_box[i][ivar]->GetBinError(50-ibin),2)));
 	  hist_gjet_pf[i][ivar]->SetBinContent(ibin+1,hist_gjet_pf[i][ivar]->GetBinContent(ibin+1)+hist_gjet_pf[i][ivar]->GetBinContent(50-ibin));
+	  hist_gjet_pf[i][ivar]->SetBinError(ibin+1,sqrt(TMath::Power(hist_gjet_pf[i][ivar]->GetBinError(ibin+1),2)+TMath::Power(hist_gjet_pf[i][ivar]->GetBinError(50-ibin),2)));
 	  hist_qcd_pf[i][ivar]->SetBinContent(ibin+1,hist_qcd_pf[i][ivar]->GetBinContent(ibin+1)+hist_qcd_pf[i][ivar]->GetBinContent(50-ibin));
+	  hist_qcd_pf[i][ivar]->SetBinError(ibin+1,sqrt(TMath::Power(hist_qcd_pf[i][ivar]->GetBinError(ibin+1),2)+TMath::Power(hist_qcd_pf[i][ivar]->GetBinError(50-ibin),2)));
 	  hist_qcd_ff[i][ivar]->SetBinContent(ibin+1,hist_qcd_ff[i][ivar]->GetBinContent(ibin+1)+hist_qcd_ff[i][ivar]->GetBinContent(50-ibin));
+	  hist_qcd_ff[i][ivar]->SetBinError(ibin+1,sqrt(TMath::Power(hist_qcd_ff[i][ivar]->GetBinError(ibin+1),2)+TMath::Power(hist_qcd_ff[i][ivar]->GetBinError(50-ibin),2)));
 	  hist_dy[i][ivar]->SetBinContent(ibin+1,hist_dy[i][ivar]->GetBinContent(ibin+1)+hist_dy[i][ivar]->GetBinContent(50-ibin));
+	  hist_dy[i][ivar]->SetBinError(ibin+1,sqrt(TMath::Power(hist_dy[i][ivar]->GetBinError(ibin+1),2)+TMath::Power(hist_dy[i][ivar]->GetBinError(50-ibin),2)));
 	  if (!madgraph) {
 	    hist_gjet_pp[i][ivar]->SetBinContent(ibin+1,hist_gjet_pp[i][ivar]->GetBinContent(ibin+1)+hist_gjet_pp[i][ivar]->GetBinContent(50-ibin));
+	    hist_gjet_pp[i][ivar]->SetBinError(ibin+1,sqrt(TMath::Power(hist_gjet_pp[i][ivar]->GetBinError(ibin+1),2)+TMath::Power(hist_gjet_pp[i][ivar]->GetBinError(50-ibin),2)));
 	    hist_qcd_pp[i][ivar]->SetBinContent(ibin+1,hist_qcd_pp[i][ivar]->GetBinContent(ibin+1)+hist_qcd_pp[i][ivar]->GetBinContent(50-ibin));
+	    hist_qcd_pp[i][ivar]->SetBinError(ibin+1,sqrt(TMath::Power(hist_qcd_pp[i][ivar]->GetBinError(ibin+1),2)+TMath::Power(hist_qcd_pp[i][ivar]->GetBinError(50-ibin),2)));
 	  }
+	  hist_born_fastsim[i][ivar]->SetBinContent(ibin+1,hist_born_fastsim[i][ivar]->GetBinContent(ibin+1)+hist_born_fastsim[i][ivar]->GetBinContent(50-ibin));
+	  hist_born_fastsim[i][ivar]->SetBinError(ibin+1,sqrt(TMath::Power(hist_born_fastsim[i][ivar]->GetBinError(ibin+1),2)+TMath::Power(hist_born_fastsim[i][ivar]->GetBinError(50-ibin),2)));
+	  hist_box_fastsim[i][ivar]->SetBinContent(ibin+1,hist_box_fastsim[i][ivar]->GetBinContent(ibin+1)+hist_box_fastsim[i][ivar]->GetBinContent(50-ibin));
+	  hist_box_fastsim[i][ivar]->SetBinError(ibin+1,sqrt(TMath::Power(hist_box_fastsim[i][ivar]->GetBinError(ibin+1),2)+TMath::Power(hist_box_fastsim[i][ivar]->GetBinError(50-ibin),2)));
 	}
       }
       for (int ibin=0; ibin<25; ibin++) {
@@ -780,6 +810,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	    hist_gjet_pp[i][ivar]->SetBinContent(ibin+1,0.);
 	    hist_qcd_pp[i][ivar]->SetBinContent(ibin+1,0.);
 	  }
+	  hist_born_fastsim[i][ivar]->SetBinContent(ibin+1,0.);
+	  hist_box_fastsim[i][ivar]->SetBinContent(ibin+1,0.);
 	}
       }
     }
@@ -796,6 +828,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	SetHistogramErrors(hist_gjet_pp[i][ivar]);
 	SetHistogramErrors(hist_qcd_pp[i][ivar]);
       }
+      SetHistogramErrors(hist_born_fastsim[i][ivar]);
+      SetHistogramErrors(hist_box_fastsim[i][ivar]);
     }
 
     hist_sig[ivar]->SetLineColor(4);
@@ -815,6 +849,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	hist_gjet_pp[i][ivar]->SetFillColor(kGreen-3);
 	hist_qcd_pp[i][ivar]->SetFillColor(kGreen-4);
       }
+      hist_born_fastsim[i][ivar]->SetFillColor(kGreen-2);
+      hist_box_fastsim[i][ivar]->SetFillColor(kGreen-1);
     }
 
     hist_bkg_stack[ivar] = new THStack("hist_bkg_stack_"+var[ivar],"Background");
@@ -856,20 +892,26 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_bkg[i][ivar]->Add(hist_dy[i][ivar]);
       hist_bkg[i][ivar]->GetXaxis()->SetTitle(title[ivar]);
       hist_bkg[i][ivar]->GetXaxis()->SetTitleSize(0.04);
+
+      hist_bkg_fastsim[i][ivar] = (TH1*)hist_box_fastsim[i][ivar]->Clone();
+      hist_bkg_fastsim[i][ivar]->SetFillColor(0);
+      hist_bkg_fastsim[i][ivar]->Add(hist_born_fastsim[i][ivar]);
+      hist_bkg_fastsim[i][ivar]->GetXaxis()->SetTitle(title[ivar]);
+      hist_bkg_fastsim[i][ivar]->GetXaxis()->SetTitleSize(0.04);
     }
     float nsig=hist_sig[ivar]->Integral();
     hist_sig_reweight[ivar] = (TH1*)hist_sig[ivar]->Clone();
     hist_sig[ivar]->Scale(hist_bkg[3][ivar]->Integral()/nsig);
 
-    canvas[ivar] = new TCanvas("c_"+var[ivar],var[ivar],1950,1300);
-    canvas[ivar]->Divide(3,3);
+    canvas[ivar] = new TCanvas("c_"+var[ivar],var[ivar],2600,1300);
+    canvas[ivar]->Divide(4,3);
     canvas[ivar]->SetFillColor(0);
 
 
-    canvas[ivar]->cd(3);
+    canvas[ivar]->cd(4);
 
     TLegend *leg;
-    if (ivar==0 || ivar==1 || ivar==4 || ivar==5 || ivar==6 || ivar==7 || (ivar>=10 && ivar!=14)) {
+    if (ivar==0 || ivar==1 || ivar==6 || ivar==7 || (ivar>=10 && ivar!=14 && ivar!=18 && ivar!=20)) {
       leg = new TLegend(.55,.55,.87,.87);
     } else if (ivar==14) {
       leg = new TLegend(.32,.1,.68,.35);
@@ -908,19 +950,20 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
     hist_bkg_stack_sig[ivar]->Draw("hist");
     if (ivar==1) hist_bkg_stack_sig[ivar]->GetXaxis()->SetRangeUser(0.,7.);
+    if (ivar==4 || ivar==5) hist_bkg_stack_sig[ivar]->GetXaxis()->SetRangeUser(-0.2,0.6);
     if (ivar==6 || ivar==7 ||ivar==9) hist_bkg_stack_sig[ivar]->GetXaxis()->SetRangeUser(0.,2.5);
     if (ivar==15) hist_bkg_stack_sig[ivar]->GetXaxis()->SetRangeUser(-1.*sidebandWidth,sidebandWidth);
     //if (ivar==21) hist_bkg_stack_sig[ivar]->GetXaxis()->SetRangeUser(0.,10.);
     hist_bkg_stack_sig[ivar]->GetXaxis()->SetTitle(title[ivar]);
     hist_bkg_stack_sig[ivar]->GetXaxis()->SetTitleSize(0.04);
-    if (ivar!=9 && ivar!=3 && ivar!=14) leg->Draw();
+    if (ivar!=9 && ivar!=3 && ivar!=14 && ivar!=21) leg->Draw();
     hist_sig[ivar]->Draw("same");
     if (data) hist_data[3][ivar]->Draw("same,e");
 
     txt = new TLatex();
     txt->SetNDC();
     txt->SetTextSize(0.045);
-    if (ivar==2 || ivar==8) {
+    if (ivar==2 || ivar==8 || ivar==4 || ivar==5 || ivar==20) {
       txt->DrawLatex(0.15,0.42,"Data in signal region");
       txt->DrawLatex(0.15,0.36,"MC in signal region");
     } else {
@@ -929,7 +972,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     }
 
 
-    canvas[ivar]->cd(1);
+    canvas[ivar]->cd(3);
 
     float nbkg_sig = hist_bkg[3][ivar]->Integral();
     hist_bkg_reweight[ivar] = (TH1*)hist_bkg[0][ivar]->Clone();
@@ -992,6 +1035,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     hist_bkg[3][ivar]->GetXaxis()->SetTitleSize(0.04);
 
     if (ivar==1) hist_bkg[3][ivar]->GetXaxis()->SetRangeUser(0.,7.);
+    if (ivar==4 || ivar==5) hist_bkg[3][ivar]->GetXaxis()->SetRangeUser(-0.2,0.6);
     if (ivar==6 || ivar==7 ||ivar==9) hist_bkg[3][ivar]->GetXaxis()->SetRangeUser(0.,2.5);
     if (ivar==15) hist_bkg[3][ivar]->GetXaxis()->SetRangeUser(-1.*sidebandWidth,sidebandWidth);
 
@@ -1012,10 +1056,97 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     leg2->AddEntry(hist_bkg[4][ivar],"MC High sideband 1");
     if (nSB>1) leg2->AddEntry(hist_bkg[5][ivar],"MC High sideband 2");
     if (nSB>2) leg2->AddEntry(hist_bkg[6][ivar],"MC High sideband 3");
-    if (ivar!=9) leg2->Draw();
+    if (ivar!=9 &&ivar!=21) leg2->Draw();
 
 
-    canvas[ivar]->cd(6);
+    canvas[ivar]->cd(2);
+
+    float nbkg_sig_fastsim = hist_bkg_fastsim[3][ivar]->Integral();
+    hist_bkg_fastsim_reweight[ivar] = (TH1*)hist_bkg_fastsim[0][ivar]->Clone();
+    hist_bkg_fastsim_reweight[ivar]->Add(hist_bkg_fastsim[1][ivar]);
+    hist_bkg_fastsim_reweight[ivar]->Add(hist_bkg_fastsim[2][ivar]);
+    hist_bkg_fastsim_reweight[ivar]->Add(hist_bkg_fastsim[4][ivar]);
+    hist_bkg_fastsim_reweight[ivar]->Add(hist_bkg_fastsim[5][ivar]);
+    hist_bkg_fastsim_reweight[ivar]->Add(hist_bkg_fastsim[6][ivar]);
+    hist_bkg_fastsim_reweight[ivar]->Scale(nbkg_sig_fastsim/hist_bkg_fastsim_reweight[ivar]->Integral());
+
+    int rebinFac = 2;
+    if (ivar==15) {
+      if (sidebandWidth<0.05) {
+	rebinFac = 1;
+      } else {
+	rebinFac = 5;
+      }
+    }
+    if (ivar==1 || ivar==6 ||ivar==7 || ivar==9) rebinFac=1;
+    hist_bkg_fastsim_reweight[ivar]->Rebin(rebinFac);
+    float sf=hist_bkg_fastsim_reweight[ivar]->Integral();
+    hist_bkg_fastsim_reweight[ivar]->Scale(1./sf);
+    for (int i=0; i<8; i++) {
+      hist_bkg_fastsim[i][ivar]->Rebin(rebinFac);
+      float sf=hist_bkg_fastsim[i][ivar]->Integral();
+      hist_bkg_fastsim[i][ivar]->Scale(1./sf);
+      if (i!=3) {
+	hist_bkg_fastsim[i][ivar]->SetMarkerStyle(20);
+	hist_bkg_fastsim[i][ivar]->SetMarkerSize(0.8);
+      }
+    }
+
+    max = hist_bkg_fastsim[0][ivar]->GetMaximum();
+    if (hist_bkg_fastsim[1][ivar]->GetMaximum()>max) max=hist_bkg_fastsim[1][ivar]->GetMaximum();
+    if (hist_bkg_fastsim[2][ivar]->GetMaximum()>max) max=hist_bkg_fastsim[2][ivar]->GetMaximum();
+    if (hist_bkg_fastsim[3][ivar]->GetMaximum()>max) max=hist_bkg_fastsim[3][ivar]->GetMaximum();
+    if (hist_bkg_fastsim[4][ivar]->GetMaximum()>max) max=hist_bkg_fastsim[4][ivar]->GetMaximum();
+    if (hist_bkg_fastsim[5][ivar]->GetMaximum()>max) max=hist_bkg_fastsim[5][ivar]->GetMaximum();
+    if (hist_bkg_fastsim[6][ivar]->GetMaximum()>max) max=hist_bkg_fastsim[6][ivar]->GetMaximum();
+    hist_bkg_fastsim[3][ivar]->SetMaximum(max*1.1);
+    hist_bkg_fastsim[3][ivar]->SetMinimum(0.);
+    if (ivar==15) hist_bkg_fastsim[3][ivar]->SetMaximum(max*2.);
+    if (ivar==6 || ivar==7) hist_bkg_fastsim[3][ivar]->SetMaximum(max*1.6);
+
+    hist_bkg_fastsim[0][ivar]->SetLineColor(kRed-1);
+    hist_bkg_fastsim[1][ivar]->SetLineColor(kRed-2);
+    hist_bkg_fastsim[2][ivar]->SetLineColor(kRed-3);
+    hist_bkg_fastsim[4][ivar]->SetLineColor(kGreen-3);
+    hist_bkg_fastsim[5][ivar]->SetLineColor(kGreen-2);
+    hist_bkg_fastsim[6][ivar]->SetLineColor(kGreen-1);
+    hist_bkg_fastsim[0][ivar]->SetMarkerColor(kRed-1);
+    hist_bkg_fastsim[1][ivar]->SetMarkerColor(kRed-2);
+    hist_bkg_fastsim[2][ivar]->SetMarkerColor(kRed-3);
+    hist_bkg_fastsim[4][ivar]->SetMarkerColor(kGreen-3);
+    hist_bkg_fastsim[5][ivar]->SetMarkerColor(kGreen-2);
+    hist_bkg_fastsim[6][ivar]->SetMarkerColor(kGreen-1);
+    hist_bkg_fastsim[3][ivar]->SetFillColor(38);
+    for (int i=0; i<8; i++) hist_bkg_fastsim[i][ivar]->SetLineWidth(2);
+    hist_bkg_fastsim[3][ivar]->GetXaxis()->SetTitle(title[ivar]);
+    hist_bkg_fastsim[3][ivar]->GetXaxis()->SetTitleSize(0.04);
+
+    if (ivar==1) hist_bkg_fastsim[3][ivar]->GetXaxis()->SetRangeUser(0.,7.);
+    if (ivar==4 || ivar==5) hist_bkg_fastsim[3][ivar]->GetXaxis()->SetRangeUser(-0.2,0.6);
+    if (ivar==6 || ivar==7 ||ivar==9) hist_bkg_fastsim[3][ivar]->GetXaxis()->SetRangeUser(0.,2.5);
+    if (ivar==15) hist_bkg_fastsim[3][ivar]->GetXaxis()->SetRangeUser(-1.*sidebandWidth,sidebandWidth);
+
+    hist_bkg_fastsim[3][ivar]->Draw("e2");
+    if (nSB>2) hist_bkg_fastsim[0][ivar]->Draw("same");
+    if (nSB>1) hist_bkg_fastsim[1][ivar]->Draw("same");
+    hist_bkg_fastsim[2][ivar]->Draw("same");
+    hist_bkg_fastsim[4][ivar]->Draw("same");
+    if (nSB>1) hist_bkg_fastsim[5][ivar]->Draw("same");
+    if (nSB>2) hist_bkg_fastsim[6][ivar]->Draw("same");
+
+    TLegend *leg2_fastsim = (TLegend*)leg->Clone();
+    leg2_fastsim->Clear();
+    if (nSB>2) leg2_fastsim->AddEntry(hist_bkg[0][ivar],"FastSim Low sideband 3");
+    if (nSB>1) leg2_fastsim->AddEntry(hist_bkg[1][ivar],"FastSim Low sideband 2");
+    leg2_fastsim->AddEntry(hist_bkg[2][ivar],"FastSim Low sideband 1");
+    leg2_fastsim->AddEntry(hist_bkg[3][ivar],"FastSim Signal region");
+    leg2_fastsim->AddEntry(hist_bkg[4][ivar],"FastSim High sideband 1");
+    if (nSB>1) leg2_fastsim->AddEntry(hist_bkg[5][ivar],"FastSim High sideband 2");
+    if (nSB>2) leg2_fastsim->AddEntry(hist_bkg[6][ivar],"FastSim High sideband 3");
+    if (ivar!=9 && ivar!=21) leg2_fastsim->Draw();
+
+
+    canvas[ivar]->cd(8);
 
     hist_data_reweight[ivar] = (TH1*)hist_data[0][ivar]->Clone();
     hist_data_reweight[ivar]->Sumw2();
@@ -1044,11 +1175,11 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     if (data) hist_data_reweight[ivar]->SetMarkerSize(.8);
 
     hist_bkg_stack_sig[ivar]->Draw("hist");
-    if (ivar!=9 && ivar!=3 && ivar!=14) leg->Draw();
+    if (ivar!=9 && ivar!=3 && ivar!=14 && ivar!=21) leg->Draw();
     hist_sig_reweight[ivar]->Draw("same");
     if (data) hist_data_reweight[ivar]->Draw("same,e");
 
-    if (ivar==2 || ivar==8) {
+    if (ivar==2 || ivar==8 || ivar==4 || ivar==5 || ivar==20) {
       txt->DrawLatex(0.15,0.42,"Background Model (data)");
       txt->DrawLatex(0.15,0.36,"MC in signal region");
     } else {
@@ -1057,7 +1188,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     }
 
 
-    canvas[ivar]->cd(4);
+    canvas[ivar]->cd(7);
 
     hist_bkg_sig[ivar] = (TH1*)hist_bkg[3][ivar]->Clone();
 
@@ -1077,6 +1208,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     hist_bkg_reweight[ivar]->GetXaxis()->SetTitleSize(0.04);
 
     if (ivar==1) hist_bkg_reweight[ivar]->GetXaxis()->SetRangeUser(0.,7.);
+    if (ivar==4 || ivar==5) hist_bkg_reweight[ivar]->GetXaxis()->SetRangeUser(-0.2,0.6);
     if (ivar==6 || ivar==7 ||ivar==9) hist_bkg_reweight[ivar]->GetXaxis()->SetRangeUser(0.,2.5);
     if (ivar==15) hist_bkg_reweight[ivar]->GetXaxis()->SetRangeUser(-1.*sidebandWidth,sidebandWidth);
     //if (ivar==21) hist_bkg_reweight[ivar]->GetXaxis()->SetRangeUser(0.,10.);
@@ -1089,7 +1221,43 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     leg3->Clear();
     leg3->AddEntry(hist_bkg_sig[ivar],"MC Signal region");
     leg3->AddEntry(hist_bkg_reweight[ivar],"MC Background Model");
-    if (ivar!=9) leg3->Draw();
+    if (ivar!=9 && ivar!=21) leg3->Draw();
+
+
+    canvas[ivar]->cd(6);
+
+    hist_bkg_fastsim_sig[ivar] = (TH1*)hist_bkg_fastsim[3][ivar]->Clone();
+
+    max = hist_bkg_fastsim_reweight[ivar]->GetMaximum();
+    if (hist_bkg_fastsim_sig[ivar]->GetMaximum()>max) max=hist_bkg_fastsim_sig[ivar]->GetMaximum();
+    hist_bkg_fastsim_reweight[ivar]->SetMaximum(max*1.1);
+    hist_bkg_fastsim_reweight[ivar]->SetMinimum(0.);
+    if (ivar==15) hist_bkg_fastsim_reweight[ivar]->SetMaximum(max*2.);
+    if (ivar==6 || ivar==7) hist_bkg_fastsim_reweight[ivar]->SetMaximum(max*1.6);
+
+    hist_bkg_fastsim_reweight[ivar]->SetMarkerStyle(20);
+    hist_bkg_fastsim_reweight[ivar]->SetMarkerSize(.8);
+    hist_bkg_fastsim_reweight[ivar]->SetMarkerColor(4);
+    hist_bkg_fastsim_reweight[ivar]->SetLineColor(4);
+    hist_bkg_fastsim_reweight[ivar]->SetLineWidth(2);
+    hist_bkg_fastsim_reweight[ivar]->GetXaxis()->SetTitle(title[ivar]);
+    hist_bkg_fastsim_reweight[ivar]->GetXaxis()->SetTitleSize(0.04);
+
+    if (ivar==1) hist_bkg_fastsim_reweight[ivar]->GetXaxis()->SetRangeUser(0.,7.);
+    if (ivar==4 || ivar==5) hist_bkg_fastsim_reweight[ivar]->GetXaxis()->SetRangeUser(-0.2,0.6);
+    if (ivar==6 || ivar==7 ||ivar==9) hist_bkg_fastsim_reweight[ivar]->GetXaxis()->SetRangeUser(0.,2.5);
+    if (ivar==15) hist_bkg_fastsim_reweight[ivar]->GetXaxis()->SetRangeUser(-1.*sidebandWidth,sidebandWidth);
+    //if (ivar==21) hist_bkg_fastsim_reweight[ivar]->GetXaxis()->SetRangeUser(0.,10.);
+    hist_bkg_fastsim_sig[ivar]->SetFillColor(38);
+    hist_bkg_fastsim_reweight[ivar]->Draw("e");
+    hist_bkg_fastsim_sig[ivar]->Draw("e2,same");
+    hist_bkg_fastsim_reweight[ivar]->Draw("e,same");
+
+    TLegend *leg3 = (TLegend*)leg->Clone();
+    leg3->Clear();
+    leg3->AddEntry(hist_bkg_fastsim_sig[ivar],"FastSim MC Signal region");
+    leg3->AddEntry(hist_bkg_fastsim_reweight[ivar],"FastSim MC Background Model");
+    if (ivar!=9 && ivar!=21) leg3->Draw();
 
 
     canvas[ivar]->cd(5);
@@ -1113,6 +1281,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     hist_data_reweight_rebin[ivar]->GetXaxis()->SetTitleSize(0.04);
 
     if (ivar==1) hist_data_reweight_rebin[ivar]->GetXaxis()->SetRangeUser(0.,7.);
+    if (ivar==4 || ivar==5) hist_data_reweight_rebin[ivar]->GetXaxis()->SetRangeUser(-0.2,0.6);
     if (ivar==6 || ivar==7 ||ivar==9) hist_data_reweight_rebin[ivar]->GetXaxis()->SetRangeUser(0.,2.5);
     if (ivar==15) hist_data_reweight_rebin[ivar]->GetXaxis()->SetRangeUser(-1.*sidebandWidth,sidebandWidth);
     //if (ivar==21) hist_data_reweight_rebin[ivar]->GetXaxis()->SetRangeUser(0.,10.);
@@ -1125,10 +1294,10 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     leg3->Clear();
     leg3->AddEntry(hist_data_sig[ivar],"Data: Signal region");
     leg3->AddEntry(hist_data_reweight_rebin[ivar],"Data: Background Model");
-    if (ivar!=9) leg3->Draw();
+    if (ivar!=9 && ivar!=21) leg3->Draw();
 
 
-    canvas[ivar]->cd(2);
+    canvas[ivar]->cd(1);
 
     for (int i=0; i<7; i++) {
       if (i!=3) {
@@ -1168,6 +1337,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     hist_data[sb_low][ivar]->GetXaxis()->SetTitleSize(0.04);
 
     if (ivar==1) hist_data[sb_low][ivar]->GetXaxis()->SetRangeUser(0.,7.);
+    if (ivar==4 || ivar==5) hist_data[sb_low][ivar]->GetXaxis()->SetRangeUser(-0.2,0.6);
     if (ivar==6 || ivar==7 ||ivar==9) hist_data[sb_low][ivar]->GetXaxis()->SetRangeUser(0.,2.5);
     if (ivar==15) hist_data[sb_low][ivar]->GetXaxis()->SetRangeUser(-1.*sidebandWidth,sidebandWidth);
 
@@ -1186,10 +1356,10 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     leg2_data->AddEntry(hist_data[4][ivar],"Data High sideband 1");
     if (nSB>1) leg2_data->AddEntry(hist_data[5][ivar],"Data High sideband 2");
     if (nSB>2) leg2_data->AddEntry(hist_data[6][ivar],"Data High sideband 3");
-    if (ivar!=9) leg2_data->Draw();
+    if (ivar!=9 && ivar!=21) leg2_data->Draw();
 
 
-    canvas[ivar]->cd(7);
+    canvas[ivar]->cd(11);
 
     hist_bkg_ratio[ivar] = (TH1*)hist_bkg_reweight[ivar]->Clone();
     hist_bkg_ratio[ivar]->Reset();
@@ -1219,7 +1389,37 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     txt->DrawLatex(0.15,0.82, "MC Background Model / MC in signal region");
 
 
-    canvas[ivar]->cd(8);
+    canvas[ivar]->cd(10);
+
+    hist_bkg_fastsim_ratio[ivar] = (TH1*)hist_bkg_fastsim_reweight[ivar]->Clone();
+    hist_bkg_fastsim_ratio[ivar]->Reset();
+    hist_bkg_fastsim_ratio[ivar]->Add(hist_bkg_fastsim_reweight[ivar]);
+    hist_bkg_fastsim_ratio[ivar]->Divide(hist_bkg_fastsim_sig[ivar]);
+
+    hist_bkg_fastsim_ratio[ivar]->SetMarkerStyle(20);
+    hist_bkg_fastsim_ratio[ivar]->SetMarkerColor(4);
+    hist_bkg_fastsim_ratio[ivar]->SetMarkerSize(.8);
+
+    hist_bkg_fastsim_ratio[ivar]->SetMaximum(2.);
+    hist_bkg_fastsim_ratio[ivar]->SetMinimum(0.);
+    hist_bkg_fastsim_ratio[ivar]->Draw();
+
+    float xmin = hist_bkg_fastsim_ratio[ivar]->GetXaxis()->GetXmin();
+    if (ivar==1 || ivar==6 || ivar==7 ||ivar==9) xmin=0.;
+    float xmax = hist_bkg_fastsim_ratio[ivar]->GetXaxis()->GetXmax();
+    if (ivar==15) {
+      xmin=-1*sidebandWidth;
+      xmax=sidebandWidth;
+    }
+    TLine *line2 = new TLine(xmin,1.,xmax,1.);
+    line2->SetLineColor(4);
+    line2->SetLineWidth(2);
+    line2->Draw();
+
+    txt->DrawLatex(0.15,0.82, "FastSim Background Model / FastSim signal region");
+
+
+    canvas[ivar]->cd(9);
     
     hist_data_ratio[ivar] = (TH1*)hist_data_reweight_rebin[ivar]->Clone();
     hist_data_ratio[ivar]->Reset();
@@ -1256,9 +1456,14 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	hist_bkg[i][j]->SetLineWidth(2);
 	hist_bkg[i][j]->GetXaxis()->SetTitle(title[j]);
 	hist_bkg[i][j]->GetXaxis()->SetTitleSize(0.04);
+	hist_bkg_fastsim[i][j]->SetLineWidth(2);
+	hist_bkg_fastsim[i][j]->GetXaxis()->SetTitle(title[j]);
+	hist_bkg_fastsim[i][j]->GetXaxis()->SetTitleSize(0.04);
 	if (i!=3) {
 	  hist_bkg[i][j]->SetMarkerStyle(20);
 	  hist_bkg[i][j]->SetMarkerSize(0.8);
+	  hist_bkg_fastsim[i][j]->SetMarkerStyle(20);
+	  hist_bkg_fastsim[i][j]->SetMarkerSize(0.8);
 	}
       }
 
@@ -1277,6 +1482,21 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_bkg[5][j]->SetMarkerColor(kGreen-2);
       hist_bkg[6][j]->SetMarkerColor(kGreen-1);
       hist_bkg[3][j]->SetFillColor(38);
+      hist_bkg_fastsim[0][j]->SetLineColor(kRed-1);
+      hist_bkg_fastsim[1][j]->SetLineColor(kRed-2);
+      hist_bkg_fastsim[2][j]->SetLineColor(kRed-3);
+      hist_bkg_fastsim[3][j]->SetLineColor(4);
+      hist_bkg_fastsim[4][j]->SetLineColor(kGreen-3);
+      hist_bkg_fastsim[5][j]->SetLineColor(kGreen-2);
+      hist_bkg_fastsim[6][j]->SetLineColor(kGreen-1);
+      hist_bkg_fastsim[0][j]->SetMarkerColor(kRed-1);
+      hist_bkg_fastsim[1][j]->SetMarkerColor(kRed-2);
+      hist_bkg_fastsim[2][j]->SetMarkerColor(kRed-3);
+      hist_bkg_fastsim[3][j]->SetMarkerColor(4);
+      hist_bkg_fastsim[4][j]->SetMarkerColor(kGreen-3);
+      hist_bkg_fastsim[5][j]->SetMarkerColor(kGreen-2);
+      hist_bkg_fastsim[6][j]->SetMarkerColor(kGreen-1);
+      hist_bkg_fastsim[3][j]->SetFillColor(38);
       hist_bkgModel[j]->SetMarkerStyle(20);
       hist_bkgModel[j]->SetMarkerSize(.8);
       hist_bkgModel[j]->SetLineColor(4);
@@ -1293,10 +1513,15 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_sig_x10->Scale(10.);
 
       nbkg_sig = hist_bkg[3][j]->Integral();
+      nbkg_sig_fastsim = hist_bkg_fastsim[3][j]->Integral();
       for (int i=0; i<7; i++) {
 	float sf=nbkg_sig/hist_bkg[i][j]->Integral();
 	hist_bkg_scaled[i][j] = (TH1*)hist_bkg[i][j]->Clone();
 	hist_bkg_scaled[i][j]->Scale(sf);
+
+	sf=nbkg_sig_fastsim/hist_bkg_fastsim[i][j]->Integral();
+	hist_bkg_fastsim_scaled[i][j] = (TH1*)hist_bkg_fastsim[i][j]->Clone();
+	hist_bkg_fastsim_scaled[i][j]->Scale(sf);
 
 	sf=Ndata_sig/hist_data[i][j]->Integral();
 	hist_data_scaled[i][j] = (TH1*)hist_data[i][j]->Clone();
@@ -1304,7 +1529,6 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
       }
 
-      float nbkg_sig = hist_bkg[3][j]->Integral();
       hist_bkg_reweight[j] = (TH1*)hist_bkg[0][j]->Clone();
       hist_bkg_reweight[j]->Add(hist_bkg[1][j]);
       hist_bkg_reweight[j]->Add(hist_bkg[2][j]);
@@ -1312,6 +1536,14 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_bkg_reweight[j]->Add(hist_bkg[5][j]);
       hist_bkg_reweight[j]->Add(hist_bkg[6][j]);
       hist_bkg_reweight[j]->Scale(nbkg_sig/hist_bkg_reweight[j]->Integral());
+
+      hist_bkg_fastsim_reweight[j] = (TH1*)hist_bkg_fastsim[0][j]->Clone();
+      hist_bkg_fastsim_reweight[j]->Add(hist_bkg_fastsim[1][j]);
+      hist_bkg_fastsim_reweight[j]->Add(hist_bkg_fastsim[2][j]);
+      hist_bkg_fastsim_reweight[j]->Add(hist_bkg_fastsim[4][j]);
+      hist_bkg_fastsim_reweight[j]->Add(hist_bkg_fastsim[5][j]);
+      hist_bkg_fastsim_reweight[j]->Add(hist_bkg_fastsim[6][j]);
+      hist_bkg_fastsim_reweight[j]->Scale(nbkg_sig_fastsim/hist_bkg_fastsim_reweight[j]->Integral());
 
       /*
       hist_data_reweight[j] = (TH1*)hist_data[0][j]->Clone();
@@ -1325,9 +1557,10 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_data_reweight[j]->SetMarkerColor(3);
       */
 
-      canvas[j] = new TCanvas("c_"+var[j],var[j],1950,1300);
-      canvas[j]->Divide(3,3);
+      canvas[j] = new TCanvas("c_"+var[j],var[j],2600,1300);
+      canvas[j]->Divide(4,3);
       canvas[j]->SetFillColor(0);
+
 
       canvas[j]->cd(1);
       if (logy) gPad->SetLogy();
@@ -1356,7 +1589,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       leg1->Draw();
       leg1->Draw();
 
-      canvas[j]->cd(5);
+
+      canvas[j]->cd(6);
 
       hist_data_highMinusLow = (TH1*)hist_data_scaled[sb_high][j]->Clone();
       //hist_data_highMinusLow->Add(hist_data_scaled[sb_low][j],-1.);
@@ -1405,7 +1639,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	leg3->Draw();
       */
 
-      canvas[j]->cd(6);
+
+      canvas[j]->cd(8);
 
       hist_bkg_highMinusLow = (TH1*)hist_bkg_scaled[sb_high][j]->Clone();
       //hist_bkg_highMinusLow->Add(hist_bkg_scaled[sb_low][j],-1.);
@@ -1420,7 +1655,24 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
       line1->Draw();
 
-      canvas[j]->cd(4);
+
+      canvas[j]->cd(7);
+
+      hist_bkg_fastsim_highMinusLow = (TH1*)hist_bkg_fastsim_scaled[sb_high][j]->Clone();
+      //hist_bkg_fastsim_highMinusLow->Add(hist_bkg_fastsim_scaled[sb_low][j],-1.);
+      hist_bkg_fastsim_highMinusLow->Divide(hist_bkg_fastsim_scaled[sb_low][j]);
+      hist_bkg_fastsim_highMinusLow->SetMarkerColor(4);
+      hist_bkg_fastsim_highMinusLow->SetLineColor(4);
+      hist_bkg_fastsim_highMinusLow->SetMaximum(2.);
+      hist_bkg_fastsim_highMinusLow->SetMinimum(0.);
+      hist_bkg_fastsim_highMinusLow->Draw("e");
+
+      txt->DrawLatex(0.15,0.82, "FastSim highest sideband / FastSim lowest sideband");
+
+      line1->Draw();
+
+
+      canvas[j]->cd(5);
 
       hist_dataMinusModel = (TH1*)hist_data[3][j]->Clone();
       hist_dataMinusModel->Add(hist_bkgModel[j],-1.);
@@ -1453,7 +1705,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       line1a->Draw();
 
 
-      canvas[j]->cd(7);
+      canvas[j]->cd(9);
 
       hist_SoverB = (TH1*)hist_sig[j]->Clone();
       hist_SoverB->Divide(hist_bkgModel[j]);
@@ -1504,7 +1756,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       if (nSB>2) leg6->AddEntry(hist_data_scaled[0][j],"Low sideband 3","LP");
       leg6->Draw();
 
-      canvas[j]->cd(9);
+      canvas[j]->cd(12);
       if (logy) gPad->SetLogy();
 
       hist_bkg_reweight[j]->SetMaximum(max*1.1);
@@ -1524,7 +1776,29 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       leg7->AddEntry(hist_bkg_reweight[j],"MC Background Model");
       leg7->Draw();
 
-      canvas[j]->cd(3);
+
+      canvas[j]->cd(11);
+      if (logy) gPad->SetLogy();
+
+      hist_bkg_fastsim_reweight[j]->SetMaximum(max*1.1);
+      hist_bkg_fastsim_reweight[j]->SetMinimum(0.);
+      hist_bkg_fastsim_reweight[j]->SetLineColor(4);
+      hist_bkg_fastsim_reweight[j]->SetMarkerColor(4);
+      hist_bkg_fastsim[3][j]->SetFillColor(38);
+
+      hist_bkg_fastsim_reweight[j]->Draw("e");
+      if (logy) hist_bkg_fastsim_reweight[j]->GetYaxis()->UnZoom();
+      hist_bkg_fastsim[3][j]->Draw("e2,same");
+      hist_bkg_fastsim_reweight[j]->Draw("e,same");
+
+      TLegend *leg7 = (TLegend*)leg1->Clone();
+      leg7->Clear();
+      leg7->AddEntry(hist_bkg_fastsim[3][j],"FastSim Signal region","F");
+      leg7->AddEntry(hist_bkg_fastsim_reweight[j],"FastSim Background Model");
+      leg7->Draw();
+
+
+      canvas[j]->cd(4);
       if (logy) gPad->SetLogy();
 
       hist_bkg_scaled[3][j]->SetMaximum(max*1.1);
@@ -1550,10 +1824,37 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       if (nSB>2) leg8->AddEntry(hist_bkg_scaled[0][j],"MC Low sideband 3","LP");
       leg8->Draw();
 
+
+      canvas[j]->cd(3);
+      if (logy) gPad->SetLogy();
+
+      hist_bkg_fastsim_scaled[3][j]->SetMaximum(max*1.1);
+      hist_bkg_fastsim_scaled[3][j]->SetMinimum(0.);
+
+      hist_bkg_fastsim_scaled[3][j]->Draw("e2");
+      if (logy) hist_bkg_fastsim_scaled[3][j]->GetYaxis()->UnZoom();
+      if (nSB>2) hist_bkg_fastsim_scaled[0][j]->Draw("e,same");
+      if (nSB>1) hist_bkg_fastsim_scaled[1][j]->Draw("e,same");
+      hist_bkg_fastsim_scaled[2][j]->Draw("e,same");
+      hist_bkg_fastsim_scaled[4][j]->Draw("e,same");
+      if (nSB>1) hist_bkg_fastsim_scaled[5][j]->Draw("e,same");
+      if (nSB>2) hist_bkg_fastsim_scaled[6][j]->Draw("e,same");
+
+      leg8 = (TLegend*)leg1->Clone();
+      leg8->Clear();
+      if (nSB>2) leg8->AddEntry(hist_bkg_fastsim_scaled[6][j],"FastSim High sideband 3","LP");
+      if (nSB>1) leg8->AddEntry(hist_bkg_fastsim_scaled[5][j],"FastSim High sideband 2","LP");
+      leg8->AddEntry(hist_bkg_fastsim_scaled[4][j],"FastSim High sideband 1","LP");
+      leg8->AddEntry(hist_bkg_fastsim_scaled[3][j],"FastSim Signal region","F");
+      leg8->AddEntry(hist_bkg_fastsim_scaled[2][j],"FastSim Low sideband 1","LP");
+      if (nSB>1) leg8->AddEntry(hist_bkg_fastsim_scaled[1][j],"FastSim Low sideband 2","LP");
+      if (nSB>2) leg8->AddEntry(hist_bkg_fastsim_scaled[0][j],"FastSim Low sideband 3","LP");
+      leg8->Draw();
+
       if (!rebin) {
-	canvas[j]->SaveAs(outdir+var[j]+sob_str+".gif");
+	canvas[j]->SaveAs(outdir+var[j]+sob_str+"_MIT.gif");
       } else {
-	canvas[j]->SaveAs(outdir+var[j]+sob_str+"_nominalbins.gif");
+	canvas[j]->SaveAs(outdir+var[j]+sob_str+"_nominalbins_MIT.gif");
       }
 
     }
@@ -1617,6 +1918,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
   cout << "Data/MC scale factor = " << hist_mass_data->Integral(hist_mass_data->FindBin(sideband_boundaries[sb_low]),hist_mass_data->FindBin(sideband_boundaries[sb_high]))/hist_mass_bkg->Integral(hist_mass_data->FindBin(sideband_boundaries[sb_low]),hist_mass_data->FindBin(sideband_boundaries[sb_high])) << endl;
 
+
   TCanvas *c_mgg = new TCanvas("c_mgg","Mgg",1000,700);
   c_mgg->SetFillColor(0);
 
@@ -1627,7 +1929,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   hist_mass_bkg_stack->SetMaximum(max*1.05);
 
   hist_mass_bkg_stack->Draw();
-  hist_mass_bkg_stack->GetXaxis()->SetRangeUser(90.,190.);
+  //hist_mass_bkg_stack->GetXaxis()->SetRangeUser(90.,190.);
 
   TBox* sideband_box[2];
   sideband_box[0] = new TBox(sideband_boundaries[sb_low],0.,sideband_boundaries[3],max*1.1);
@@ -1702,7 +2004,65 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
   c_mgg->SaveAs(outdir+"mass.gif");
 
-  /*
+
+  if (!www) {
+
+    TCanvas *c_mgg_bias = new TCanvas("c_mgg_bias","Mgg (bias study)",1000,700);
+    c_mgg_bias->SetFillColor(0);
+
+    hist_mass_bkg_stack->Draw();
+
+    float mass_bias[15];
+    mass_bias[2] = 115.*(1-signalRegionWidth)/(1+sidebandWidth);
+    mass_bias[1] = mass_bias[2]*(1-sidebandWidth)/(1+sidebandWidth);
+    mass_bias[0] = mass_bias[1]*(1-sidebandWidth)/(1+sidebandWidth);
+    mass_bias[5] = 130.*(1-signalRegionWidth)/(1+sidebandWidth);
+    mass_bias[4] = mass_bias[5]*(1-sidebandWidth)/(1+sidebandWidth);
+    mass_bias[3] = mass_bias[4]*(1-sidebandWidth)/(1+sidebandWidth);
+    mass_bias[6] = 115.*(1+signalRegionWidth)/(1-sidebandWidth);
+    mass_bias[7] = mass_bias[6]*(1+sidebandWidth)/(1-sidebandWidth);
+    mass_bias[8] = mass_bias[7]*(1+sidebandWidth)/(1-sidebandWidth);
+    mass_bias[9] = 130.*(1+signalRegionWidth)/(1-sidebandWidth);
+    mass_bias[10] = mass_bias[9]*(1+sidebandWidth)/(1-sidebandWidth);
+    mass_bias[11] = mass_bias[10]*(1+sidebandWidth)/(1-sidebandWidth);
+    mass_bias[12] = 150.*(1+signalRegionWidth)/(1-sidebandWidth);
+    mass_bias[13] = mass_bias[12]*(1+sidebandWidth)/(1-sidebandWidth);
+    mass_bias[14] = mass_bias[13]*(1+sidebandWidth)/(1-sidebandWidth);
+
+    float sideband_boundaries_bias[2][15];
+    TBox* sideband_box_bias[15];
+    for(int i=0; i<15; i++) {
+      //cout << mass[i] << endl;
+      sideband_boundaries_bias[0][i] = mass_bias[i]*(1-sidebandWidth);
+      sideband_boundaries_bias[1][i] = mass_bias[i]*(1+sidebandWidth);
+      sideband_box_bias[i] = new TBox(sideband_boundaries_bias[0][i],0.,sideband_boundaries_bias[1][i],max*1.1);
+      sideband_box_bias[i]->SetFillColor(38);
+      sideband_box_bias[i]->SetFillStyle(3002);
+      sideband_box_bias[i]->Draw("same");
+    }
+
+    hist_mass_bkg_stack->Draw("same");
+    hist_mass_sig->Draw("same");
+    if (data) hist_mass_data->Draw("same,e");
+    gPad->RedrawAxis();
+
+    TLine* line_bias[2][15];
+    for (int i=0; i<15; i++) {
+      for (int j=0; j<2; j++) {
+	line_bias[j][i] = new TLine(sideband_boundaries_bias[j][i],0.,sideband_boundaries_bias[j][i],max*1.1);
+	line_bias[j][i]->SetLineColor(38);
+	line_bias[j][i]->SetLineWidth(3);
+	line_bias[j][i]->SetLineStyle(9);
+	line_bias[j][i]->Draw();
+      }
+    }
+
+    leg_mass->Draw();
+
+    c_mgg_bias->SaveAs(outdir+"mass_bias.gif");
+
+  }
+
   TCanvas *c_res = new TCanvas("c_res","Mass Resolution",1800,1800);
   c_res->SetFillColor(0);
   c_res->Divide(3,4);
@@ -1823,7 +2183,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   }
 
   c_res->SaveAs(outdir+"sigmaM_cat.gif");
-  */
+
 }
 
 void SetHistogramErrors(TH1* h) {
