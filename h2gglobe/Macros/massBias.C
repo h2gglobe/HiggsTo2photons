@@ -19,6 +19,8 @@ void massBias(int mass_in=120) {
   bool saveGifs=false;
   bool fastsim=false;
   bool correctShape=false;
+  int shift=0;
+  float sig_sf=0.;
 
   float sidebandWidth=0.02;
   float signalRegionWidth=0.07;
@@ -28,7 +30,6 @@ void massBias(int mass_in=120) {
   TString mass_str2= mass_str;
   if (mass_in==150) mass_str2="145";
 
-  int shift=0;
   float basemass[5];
   if (shift==0) {
     basemass[0] = 118.5;
@@ -96,7 +97,7 @@ void massBias(int mass_in=120) {
   TFile *workspace = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/CMS-HGG_mit_2var_07_01_12_v2.root");
   TFile *workspace_mc;
   if (fastsim) {
-    workspace_mc = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/CMS-HGG_mva_fastsim_8Jan.root");
+    workspace_mc = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/CMS-HGG_mva_fastsim_12Jan.root");
   } else {
     workspace_mc = workspace;
   }
@@ -114,8 +115,12 @@ void massBias(int mass_in=120) {
   TH1* hist_bkg_fine[15][2];
   TH1* hist_data_corrected[15][2];
   TH1* hist_bkg_corrected[15][2];
+  TH1* hist_sig_fine[2];
+  TH1* hist_sig[2];
 
   for (int j=0; j<2; j++) {
+
+    hist_sig_fine[j] = (TH1*)(workspace->Get("th1f_sig_BDT_"+boost_str[j]+"_ggh_140.0_cat0"))->Clone();
 
     hist_data_fine[0][j] = (TH1*)(workspace->Get("th1f_data_3low_BDT_"+boost_str[j]+"_"+basemass_str[0]+"_cat0"))->Clone();
     hist_data_fine[1][j] = (TH1*)(workspace->Get("th1f_data_2low_BDT_"+boost_str[j]+"_"+basemass_str[0]+"_cat0"))->Clone();
@@ -167,6 +172,7 @@ void massBias(int mass_in=120) {
     hist_data_fine[12][j]->Rebin(nbins[0],"th1f_nominal_bkg_1high_"+boost_str[j]+"_"+basemass_str[4]+"_cat0",xbins);
     hist_data_fine[13][j]->Rebin(nbins[0],"th1f_nominal_bkg_2high_"+boost_str[j]+"_"+basemass_str[4]+"_cat0",xbins);
     hist_data_fine[14][j]->Rebin(nbins[0],"th1f_nominal_bkg_3high_"+boost_str[j]+"_"+basemass_str[4]+"_cat0",xbins);
+    hist_sig_fine[j]->Rebin(nbins[0],"th1f_nominal_sig_"+boost_str[j]+"_ggh_140.0_cat0",xbins);
 
     workspace_mc->cd();
     hist_bkg_fine[0][j]->Rebin(nbins[0],"th1f_nominal_bkg_mc_3low_"+boost_str[j]+"_"+basemass_str[0]+"_cat0",xbins);
@@ -200,6 +206,8 @@ void massBias(int mass_in=120) {
     hist_data[12][j] = (TH1*)(workspace->Get("th1f_nominal_bkg_1high_"+boost_str[j]+"_"+basemass_str[4]+"_cat0"))->Clone();
     hist_data[13][j] = (TH1*)(workspace->Get("th1f_nominal_bkg_2high_"+boost_str[j]+"_"+basemass_str[4]+"_cat0"))->Clone();
     hist_data[14][j] = (TH1*)(workspace->Get("th1f_nominal_bkg_3high_"+boost_str[j]+"_"+basemass_str[4]+"_cat0"))->Clone();
+    hist_sig[j] = (TH1*)(workspace->Get("th1f_nominal_sig_"+boost_str[j]+"_ggh_140.0_cat0"))->Clone();
+    hist_data[8][j]->Add(hist_sig[j],sig_sf);
 
     hist_bkg[0][j] = (TH1*)(workspace_mc->Get("th1f_nominal_bkg_mc_3low_"+boost_str[j]+"_"+basemass_str[0]+"_cat0"))->Clone();
     hist_bkg[1][j] = (TH1*)(workspace_mc->Get("th1f_nominal_bkg_mc_2low_"+boost_str[j]+"_"+basemass_str[0]+"_cat0"))->Clone();
@@ -216,12 +224,15 @@ void massBias(int mass_in=120) {
     hist_bkg[12][j] = (TH1*)(workspace_mc->Get("th1f_nominal_bkg_mc_1high_"+boost_str[j]+"_"+basemass_str[4]+"_cat0"))->Clone();
     hist_bkg[13][j] = (TH1*)(workspace_mc->Get("th1f_nominal_bkg_mc_2high_"+boost_str[j]+"_"+basemass_str[4]+"_cat0"))->Clone();
     hist_bkg[14][j] = (TH1*)(workspace_mc->Get("th1f_nominal_bkg_mc_3high_"+boost_str[j]+"_"+basemass_str[4]+"_cat0"))->Clone();
+    hist_bkg[8][j]->Add(hist_sig[j],sig_sf);
 
   }
 
   if (correctShape) {
 
-    TFile *f_bias = TFile::Open("BkgBias_in.root");
+    TString fastsim_str="";
+    if (fastsim) fastsim_str = "_fastsim";
+    TFile *f_bias = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/newBkgBias/BkgBias_mit_2var_07_01_12_v2"+fastsim_str+".root");
     float slope_data_in[100][2];
     float slope_mc_in[100][2];
     for (int j=0; j<2; j++) {
@@ -603,11 +614,57 @@ void massBias(int mass_in=120) {
 
   }
 
+  TCanvas *canvas_bdtout[2];
+  TH1* hist_bdtout_scaled_binnum[15][2];
+  TString i_str[15] = {"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14"};
+
+  for(int j=0; j<2; j++) {
+
+    canvas_bdtout[j] = new TCanvas("canvas_bdtout_"+boost_str[j],"canvas_bdtout_"+boost_str[j]);
+    canvas_bdtout[j]->SetFillColor(0);
+    canvas_bdtout[j]->SetLogy();
+
+    float max=0.;
+
+    for(int i=0; i<15; i++) {
+      hist_bdtout_scaled_binnum[i][j] = new TH1F("hist_bdtout_scaled_binnum_"+boost_str[j]+i_str[i],"hist_bdtout_scaled_binnum_"+boost_str[j]+i_str[i],nbins[0],0,float(nbins[0]));
+      for (int ibin=0; ibin<nbins[0]+1; ibin++) {
+	hist_bdtout_scaled_binnum[i][j]->SetBinContent(ibin,hist_data_scaled[i][j]->GetBinContent(ibin));
+	hist_bdtout_scaled_binnum[i][j]->SetBinError(ibin,hist_data_scaled[i][j]->GetBinError(ibin));
+      }
+    }
+    for(int i=0; i<7; i++) {
+      hist_bdtout_scaled_binnum[i][j]->SetLineColor(kRed-i);
+      hist_bdtout_scaled_binnum[i][j]->SetMarkerColor(kRed-i);
+      hist_bdtout_scaled_binnum[i][j]->SetMarkerStyle(20);
+      hist_bdtout_scaled_binnum[i][j]->SetMarkerSize(.8);
+      if (hist_bdtout_scaled_binnum[i][j]->GetMaximum()>max) max = hist_bdtout_scaled_binnum[i][j]->GetMaximum();
+    }
+    for(int i=14; i>6; i--) {
+      hist_bdtout_scaled_binnum[i][j]->SetLineColor(kGreen-i);
+      hist_bdtout_scaled_binnum[i][j]->SetMarkerColor(kGreen-i);
+      hist_bdtout_scaled_binnum[i][j]->SetMarkerStyle(20);
+      hist_bdtout_scaled_binnum[i][j]->SetMarkerSize(.8);
+      if (hist_bdtout_scaled_binnum[i][j]->GetMaximum()>max) max = hist_bdtout_scaled_binnum[i][j]->GetMaximum();
+    }
+
+    hist_bdtout_scaled_binnum[0][j]->SetMaximum(max*1.1);
+    hist_bdtout_scaled_binnum[0][j]->SetMinimum(0.);
+    hist_bdtout_scaled_binnum[0][j]->Draw("e");
+    hist_bdtout_scaled_binnum[0][j]->GetXaxis()->SetTitle("BDT output bin number");
+    hist_bdtout_scaled_binnum[0][j]->GetYaxis()->UnZoom();
+    for(int i=0; i<15; i++) {
+      hist_bdtout_scaled_binnum[i][j]->Draw("e,same");
+    }
+
+  }
+
   if (saveGifs) {
-    canvas[0]->SaveAs("slope_grad_"+mass_str+".gif");
-    canvas[1]->SaveAs("slope_ada_"+mass_str+".gif");
-    canvas_summary[0]->SaveAs("slope_grad_summary_"+mass_str+".gif");
-    canvas_summary[1]->SaveAs("slope_ada_summary_"+mass_str+".gif");
+    for(int j=0; j<2; j++) {
+      canvas[j]->SaveAs("slope_"+boost_str[j]+"_"+mass_str+".gif");
+      canvas_summary[j]->SaveAs("slope_"+boost_str[j]+"_summary_"+mass_str+".gif");
+      canvas_bdtout[j]->SaveAs("bdtout_"+boost_str[j]+"_"+mass_str+".gif");
+    }
   }
 
   TFile *fout_slopes = new TFile("BkgBias.root","update");
@@ -620,5 +677,27 @@ void massBias(int mass_in=120) {
   tgraph_biasslopes_data_ada->Write();
   tgraph_biasslopes_mc_grad->Write();
   tgraph_biasslopes_mc_ada->Write();
+
+  /*
+  //For Paul
+  for(int j=0; j<2; j++) {
+    for(int bdtbin=0; bdtbin<nbins[j]; bdtbin++) {
+      TString bin_str;
+      bin_str+=bdtbin;
+      TGraphErrors *tgraph_bdtoutvsmass_data =  (TGraphErrors*)G_bdtout_data[bdtbin][j]->Clone("tgraph_bdtoutvsmass_data_"+boost_str[j]+"_"+mass_str+"_bin"+bin_str);
+      TGraphErrors *tgraph_bdtoutvsmass_mc =  (TGraphErrors*)G_bdtout_mc[bdtbin][j]->Clone("tgraph_bdtoutvsmass_mc_"+boost_str[j]+"_"+mass_str+"_bin"+bin_str);
+      tgraph_bdtoutvsmass_data->Write();
+      tgraph_bdtoutvsmass_mc->Write();
+    }
+    for(int i=0; i<15; i++) {
+      TString sb_str;
+      sb_str+=(i+1);
+      TH1 *hist_bdtout_data =  (TH1*)hist_data[i][j]->Clone("hist_bdtout_data_"+boost_str[j]+"_"+mass_str+"_sideband"+sb_str);
+      TH1 *hist_bdtout_mc =  (TH1*)hist_data[i][j]->Clone("hist_bdtout_mc_"+boost_str[j]+"_"+mass_str+"_sideband"+sb_str);
+      hist_bdtout_data->Write();
+      hist_bdtout_mc->Write();
+    }
+  }
+  */
 
 }
