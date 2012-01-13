@@ -161,10 +161,10 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
 
   //TFile *f_bdtout = TFile::Open("CMS-HGG_mva_8Jan"+loose_str+".root");
   TFile *f_bdtout = TFile::Open("CMS-HGG_mit_2var_07_01_12_v2.root");
-  TFile *f_bdtin = TFile::Open("histograms_CMS-HGG_mva_8Jan"+loose_str+".root");
+  TFile *f_bdtin = TFile::Open("histograms_CMS-HGG_mva_12Jan"+loose_str+".root");
 
   TFile *f_bdtout_fastsim = TFile::Open("CMS-HGG_mva_fastsim_8Jan.root");
-  TFile *f_bdtin_fastsim = TFile::Open("histograms_CMS-HGG_mva_fastsim_8Jan.root");
+  TFile *f_bdtin_fastsim = TFile::Open("histograms_CMS-HGG_mva_fastsim_12Jan.root");
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -512,7 +512,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
 
   TString var[24] = {"ptOverMH","eta","deltaPhi","cosDeltaPhi","pho1_phoidMva","pho2_phoidMva","pho1_eta","pho2_eta","pho_minr9","maxeta","ptOverM","pho1_ptOverM","pho2_ptOverM","sigmaMOverM","deltaEta","deltaMOverMH","pho1_ptOverMH","pho2_ptOverMH","vtxProb","sigmaMOverM_wrongVtx","bdtoutput","bdtoutput","bdtOut_grad","bdtOut_ada"};
 
-  for (int ivar=0; ivar<2; ivar++) {
+  for (int ivar=18; ivar<19; ivar++) {
     cout << var[ivar] << endl;
     hist_sig[ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_msig_cat"+cat_str+"_gluglu_H_gg_"+mass_str2+"_pu2011"))->Clone();
 
@@ -622,7 +622,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
 
   f_bdtin_fastsim->cd();
 
-  for (int ivar=0; ivar<2; ivar++) {
+  for (int ivar=18; ivar<19; ivar++) {
 
     hist_born_fastsim[0][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mlow3_cat"+cat_str+"_Born25"))->Clone();
     hist_born_fastsim[1][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mlow2_cat"+cat_str+"_Born25"))->Clone();
@@ -703,7 +703,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
   float Ndata_sig = hist_bkgModel[22]->Integral();
   cout << Ndata_sig << endl;
 
-  for (int ivar=0; ivar<2; ivar++) {
+  for (int ivar=18; ivar<19; ivar++) {
 
     //if (ivar==10 || ivar==16 || ivar==17) continue;
 
@@ -939,18 +939,24 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     hist_sig_reweight[ivar] = (TH1*)hist_sig[ivar]->Clone();
     hist_sig[ivar]->Scale(hist_bkg[3][ivar]->Integral()/nsig);
 
+    bool inlogy=false;
+    if (ivar==3 || ivar==18 || ivar==21) inlogy=true;
+
     canvas[ivar] = new TCanvas("c_"+var[ivar],var[ivar],2600,1300);
     canvas[ivar]->Divide(4,3);
     canvas[ivar]->SetFillColor(0);
 
 
     canvas[ivar]->cd(4);
+    if (inlogy) gPad->SetLogy();
 
     TLegend *leg;
-    if (ivar==0 || ivar==1 || ivar==6 || ivar==7 || (ivar>=10 && ivar!=14 && ivar!=18 && ivar!=20)) {
+    if (ivar==0 || ivar==1 || ivar==3 || ivar==4 || ivar==5 || ivar==6 || ivar==7 || (ivar>=10 && ivar!=14 && ivar<18)) {
       leg = new TLegend(.55,.55,.87,.87);
-    } else if (ivar==14) {
-      leg = new TLegend(.32,.1,.68,.35);
+    } else if (ivar==14 || ivar==21) {
+      leg = new TLegend(.32,.14,.68,.39);
+    } else if (ivar==18) {
+      leg = new TLegend(.55,.14,.87,.39);
     } else {
       leg = new TLegend(.15,.55,.47,.87);
     }
@@ -992,17 +998,14 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     //if (ivar==21) hist_bkg_stack_sig[ivar]->GetXaxis()->SetRangeUser(0.,10.);
     hist_bkg_stack_sig[ivar]->GetXaxis()->SetTitle(title[ivar]);
     hist_bkg_stack_sig[ivar]->GetXaxis()->SetTitleSize(0.04);
-    if (ivar!=9 && ivar!=3 && ivar!=14 && ivar!=21) leg->Draw();
+    if (ivar!=9 && ivar!=14 && ivar!=18 && ivar!=21) leg->Draw();
     hist_sig[ivar]->Draw("same");
     if (data) hist_data[3][ivar]->Draw("same,e");
 
     txt = new TLatex();
     txt->SetNDC();
     txt->SetTextSize(0.045);
-    if (ivar==4 || ivar==5) {
-      txt->DrawLatex(0.5,0.82,"Data in signal region");
-      txt->DrawLatex(0.5,0.76,"MC in signal region");
-    } else if (ivar==2 || ivar==8 || ivar==20) {
+    if (ivar==2 || ivar==8 || ivar==20) {
       txt->DrawLatex(0.15,0.42,"Data in signal region");
       txt->DrawLatex(0.15,0.36,"MC in signal region");
     } else {
@@ -1012,6 +1015,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
 
 
     canvas[ivar]->cd(3);
+    if (inlogy) gPad->SetLogy();
 
     float nbkg_sig = hist_bkg[3][ivar]->Integral();
     hist_bkg_reweight[ivar] = (TH1*)hist_bkg[0][ivar]->Clone();
@@ -1079,6 +1083,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     if (ivar==15) hist_bkg[3][ivar]->GetXaxis()->SetRangeUser(-1.*sidebandWidth,sidebandWidth);
 
     hist_bkg[3][ivar]->Draw("e2");
+    if (inlogy) hist_bkg[3][ivar]->GetYaxis()->UnZoom();
     if (nSB>2) hist_bkg[0][ivar]->Draw("same");
     if (nSB>1) hist_bkg[1][ivar]->Draw("same");
     hist_bkg[2][ivar]->Draw("same");
@@ -1095,10 +1100,11 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     leg2->AddEntry(hist_bkg[4][ivar],"MC High sideband 1");
     if (nSB>1) leg2->AddEntry(hist_bkg[5][ivar],"MC High sideband 2");
     if (nSB>2) leg2->AddEntry(hist_bkg[6][ivar],"MC High sideband 3");
-    if (ivar!=9 && ivar!=21 && ivar!=4 && ivar!=5) leg2->Draw();
+    if (ivar!=9) leg2->Draw();
 
 
     canvas[ivar]->cd(2);
+    if (inlogy) gPad->SetLogy();
 
     float nbkg_sig_fastsim = hist_bkg_fastsim[3][ivar]->Integral();
     hist_bkg_fastsim_reweight[ivar] = (TH1*)hist_bkg_fastsim[0][ivar]->Clone();
@@ -1166,6 +1172,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     if (ivar==15) hist_bkg_fastsim[3][ivar]->GetXaxis()->SetRangeUser(-1.*sidebandWidth,sidebandWidth);
 
     hist_bkg_fastsim[3][ivar]->Draw("e2");
+    if (inlogy) hist_bkg_fastsim[3][ivar]->GetYaxis()->UnZoom();
     if (nSB>2) hist_bkg_fastsim[0][ivar]->Draw("same");
     if (nSB>1) hist_bkg_fastsim[1][ivar]->Draw("same");
     hist_bkg_fastsim[2][ivar]->Draw("same");
@@ -1182,10 +1189,11 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     leg2_fastsim->AddEntry(hist_bkg[4][ivar],"FastSim High sideband 1");
     if (nSB>1) leg2_fastsim->AddEntry(hist_bkg[5][ivar],"FastSim High sideband 2");
     if (nSB>2) leg2_fastsim->AddEntry(hist_bkg[6][ivar],"FastSim High sideband 3");
-    if (ivar!=9 && ivar!=21) leg2_fastsim->Draw();
+    if (ivar!=9) leg2_fastsim->Draw();
 
 
     canvas[ivar]->cd(8);
+    if (inlogy) gPad->SetLogy();
 
     hist_data_reweight[ivar] = (TH1*)hist_data[0][ivar]->Clone();
     //hist_data_reweight[ivar]->Sumw2();
@@ -1214,14 +1222,11 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     if (data) hist_data_reweight[ivar]->SetMarkerSize(.8);
 
     hist_bkg_stack_sig[ivar]->Draw("hist");
-    if (ivar!=9 && ivar!=3 && ivar!=14 && ivar!=21) leg->Draw();
+    if (ivar!=9 && ivar!=14 && ivar!=18 && ivar!=21) leg->Draw();
     hist_sig_reweight[ivar]->Draw("same");
     if (data) hist_data_reweight[ivar]->Draw("same,e");
 
-    if (ivar==4 || ivar==5) {
-      txt->DrawLatex(0.5,0.82,"Data in signal region");
-      txt->DrawLatex(0.5,0.76,"MC in signal region");
-    } else if (ivar==2 || ivar==8 || ivar==20) {
+    if (ivar==2 || ivar==8 || ivar==20) {
       txt->DrawLatex(0.15,0.42,"Background Model (data)");
       txt->DrawLatex(0.15,0.36,"MC in signal region");
     } else {
@@ -1231,6 +1236,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
 
 
     canvas[ivar]->cd(7);
+    if (inlogy) gPad->SetLogy();
 
     hist_bkg_sig[ivar] = (TH1*)hist_bkg[3][ivar]->Clone();
 
@@ -1256,6 +1262,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     //if (ivar==21) hist_bkg_reweight[ivar]->GetXaxis()->SetRangeUser(0.,10.);
     hist_bkg_sig[ivar]->SetFillColor(38);
     hist_bkg_reweight[ivar]->Draw("e");
+    if (inlogy) hist_bkg_reweight[ivar]->GetYaxis()->UnZoom();
     hist_bkg_sig[ivar]->Draw("e2,same");
     hist_bkg_reweight[ivar]->Draw("e,same");
 
@@ -1263,10 +1270,11 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     leg3->Clear();
     leg3->AddEntry(hist_bkg_sig[ivar],"MC Signal region");
     leg3->AddEntry(hist_bkg_reweight[ivar],"MC Background Model");
-    if (ivar!=9 && ivar!=21 && ivar!=4 && ivar!=5) leg3->Draw();
+    if (ivar!=9) leg3->Draw();
 
 
     canvas[ivar]->cd(6);
+    if (inlogy) gPad->SetLogy();
 
     hist_bkg_fastsim_sig[ivar] = (TH1*)hist_bkg_fastsim[3][ivar]->Clone();
 
@@ -1292,6 +1300,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     //if (ivar==21) hist_bkg_fastsim_reweight[ivar]->GetXaxis()->SetRangeUser(0.,10.);
     hist_bkg_fastsim_sig[ivar]->SetFillColor(38);
     hist_bkg_fastsim_reweight[ivar]->Draw("e");
+    if (inlogy) hist_bkg_fastsim_reweight[ivar]->GetYaxis()->UnZoom();
     hist_bkg_fastsim_sig[ivar]->Draw("e2,same");
     hist_bkg_fastsim_reweight[ivar]->Draw("e,same");
 
@@ -1299,10 +1308,11 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     leg3->Clear();
     leg3->AddEntry(hist_bkg_fastsim_sig[ivar],"FastSim MC Signal region");
     leg3->AddEntry(hist_bkg_fastsim_reweight[ivar],"FastSim MC Background Model");
-    if (ivar!=9 && ivar!=21) leg3->Draw();
+    if (ivar!=9) leg3->Draw();
 
 
     canvas[ivar]->cd(5);
+    if (inlogy) gPad->SetLogy();
 
     hist_data_sig[ivar] = (TH1*)hist_data[3][ivar]->Clone();
     hist_data_sig[ivar]->SetMarkerStyle(0);
@@ -1329,6 +1339,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     //if (ivar==21) hist_data_reweight_rebin[ivar]->GetXaxis()->SetRangeUser(0.,10.);
     hist_data_sig[ivar]->SetFillColor(38);
     hist_data_reweight_rebin[ivar]->Draw("e");
+    if (inlogy) hist_data_reweight_rebin[ivar]->GetYaxis()->UnZoom();
     hist_data_sig[ivar]->Draw("e2,same");
     hist_data_reweight_rebin[ivar]->Draw("e,same");
 
@@ -1336,10 +1347,11 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     leg3->Clear();
     leg3->AddEntry(hist_data_sig[ivar],"Data: Signal region");
     leg3->AddEntry(hist_data_reweight_rebin[ivar],"Data: Background Model");
-    if (ivar!=9 && ivar!=21 && ivar!=4 && ivar!=5) leg3->Draw();
+    if (ivar!=9) leg3->Draw();
 
 
     canvas[ivar]->cd(1);
+    if (inlogy) gPad->SetLogy();
 
     for (int i=0; i<7; i++) {
       if (i!=3) {
@@ -1384,6 +1396,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     if (ivar==15) hist_data[sb_low][ivar]->GetXaxis()->SetRangeUser(-1.*sidebandWidth,sidebandWidth);
 
     hist_data[sb_low][ivar]->Draw();
+    if (inlogy) hist_data[sb_low][ivar]->GetYaxis()->UnZoom();
     if (nSB>2) hist_data[1][ivar]->Draw("same");
     if (nSB>1) hist_data[2][ivar]->Draw("same");
     hist_data[4][ivar]->Draw("same");
@@ -1398,7 +1411,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
     leg2_data->AddEntry(hist_data[4][ivar],"Data High sideband 1");
     if (nSB>1) leg2_data->AddEntry(hist_data[5][ivar],"Data High sideband 2");
     if (nSB>2) leg2_data->AddEntry(hist_data[6][ivar],"Data High sideband 3");
-    if (ivar!=9 && ivar!=21 && ivar!=4 && ivar!=5) leg2_data->Draw();
+    if (ivar!=9) leg2_data->Draw();
 
 
     canvas[ivar]->cd(11);
@@ -1894,11 +1907,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
       if (nSB>2) leg8->AddEntry(hist_bkg_fastsim_scaled[0][j],"FastSim Low sideband 3","LP");
       leg8->Draw();
 
-      if (!rebin) {
-	canvas[j]->SaveAs(outdir+var[j]+sob_str+"_MIT.gif");
-      } else {
-	canvas[j]->SaveAs(outdir+var[j]+sob_str+"_nominalbins_MIT.gif");
-      }
+      canvas[j]->SaveAs(outdir+var[j]+".gif");
 
 
       canvas_biascorrected[j] = new TCanvas("c_"+var[j]+"_biascorrected",var[j]+"_biascorrected",1600,700);
@@ -2028,7 +2037,7 @@ void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirna
       txt->DrawLatex(0.25,0.2, "FastSim signal region - FastSim background model");
       line1a->Draw();
 
-      canvas_biascorrected[j]->SaveAs(outdir+var[j]+sob_str+"_nominalbins_MIT_biascorrected.gif");
+      canvas_biascorrected[j]->SaveAs(outdir+var[j]+"_biascorrected.gif");
     }
     //}
 
