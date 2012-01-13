@@ -1156,6 +1156,35 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
       // histos, 0 -> default, 1->signal region, 2,3,4 -> lower SB , 5,6,7 -> higher SB,8 all
       if (mass>massMin && mass<massMax){
+
+	 // Special histogram fill BDT_mH, BDT_mH + .5GeV
+	 // ------------------------------------------------------------------------------------------------------------------------------------//
+	 float q_mass_hypothesis = 120.0;
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis,bdtoutput,evweight);
+	 float bdt_grad_1 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis+0.5,bdtoutput,evweight);
+	 float bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-0.5,bdtoutput,evweight);
+	 float bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+	 if (bdtoutput>=-0.5){
+           l.FillHist2D("shiftingMH_ip_bdt1_bdt2_mH120"	,0,bdt_grad_1,bdt_grad_2,evweight);
+           l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH120"	,0,bdt_grad_1,bdt_grad_3,evweight);
+	 }
+
+	 q_mass_hypothesis = 140.0;
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis,bdtoutput,evweight);
+	 bdt_grad_1 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis+0.5,bdtoutput,evweight);
+	 bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-0.5,bdtoutput,evweight);
+	 bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+	 if (bdtoutput>=-0.5){
+           l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH140"	,0,bdt_grad_1,bdt_grad_2,evweight);
+           l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH140"	,0,bdt_grad_1,bdt_grad_3,evweight);
+	 }
+	 // ------------------------------------------------------------------------------------------------------------------------------------//
+	
+
          l.FillHist2D("bdtgrad_vs_mass"		,histoplace,bdt_grad,mass,evweight);
          l.FillHist2D("bdtgrad_vs_hpt"		,histoplace,bdt_grad,ptHiggs,evweight);
          l.FillHist2D("bdtgrad_vs_leadpt"	,histoplace,bdt_grad,pt_lead,evweight);
