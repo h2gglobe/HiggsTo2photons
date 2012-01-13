@@ -7,7 +7,7 @@
 #include <set>
 #include <vector>
 
-void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="BDTplots_all", int sbwidth=2, int loose=0, bool sob=1) {
+void BDTvars_multipleSidebands(int mass_in=120, bool www=false, TString outdirname="BDTplots_all", int sbwidth=2, int loose=0, bool sob=1) {
 
   bool rebin=true;
 
@@ -109,7 +109,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
     TH1* hist_nominal[2];
 
-    TFile *f_bdtout_nominal = TFile::Open("CMS-HGG_mva_30Dec_MIT.root");
+    //TFile *f_bdtout_nominal = TFile::Open("CMS-HGG_mva_8Jan.root");
+    TFile *f_bdtout_nominal = TFile::Open("CMS-HGG_mit_2var_07_01_12_v2.root");
     //if (sbwidth==2) {
     //  TFile *f_bdtout_nominal = TFile::Open("/tmp/futyand/CMS-HGG_4700pb_02-12-11.root");
     //} else if (sbwidth==7) {
@@ -128,11 +129,42 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
   }
 
-  TFile *f_bdtout = TFile::Open("CMS-HGG_mva_30Dec_MIT"+loose_str+".root");
-  TFile *f_bdtin = TFile::Open("histograms_CMS-HGG_mva_30Dec_MIT"+loose_str+".root");
+  TFile *f_bias = TFile::Open("BkgBias_mit_2var_07_01_12_v2.root");
+  int bias_sf_bin=-1;
+  for (int ibin=1; ibin<hist_biasfactor->GetNbinsX()+1; ibin++) {
+    if (hist_biasfactor->GetBinLowEdge(ibin)>float(mass_in)) {
+      bias_sf_bin=ibin-1;
+      break;
+    }
+  }
+  float bias_sf = hist_biasfactor->GetBinContent(bias_sf_bin);
+  float bias_data[100][2];
+  float bias_mc[100][2];
+  for (int j=0; j<2; j++) {
+    for (int ibin=1; ibin<nbins_nominal[j]+1; ibin++) {
+      graph_data = (TGraph*)(f_bias->Get("tgraph_biasslopes_data_"+boost_str[j]+"_"+mass_str))->Clone();
+      graph_mc = (TGraph*)(f_bias->Get("tgraph_biasslopes_mc_"+boost_str[j]+"_"+mass_str))->Clone();
+      bias_data[ibin][j] = graph_data->Eval(float(ibin)-0.5) * bias_sf;
+      bias_mc[ibin][j] = graph_mc->Eval(float(ibin)-0.5) * bias_sf;
+    }
+  }
 
-  TFile *f_bdtout_fastsim = TFile::Open("CMS-HGG_mva_fastsim_30Dec_MIT.root");
-  TFile *f_bdtin_fastsim = TFile::Open("histograms_CMS-HGG_mva_fastsim_30Dec_MIT.root");
+  TFile *f_bias_fastsim = TFile::Open("BkgBias_mit_2var_07_01_12_v2_fastsim.root");
+  float bias_fastsim[100][2];
+  for (int j=0; j<2; j++) {
+    for (int ibin=1; ibin<nbins_nominal[j]+1; ibin++) {
+      graph_fastsim = (TGraph*)(f_bias_fastsim->Get("tgraph_biasslopes_mc_"+boost_str[j]+"_"+mass_str))->Clone();
+      bias_fastsim[ibin][j] = graph_fastsim->Eval(float(ibin)-0.5) * bias_sf;
+      cout << boost_str[j] << " " << ibin << " " << bias_data[ibin][j] << " " << bias_mc[ibin][j] << " " << bias_fastsim[ibin][j] << endl;
+    }
+  }
+
+  //TFile *f_bdtout = TFile::Open("CMS-HGG_mva_8Jan"+loose_str+".root");
+  TFile *f_bdtout = TFile::Open("CMS-HGG_mit_2var_07_01_12_v2.root");
+  TFile *f_bdtin = TFile::Open("histograms_CMS-HGG_mva_8Jan"+loose_str+".root");
+
+  TFile *f_bdtout_fastsim = TFile::Open("CMS-HGG_mva_fastsim_8Jan.root");
+  TFile *f_bdtin_fastsim = TFile::Open("histograms_CMS-HGG_mva_fastsim_8Jan.root");
 
   gStyle->SetOptTitle(0);
   gStyle->SetOptStat(0);
@@ -152,6 +184,9 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   TH1* hist_dy[8][24];
   TH1* hist_bkg[8][24];
   TH1* hist_bkgModel[24];
+  TH1* hist_bkgModel_biascorrected[24];
+  TH1* hist_bkg_reweight_biascorrected[24];
+  TH1* hist_bkg_fastsim_reweight_biascorrected[24];
   TH1* hist_balg[24];
   TH1* hist_bkg_scaled[8][24];
   TH1* hist_data_scaled[8][24];
@@ -475,9 +510,9 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   hist_mass_qcd_ff->Add(all_mass_cat0_QCD30FF);
   hist_mass_dy = (TH1*)all_mass_cat0_DYJetsToLL->Clone();
 
-  TString var[24] = {"ptOverMH","eta","deltaPhi","cosDeltaPhi","pho1_phoidMva","pho2_phoidMva","pho1_eta","pho2_eta","pho_minr9","maxeta","ptOverM","pho1_ptOverM","pho2_ptOverM","sigmaMOverM","deltaEta","deltaMOverMH","pho1_ptOverMH","pho2_ptOverMH","vtxProb","sigmaMOverM_wrongVtx","ucsdbdt","mitbdt","bdtOut_grad","bdtOut_ada"};
+  TString var[24] = {"ptOverMH","eta","deltaPhi","cosDeltaPhi","pho1_phoidMva","pho2_phoidMva","pho1_eta","pho2_eta","pho_minr9","maxeta","ptOverM","pho1_ptOverM","pho2_ptOverM","sigmaMOverM","deltaEta","deltaMOverMH","pho1_ptOverMH","pho2_ptOverMH","vtxProb","sigmaMOverM_wrongVtx","bdtoutput","bdtoutput","bdtOut_grad","bdtOut_ada"};
 
-  for (int ivar=0; ivar<22; ivar++) {
+  for (int ivar=0; ivar<2; ivar++) {
     cout << var[ivar] << endl;
     hist_sig[ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_msig_cat"+cat_str+"_gluglu_H_gg_"+mass_str2+"_pu2011"))->Clone();
 
@@ -587,7 +622,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
   f_bdtin_fastsim->cd();
 
-  for (int ivar=0; ivar<22; ivar++) {
+  for (int ivar=0; ivar<2; ivar++) {
 
     hist_born_fastsim[0][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mlow3_cat"+cat_str+"_Born25"))->Clone();
     hist_born_fastsim[1][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mlow2_cat"+cat_str+"_Born25"))->Clone();
@@ -616,6 +651,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   }
 
   TCanvas* canvas[24];
+  TCanvas* canvas_biascorrected[24];
 
   //TCanvas *c_mgg2 = new TCanvas("c_mgg2","Mgg graph");
   //c_mgg2->SetFillColor(0);
@@ -667,7 +703,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   float Ndata_sig = hist_bkgModel[22]->Integral();
   cout << Ndata_sig << endl;
 
-  for (int ivar=0; ivar<22; ivar++) {
+  for (int ivar=0; ivar<2; ivar++) {
 
     //if (ivar==10 || ivar==16 || ivar==17) continue;
 
@@ -963,7 +999,10 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     txt = new TLatex();
     txt->SetNDC();
     txt->SetTextSize(0.045);
-    if (ivar==2 || ivar==8 || ivar==4 || ivar==5 || ivar==20) {
+    if (ivar==4 || ivar==5) {
+      txt->DrawLatex(0.5,0.82,"Data in signal region");
+      txt->DrawLatex(0.5,0.76,"MC in signal region");
+    } else if (ivar==2 || ivar==8 || ivar==20) {
       txt->DrawLatex(0.15,0.42,"Data in signal region");
       txt->DrawLatex(0.15,0.36,"MC in signal region");
     } else {
@@ -1056,7 +1095,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     leg2->AddEntry(hist_bkg[4][ivar],"MC High sideband 1");
     if (nSB>1) leg2->AddEntry(hist_bkg[5][ivar],"MC High sideband 2");
     if (nSB>2) leg2->AddEntry(hist_bkg[6][ivar],"MC High sideband 3");
-    if (ivar!=9 &&ivar!=21) leg2->Draw();
+    if (ivar!=9 && ivar!=21 && ivar!=4 && ivar!=5) leg2->Draw();
 
 
     canvas[ivar]->cd(2);
@@ -1149,7 +1188,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     canvas[ivar]->cd(8);
 
     hist_data_reweight[ivar] = (TH1*)hist_data[0][ivar]->Clone();
-    hist_data_reweight[ivar]->Sumw2();
+    //hist_data_reweight[ivar]->Sumw2();
     hist_data_reweight[ivar]->Add(hist_data[1][ivar]);
     hist_data_reweight[ivar]->Add(hist_data[2][ivar]);
     hist_data_reweight[ivar]->Add(hist_data[4][ivar]);
@@ -1179,7 +1218,10 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     hist_sig_reweight[ivar]->Draw("same");
     if (data) hist_data_reweight[ivar]->Draw("same,e");
 
-    if (ivar==2 || ivar==8 || ivar==4 || ivar==5 || ivar==20) {
+    if (ivar==4 || ivar==5) {
+      txt->DrawLatex(0.5,0.82,"Data in signal region");
+      txt->DrawLatex(0.5,0.76,"MC in signal region");
+    } else if (ivar==2 || ivar==8 || ivar==20) {
       txt->DrawLatex(0.15,0.42,"Background Model (data)");
       txt->DrawLatex(0.15,0.36,"MC in signal region");
     } else {
@@ -1221,7 +1263,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     leg3->Clear();
     leg3->AddEntry(hist_bkg_sig[ivar],"MC Signal region");
     leg3->AddEntry(hist_bkg_reweight[ivar],"MC Background Model");
-    if (ivar!=9 && ivar!=21) leg3->Draw();
+    if (ivar!=9 && ivar!=21 && ivar!=4 && ivar!=5) leg3->Draw();
 
 
     canvas[ivar]->cd(6);
@@ -1294,7 +1336,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     leg3->Clear();
     leg3->AddEntry(hist_data_sig[ivar],"Data: Signal region");
     leg3->AddEntry(hist_data_reweight_rebin[ivar],"Data: Background Model");
-    if (ivar!=9 && ivar!=21) leg3->Draw();
+    if (ivar!=9 && ivar!=21 && ivar!=4 && ivar!=5) leg3->Draw();
 
 
     canvas[ivar]->cd(1);
@@ -1356,7 +1398,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     leg2_data->AddEntry(hist_data[4][ivar],"Data High sideband 1");
     if (nSB>1) leg2_data->AddEntry(hist_data[5][ivar],"Data High sideband 2");
     if (nSB>2) leg2_data->AddEntry(hist_data[6][ivar],"Data High sideband 3");
-    if (ivar!=9 && ivar!=21) leg2_data->Draw();
+    if (ivar!=9 && ivar!=21 && ivar!=4 && ivar!=5) leg2_data->Draw();
 
 
     canvas[ivar]->cd(11);
@@ -1497,8 +1539,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_bkg_fastsim[5][j]->SetMarkerColor(kGreen-2);
       hist_bkg_fastsim[6][j]->SetMarkerColor(kGreen-1);
       hist_bkg_fastsim[3][j]->SetFillColor(38);
-      hist_bkgModel[j]->SetMarkerStyle(20);
-      hist_bkgModel[j]->SetMarkerSize(.8);
+      //hist_bkgModel[j]->SetMarkerStyle(20);
+      //hist_bkgModel[j]->SetMarkerSize(.8);
       hist_bkgModel[j]->SetLineColor(4);
       hist_bkgModel[j]->SetFillColor(38);
       hist_bkgModel[j]->SetLineWidth(2);
@@ -1571,7 +1613,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_bkgModel[j]->SetMaximum(max*1.1);
       hist_bkgModel[j]->SetMinimum(0.);
 
-      hist_bkgModel[j]->Draw("hist");
+      hist_bkgModel[j]->Draw("e2");
       if (logy) hist_bkgModel[j]->GetYaxis()->UnZoom();
       //hist_data_reweight[j]->Draw("same");
       hist_sig[j]->Draw("hist,same");
@@ -1675,6 +1717,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       canvas[j]->cd(5);
 
       hist_dataMinusModel = (TH1*)hist_data[3][j]->Clone();
+      //hist_dataMinusModel->Sumw2();
       hist_dataMinusModel->Add(hist_bkgModel[j],-1.);
 
       float max1=100.;
@@ -1791,11 +1834,11 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_bkg_fastsim[3][j]->Draw("e2,same");
       hist_bkg_fastsim_reweight[j]->Draw("e,same");
 
-      TLegend *leg7 = (TLegend*)leg1->Clone();
-      leg7->Clear();
-      leg7->AddEntry(hist_bkg_fastsim[3][j],"FastSim Signal region","F");
-      leg7->AddEntry(hist_bkg_fastsim_reweight[j],"FastSim Background Model");
-      leg7->Draw();
+      TLegend *leg7_fastsim = (TLegend*)leg1->Clone();
+      leg7_fastsim->Clear();
+      leg7_fastsim->AddEntry(hist_bkg_fastsim[3][j],"FastSim Signal region","F");
+      leg7_fastsim->AddEntry(hist_bkg_fastsim_reweight[j],"FastSim Background Model");
+      leg7_fastsim->Draw();
 
 
       canvas[j]->cd(4);
@@ -1857,6 +1900,135 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	canvas[j]->SaveAs(outdir+var[j]+sob_str+"_nominalbins_MIT.gif");
       }
 
+
+      canvas_biascorrected[j] = new TCanvas("c_"+var[j]+"_biascorrected",var[j]+"_biascorrected",1600,700);
+      canvas_biascorrected[j]->Divide(3,2);
+      canvas_biascorrected[j]->SetFillColor(0);
+
+
+      canvas_biascorrected[j]->cd(1);
+      if (logy) gPad->SetLogy();
+
+      hist_bkgModel_biascorrected[j] = (TH1*)hist_bkgModel[j]->Clone();
+      for (int ibin=1; ibin<hist_bkgModel[j]->GetNbinsX()+1; ibin++) {
+	cout << ibin << " " << (1.-bias_data[ibin][j-22]) << endl;
+	hist_bkgModel_biascorrected[j]->SetBinContent(ibin,hist_bkgModel[j]->GetBinContent(ibin)*(1.-bias_data[ibin][j-22]));
+      }
+      hist_bkgModel_biascorrected[j]->Scale(hist_bkgModel[j]->Integral()/hist_bkgModel_biascorrected[j]->Integral());
+
+      hist_bkgModel_biascorrected[j]->Draw("e2");
+      if (logy) hist_bkgModel_biascorrected[j]->GetYaxis()->UnZoom();
+      hist_sig[j]->Draw("hist,same");
+      hist_sig_x5->Draw("hist,same");
+      hist_sig_x10->Draw("hist,same");
+      hist_data[3][j]->Draw("same,e");
+
+      leg1->Draw();
+
+
+      canvas_biascorrected[j]->cd(4);
+
+      hist_dataMinusModel_biascorrected = (TH1*)hist_data[3][j]->Clone();
+      hist_dataMinusModel_biascorrected->Add(hist_bkgModel_biascorrected[j],-1.);
+
+      hist_dataMinusModel_biascorrected->SetMaximum(max1);
+      hist_dataMinusModel_biascorrected->SetMinimum(min1);
+      hist_dataMinusModel_biascorrected->Draw("e");
+      hist_sig[j]->Draw("hist,same");
+      hist_sig_x5->Draw("hist,same");
+      hist_sig_x10->Draw("hist,same");
+
+      leg2->Draw();
+      line1a->Draw();
+
+
+      canvas_biascorrected[j]->cd(2);
+      if (logy) gPad->SetLogy();
+
+      hist_bkg_reweight_biascorrected[j] = (TH1*)hist_bkg_reweight[j]->Clone();
+      for (int ibin=1; ibin<hist_bkg_reweight[j]->GetNbinsX()+1; ibin++) {
+	hist_bkg_reweight_biascorrected[j]->SetBinContent(ibin,hist_bkg_reweight[j]->GetBinContent(ibin)*(1.-bias_mc[ibin][j-22]));
+      }
+      hist_bkg_reweight_biascorrected[j]->Scale(hist_bkg_reweight[j]->Integral()/hist_bkg_reweight_biascorrected[j]->Integral());
+
+      hist_bkg_reweight_biascorrected[j]->Draw("e");
+      if (logy) hist_bkg_reweight_biascorrected[j]->GetYaxis()->UnZoom();
+      hist_bkg[3][j]->Draw("e2,same");
+      hist_bkg_reweight_biascorrected[j]->Draw("e,same");
+
+      leg7->Draw();
+
+
+      canvas_biascorrected[j]->cd(5);
+
+      hist_mcMinusModel_biascorrected = (TH1*)hist_bkg[3][j]->Clone();
+      hist_mcMinusModel_biascorrected->Add(hist_bkg_reweight_biascorrected[j],-1.);
+
+      max1=100.;
+      min1=-100.;
+      if (hist_mcMinusModel_biascorrected->GetMaximum()>max1) max1=hist_mcMinusModel_biascorrected->GetMaximum()*1.2;
+      if (hist_mcMinusModel_biascorrected->GetMinimum()<min1) min1=hist_mcMinusModel_biascorrected->GetMinimum()*1.2;
+      if (max1>fabs(min1)) min1=-1.*max1;
+      if (fabs(min1)>max1) max1=-1.*min1;
+      //if (hist_sig_x10[j]->GetMaximum()>max1) max1=hist_sig_x10[j]->GetMaximum()*1.05;
+      hist_mcMinusModel_biascorrected->SetMaximum(max1);
+      hist_mcMinusModel_biascorrected->SetMinimum(min1);
+
+      hist_mcMinusModel_biascorrected->SetMaximum(max1);
+      hist_mcMinusModel_biascorrected->SetMinimum(min1);
+      hist_mcMinusModel_biascorrected->Draw("e");
+
+      txt->DrawLatex(0.35,0.2, "MC signal region - MC background model");
+      line1a->Draw();
+
+//       canvas_biascorrected[j]->cd(5);
+//       gPad->SetGrid();
+//       hist_bias_ratio = (TH1*)hist_bkgModel[j]->Clone();
+//       hist_bias_ratio->Divide(hist_bkgModel_biascorrected[j]);
+//       hist_bias_ratio->SetMaximum(1.1);
+//       hist_bias_ratio->SetMinimum(0.9);
+//       hist_bias_ratio->Draw("e");
+
+      canvas_biascorrected[j]->cd(3);
+      if (logy) gPad->SetLogy();
+
+      hist_bkg_fastsim_reweight_biascorrected[j] = (TH1*)hist_bkg_fastsim_reweight[j]->Clone();
+      for (int ibin=1; ibin<hist_bkg_fastsim_reweight[j]->GetNbinsX()+1; ibin++) {
+	hist_bkg_fastsim_reweight_biascorrected[j]->SetBinContent(ibin,hist_bkg_fastsim_reweight[j]->GetBinContent(ibin)*(1.-bias_fastsim[ibin][j-22]));
+      }
+      hist_bkg_fastsim_reweight_biascorrected[j]->Scale(hist_bkg_fastsim_reweight[j]->Integral()/hist_bkg_fastsim_reweight_biascorrected[j]->Integral());
+
+      hist_bkg_fastsim_reweight_biascorrected[j]->Draw("e");
+      if (logy) hist_bkg_fastsim_reweight_biascorrected[j]->GetYaxis()->UnZoom();
+      hist_bkg_fastsim[3][j]->Draw("e2,same");
+      hist_bkg_fastsim_reweight_biascorrected[j]->Draw("e,same");
+
+      leg7_fastsim->Draw();
+
+
+      canvas_biascorrected[j]->cd(6);
+
+      hist_fastsimMinusModel_biascorrected = (TH1*)hist_bkg_fastsim[3][j]->Clone();
+      hist_fastsimMinusModel_biascorrected->Add(hist_bkg_fastsim_reweight_biascorrected[j],-1.);
+
+      max1=10.;
+      min1=-10.;
+      if (hist_fastsimMinusModel_biascorrected->GetMaximum()>max1) max1=hist_fastsimMinusModel_biascorrected->GetMaximum()*1.2;
+      if (hist_fastsimMinusModel_biascorrected->GetMinimum()<min1) min1=hist_fastsimMinusModel_biascorrected->GetMinimum()*1.2;
+      if (max1>fabs(min1)) min1=-1.*max1;
+      if (fabs(min1)>max1) max1=-1.*min1;
+      //if (hist_sig_x10[j]->GetMaximum()>max1) max1=hist_sig_x10[j]->GetMaximum()*1.05;
+      hist_fastsimMinusModel_biascorrected->SetMaximum(max1);
+      hist_fastsimMinusModel_biascorrected->SetMinimum(min1);
+
+      hist_fastsimMinusModel_biascorrected->SetMaximum(max1);
+      hist_fastsimMinusModel_biascorrected->SetMinimum(min1);
+      hist_fastsimMinusModel_biascorrected->Draw("e");
+
+      txt->DrawLatex(0.25,0.2, "FastSim signal region - FastSim background model");
+      line1a->Draw();
+
+      canvas_biascorrected[j]->SaveAs(outdir+var[j]+sob_str+"_nominalbins_MIT_biascorrected.gif");
     }
     //}
 
@@ -1929,7 +2101,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   hist_mass_bkg_stack->SetMaximum(max*1.05);
 
   hist_mass_bkg_stack->Draw();
-  //hist_mass_bkg_stack->GetXaxis()->SetRangeUser(90.,190.);
+  hist_mass_bkg_stack->GetXaxis()->SetRangeUser(90.,190.);
 
   TBox* sideband_box[2];
   sideband_box[0] = new TBox(sideband_boundaries[sb_low],0.,sideband_boundaries[3],max*1.1);
@@ -2062,127 +2234,6 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     c_mgg_bias->SaveAs(outdir+"mass_bias.gif");
 
   }
-
-  TCanvas *c_res = new TCanvas("c_res","Mass Resolution",1800,1800);
-  c_res->SetFillColor(0);
-  c_res->Divide(3,4);
-
-  for (int icat=0; icat<9; icat++) {
-
-    if (icat==0) c_res->cd(1);
-    if (icat==1) c_res->cd(2);
-    if (icat==2) c_res->cd(3);
-    if (icat==3) c_res->cd(5);
-    if (icat==4) c_res->cd(6);
-    if (icat==5) c_res->cd(8);
-    if (icat==6) c_res->cd(9);
-    if (icat==7) c_res->cd(11);
-    if (icat==8) c_res->cd(12);
-
-//     hist_res_born[icat]->Scale(bornSF*dataMC_sf);
-//     hist_res_box[icat]->Scale(1.3*dataMC_sf);
-//     hist_res_gjet_pf[icat]->Scale(1.3*dataMC_sf);
-//     hist_res_qcd_pf[icat]->Scale(1.3*dataMC_sf);
-//     hist_res_qcd_ff[icat]->Scale(1.*dataMC_sf);
-//     hist_res_dy[icat]->Scale(1.15*2321./992.*dataMC_sf);
-//     if (!madgraph) {
-//       hist_res_gjet_pp[icat]->Scale(1.3*dataMC_sf);
-//       hist_res_qcd_pp[icat]->Scale(1.3*dataMC_sf);
-//     }
-
-    hist_res_born[icat]->Scale(dataMC_sf);
-    hist_res_box[icat]->Scale(dataMC_sf);
-    hist_res_gjet_pf[icat]->Scale(dataMC_sf);
-    hist_res_qcd_pf[icat]->Scale(dataMC_sf);
-    hist_res_qcd_ff[icat]->Scale(dataMC_sf);
-    hist_res_dy[icat]->Scale(dataMC_sf);
-    if (!madgraph) {
-      hist_res_gjet_pp[icat]->Scale(dataMC_sf);
-      hist_res_qcd_pp[icat]->Scale(dataMC_sf);
-    }
-
-    hist_res_sig[icat]->SetLineColor(4);
-    hist_res_sig[icat]->SetLineWidth(2.5);
-    if (data) hist_res_data[icat]->SetMarkerStyle(20);
-    if (data) hist_res_data[icat]->SetMarkerSize(.5);
-    hist_res_born[icat]->SetFillColor(kGreen-2);
-    hist_res_box[icat]->SetFillColor(kGreen-1);
-    hist_res_gjet_pf[icat]->SetFillColor(kOrange-2);
-    hist_res_qcd_pf[icat]->SetFillColor(kOrange-3);
-    hist_res_qcd_ff[icat]->SetFillColor(kOrange+2);
-    hist_res_dy[icat]->SetFillColor(38);
-    if (!madgraph) {
-      hist_res_gjet_pp[icat]->SetFillColor(kGreen-3);
-      hist_res_qcd_pp[icat]->SetFillColor(kGreen-4);
-    }
-
-    hist_res_bkg_stack[icat] = new THStack("hist_res_bkg_stack","Background");
-    hist_res_bkg_stack[icat]->Add(hist_res_box[icat]);
-    hist_res_bkg_stack[icat]->Add(hist_res_born[icat]);
-    if (!madgraph) {
-      hist_res_bkg_stack[icat]->Add(hist_res_gjet_pp[icat]);
-      hist_res_bkg_stack[icat]->Add(hist_res_qcd_pp[icat]);
-    }
-    if (fakes) {
-      hist_res_bkg_stack[icat]->Add(hist_res_gjet_pf[icat]);
-      hist_res_bkg_stack[icat]->Add(hist_res_qcd_pf[icat]);
-      hist_res_bkg_stack[icat]->Add(hist_res_qcd_ff[icat]);
-    }    
-    hist_res_bkg_stack[icat]->Add(hist_res_dy[icat]);
-  
-    hist_res_bkg[icat] = (TH1*)hist_res_box[icat]->Clone();
-    hist_res_bkg[icat]->Add(hist_res_born[icat]);
-    if (!madgraph) {
-      hist_res_bkg[icat]->Add(hist_res_gjet_pp[icat]);
-      hist_res_bkg[icat]->Add(hist_res_qcd_pp[icat]);
-    }
-    if (fakes) {
-      hist_res_bkg[icat]->Add(hist_res_gjet_pf[icat]);
-      hist_res_bkg[icat]->Add(hist_res_qcd_pf[icat]);
-      hist_res_bkg[icat]->Add(hist_res_qcd_ff[icat]);
-    }
-    hist_res_bkg[icat]->Add(hist_res_dy[icat]);
-    hist_res_sig[icat]->Scale(hist_res_bkg[icat]->Integral()/hist_res_sig[icat]->Integral());
-
-    float max = hist_res_bkg_stack[icat]->GetMaximum();
-    if (hist_res_sig[icat]->GetMaximum()>max) max=hist_res_sig[icat]->GetMaximum();
-    if (data && hist_res_data[icat]->GetMaximum()>max) max=hist_res_data[icat]->GetMaximum();
-    hist_res_bkg_stack[icat]->SetMaximum(max*1.05);
-
-    hist_res_bkg_stack[icat]->Draw();
-    hist_res_bkg_stack[icat]->GetXaxis()->SetRangeUser(0.,10.);
-    hist_res_bkg_stack[icat]->GetXaxis()->SetTitle("#sigma_{M}");
-    hist_res_bkg_stack[icat]->GetXaxis()->SetTitleSize(0.04);
-    hist_res_sig[icat]->Draw("same");
-    if (data) hist_res_data[icat]->Draw("same,e");
-
-    txt_cat = new TLatex();
-    txt_cat->SetNDC();
-    txt_cat->SetTextSize(0.06);
-    if (icat==0) {
-      txt->DrawLatex(0.4,0.8,"All");
-    } else {
-      if (icat<5) {
-	txt->DrawLatex(0.4,0.8,"High p_{T}^{#gamma#gamma}");
-      } else {
-	txt->DrawLatex(0.4,0.8,"Low p_{T}^{#gamma#gamma}");
-      }
-      if (icat==1 || icat==2 || icat==5 || icat==6) {
-	txt->DrawLatex(0.4,0.75,"Both EB");
-      } else {
-	txt->DrawLatex(0.4,0.75,"One EE");
-      }
-      if (icat%2==1) {
-	txt->DrawLatex(0.4,0.7,"High R9");
-      } else {
-	txt->DrawLatex(0.4,0.7,"Low R9");
-      }
-    }
-
-    leg_mass->Draw();
-  }
-
-  c_res->SaveAs(outdir+"sigmaM_cat.gif");
 
 }
 
