@@ -3,8 +3,8 @@ void correctBkgModel(bool updateWorkspace=false) {
   TString option;
   option = updateWorkspace ? "UPDATE" : "READ";
 
-  TFile *workspace = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/CMS-HGG_mit_2var_07_01_12_v2.root",option);
-  TFile *f_bias = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/BkgBias_12Jan.root");
+  TFile *workspace = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/CMS-HGG_bdt_MITeleVeto_15_01_2012.root",option);
+  TFile *f_bias = TFile::Open("/afs/cern.ch/user/f/futyand/scratch1/mva_ucsd/BkgBias_15Jan/BkgBias.root");
 
   //TFile *workspace_temp;
   //if (!updateWorkspace) workspace_temp = TFile::Open("CMS-HGG_biascorr.root","RECREATE");
