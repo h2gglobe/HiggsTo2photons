@@ -9,7 +9,7 @@
 
 void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="BDTplots_all", int sbwidth=2, int loose=0, bool sob=1) {
 
-  bool rebin=true;
+  bool rebin=false;
 
   bool madgraph=true;
   bool fakes=true;
@@ -103,14 +103,14 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   TString boost_str[2] = {"grad","ada"};
   TString nominal_str="";
 
-  if (rebin) {
+  //if (rebin) {
 
-    nominal_str="_nominal";
+  //nominal_str="_nominal";
 
     TH1* hist_nominal[2];
 
-    //TFile *f_bdtout_nominal = TFile::Open("CMS-HGG_mva_8Jan.root");
     TFile *f_bdtout_nominal = TFile::Open("CMS-HGG_mit_2var_07_01_12_v2.root");
+    //TFile *f_bdtout_nominal = TFile::Open("CMS-HGG_bdt_MITeleVeto_15_01_2012.root");
     //if (sbwidth==2) {
     //  TFile *f_bdtout_nominal = TFile::Open("/tmp/futyand/CMS-HGG_4700pb_02-12-11.root");
     //} else if (sbwidth==7) {
@@ -127,41 +127,11 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
     f_bdtout_nominal->Close();
 
-  }
-
-  TFile *f_bias = TFile::Open("BkgBias_mit_2var_07_01_12_v2.root");
-  int bias_sf_bin=-1;
-  for (int ibin=1; ibin<hist_biasfactor->GetNbinsX()+1; ibin++) {
-    if (hist_biasfactor->GetBinLowEdge(ibin)>float(mass_in)) {
-      bias_sf_bin=ibin-1;
-      break;
-    }
-  }
-  float bias_sf = hist_biasfactor->GetBinContent(bias_sf_bin);
-  float bias_data[100][2];
-  float bias_mc[100][2];
-  for (int j=0; j<2; j++) {
-    for (int ibin=1; ibin<nbins_nominal[j]+1; ibin++) {
-      graph_data = (TGraph*)(f_bias->Get("tgraph_biasslopes_data_"+boost_str[j]+"_"+mass_str))->Clone();
-      graph_mc = (TGraph*)(f_bias->Get("tgraph_biasslopes_mc_"+boost_str[j]+"_"+mass_str))->Clone();
-      bias_data[ibin][j] = graph_data->Eval(float(ibin)-0.5) * bias_sf;
-      bias_mc[ibin][j] = graph_mc->Eval(float(ibin)-0.5) * bias_sf;
-    }
-  }
-
-  TFile *f_bias_fastsim = TFile::Open("BkgBias_mit_2var_07_01_12_v2_fastsim.root");
-  float bias_fastsim[100][2];
-  for (int j=0; j<2; j++) {
-    for (int ibin=1; ibin<nbins_nominal[j]+1; ibin++) {
-      graph_fastsim = (TGraph*)(f_bias_fastsim->Get("tgraph_biasslopes_mc_"+boost_str[j]+"_"+mass_str))->Clone();
-      bias_fastsim[ibin][j] = graph_fastsim->Eval(float(ibin)-0.5) * bias_sf;
-      cout << boost_str[j] << " " << ibin << " " << bias_data[ibin][j] << " " << bias_mc[ibin][j] << " " << bias_fastsim[ibin][j] << endl;
-    }
-  }
+    //}
 
   //TFile *f_bdtout = TFile::Open("CMS-HGG_mva_8Jan"+loose_str+".root");
-  TFile *f_bdtout = TFile::Open("CMS-HGG_mit_2var_07_01_12_v2.root");
-  TFile *f_bdtin = TFile::Open("histograms_CMS-HGG_mva_12Jan"+loose_str+".root");
+  TFile *f_bdtout = TFile::Open("CMS-HGG_bdt_MITeleVeto_15_01_2012.root");
+  TFile *f_bdtin = TFile::Open("HistogramsMITeleVeto_MvaAnalysis_15_01_2012.root");
 
   TFile *f_bdtout_fastsim = TFile::Open("CMS-HGG_mva_fastsim_8Jan.root");
   TFile *f_bdtin_fastsim = TFile::Open("histograms_CMS-HGG_mva_fastsim_12Jan.root");
@@ -185,7 +155,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   TH1* hist_bkg[8][24];
   TH1* hist_bkgModel[24];
   TH1* hist_bkgModel_biascorrected[24];
-  TH1* hist_bkg_reweight_biascorrected[24];
+  TH1* hist_bkgModel_mc_biascorrected[24];
   TH1* hist_bkg_fastsim_reweight_biascorrected[24];
   TH1* hist_balg[24];
   TH1* hist_bkg_scaled[8][24];
@@ -244,6 +214,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       if (nSB>1) hist_data[5][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_2high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
       if (nSB>2) hist_data[6][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
       hist_bkgModel[22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      hist_bkgModel_biascorrected[22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_"+boost_str[j]+"_"+mass_str+".0_cat0_biascorr"))->Clone();
       hist_balg[22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_balg_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
       if (nSB>2) hist_bkg[0][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_3low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
       if (nSB>1) hist_bkg[1][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_2low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
@@ -252,6 +223,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_bkg[4][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_1high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
       if (nSB>1) hist_bkg[5][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_2high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
       if (nSB>2) hist_bkg[6][22+j] = (TH1*)(f_bdtout->Get("th1f_bkg_mc_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
+      hist_bkgModel_mc_biascorrected[22+j] = (TH1*)(f_bdtout->Get("th1f_bkgModel_mc_"+boost_str[j]+"_"+mass_str+".0_cat0_biascorr"))->Clone();
 
     }
 
@@ -316,6 +288,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       if (nSB>1) hist_data[5][22+j] = new TH1F("hist_data_2high_"+boost_str[j]+"","hist_data_2high_"+boost_str[j]+"",nbins,0,float(nbins));
       if (nSB>2) hist_data[6][22+j] = new TH1F("hist_data_3high_"+boost_str[j]+"","hist_data_3high_"+boost_str[j]+"",nbins,0,float(nbins));
       hist_bkgModel[22+j] = new TH1F("hist_bkgModel_"+boost_str[j]+"","hist_bkgModel_"+boost_str[j]+"",nbins,0,float(nbins));
+      hist_bkgModel_biascorrected[22+j] = new TH1F("hist_bkgModel_biascorrected"+boost_str[j]+"","hist_bkgModel_biascorrected_"+boost_str[j]+"",nbins,0,float(nbins));
       hist_balg[22+j] = new TH1F("hist_balg_"+boost_str[j]+"","hist_balg_"+boost_str[j]+"",nbins,0,float(nbins));
       if (nSB>2) hist_bkg[0][22+j] = new TH1F("hist_bkg_3low_"+boost_str[j]+"","hist_bkg_3low_"+boost_str[j]+"",nbins,0,float(nbins));
       if (nSB>1) hist_bkg[1][22+j] = new TH1F("hist_bkg_2low_"+boost_str[j]+"","hist_bkg_2low_"+boost_str[j]+"",nbins,0,float(nbins));
@@ -324,6 +297,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_bkg[4][22+j] = new TH1F("hist_bkg_1high_"+boost_str[j]+"","hist_bkg_1high_"+boost_str[j]+"",nbins,0,float(nbins));
       if (nSB>1) hist_bkg[5][22+j] = new TH1F("hist_bkg_2high_"+boost_str[j]+"","hist_bkg_2high_"+boost_str[j]+"",nbins,0,float(nbins));
       if (nSB>2) hist_bkg[6][22+j] = new TH1F("hist_bkg_3high_"+boost_str[j]+"","hist_bkg_3high_"+boost_str[j]+"",nbins,0,float(nbins));
+      hist_bkgModel_mc_biascorrected[22+j] = new TH1F("hist_bkgModel_mc_biascorrected"+boost_str[j]+"","hist_bkgModel_mc_biascorrected_"+boost_str[j]+"",nbins,0,float(nbins));
       for (int ibin=0; ibin<nbins+1; ibin++) {
 	hist_sig[22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_sig_"+boost_str[j]+"_ggh_"+mass_str+".0_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
 	hist_sig[22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_sig_"+boost_str[j]+"_ggh_"+mass_str+".0_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
@@ -343,6 +317,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	if (nSB>2) hist_data[6][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
 	hist_bkgModel[22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
 	hist_bkgModel[22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
+	hist_bkgModel_biascorrected[22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_"+boost_str[j]+"_"+mass_str+".0_cat0_biascorr"))->GetBinError(ibin+binshift));
+	hist_bkgModel_biascorrected[22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_"+boost_str[j]+"_"+mass_str+".0_cat0_biascorr"))->GetBinContent(ibin+binshift));
 	hist_balg[22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_balg_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
 	hist_balg[22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_balg_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
 	if (nSB>2) hist_bkg[0][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3low_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
@@ -359,6 +335,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	if (nSB>1) hist_bkg[5][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_2high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
 	if (nSB>2) hist_bkg[6][22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinContent(ibin+binshift));
 	if (nSB>2) hist_bkg[6][22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkg_mc_3high_"+boost_str[j]+"_"+mass_str+".0_cat0"))->GetBinError(ibin+binshift));
+	hist_bkgModel_mc_biascorrected[22+j]->SetBinError(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkgModel_mc_"+boost_str[j]+"_"+mass_str+".0_cat0_biascorr"))->GetBinError(ibin+binshift));
+	hist_bkgModel_mc_biascorrected[22+j]->SetBinContent(ibin,((TH1*)f_bdtout->Get("th1f"+nominal_str+"_bkgModel_mc_"+boost_str[j]+"_"+mass_str+".0_cat0_biascorr"))->GetBinContent(ibin+binshift));
       }
 
     }
@@ -382,7 +360,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
     for (int j=0; j<2; j++) {
 
-      if (rebin) {
+      //if (rebin) {
 
 	if (nSB>2) hist_bkg_fastsim_fine[0][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_3low_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
 	if (nSB>1) hist_bkg_fastsim_fine[1][22+j] = (TH1*)(f_bdtout_fastsim->Get("th1f_bkg_2low_BDT_"+boost_str[j]+"_"+mass_str+".0_cat0"))->Clone();
@@ -402,8 +380,9 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	if (nSB>1) hist_bkg_fastsim_fine[5][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_2high_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
 	if (nSB>2) hist_bkg_fastsim_fine[6][22+j]->Rebin(nbins_nominal[j],"th1f_nominal_bkg_mc_3high_"+boost_str[j]+"_"+mass_str+".0_cat0",xbins);
 
-      }
+	//}
 
+      nominal_str="_nominal";
       int nbins = nbins_nominal[j];
       int binshift=0;
       if (rebinBdtOut && nbins%2!=0) {
@@ -470,6 +449,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     if (!equalBinWidths) {
       hist_sig[j]->GetYaxis()->SetTitle("");
       hist_bkgModel[j]->GetYaxis()->SetTitle("");
+      hist_bkgModel_biascorrected[j]->GetYaxis()->SetTitle("");
+      hist_bkgModel_mc_biascorrected[j]->GetYaxis()->SetTitle("");
       hist_balg[j]->GetYaxis()->SetTitle("");
       for (int i=0; i<7; i++) {
 	hist_data[i][j]->GetYaxis()->SetTitle("");
@@ -485,6 +466,8 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 	hist_bkg[i][j]->Rebin(2);
 	hist_bkg_fastsim[i][j]->Rebin(2);
 	hist_bkgModel[j]->Rebin(2);
+	hist_bkgModel_biascorrected[j]->Rebin(2);
+	hist_bkgModel_mc_biascorrected[j]->Rebin(2);
 	hist_balg[j]->Rebin(2);
       }
     }
@@ -512,7 +495,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
   TString var[24] = {"ptOverMH","eta","deltaPhi","cosDeltaPhi","pho1_phoidMva","pho2_phoidMva","pho1_eta","pho2_eta","pho_minr9","maxeta","ptOverM","pho1_ptOverM","pho2_ptOverM","sigmaMOverM","deltaEta","deltaMOverMH","pho1_ptOverMH","pho2_ptOverMH","vtxProb","sigmaMOverM_wrongVtx","bdtoutput","bdtoutput","bdtOut_grad","bdtOut_ada"};
 
-  for (int ivar=18; ivar<19; ivar++) {
+  for (int ivar=0; ivar<22; ivar++) {
     cout << var[ivar] << endl;
     hist_sig[ivar] = (TH1*)(f_bdtin->Get(var[ivar]+"_msig_cat"+cat_str+"_gluglu_H_gg_"+mass_str2+"_pu2011"))->Clone();
 
@@ -622,7 +605,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
   f_bdtin_fastsim->cd();
 
-  for (int ivar=18; ivar<19; ivar++) {
+  for (int ivar=0; ivar<22; ivar++) {
 
     hist_born_fastsim[0][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mlow3_cat"+cat_str+"_Born25"))->Clone();
     hist_born_fastsim[1][ivar] = (TH1*)(f_bdtin_fastsim->Get(var[ivar]+"_mlow2_cat"+cat_str+"_Born25"))->Clone();
@@ -642,7 +625,24 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
 
   }
 
-  TString title[24] = {"Diphoton p_{T}/M_{H}","Diphoton #eta","#Delta#phi","cos#Delta#phi","lead photon ID MVA output","sublead photon ID MVA output","lead #eta","sublead #eta","min(R9)","max #eta","Diphoton p_{T}/M_{#gamma#gamma}","p_{T1}/M_{#gamma#gamma}","p_{T2}/M_{#gamma#gamma}","#sigma_{M}/M_{#gamma#gamma} (right vertex)","#Delta#eta","#DeltaM/M_{H}","p_{T1}/M_{H}","p_{T2}/M_{H}","vertex probability","#sigma_{M}/M_{#gamma#gamma} (wrong vertex)","BDT output (UCSD)","BDT output (MIT)","BDT output (gradient boost)","BDT output (adaptive boost)"};
+  TFile *f_bias_fastsim = TFile::Open("BkgBias_mit_2var_07_01_12_v2_fastsim.root");  int bias_sf_bin=-1;
+  for (int ibin=1; ibin<hist_biasfactor->GetNbinsX()+1; ibin++) {
+    if (hist_biasfactor->GetBinLowEdge(ibin)>float(mass_in)) {
+      bias_sf_bin=ibin-1;
+      break;
+    }
+  }
+  float bias_sf = hist_biasfactor->GetBinContent(bias_sf_bin);
+  float bias_fastsim[100][2];
+  for (int j=0; j<2; j++) {
+    for (int ibin=1; ibin<hist_data[0][22]->GetNbinsX(); ibin++) {
+      graph_fastsim = (TGraph*)(f_bias_fastsim->Get("tgraph_biasslopes_mc_"+boost_str[j]+"_"+mass_str))->Clone();
+      bias_fastsim[ibin][j] = graph_fastsim->Eval(float(ibin)-0.5) * bias_sf;
+      //cout << boost_str[j] << " " << ibin << " " << bias_data[ibin][j] << " " << bias_mc[ibin][j] << " " << bias_fastsim[ibin][j] << endl;
+    }
+  }
+
+  TString title[24] = {"Diphoton p_{T}/M_{H}","Diphoton #eta","#Delta#phi","cos#Delta#phi","lead photon ID MVA output","sublead photon ID MVA output","lead #eta","sublead #eta","min(R9)","max #eta","Diphoton p_{T}/M_{#gamma#gamma}","p_{T1}/M_{#gamma#gamma}","p_{T2}/M_{#gamma#gamma}","#sigma_{M}/M_{#gamma#gamma} (right vertex)","#Delta#eta","#DeltaM/M_{H}","p_{T1}/M_{H}","p_{T2}/M_{H}","vertex probability","#sigma_{M}/M_{#gamma#gamma} (wrong vertex)","Di-photon MVA output (UCSD)","Di-photon MVA output","BDT output (gradient boost)","BDT output (adaptive boost)"};
   if (equalBinWidths) {
     title[22]="BDT output bin number (gradient boost)";
     title[23]="BDT output bin number (adaptive boost)";
@@ -703,7 +703,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
   float Ndata_sig = hist_bkgModel[22]->Integral();
   cout << Ndata_sig << endl;
 
-  for (int ivar=18; ivar<19; ivar++) {
+  for (int ivar=0; ivar<22; ivar++) {
 
     //if (ivar==10 || ivar==16 || ivar==17) continue;
 
@@ -951,7 +951,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     if (inlogy) gPad->SetLogy();
 
     TLegend *leg;
-    if (ivar==0 || ivar==1 || ivar==3 || ivar==4 || ivar==5 || ivar==6 || ivar==7 || (ivar>=10 && ivar!=14 && ivar<18)) {
+    if (ivar==0 || ivar==1 || ivar==3 || ivar==4 || ivar==5 || ivar==6 || ivar==7 || (ivar>=10 && ivar!=14 && ivar<18) || ivar==19) {
       leg = new TLegend(.55,.55,.87,.87);
     } else if (ivar==14 || ivar==21) {
       leg = new TLegend(.32,.14,.68,.39);
@@ -1014,7 +1014,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     }
 
 
-    canvas[ivar]->cd(3);
+    canvas[ivar]->cd(2);
     if (inlogy) gPad->SetLogy();
 
     float nbkg_sig = hist_bkg[3][ivar]->Integral();
@@ -1103,7 +1103,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     if (ivar!=9) leg2->Draw();
 
 
-    canvas[ivar]->cd(2);
+    canvas[ivar]->cd(3);
     if (inlogy) gPad->SetLogy();
 
     float nbkg_sig_fastsim = hist_bkg_fastsim[3][ivar]->Integral();
@@ -1235,7 +1235,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     }
 
 
-    canvas[ivar]->cd(7);
+    canvas[ivar]->cd(6);
     if (inlogy) gPad->SetLogy();
 
     hist_bkg_sig[ivar] = (TH1*)hist_bkg[3][ivar]->Clone();
@@ -1273,7 +1273,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     if (ivar!=9) leg3->Draw();
 
 
-    canvas[ivar]->cd(6);
+    canvas[ivar]->cd(7);
     if (inlogy) gPad->SetLogy();
 
     hist_bkg_fastsim_sig[ivar] = (TH1*)hist_bkg_fastsim[3][ivar]->Clone();
@@ -1414,7 +1414,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     if (ivar!=9) leg2_data->Draw();
 
 
-    canvas[ivar]->cd(11);
+    canvas[ivar]->cd(10);
 
     hist_bkg_ratio[ivar] = (TH1*)hist_bkg_reweight[ivar]->Clone();
     hist_bkg_ratio[ivar]->Reset();
@@ -1444,7 +1444,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
     txt->DrawLatex(0.15,0.82, "MC Background Model / MC in signal region");
 
 
-    canvas[ivar]->cd(10);
+    canvas[ivar]->cd(11);
 
     hist_bkg_fastsim_ratio[ivar] = (TH1*)hist_bkg_fastsim_reweight[ivar]->Clone();
     hist_bkg_fastsim_ratio[ivar]->Reset();
@@ -1559,6 +1559,18 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_bkgModel[j]->SetLineWidth(2);
       hist_bkgModel[j]->GetXaxis()->SetTitle(title[j]);
       hist_bkgModel[j]->GetXaxis()->SetTitleSize(0.04);
+      hist_bkgModel_biascorrected[j]->SetLineColor(4);
+      hist_bkgModel_biascorrected[j]->SetFillColor(38);
+      hist_bkgModel_biascorrected[j]->SetLineWidth(2);
+      hist_bkgModel_biascorrected[j]->GetXaxis()->SetTitle(title[j]);
+      hist_bkgModel_biascorrected[j]->GetXaxis()->SetTitleSize(0.04);
+      hist_bkgModel_mc_biascorrected[j]->SetMarkerStyle(20);
+      hist_bkgModel_mc_biascorrected[j]->SetMarkerSize(.8);
+      hist_bkgModel_mc_biascorrected[j]->SetMarkerColor(4);
+      hist_bkgModel_mc_biascorrected[j]->SetLineColor(4);
+      hist_bkgModel_mc_biascorrected[j]->SetLineWidth(2);
+      hist_bkgModel_mc_biascorrected[j]->GetXaxis()->SetTitle(title[j]);
+      hist_bkgModel_mc_biascorrected[j]->GetXaxis()->SetTitleSize(0.04);
       hist_sig_x5 = (TH1*)hist_sig[j]->Clone();
       hist_sig_x10 = (TH1*)hist_sig[j]->Clone();
       hist_sig_x5->SetLineStyle(2);
@@ -1617,7 +1629,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       canvas[j]->SetFillColor(0);
 
 
-      canvas[j]->cd(1);
+      canvas[j]->cd(5);
       if (logy) gPad->SetLogy();
 
       float max = hist_bkgModel[j]->GetMaximum();
@@ -1645,7 +1657,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       leg1->Draw();
 
 
-      canvas[j]->cd(6);
+      canvas[j]->cd(9);
 
       hist_data_highMinusLow = (TH1*)hist_data_scaled[sb_high][j]->Clone();
       //hist_data_highMinusLow->Add(hist_data_scaled[sb_low][j],-1.);
@@ -1695,7 +1707,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       */
 
 
-      canvas[j]->cd(8);
+      canvas[j]->cd(10);
 
       hist_bkg_highMinusLow = (TH1*)hist_bkg_scaled[sb_high][j]->Clone();
       //hist_bkg_highMinusLow->Add(hist_bkg_scaled[sb_low][j],-1.);
@@ -1711,7 +1723,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       line1->Draw();
 
 
-      canvas[j]->cd(7);
+      canvas[j]->cd(11);
 
       hist_bkg_fastsim_highMinusLow = (TH1*)hist_bkg_fastsim_scaled[sb_high][j]->Clone();
       //hist_bkg_fastsim_highMinusLow->Add(hist_bkg_fastsim_scaled[sb_low][j],-1.);
@@ -1727,7 +1739,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       line1->Draw();
 
 
-      canvas[j]->cd(5);
+      //canvas[j]->cd(5);
 
       hist_dataMinusModel = (TH1*)hist_data[3][j]->Clone();
       //hist_dataMinusModel->Sumw2();
@@ -1742,10 +1754,10 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       //if (hist_sig_x10[j]->GetMaximum()>max1) max1=hist_sig_x10[j]->GetMaximum()*1.05;
       hist_dataMinusModel->SetMaximum(max1);
       hist_dataMinusModel->SetMinimum(min1);
-      hist_dataMinusModel->Draw("e");
-      hist_sig[j]->Draw("hist,same");
-      hist_sig_x5->Draw("hist,same");
-      hist_sig_x10->Draw("hist,same");
+      //hist_dataMinusModel->Draw("e");
+      //hist_sig[j]->Draw("hist,same");
+      //hist_sig_x5->Draw("hist,same");
+      //hist_sig_x10->Draw("hist,same");
 
       TLegend *leg2 = new TLegend(.45,.15,.87,.32);
       leg2->SetBorderSize(0);
@@ -1753,15 +1765,15 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       leg2->SetTextSize(.035);
       leg2->AddEntry(hist_dataMinusModel,"Data (4.7fb^{-1}) - background model","LP");
       leg2->AddEntry(hist_sig_x10,"Signal ("+mass_str+" GeV) x1, x5, x10");
-      leg2->Draw();
+      //leg2->Draw();
 
       TLine *line1a = new TLine(xmin,0.,xmax,0.);
       line1a->SetLineColor(4);
       line1a->SetLineWidth(2);
-      line1a->Draw();
+      //line1a->Draw();
 
 
-      canvas[j]->cd(9);
+      canvas[j]->cd(4);
 
       hist_SoverB = (TH1*)hist_sig[j]->Clone();
       hist_SoverB->Divide(hist_bkgModel[j]);
@@ -1776,7 +1788,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       hist_SoverB->Draw();
 
 
-      canvas[j]->cd(2);
+      canvas[j]->cd(1);
       if (logy) gPad->SetLogy();
 
       hist_data_scaled[0][j]->SetLineColor(kRed-1);
@@ -1812,7 +1824,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       if (nSB>2) leg6->AddEntry(hist_data_scaled[0][j],"Low sideband 3","LP");
       leg6->Draw();
 
-      canvas[j]->cd(12);
+      canvas[j]->cd(6);
       if (logy) gPad->SetLogy();
 
       hist_bkg_reweight[j]->SetMaximum(max*1.1);
@@ -1833,7 +1845,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       leg7->Draw();
 
 
-      canvas[j]->cd(11);
+      canvas[j]->cd(7);
       if (logy) gPad->SetLogy();
 
       hist_bkg_fastsim_reweight[j]->SetMaximum(max*1.1);
@@ -1854,7 +1866,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       leg7_fastsim->Draw();
 
 
-      canvas[j]->cd(4);
+      canvas[j]->cd(2);
       if (logy) gPad->SetLogy();
 
       hist_bkg_scaled[3][j]->SetMaximum(max*1.1);
@@ -1918,13 +1930,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       canvas_biascorrected[j]->cd(1);
       if (logy) gPad->SetLogy();
 
-      hist_bkgModel_biascorrected[j] = (TH1*)hist_bkgModel[j]->Clone();
-      for (int ibin=1; ibin<hist_bkgModel[j]->GetNbinsX()+1; ibin++) {
-	cout << ibin << " " << (1.-bias_data[ibin][j-22]) << endl;
-	hist_bkgModel_biascorrected[j]->SetBinContent(ibin,hist_bkgModel[j]->GetBinContent(ibin)*(1.-bias_data[ibin][j-22]));
-      }
-      hist_bkgModel_biascorrected[j]->Scale(hist_bkgModel[j]->Integral()/hist_bkgModel_biascorrected[j]->Integral());
-
+      hist_bkgModel_biascorrected[j]->SetMaximum(max*1.1);
       hist_bkgModel_biascorrected[j]->Draw("e2");
       if (logy) hist_bkgModel_biascorrected[j]->GetYaxis()->UnZoom();
       hist_sig[j]->Draw("hist,same");
@@ -1954,16 +1960,13 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       canvas_biascorrected[j]->cd(2);
       if (logy) gPad->SetLogy();
 
-      hist_bkg_reweight_biascorrected[j] = (TH1*)hist_bkg_reweight[j]->Clone();
-      for (int ibin=1; ibin<hist_bkg_reweight[j]->GetNbinsX()+1; ibin++) {
-	hist_bkg_reweight_biascorrected[j]->SetBinContent(ibin,hist_bkg_reweight[j]->GetBinContent(ibin)*(1.-bias_mc[ibin][j-22]));
-      }
-      hist_bkg_reweight_biascorrected[j]->Scale(hist_bkg_reweight[j]->Integral()/hist_bkg_reweight_biascorrected[j]->Integral());
+      hist_bkgModel_mc_biascorrected[j]->Scale(nbkg_sig/hist_bkgModel_mc_biascorrected[j]->Integral());
 
-      hist_bkg_reweight_biascorrected[j]->Draw("e");
-      if (logy) hist_bkg_reweight_biascorrected[j]->GetYaxis()->UnZoom();
+      hist_bkgModel_mc_biascorrected[j]->SetMaximum(max*1.1);
+      hist_bkgModel_mc_biascorrected[j]->Draw("e");
+      if (logy) hist_bkgModel_mc_biascorrected[j]->GetYaxis()->UnZoom();
       hist_bkg[3][j]->Draw("e2,same");
-      hist_bkg_reweight_biascorrected[j]->Draw("e,same");
+      hist_bkgModel_mc_biascorrected[j]->Draw("e,same");
 
       leg7->Draw();
 
@@ -1971,7 +1974,7 @@ void backgroundModelPlots(int mass_in=120, bool www=false, TString outdirname="B
       canvas_biascorrected[j]->cd(5);
 
       hist_mcMinusModel_biascorrected = (TH1*)hist_bkg[3][j]->Clone();
-      hist_mcMinusModel_biascorrected->Add(hist_bkg_reweight_biascorrected[j],-1.);
+      hist_mcMinusModel_biascorrected->Add(hist_bkgModel_mc_biascorrected[j],-1.);
 
       max1=100.;
       min1=-100.;
