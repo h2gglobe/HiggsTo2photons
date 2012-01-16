@@ -28,6 +28,7 @@ void correctBkgModel(bool updateWorkspace=false) {
       for (int boost=0; boost<2; boost++) {
 
 	graph_data = (TGraph*)(f_bias->Get("tgraph_biasslopes_data_"+boost_str[boost]+"_"+binningmass_str))->Clone();
+	graph_mc = (TGraph*)(f_bias->Get("tgraph_biasslopes_mc_"+boost_str[boost]+"_"+binningmass_str))->Clone();
 
 	TH1* hist_bkgModel = (TH1*)(workspace->Get("th1f_bkg_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
 
@@ -39,6 +40,14 @@ void correctBkgModel(bool updateWorkspace=false) {
 	hist_data_sb[4] = (TH1*)(workspace->Get("th1f_bkg_1high_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
 	hist_data_sb[5] = (TH1*)(workspace->Get("th1f_bkg_2high_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
 	hist_data_sb[6] = (TH1*)(workspace->Get("th1f_bkg_3high_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
+	TH1* hist_mc_sb[7];
+	hist_mc_sb[0] = (TH1*)(workspace->Get("th1f_bkg_mc_3low_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
+	hist_mc_sb[1] = (TH1*)(workspace->Get("th1f_bkg_mc_2low_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
+	hist_mc_sb[2] = (TH1*)(workspace->Get("th1f_bkg_mc_1low_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
+	hist_mc_sb[3] = (TH1*)(workspace->Get("th1f_bkg_mc_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
+	hist_mc_sb[4] = (TH1*)(workspace->Get("th1f_bkg_mc_1high_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
+	hist_mc_sb[5] = (TH1*)(workspace->Get("th1f_bkg_mc_2high_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
+	hist_mc_sb[6] = (TH1*)(workspace->Get("th1f_bkg_mc_3high_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone();
 
 	float mass_sb[7];
 	float mass_sig = float(imass) + mass_part[j];
@@ -53,15 +62,20 @@ void correctBkgModel(bool updateWorkspace=false) {
 	TH1* hist_data_corrected_sb[7];
 	TH1* hist_data_corrected_up_sb[7];
 	TH1* hist_data_corrected_down_sb[7];
+	TH1* hist_mc_corrected_sb[7];
 
 	for (int isb=0; isb<7; isb++) {
 	  if (isb==3) continue;
+
 	  hist_data_corrected_sb[isb] = (TH1*)hist_data_sb[isb]->Clone();
 	  hist_data_corrected_up_sb[isb] = (TH1*)hist_data_sb[isb]->Clone();
 	  hist_data_corrected_down_sb[isb] = (TH1*)hist_data_sb[isb]->Clone();
+	  hist_mc_corrected_sb[isb] = (TH1*)hist_mc_sb[isb]->Clone();
 
 	  float deltam = mass_sb[isb]-mass_sig;
+
 	  for (int ibin=1; ibin<hist_data_sb[isb]->GetNbinsX()+1; ibin++) {
+
 	    float slope = graph_data->Eval(float(ibin)-0.5);
 	    float slope_err = graph_data->Eval(float(ibin)-0.5);
 	    float corrfac = 1./(1.+(slope*deltam));
@@ -70,36 +84,50 @@ void correctBkgModel(bool updateWorkspace=false) {
 	    hist_data_corrected_sb[isb]->SetBinContent(ibin,hist_data_sb[isb]->GetBinContent(ibin)*corrfac);
 	    hist_data_corrected_up_sb[isb]->SetBinContent(ibin,hist_data_sb[isb]->GetBinContent(ibin)*corrfac_up);
 	    hist_data_corrected_down_sb[isb]->SetBinContent(ibin,hist_data_sb[isb]->GetBinContent(ibin)*corrfac_down);
+
+	    slope = graph_mc->Eval(float(ibin)-0.5);
+	    corrfac = 1./(1.+(slope*deltam));
+	    hist_mc_corrected_sb[isb]->SetBinContent(ibin,hist_mc_sb[isb]->GetBinContent(ibin)*corrfac);
+
 	  }
+
 	  hist_data_corrected_sb[isb]->Scale(hist_data_sb[isb]->Integral()/hist_data_corrected_sb[isb]->Integral());
 	  hist_data_corrected_up_sb[isb]->Scale(hist_data_sb[isb]->Integral()/hist_data_corrected_up_sb[isb]->Integral());
 	  hist_data_corrected_down_sb[isb]->Scale(hist_data_sb[isb]->Integral()/hist_data_corrected_down_sb[isb]->Integral());
+	  hist_mc_corrected_sb[isb]->Scale(hist_mc_sb[isb]->Integral()/hist_mc_corrected_sb[isb]->Integral());
+
 	}
 
 	TH1* hist_data_corrected = (TH1*)(workspace->Get("th1f_bkg_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone("th1f_bkg_"+boost_str[boost]+"_"+allmass_str+"_cat0_biascorr");
 	TH1* hist_data_corrected_up = (TH1*)(workspace->Get("th1f_bkg_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone("th1f_bkg_"+boost_str[boost]+"_"+allmass_str+"_cat0_biascorr_biasUp01_sigma");
 	TH1* hist_data_corrected_down = (TH1*)(workspace->Get("th1f_bkg_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone("th1f_bkg_"+boost_str[boost]+"_"+allmass_str+"_cat0_biascorr_biasDown01_sigma");
+	TH1* hist_mc_corrected = (TH1*)(workspace->Get("th1f_bkg_mc_"+boost_str[boost]+"_"+allmass_str+"_cat0"))->Clone("th1f_bkgModel_mc_"+boost_str[boost]+"_"+allmass_str+"_cat0_biascorr");
 
 	hist_data_corrected->Reset();
 	hist_data_corrected_up->Reset();
 	hist_data_corrected_down->Reset();
+	hist_mc_corrected->Reset();
 
 	for (int isb=0; isb<7; isb++) {
 	  if (isb!=3) {
 	    hist_data_corrected->Add(hist_data_corrected_sb[isb]);
 	    hist_data_corrected_up->Add(hist_data_corrected_up_sb[isb]);
 	    hist_data_corrected_down->Add(hist_data_corrected_down_sb[isb]);
+	    hist_mc_corrected->Add(hist_data_corrected_sb[isb]);
 	  }
 	}
 	hist_data_corrected->Scale(hist_bkgModel->Integral()/hist_data_corrected->Integral());
 	hist_data_corrected_up->Scale(hist_bkgModel->Integral()/hist_data_corrected_up->Integral());
 	hist_data_corrected_down->Scale(hist_bkgModel->Integral()/hist_data_corrected_down->Integral());
 
-	workspace->cd();
-	//if (!updateWorkspace) workspace_temp->cd();
-	hist_data_corrected->Write();
-	hist_data_corrected_up->Write();
-	hist_data_corrected_down->Write();
+	if (updateWorkspace) {
+	  workspace->cd();
+	  //if (!updateWorkspace) workspace_temp->cd();
+	  hist_data_corrected->Write();
+	  hist_data_corrected_up->Write();
+	  hist_data_corrected_down->Write();
+	  hist_mc_corrected->Write();
+	}
 
       }
     }
