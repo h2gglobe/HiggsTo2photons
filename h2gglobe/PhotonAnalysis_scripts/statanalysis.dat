@@ -3,15 +3,15 @@
 leadEtCut=40.0
 subleadEtCut=30.0
 
-massMin=110.
-massMax=130.
-nDataBins=20
+massMin=100.
+massMax=180.
+nDataBins=160
 
 nEtaCategories=2
 nR9Categories=2
 nPtCategories=1
 
-doTriggerSelection=0
+doTriggerSelection=1
 reRunCiCForData=1
 
 ->
@@ -22,7 +22,7 @@ doMCSmearing=1
 ->
 Individual smearing flags
 ->
-energyCorrectionMethod=BendavidOTF
+energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
 doEcorrectionSyst=0
 
@@ -53,9 +53,9 @@ Inputs for reweighing
 - vertexing from: https://hypernews.cern.ch/HyperNews/CMS/get/higgs2g/374/1.html
 ->
 
-kfacHist=/vols/cms02/h2g/aux/KFactors_AllScales_interpolated.root
-efficiencyFile=/vols/cms02/h2g/aux/sig_reweighing_v16.root
-puHist=/vols/cms02/h2g/aux/2011_0100_73500.weights2.root
+kfacHist=aux/KFactors_AllScales_interpolated.root
+efficiencyFile=aux/sig_reweighing_v16.root
+puHist=aux/2011_0100_73500.weights3.root
 
 puMap=pu_weights_map.dat
 

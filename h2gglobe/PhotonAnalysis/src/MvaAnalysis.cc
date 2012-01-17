@@ -297,6 +297,7 @@ void MvaAnalysis::Init(LoopAll& l)
         bkg_masses.push_back(mass); 
         cout<<"background mass hypothesis: "<< mass << endl;
     }
+    //cout << "end weird loop"<<endl;
     std::string outputfilename = (std::string) l.histFileName;
     //
     // These parameters are set in the configuration file
@@ -1341,25 +1342,49 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	 float q_mass_hypothesis = 120.0;
          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis,bdtoutput,evweight);
 	 float bdt_grad_1 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis+0.5,bdtoutput,evweight);
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis+1.2,bdtoutput,evweight);
 	 float bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-0.5,bdtoutput,evweight);
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-1.2,bdtoutput,evweight);
 	 float bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 	 if (bdtoutput>=-0.5){
-           l.FillHist2D("shiftingMH_ip_bdt1_bdt2_mH120"	,0,bdt_grad_1,bdt_grad_2,evweight);
-           l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH120"	,0,bdt_grad_1,bdt_grad_3,evweight);
+           l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH120_1p"	,0,bdt_grad_1,bdt_grad_2,evweight);
+           l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH120_1p"	,0,bdt_grad_1,bdt_grad_3,evweight);
 	 }
 
 	 q_mass_hypothesis = 140.0;
          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis,bdtoutput,evweight);
 	 bdt_grad_1 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis+0.5,bdtoutput,evweight);
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis+1.4,bdtoutput,evweight);
 	 bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-0.5,bdtoutput,evweight);
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-1.4,bdtoutput,evweight);
 	 bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 	 if (bdtoutput>=-0.5){
-           l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH140"	,0,bdt_grad_1,bdt_grad_2,evweight);
-           l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH140"	,0,bdt_grad_1,bdt_grad_3,evweight);
+           l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH140_1p"	,0,bdt_grad_1,bdt_grad_2,evweight);
+           l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH140_1p"	,0,bdt_grad_1,bdt_grad_3,evweight);
+	 }
+
+	 q_mass_hypothesis = 120.0;
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis,bdtoutput,evweight);
+	 bdt_grad_1 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis+2.4,bdtoutput,evweight);
+	 bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-2.4,bdtoutput,evweight);
+	 bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+	 if (bdtoutput>=-0.5){
+           l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH120_2p"	,0,bdt_grad_1,bdt_grad_2,evweight);
+           l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH120_2p"	,0,bdt_grad_1,bdt_grad_3,evweight);
+	 }
+
+	 q_mass_hypothesis = 140.0;
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis,bdtoutput,evweight);
+	 bdt_grad_1 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis+2.8,bdtoutput,evweight);
+	 bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+         SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-2.8,bdtoutput,evweight);
+	 bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+	 if (bdtoutput>=-0.5){
+           l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH140_2p"	,0,bdt_grad_1,bdt_grad_2,evweight);
+           l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH140_2p"	,0,bdt_grad_1,bdt_grad_3,evweight);
 	 }
 	 // ------------------------------------------------------------------------------------------------------------------------------------//
 	

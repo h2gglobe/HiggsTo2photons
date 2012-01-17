@@ -96,7 +96,7 @@ public:
 
 	std::string scale_offset_error_file, smearing_file;
 	std::string energyCorrectionMethod;
-	std::string massResolutionFileName;
+	//std::string massResolutionFileName;
 
 	std::string tmvaPerVtxMethod;                       	
         std::string tmvaPerVtxWeights;                  

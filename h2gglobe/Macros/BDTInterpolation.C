@@ -741,7 +741,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
     if (int(mass*2)%10==0 && mass!=145.0) {
      for (int pT=0;pT<4;pT++){
       for (int bdt=0; bdt<2; bdt++){  
-        background = (TH1F*)inFile->Get(Form("th1f_bkg_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
+        background = (TH1F*)inFile->Get(Form("th1f_bkg_%s_%3.1f_cat0_biascorr",BDTtype[bdt].c_str(),mass));
         data = (TH1F*)inFile->Get(Form("th1f_data_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
         sig_ggh = (TH1F*)inFile->Get(Form("th1f_sig_%s_ggh_%3.1f_%3.1f_cat0",BDTtype[bdt].c_str(),mass,mass));
         sig_vbf = (TH1F*)inFile->Get(Form("th1f_sig_%s_vbf_%3.1f_%3.1f_cat0",BDTtype[bdt].c_str(),mass,mass));
@@ -815,7 +815,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
       diagFile << "Mass: " << mass << std::endl;
       diagFile << "BDT: " << BDTtype[bdt] << std::endl;
       // loop different histos in list (signal and systematics)
-      background = (TH1F*)inFile->Get(Form("th1f_bkg_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
+      background = (TH1F*)inFile->Get(Form("th1f_bkg_%s_%3.1f_cat0_biascorr",BDTtype[bdt].c_str(),mass));
       data = (TH1F*)inFile->Get(Form("th1f_data_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
       TList *systList = new TList();
       TH1F *central;

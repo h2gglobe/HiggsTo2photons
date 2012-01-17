@@ -25,7 +25,9 @@ if doInterp:
 	h.Add(wzh)
 	h.Add(tth)
 	hB = fil.Get("th1f_bkg_ada_%3.1f_cat0"%mass)
-	print "Mass-%3.1f Signal     (ada) -> "%mass ,h.Integral(), "Mass-%3.1f Background (ada) -> "%mass ,hB.Integral(), " S/B ",h.Integral()/hB.Integral()
+	hD = fil.Get("th1f_data_ada_%3.1f_cat0"%mass)
+	print "Mass-%3.1f Signal     (ada) -> "%mass ,h.Integral(), "Mass-%3.1f Background (ada) -> "%mass ,hB.Integral(), " S/B ",h.Integral()/hB.Integral() \
+	       ," Data ", hD.Integral()
   print 
   for mass in m :
 	ggh = fil.Get("th1f_sig_grad_ggh_%3.1f_cat0"%mass)
@@ -37,7 +39,9 @@ if doInterp:
 	h.Add(wzh)
 	h.Add(tth)
 	hB = fil.Get("th1f_bkg_grad_%3.1f_cat0"%mass)
-	print "Mass-%3.1f Signal     (grad) -> "%mass ,h.Integral(), "Mass-%3.1f Background (grad) -> "%mass ,hB.Integral(), " S/B ",h.Integral()/hB.Integral()
+	hD = fil.Get("th1f_data_grad_%3.1f_cat0"%mass)
+	print "Mass-%3.1f Signal     (grad) -> "%mass ,h.Integral(), "Mass-%3.1f Background (grad) -> "%mass ,hB.Integral(), " S/B ",h.Integral()/hB.Integral() \
+	       ," Data ", hD.Integral()
 
 else:
   m = [115,120,125,130,135,140,150]
@@ -51,7 +55,9 @@ else:
 	h.Add(wzh)
 	h.Add(tth)
 	hB = fil.Get("th1f_bkg_ada_%d.0_cat0"%(mass))
-	print "Mass-%d Signal     (ada) -> "%mass ,h.Integral(), "Mass-%d Background (ada) -> "%mass ,hB.Integral(), " S/B ",h.Integral()/hB.Integral()
+	hD = fil.Get("th1f_data_ada_%d.0_cat0"%(mass))
+	print "Mass-%d Signal     (ada) -> "%mass ,h.Integral(), "Mass-%d Background (ada) -> "%mass ,hB.Integral(), " S/B ",h.Integral()/hB.Integral() \
+	       ," Data ", hD.Integral()
   print
   for mass in m :
 	ggh = fil.Get("th1f_sig_grad_ggh_%d.0_%d.0_cat0"%(mass,mass))
@@ -63,4 +69,6 @@ else:
 	h.Add(wzh)
 	h.Add(tth)
 	hB = fil.Get("th1f_bkg_grad_%d.0_cat0"%(mass))
-	print "Mass-%d Signal     (grad) -> "%mass ,h.Integral(), "Mass-%d Background (grad) -> "%mass ,hB.Integral(), " S/B ",h.Integral()/hB.Integral()
+	hD = fil.Get("th1f_data_grad_%d.0_cat0"%(mass))
+	print "Mass-%d Signal     (grad) -> "%mass ,h.Integral(), "Mass-%d Background (grad) -> "%mass ,hB.Integral(), " S/B ",h.Integral()/hB.Integral() \
+	       ," Data ", hD.Integral()

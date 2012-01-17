@@ -197,6 +197,7 @@ double MassResolution::getPhotonResolution(double photonEnergy, double photonRes
 	    EnergySmearer::energySmearingParameters::phoCatVectorConstIt vit = find(_eSmearPars.photon_categories.begin(), _eSmearPars.photon_categories.end(), 
 										    std::make_pair( fabs((float)scEta), (float)r9 ) );
 	    if( vit ==  _eSmearPars.photon_categories.end() ) {
+		    //cout << "PhotonCheck " << r9 << " " << phoCat << " " << scEta << " " << iDet << " " << endl;
 		    std::cerr << "Could not find energy scale correction for this photon " << (float)scEta << " " <<  (float)r9 << std::endl;
 		    assert( 0 );
 	    }

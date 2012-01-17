@@ -333,7 +333,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     } else if (bdtTrainingPhilosophy=="MIT"){
       // MIT BDT Categories
       // Background modeling - Separate Polynomial models for the different categories in MVA
-
+/*
       int poly3cats[5] = {1,1,0,0,0};
       int poly5cats[5] = {0,0,1,1,1};
 
@@ -351,6 +351,33 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
       data_pol3_pars[2] = "modpol2";
       l.rooContainer->AddSpecificCategoryPdf(poly3cats,"data_pol_model",
 	  "0","CMS_hgg_mass",data_pol3_pars,73);		// >= 71 means RooBernstein of order >= 1
+*/
+      int poly2cats[5] = {1,0,0,0,0};
+      int poly4cats[5] = {0,1,0,0,0};
+      int poly5cats[5] = {0,0,1,1,1};
+
+      std::vector<std::string> data_pol5_pars(5,"p");	 
+      data_pol5_pars[0] = "modpol0";
+      data_pol5_pars[1] = "modpol1";
+      data_pol5_pars[2] = "modpol2";
+      data_pol5_pars[3] = "modpol3";
+      data_pol5_pars[4] = "modpol4";
+      l.rooContainer->AddSpecificCategoryPdf(poly5cats,"data_pol_model",
+	  "0","CMS_hgg_mass",data_pol5_pars,75);	// >= 71 means RooBernstein of order >= 1
+
+      std::vector<std::string> data_pol4_pars(4,"p");	 
+      data_pol4_pars[0] = "modpol0";
+      data_pol4_pars[1] = "modpol1";
+      data_pol4_pars[2] = "modpol2";
+      data_pol4_pars[3] = "modpol3";
+      l.rooContainer->AddSpecificCategoryPdf(poly4cats,"data_pol_model",
+	  "0","CMS_hgg_mass",data_pol4_pars,74);		// >= 71 means RooBernstein of order >= 1
+
+      std::vector<std::string> data_pol2_pars(2,"p");	 
+      data_pol2_pars[0] = "modpol0";
+      data_pol2_pars[1] = "modpol1";
+      l.rooContainer->AddSpecificCategoryPdf(poly4cats,"data_pol_model",
+	  "0","CMS_hgg_mass",data_pol2_pars,72);		// >= 71 means RooBernstein of order >= 1
       // -----------------------------------------------------
     }
 
@@ -539,7 +566,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     std::vector<float> smeared_pho_weight(l.pho_n,1.);
 
     // TEMPORARY FIX -------------------------------------------------------------------------------------------------------//
-    // Scale all the r9 of the photons in the MC
+    // Scale all the r9 of the photons (and also some other variables) in the MC for better agreement
     // For now we just let it use the index but we specifically Change the r9 in the branch AFTER Energy regression smearing
     // Ideally we want to pass a smeared r9 too and apply after energy corrections, currently the smeared_pho_r9 isnt used!
     // ---------------------------------------------------------------------------------------------------------------------//
@@ -547,8 +574,14 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // ---------------------------------------------------------------------------------------------------------------------//
     if (cur_type !=0){
       for (int ipho=0;ipho<l.pho_n;ipho++){
-        double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
-        l.pho_r9[ipho]*=R9_rescale;
+        //double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
+        //l.pho_r9[ipho]*=R9_rescale;
+        l.pho_r9[ipho]*=1.0035;
+	if (l.pho_isEB[ipho]){ l.pho_sieie[ipho] = (0.87*l.pho_sieie[ipho]) + 0.0011 ;}
+	else {l.pho_sieie[ipho]*=0.99;}
+	l.sc_seta[l.pho_scind[ipho]]*=0.99;	
+	l.sc_sphi[l.pho_scind[ipho]]*=0.99;	
+	energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.06 : 1.09 ;
       }
     }
     // ---------------------------------------------------------------------------------------------------------------------//
@@ -1139,13 +1172,20 @@ int MassFactorizedMvaAnalysis::GetBDTBoundaryCategory(float bdtout, bool isEB){
 		}
 
 	} else if (bdtTrainingPhilosophy=="MIT"){
-
+/*
 		   if (bdtout >=-0.50 && bdtout < 0.3) return 4;
 	//	   if (bdtout < 0.3) return 4;
 		   if (bdtout >= 0.3 && bdtout < 0.65) return 3;
 		   if (bdtout >= 0.65 && bdtout < 0.84) return 2;
 		   if (bdtout >= 0.84 && bdtout < 0.90) return 1;
 		   if (bdtout >= 0.90) return 0;
+		   return -1;
+*/
+		   if (bdtout >=-0.50 && bdtout < 0.05) return 4;
+		   if (bdtout >= 0.05 && bdtout < 0.55) return 3;
+		   if (bdtout >= 0.55 && bdtout < 0.72) return 2;
+		   if (bdtout >= 0.72 && bdtout < 0.89) return 1;
+		   if (bdtout >= 0.89) return 0;
 		   return -1;
 
 	} else std::cerr << "No BDT Philosophy known - " << bdtTrainingPhilosophy << std::endl;

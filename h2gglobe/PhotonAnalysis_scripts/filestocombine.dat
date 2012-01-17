@@ -1,10 +1,9 @@
-intL=4763. histfile=CMS-HGG_mva_mit_presel.root output=shifo.root
+intL=4763. histfile=CMS-HGG_bdt_miteleveto.root output=shifo.root
 
-->
-put here files to merge
-doesnt matter what the type etc is
-->
 Dir=cms-hgg
+->
+Fil=../Macros/CMS-HGG_likelihood.root
+->
 
 ->
 Branches to use
@@ -25,4 +24,5 @@ syntax:
 
 analyzer PhotonAnalysis photonanalysis.dat	
 ->
-analyzer MassFactorizedMvaAnalysis photonanalysis.dat massfactorizedmvaanalysis.dat
+analyzer MvaAnalysis photonanalysis.dat mvaanalysis.dat
+ 

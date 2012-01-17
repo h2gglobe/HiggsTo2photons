@@ -249,6 +249,7 @@ class LoopAll {
   Float_t tmva_id_mit_sipip;
   Float_t tmva_id_mit_nvtx;
   Float_t tmva_id_mit_preshower;
+  Float_t tmva_id_mit_sceta;
  
   Float_t tmva_dipho_MIT_dmom;
   Float_t tmva_dipho_MIT_dmom_wrong_vtx;

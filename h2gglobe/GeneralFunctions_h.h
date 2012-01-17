@@ -405,7 +405,7 @@ int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
 void SetAllMVA();
 Float_t photonIDMVA(Int_t, Int_t, TLorentzVector, const char*);
-Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector, TLorentzVector, float,float, const char*);
+Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector, TLorentzVector, float,float,float,const char*);
 float getDmOverDz(Int_t, Int_t, Float_t*);
 Float_t deltaMassVtx(Int_t, Int_t, Float_t);
 
