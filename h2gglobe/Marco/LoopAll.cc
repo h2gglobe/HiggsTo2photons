@@ -615,11 +615,6 @@ void LoopAll::Loop(Int_t a) {
   outputEvents=0;
 
   int hasoutputfile=0;
- // Call the Reset Analysis at start of new file
-  for (size_t i=0; i<analyses.size(); i++) {
-     analyses[i]->ResetAnalysis(); 
-  }
-
   for (Int_t jentry=0; jentry<nentries;jentry++) {
     
     if(jentry%10000==0) {
@@ -987,10 +982,6 @@ void LoopAll::WriteCounters() {
 
   fclose(file);
 }
-
-
-
-
 
 // ------------------------------------------------------------------------------------
 int LoopAll::FillAndReduce(int jentry) {
@@ -2280,9 +2271,9 @@ void LoopAll::BdtGetEntry(Int_t jentry) {
   if(MPDEBUG)  std::cout<<"BDT 1 - 4"<<std::endl;
   if (b_pho_pfiso_myphoton03->GetReadEntry() != jentry)
   b_pho_pfiso_myphoton03->GetEntry(jentry);
-  if(MPDEBUG)  std::cout<<"BDT 1 - 5"<<std::endl;
-  if (b_pho_drtotk_25_99->GetReadEntry() != jentry)
-  b_pho_drtotk_25_99->GetEntry(jentry);
+  //std::cout<<"BDT 1 - 5"<<std::endl;
+  //if (b_pho_drtotk_25_99->GetReadEntry() != jentry)
+  //b_pho_drtotk_25_99->GetEntry(jentry);
   if(MPDEBUG)  std::cout<<"BDT 1 - 6"<<std::endl;
   if (b_pho_hoe->GetReadEntry() != jentry)
   b_pho_hoe->GetEntry(jentry);
@@ -2295,11 +2286,14 @@ void LoopAll::BdtGetEntry(Int_t jentry) {
   if(MPDEBUG)  std::cout<<"BDT 1 - 9"<<std::endl;
   if (b_rho->GetReadEntry() != jentry)
   b_rho->GetEntry(jentry);
+
+  /*
   if (b_pho_r9->GetReadEntry() != jentry)
   b_pho_r9->GetEntry(jentry);
   if(MPDEBUG)  std::cout<<"BDT 1 - 8"<<std::endl;
   if (b_pho_p4->GetReadEntry() != jentry)
   b_pho_p4->GetEntry(jentry);
+  */
 }
 
 #endif
