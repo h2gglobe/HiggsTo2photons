@@ -445,6 +445,30 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar){
 	fBRaw[j]->Write();
 	fBFit[j]->Write();
       }
+      // Make a plot of the points Fitted and the fitted graph
+      gROOT->SetBatch(true);
+      gROOT->SetStyle("Plain");
+      for(int j(0);j<global_nBdtBins;j++) {
+        TCanvas *can = new TCanvas();
+        can->SetName(Form("Fit_BDT%d",j));
+        fBFit[j]->SetLineColor(4);
+        fBFit[j]->SetLineWidth(4);
+        fBRaw[j]->SetMarkerStyle(20);
+        fBRaw[j]->SetMarkerSize(1.0);
+        fBRaw[j]->GetXaxis()->SetTitle("mH");
+        fBRaw[j]->SetTitle("");
+        double FVal = fBFit[j]->Eval(global_mH);
+        fBRaw[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
+
+        TLine l(global_mH,FVal*0.1,global_mH,FVal*1.9);
+        l.SetLineColor(46);
+        l.SetLineStyle(7);
+        fBRaw[j]->Draw("AP");
+        fBFit[j]->Draw("L");
+        fBRaw[j]->Draw("sameP");
+        l.Draw();
+        can->Write();
+      }
       
       fMFitS->Write();
       hMFitS->Write();
@@ -453,6 +477,7 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar){
       hFCovar->Write();
       fBPar->Write();
       fBErr->Write();
+
 	    
 }
 void diagonalizeMatrix(TH2F *th2f_covar,TH2F *th2f_out){
@@ -538,10 +563,11 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6){
 		//hFCovar->Write();
 		uCorrErr->Write();
 	}
-
+	std::cout << "Saving Fits to file -> " << out->GetName() << std::endl;
         out->Close();
      }
 
+    std::cout << "Updated (with corrected background model) -> " << in->GetName() << std::endl;
     in->Close();
 }
 
