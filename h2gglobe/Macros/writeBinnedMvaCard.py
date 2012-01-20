@@ -24,15 +24,9 @@ def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
 	resL = quadInterpolate(-1*C,X1,X2,X3,Y1,Y2,Y3)
 	resH = quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3)
 	if math.isnan(resL) or math.isinf(resL) or  math.isnan(resH) or math.isinf(resL): return " - "
-	if abs(resL - 1) < 0.001 or abs(resL - 1) > 1: return " - "
-	if abs(resH - 1) < 0.001 or abs(resH - 1) > 1: return " - "
+	if abs(resL - 1) < 0.00001 or abs(resL - 1) > 1: return " - "
+	if abs(resH - 1) < 0.00001 or abs(resH - 1) > 1: return " - "
 	return " %.8f/%.8f "%(resL,resH) 
-	#combination tool doesnt like kappas wrong way so lets symmetrize (take largest) but always give the UP direction
-	#diff = max(abs(1-resL),abs(1-resH))
-	# now make direction, that of the up fluctuation
-	#sign = (resH-1)/abs(resH-1)
-	#return " %.8f "%(1+sign*diff)
-#	return " %.8f/%.8f "%(resL,resH)
 
 def getBinContent(hist,b):
   
@@ -58,7 +52,7 @@ def writeCard(tfile,mass,scaleErr):
   print "Number of Channels -> ", nBins
   # bkg model ->
   bkgHist  	= tfile.Get("th1f_bkg_grad_%3.1f_cat0"%mass)
-  if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_grad_%3.1f_cat0_biascorr"%mass)
+  if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_grad_%3.1f_cat0_fitsb_biascorr"%mass)
   # 4 signal channels ->
   gghHist  = tfile.Get("th1f_sig_grad_ggh_%3.1f_cat0"%mass)
   vbfHist  = tfile.Get("th1f_sig_grad_vbf_%3.1f_cat0"%mass)
@@ -109,19 +103,8 @@ def writeCard(tfile,mass,scaleErr):
 
   if options.Bias:
 	print "Using Bkg Model Corrected for mass bias"
-	#totBackground = sum(backgroundContents)
-	#biasfactor  = biasROOTFile.Get("hist_biasfactor")
-	#binningMass = getBinningMass(mass)
-	#biasSlope = biasROOTFile.Get("tgraph_biasslopes_data_grad_%s"%binningMass)
-	#X = ROOT.Double()
-	#Y = ROOT.Double()
-	#for b in range(1,nBins+1):
-	  #biasSlope.GetPoint(b-1,X,Y)
-	  #biasShift  = biasfactor.GetBinContent(biasfactor.FindBin(mass))*Y
-	  #backgroundContents[b-1]*=(1.-biasShift)		# if the bias is negative then we apply a positive correction
-	#newTot = sum(backgroundContents)
 	backgroundContents = [bkgHistCorr.GetBinContent(b) for b in range(1,nBins+1)]
-	
+
   for b in range(1,nBins+1): outPut.write(" %.12f   %.12f   %.12f   %.12f   %.12f "\
     %(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b)\
      ,backgroundContents[b-1]))
@@ -196,48 +179,25 @@ def writeCard(tfile,mass,scaleErr):
 
   ## now for the David errors
   if options.Bias:
-	print "Including Mass Bias nuisances"
-	#biasfactor  = biasROOTFile.Get("hist_biasfactor")
-	#binningMass = getBinningMass(mass)
-	#biasSlope = biasROOTFile.Get("tgraph_biasslopes_data_grad_%s"%binningMass)
+	print "Including Mass Bias nuisances (bin-to-bin stat error included)"
 
-	# Since the errors have no "direction" i suppose we have to make them independant
-#	biassyst  = [biasfactor.GetBinContent(biasfactor.FindBin(mass))*biasSlope.GetErrorY(b) for b in range(nBins)]
-
-	# make sure bias cannot vary overall normalisation!
-#	backgroundSum = sum(backgroundContents)
-#	newSum 	      = sum([(1.+bias)*(bkg) for bias,bkg in zip(biassyst,backgroundContents)])
-#	biassyst      = [(((1.+bias)*bkg*backgroundSum/newSum )/bkg) -1. for bias,bkg in zip(biassyst,backgroundContents)]
-	bkgBiasUp = tfile.Get("th1f_bkg_grad_%3.1f_cat0_biascorr_biasUp01_sigma"%mass)
-	bkgBiasDn = tfile.Get("th1f_bkg_grad_%3.1f_cat0_biascorr_biasDown01_sigma"%mass)
+	# Input Signed Error Matrix from Fit 
+	th2f_errmatrix = tfile.Get("fUncorrErr_%3.1f"%mass)
 	for b in range(1,nBins+1):
            outPut.write("\nmassBias%d lnN"%b)
-#	   bias = biasfactor.GetBinContent(biasfactor.FindBin(mass))*biasSlope.GetErrorY(b-1)
-	   bias_nuis = py_quadInterpolate(1.,-1.,0.,1.,bkgBiasDn.GetBinContent(b),backgroundContents[b-1],bkgBiasUp.GetBinContent(b))
 	   for q in range(1,nBins+1):
-#		if q==b: outPut.write(" - - - - %s "%(1.+abs(bias))
-		if q==b: outPut.write(" - - - - %s "%(bias_nuis))
-		else   : outPut.write(" - - - - - ")
+	   	f_errentry = th2f_errmatrix.GetBinContent(b,q)
+		bkgC = backgroundContents[q-1]/sum(backgroundContents)
+		bias_nuis  = py_quadInterpolate(1.,-1.,0.,1.,bkgC-f_errentry,bkgC,bkgC+f_errentry)
+		outPut.write(" - - - - %s "%(bias_nuis))
         	
         outPut.write("\n")
 	
 
-  """
-  if (mass==120.0 or mass==140.0) and (options.addBias):
-	if mass==120.0 : biassyst = [-0.001024,-0.002493,0.008147,0.003569,0.05406,0.0429,0.07137,0.01265]
-	if mass==140.0 : biassyst = [ -0.001432,0.0002283,-0.0006841,0.008454,0.03148,0.02435]
-
-        outPut.write("\ndavidBias lnN")
-	for bias in biassyst:
-        	outPut.write(" - - - - %.8f "%(1.+bias))
-        outPut.write("\n")
-  """
-
-  if options.B2B:
-   # bkg bins will be gmN errors 
+  if options.B2B and (not options.Bias):
+   # bkg bins will be gmN errors instead 
    for b in range(1,nBins+1):
         bkgScale = bkgHist.Integral()/bkgHist.GetEntries()
-	bkgScale*=backgroundContents[b-1]/bkgHist.GetBinContent(b)  #(there is an additional scale !=1 if a bias was included)
         outPut.write("\nbkg_stat%d gmN %d "%(b,int(backgroundContents[b-1]/bkgScale)))
 	for q in range(1,nBins+1):
 		if q==b: outPut.write(" - - - - %.8f "%bkgScale)
