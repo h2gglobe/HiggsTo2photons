@@ -62,7 +62,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	leg.SetFillColor(0)
 	leg.SetBorderSize(0)
 	leg.AddEntry(flatdata,"Data","PL")
-	leg.AddEntry(flatsignal,"Higgs, mH=%3.0f GeV (x5)"%(mass) ,"L")
+	leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.0f GeV (x5)"%(mass) ,"L")
 	leg.AddEntry(flatbkg,"Bkg Model","L")
 	leg.AddEntry(fNewT,"\pm 1\sigma","F")
 	leg.AddEntry(fNew2T,"\pm 2\sigma","F")
