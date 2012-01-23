@@ -9,6 +9,87 @@ from ROOT import quadInterpolate
 from optparse import OptionParser
 
 r=ROOT.TRandom3(0)
+lumistring = "4.67 fb^{-1}"
+
+def plainBin(hist):
+	nb = hist.GetNbinsX()
+	h2 = ROOT.TH1F(hist.GetName()+"new","",nb,0,nb)
+	for i in range (1,nb+1):
+		h2.SetBinContent(i,hist.GetBinContent(i))
+		h2.SetBinError(i,hist.GetBinError(i))
+	h2.GetXaxis().SetNdivisions(nb)
+	return h2
+
+def plotDistributions(mass,data,signals,bkg,errors):
+
+	sigscale = 5.
+	for i in range(1,len(signals)):
+		signals[0].Add(signals[i])
+
+	nbins = data.GetNbinsX()
+
+	flatdata = plainBin(data)
+	flatsignal  = plainBin(signals[0])
+	flatbkg  = plainBin(bkg)
+
+	fNew  = flatbkg.Clone()
+	fNew2 = flatbkg.Clone()
+
+	flatdata.SetMarkerStyle(20)
+	flatdata.SetMarkerSize(1.0)
+		
+	fNew.SetLineColor(1)
+	fNew.SetLineWidth(2)
+	fNew.SetFillStyle(1001)
+	fNew.SetFillColor(3)
+	
+	fNew2.SetFillColor(5)
+	fNew2.SetLineColor(1)
+	fNew2.SetLineWidth(2)
+	fNew2.SetFillStyle(1001)
+	fNewT = fNew.Clone()
+	fNew2T = fNew2.Clone()
+	fNewT.SetFillStyle(1001)
+	fNew2T.SetFillStyle(1001)
+
+	flatsignal.SetLineWidth(2)
+	flatsignal.SetLineColor(ROOT.kRed)
+	flatsignal.SetFillColor(ROOT.kRed-10)
+	flatsignal.SetFillStyle(1001)
+	flatsignal.Scale(sigscale)
+		
+	leg = ROOT.TLegend(0.56,0.56,0.88,0.88)
+	leg.SetFillColor(0)
+	leg.SetBorderSize(0)
+	leg.AddEntry(flatdata,"Data","PL")
+	leg.AddEntry(flatsignal,"Higgs, mH=%3.0f GeV (x5)"%(mass) ,"L")
+	leg.AddEntry(flatbkg,"Bkg Model","L")
+	leg.AddEntry(fNewT,"\pm 1\sigma","F")
+	leg.AddEntry(fNew2T,"\pm 2\sigma","F")
+
+	for b in range(1,nbins+1):
+		additional = errors[b-1]
+  		fNew.SetBinError(b,((fNew.GetBinError(b)**2)+((fNew.GetBinContent(b)*additional)**2))**0.5)
+  		fNew2.SetBinError(b,2*(((fNew2.GetBinError(b)**2)+((fNew2.GetBinContent(b)*additional)**2))**0.5))
+	
+	c = ROOT.TCanvas("c","c",900,900)
+	c.SetLogy()
+	flatdata.GetXaxis().SetTitle("BDT bin number")
+	flatdata.Draw("9")
+	fNew2.Draw("9sameE2")
+	fNew.Draw("9sameE2")
+	flatbkg.Draw("9samehist")
+	flatsignal.Draw("9samehist")
+	flatdata.Draw("9sameP")
+
+	leg.Draw()
+	mytext = ROOT.TLatex()
+	mytext.SetTextSize(0.03)
+	mytext.SetNDC()
+#	mytext.DrawLatex(0.28,0.8,"#splitline{CMS preliminary}{#sqrt{s} = 7 TeV L = %s}"%(lumistring))
+	mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV L = %s"%(lumistring))
+	leg.Draw()
+	c.SaveAs("m%3.1f.pdf"%mass)
 
 def getBinningMass(mass):
 
@@ -31,13 +112,13 @@ def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
 def getBinContent(hist,b):
   
 	res = hist.GetBinContent(b)
-	if res==0: return 0.0000001
+	if res==0: return 0.00000001
 	else: return res
 
 def getPoissonBinContent(hist,b,exp):
   
 	res = exp*(hist.GetBinContent(b))
-	if res==0: return 0.0000001
+	if res==0: return 0.00000001
 	else: return r.Poisson(res)
 
 def writeCard(tfile,mass,scaleErr):
@@ -100,7 +181,6 @@ def writeCard(tfile,mass,scaleErr):
   outPut.write("\nrate       ")
 
   backgroundContents = [bkgHist.GetBinContent(b) for b in range(1,nBins+1)]
-
   if options.Bias:
 	print "Using Bkg Model Corrected for mass bias"
 	backgroundContents = [bkgHistCorr.GetBinContent(b) for b in range(1,nBins+1)]
@@ -203,6 +283,16 @@ def writeCard(tfile,mass,scaleErr):
 		if q==b: outPut.write(" - - - - %.8f "%bkgScale)
 		else:    outPut.write(" - - - - - ")
 
+  # Finally make a plot of what will go into the limit
+  if options.makePlot: 
+	print "Plotting Limit Setting inputs to m%3.1f.pdf"%mass
+	if options.Bias : plotBKG = bkgHistCorr.Clone()
+	else: plotBKG = bkgHist.Clone()
+	plotDistributions(mass,dataHist.Clone() \
+			,[gghHist.Clone(),vbfHist.Clone(),wzhHist.Clone(),tthHist.Clone()] \
+			,plotBKG \
+			,[scaleErr-1. for b in range(nBins)])
+
   outPut.write("\n")  # done
   outPut.close()
     
@@ -216,6 +306,7 @@ parser.add_option("","--noBias",dest="Bias",default=True,action="store_false")
 parser.add_option("","--noSignalSys",action="store_false",dest="signalSys",default=True)
 parser.add_option("","--throwToy",action="store_true",dest="throwToy",default=False)
 parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
+parser.add_option("","--makePlot",dest="makePlot",default=False,action="store_true")
 parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
 
 (options,args)=parser.parse_args()
