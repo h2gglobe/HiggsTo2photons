@@ -9,18 +9,20 @@ parser.add_option("-c", "--clean", action="store_true", dest="clean", default=Fa
 parser.add_option("-d", "--duplicate", action="store_true", dest="duplicate", default=False, help="Remove Duplicate Job Submissions")
 parser.add_option("-p", "--path", dest="directory", help="The data directory on CASTOR", metavar="DIR")
 parser.add_option("-r", "--recursive", action="store_true", dest="recursive", default=False, help="Clean files in sub directories")
+parser.add_option("--debug", action="store_true", dest="debug", default=False, help="Enable Debug Mode")
 (options, args) = parser.parse_args()
 
 def cleanfiles(dir):
 	if dir[len(dir)-1:len(dir)]!="/": dir+="/"
 	popen("nsfind "+dir+" -type f | grep .root | xargs -i stager_qry -M {} | grep 'not on disk' | awk '{print $8}' | xargs -i stager_get -M {}")
 	filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
+	if len(filename)==0: return
 	for i in range(len(filename)):
 		filename[i] = filename[i].strip("\n")
-		print "Checking File: %s" %(dir+filename[i])
+		if options.debug: print "Checking File: %s" %(dir+filename[i])
 		testfile = TFile.Open("rfio:"+dir+filename[i])
 		if testfile==NULL:
-			print "Warning: File %s is a NULL pointer" %(dir+filename[i])
+			if options.debug: print "Warning: File %s is a NULL pointer" %(dir+filename[i])
 			continue
 		if testfile.IsZombie():
 			newfilename = filename[i].replace(".root",".resubmit")
@@ -37,7 +39,9 @@ def removeduplicated(dir):
 	jobnum=[]
 	subnum=[]
 	if dir[len(dir)-1:len(dir)]!="/": dir+="/" 
+	if options.debug: print "Looking at directory: "+dir
 	filename = popen("rfdir "+dir+" | grep .root | awk '{print $9}' ").readlines()
+	if len(filename)==0: return
 	for i in range(len(filename)):
 		filename[i] = filename[i].strip("\n")
 		regsearch = re.search('[0-9]*_[0-9]*_[A-Za-z0-9]*.root',filename[i])
@@ -75,8 +79,8 @@ if len(rootfiles)!=0:
 	if (options.clean): cleanfiles(dir)
 
 if options.recursive:
-	subdirs = popen("rfdir "+dir+" | awk '{print $9}'").readlines()
+	subdirs = popen("nsfind "+dir+" -type d ").readlines()
 	for i in range(len(subdirs)):
-		subdir = dir+subdirs[i].strip("\n") + "/"
+		subdir = subdirs[i].strip("\n")
 		if (options.duplicate): removeduplicated(subdir)
 		if (options.clean): cleanfiles(subdir)
