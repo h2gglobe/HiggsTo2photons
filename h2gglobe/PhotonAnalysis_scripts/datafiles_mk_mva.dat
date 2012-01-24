@@ -20,7 +20,6 @@ typ=-51 ind=3 draw=1  Nam=tt_H_gg_150_pu2011      Dir=/vols/cms02/h2g/ntuples/h2
 
 ->
 5-GeV-spaced points not used for LP - due to bug in geneated 145 sample
-->
 typ=-45 ind=1 draw=1  Nam=gluglu_H_gg_145_pu2011  Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Sig_Fall11_S6/GluGluToHToGG_M-145_7TeV    red=0 lum=1000000.0  xsec=0.0188209 kfac=1.000000  scal=1.000000
 typ=-46 ind=2 draw=1  Nam=vbf_H_gg_145_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Sig_Fall11_S6/VBF_HToGG_M-145_7TeV    red=0 lum=1000000.0  xsec=0.00167668 kfac=1.000000  scal=1.000000
 typ=-48 ind=4 draw=1  Nam=wz_H_gg_145_pu2011      Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-145_7TeV    red=0 lum=1000000.0  xsec=0.000891112 kfac=1.000000  scal=1.000000

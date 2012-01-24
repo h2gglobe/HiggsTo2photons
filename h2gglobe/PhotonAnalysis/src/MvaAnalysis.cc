@@ -794,8 +794,12 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // ---------------------------------------------------------------------------------------------------------------------//
     if (cur_type !=0){
       for (int ipho=0;ipho<l.pho_n;ipho++){
-        double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
-        l.pho_r9[ipho]*=R9_rescale;
+        l.pho_r9[ipho]*=1.0035;
+	if (l.pho_isEB[ipho]){ l.pho_sieie[ipho] = (0.87*l.pho_sieie[ipho]) + 0.0011 ;}
+	else {l.pho_sieie[ipho]*=0.99;}
+	l.sc_seta[l.pho_scind[ipho]]*=0.99;	
+	l.sc_sphi[l.pho_scind[ipho]]*=0.99;	
+	energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.06 : 1.09 ;
       }
     }
     // ---------------------------------------------------------------------------------------------------------------------//

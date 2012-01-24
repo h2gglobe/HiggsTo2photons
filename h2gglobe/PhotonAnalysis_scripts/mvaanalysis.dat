@@ -26,15 +26,13 @@ massSidebandMax(Min) if upper(lower) edge of sideband is larger(smaller)
 		     (will still be saved in workspace)
 ->
 
-signalRegionWidth=0.07
+signalRegionWidth=0.0
 sidebandWidth=0.02
 sidebandShift=0.
-numberOfSidebands=3
-->
+numberOfSidebands=15
 numberOfSidebandGaps=1
 massSidebandMin=100.
 massSidebandMax=180.
-->
 
 nEtaCategories=2
 nR9Categories=2
@@ -93,7 +91,7 @@ doR9Syst=1
 doKFactorSmear=1
 doKFactorSyst=1
 
-mvaWeightsFolder=/vols/cms03/mk1009/h2g/MVA/weights/wt_07Jan/
+mvaWeightsFolder=/vols/cms03/mk1009/h2g/MVA/weights/wt_23Jan/
 
 ->
 Inputs for reweighing
