@@ -44,4 +44,6 @@ for i,P in enumerate(plots):
   can.cd(i+1)
   P.DrawClonePad()
 
-can.SaveAs("allThePlots_%s.eps"%fileName)
+fileEnd=fileName[fileName.find('CMS-HGG'):]
+fileBegin=fileName[:fileName.find('CMS-HGG')]
+can.SaveAs(fileBegin+"allThePlots_%s.eps"%fileEnd)
