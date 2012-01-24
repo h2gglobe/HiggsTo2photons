@@ -690,14 +690,25 @@ void LoopAll::Loop(Int_t a) {
 // ------------------------------------------------------------------------------------
 void LoopAll::WriteFits() {
   
-	hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
+  hfile = TFile::Open(histFileName, "RECREATE", "Globe ROOT file with histograms");
 
   hfile->cd();
-  hfile->cd();
+  //hfile->cd();
   rooContainer->Save();
+
+  for (std::vector<TMacro*>::iterator it = configFiles.begin(); it!=configFiles.end(); it++){
+	(*it)->Write();
+  }
+
   hfile->Close();
 }
 
+void LoopAll::StoreConfigFile(std::string configfilename) {
+	
+	TMacro *mac = new TMacro(configfilename.c_str(),configfilename.c_str());
+	configFiles.push_back(mac);
+
+}
 // ------------------------------------------------------------------------------------
 void LoopAll::WriteHist() {
 
@@ -1144,3 +1155,5 @@ bool LoopAll::CheckEventList( int run, int lumi, int event  )
 	}
 	return false;
 }
+
+

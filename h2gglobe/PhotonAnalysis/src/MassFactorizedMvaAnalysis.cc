@@ -376,7 +376,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
       std::vector<std::string> data_pol2_pars(2,"p");	 
       data_pol2_pars[0] = "modpol0";
       data_pol2_pars[1] = "modpol1";
-      l.rooContainer->AddSpecificCategoryPdf(poly4cats,"data_pol_model",
+      l.rooContainer->AddSpecificCategoryPdf(poly2cats,"data_pol_model",
 	  "0","CMS_hgg_mass",data_pol2_pars,72);		// >= 71 means RooBernstein of order >= 1
       // -----------------------------------------------------
     }
@@ -588,7 +588,6 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // ---------------------------------------------------------------------------------------------------------------------//
     // ---------------------------------------------------------------------------------------------------------------------//
     // ---------------------------------------------------------------------------------------------------------------------//
-   
     for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 	std::vector<std::vector<bool> > p;
 	PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 

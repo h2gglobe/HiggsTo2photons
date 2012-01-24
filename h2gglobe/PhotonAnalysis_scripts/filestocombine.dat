@@ -1,9 +1,7 @@
-intL=4763. histfile=CMS-HGG_bdt_miteleveto.root output=shifo.root
+intL=4763. histfile=CMS-HGG_mitbdt_jan2.root output=shifo.root
 
-Dir=cms-hgg
-->
-Fil=../Macros/CMS-HGG_likelihood.root
-->
+Dir=cms-hgg_mitbdt_jan2
+
 
 ->
 Branches to use
@@ -13,7 +11,7 @@ Branches to use
 inputBranches reduction_output.dat
 inputBranches looper_input.dat
 ->
-inputBranches minimal_statanalysis_input.dat
+inputBranches massfactorizedmvaanalysis_input.dat
 
 ->
 define analyses to run
@@ -24,5 +22,5 @@ syntax:
 
 analyzer PhotonAnalysis photonanalysis.dat	
 ->
-analyzer MvaAnalysis photonanalysis.dat mvaanalysis.dat
  
+analyzer MassFactorizedMvaAnalysis photonanalysis.dat massfactorizedmvaanalysis.dat

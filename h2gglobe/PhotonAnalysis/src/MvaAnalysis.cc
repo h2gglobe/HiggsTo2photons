@@ -108,18 +108,34 @@ void MvaAnalysis::Term(LoopAll& l)
 	    std::vector<string> ada_datasets;
 	    std::vector<string> grad_datasets;
 
-	    for (int sideband_i=1;sideband_i<=numberOfSidebands;sideband_i++) {
-		ada_bkgsets.push_back(Form("bkg_%dlow_BDT_ada_%3.1f",sideband_i,mass));
-		ada_bkgsets.push_back(Form("bkg_%dhigh_BDT_ada_%3.1f",sideband_i,mass));
-		ada_datasets.push_back(Form("data_%dlow_BDT_ada_%3.1f",sideband_i,mass));
-		ada_datasets.push_back(Form("data_%dhigh_BDT_ada_%3.1f",sideband_i,mass));
+	    // For summing over sidebands, can skip some of them (defined in .dat) and only include those iside the range 100->180
+	    for (int sideband_i=numberOfSidebandGaps+1;sideband_i<=numberOfSidebands;sideband_i++) {
 
-		grad_bkgsets.push_back(Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mass));
-		grad_bkgsets.push_back(Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mass));
-		grad_datasets.push_back(Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mass));
-		grad_datasets.push_back(Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mass));
+	    // Calculate mass hypothesis of sideband and check its boudaries
+                double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
+                double mass_hypothesis_sb = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));               double sideband_boundaries_high= mass_hypothesis_sb*(1.+sidebandWidth);
+	    
+		if (sideband_boundaries_high <= massSidebandMax){
+	    
+		  ada_bkgsets.push_back(Form("bkg_%dhigh_BDT_ada_%3.1f",sideband_i,mass));
+		  ada_datasets.push_back(Form("data_%dhigh_BDT_ada_%3.1f",sideband_i,mass));
+		  grad_bkgsets.push_back(Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mass));
+		  grad_datasets.push_back(Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mass));
+		}
+
+                hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
+                mass_hypothesis_sb = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
+          	double sideband_boundaries_low = mass_hypothesis_sb*(1.-sidebandWidth);
+
+		if (sideband_boundaries_low >= massSidebandMin){
+		  ada_bkgsets.push_back(Form("bkg_%dlow_BDT_ada_%3.1f",sideband_i,mass));
+		  ada_datasets.push_back(Form("data_%dlow_BDT_ada_%3.1f",sideband_i,mass));
+		  grad_bkgsets.push_back(Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mass));
+		  grad_datasets.push_back(Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mass));
+		}
 		
 	    }
+
 	    // Also for the bkg MC we want to throw in the signal region for the binning algos
             ada_bkgsets.push_back(Form("bkg_BDT_ada_%3.1f",mass)) ;
             grad_bkgsets.push_back(Form("bkg_BDT_grad_%3.1f",mass)) ;
@@ -576,7 +592,8 @@ void MvaAnalysis::Init(LoopAll& l)
             l.rooContainer->CreateDataSet("BDT",Form("zee_BDT_grad_%3.1f",mass)      ,nBDTbins);
 
 	    for (int sideband_i=1;sideband_i<=numberOfSidebands;sideband_i++){
-
+	    // Always create all of the sidebands, even if we skip some of them
+	    // later on for the sums
               l.rooContainer->CreateDataSet("BDT",Form("bkg_%dlow_BDT_ada_%3.1f",sideband_i,mass)   ,nBDTbins);
               l.rooContainer->CreateDataSet("BDT",Form("bkg_%dhigh_BDT_ada_%3.1f",sideband_i,mass)  ,nBDTbins);
               l.rooContainer->CreateDataSet("BDT",Form("data_%dlow_BDT_ada_%3.1f",sideband_i,mass)  ,nBDTbins);
@@ -607,7 +624,19 @@ void MvaAnalysis::Init(LoopAll& l)
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_ada_ggh_%3.1f",sig)       ,nBDTbins);    
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_ada_vbf_%3.1f",sig)       ,nBDTbins);    
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_ada_wzh_%3.1f",sig)       ,nBDTbins);    
-            l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_ada_tth_%3.1f",sig)       ,nBDTbins);    
+            l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_ada_tth_%3.1f",sig)       ,nBDTbins);   
+ 
+	    for (int sideband_i=1;sideband_i<=numberOfSidebands;sideband_i++){
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_ada_ggh_%3.1f",sideband_i,sig)   ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_ada_ggh_%3.1f",sideband_i,sig)  ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_ada_vbf_%3.1f",sideband_i,sig)   ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_ada_vbf_%3.1f",sideband_i,sig)  ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_ada_wzh_%3.1f",sideband_i,sig)   ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_ada_wzh_%3.1f",sideband_i,sig)  ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_ada_tth_%3.1f",sideband_i,sig)   ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_ada_tth_%3.1f",sideband_i,sig)  ,nBDTbins);
+	   }
+	    
         
             // Make the signal Systematic Sets
             l.rooContainer->MakeSystematics("BDT",Form("sig_BDT_grad_ggh_%3.1f",sig),-1);
@@ -917,9 +946,9 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         }
         // Loop over N lower sidebands
         for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
-          double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth) - sidebandShift;
+          double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
           mass_hypothesis_low = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)
-            *(TMath::Power(hypothesisModifier,sideband_i-1)) - sidebandShift;
+            *(TMath::Power(hypothesisModifier,sideband_i-1));
           double sideband_boundaries_low = mass_hypothesis_low*(1.-sidebandWidth);
           double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
 
@@ -933,9 +962,9 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         }
         // Loop over N higher sidebands
         for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
-          double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth) + sidebandShift;
+          double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
           mass_hypothesis_high = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)
-            *(TMath::Power(hypothesisModifier,sideband_i-1)) + sidebandShift;
+            *(TMath::Power(hypothesisModifier,sideband_i-1));
           double sideband_boundaries_low = mass_hypothesis_high*(1.-sidebandWidth);
           double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
           //std::cout<<sideband_boundaries_low<<", "<<sideband_boundaries_high<<std::endl;
@@ -1073,6 +1102,44 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     l.rooContainer->InputBinnedDataPoint("sig_BDT_ada_"+currentTypeSignalLabel  ,category,bdt_ada,evweight);
                     l.rooContainer->InputBinnedDataPoint("sig_BDT_grad_"+currentTypeSignalLabel ,category,bdt_grad,evweight);
                  }
+		else {
+		  // Loop over N lower sidebands
+		  for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
+		   double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
+		   double mass_hypothesis_low     = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
+		   double sideband_boundaries_low = mass_hypothesis_low*(1.-sidebandWidth);
+		   double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
+
+		   if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
+                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_low,bdtoutput,evweight);
+                    bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
+                    bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+
+                    l.rooContainer->InputBinnedDataPoint(Form("sig_BDT_ada_%dlow_",sideband_i)+currentTypeSignalLabel ,category,bdt_ada,evweight);
+                    l.rooContainer->InputBinnedDataPoint(Form("sig_BDT_grad_%dlow_",sideband_i)+currentTypeSignalLabel ,category,bdt_grad,evweight);
+		   }
+		  }
+
+		  // Loop over N higher sidebands
+		  for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
+
+		   double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
+		   double mass_hypothesis_high     = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
+		   double sideband_boundaries_low = mass_hypothesis_high*(1.-sidebandWidth);
+		   double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
+
+		   if ( mass>sideband_boundaries_low && mass<sideband_boundaries_high){
+                    SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,mass_hypothesis_high,bdtoutput,evweight);
+                    bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
+                    bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
+
+                    l.rooContainer->InputBinnedDataPoint(Form("sig_BDT_ada_%dhigh_",sideband_i)+currentTypeSignalLabel ,category,bdt_ada,evweight);
+                    l.rooContainer->InputBinnedDataPoint(Form("sig_BDT_grad_%dhigh_",sideband_i)+currentTypeSignalLabel ,category,bdt_grad,evweight);
+		   }
+		  }
+		}
+
+		
            }
            // ---- Now deal with background MC and data
            else {
@@ -1177,8 +1244,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                   std::stringstream sideband_stream;
 		  for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
 		   histoplace=sideband_i+1;
-		   double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth) - sidebandShift;
-		   double mass_hypothesis_low     = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1)) - sidebandShift;
+		   double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
+		   double mass_hypothesis_low     = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
 		   double sideband_boundaries_low = mass_hypothesis_low*(1.-sidebandWidth);
 		   double sideband_boundaries_high= mass_hypothesis_low*(1.+sidebandWidth);
 
@@ -1256,8 +1323,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 		  for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
 
 		   histoplace=sideband_i+4;
-		   double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth) + sidebandShift;
-		   double mass_hypothesis_high     = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1)) + sidebandShift;
+		   double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
+		   double mass_hypothesis_high     = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
 		   double sideband_boundaries_low = mass_hypothesis_high*(1.-sidebandWidth);
 		   double sideband_boundaries_high= mass_hypothesis_high*(1.+sidebandWidth);
 

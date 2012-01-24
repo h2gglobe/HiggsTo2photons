@@ -65,6 +65,9 @@ public:
         float signalRegionWidth;
         float sidebandWidth;
         float sidebandShift;
+	float massSidebandMin;
+	float massSidebandMax;
+	int numberOfSidebandGaps;
         int numberOfSidebands;
 	
 	std::string bdtTrainingPhilosophy;
@@ -74,7 +77,7 @@ public:
 	std::string photonLevelMvaMIT_EE;
 	std::string eventLevelMvaMIT    ;
 	std::string kfacHist;
-  std::string MVAtype;
+  	std::string MVAtype;
 
 	int nMasses;
 

@@ -1,15 +1,40 @@
 leadEtCut=40.0
 subleadEtCut=30.0
 
+->
+Options for the mass spectrum range
+->
 massMin=100.
 massMax=180.
 nDataBins=80
 
+->
+Options for the sidebands mH ranges
+These define how the sidebands are calculated
+
+Define sidebands:
+sidebandWidth        defines the "phase-space" for each sideband (obs/bkg)
+signalRegionWidth    defines how far (as %) to put the first sideband
+sidebandShift 	     add an extra gap between the signalRegion and 1st sideband
+
+Shich sidebands to use in sums (ie for binning algo and simple bkg model):
+numberOfSidebands    number of sidebands created on each side (all created)
+numberOfSidebandGaps skip this many sidebands on each sidefor summing datasets
+		     (all will be in workspace, but not used for sideband sums)
+massSidebandMax(Min) if upper(lower) edge of sideband is larger(smaller)
+		     than this, sideband is ignored in sideband sums
+		     (will still be saved in workspace)
+->
+
 signalRegionWidth=0.07
 sidebandWidth=0.02
-sidebandShift=0.00
+sidebandShift=0.
 numberOfSidebands=3
-
+->
+numberOfSidebandGaps=1
+massSidebandMin=100.
+massSidebandMax=180.
+->
 
 nEtaCategories=2
 nR9Categories=2
@@ -18,7 +43,7 @@ nPtCategories=1
 doTriggerSelection=1
 reRunCiCForData=1
 
-doTraining=1
+doTraining=0
 splitSignalSample=0
 splitBackgroundSample=1
 

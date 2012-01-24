@@ -35,7 +35,7 @@ def defineEvList(fname,dataset):
     for run in evlist.keys():
         for ev in evlist[run]:
             dataset.addEventToList(int(run), int(ev[0]), int(ev[1]) )
-
+  
 
 class configProducer:
 
@@ -59,6 +59,8 @@ class configProducer:
 
     self.conf_    = confBlock()
     self.plotvar_ = datBlock()
+
+    self.tmac = []
   
     if self.type_ == 0 or self.type_ == 2:
       self.init_loop()
@@ -75,6 +77,9 @@ class configProducer:
 
     else: 
       sys.exit("No Such Type As: %d"%self.type_)
+  
+  def store_config_file(self,filename): 
+    self.ut_.StoreConfigFile(filename)
       
   def read_weights_file(self):
     weights_lines=[];
@@ -105,6 +110,7 @@ class configProducer:
           lines.append(line)
         else:
           self.conf_.comments+=line
+      self.store_config_file(conf_filename)
 
   def init_cuts(self):
     self.read_dat_cuts('cuts.dat')
