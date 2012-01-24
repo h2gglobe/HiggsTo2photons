@@ -1,6 +1,6 @@
 
 #!/usr/bin/env python
-# @(#)root/tmva $Id: MVAClassification.py,v 1.1.4.5 2011/12/07 12:12:07 mjarvis Exp $
+# @(#)root/tmva $Id: MKmvaClassification.py,v 1.1.2.1 2012/01/19 18:27:07 mkenzie Exp $
 # ------------------------------------------------------------------------------
 # based on TMVA Python script: TMVAClassification.py
 # ------------------------------------------------------------------------------
@@ -140,17 +140,17 @@ def main():
 
     if (width == 0.02) : width_str = "_2pt"
     elif (width == 0.07) : width_str = "_7pt"
-    mass_str    = "_"+str(mass)
+    mass_str    = "_"+str("%3.1f" %mass)
     cat_str    = "_"+str(cat)
     if cat<0:
         cat_str    = "_all"
     if test:
       if methTest: 
-        outfname = testType+"/"+outfname+"_"+phil+cat_str+"_test_"+testType+"_"+testMethod+".root"
+        outfname = "TMVAStuff/"+outfname+"_"+phil+cat_str+"_test_"+testType+"_"+testMethod+".root"
       else:
-        outfname = testType+"/"+outfname+"_"+phil+cat_str+"_test_"+testType+".root"
+        outfname = "TMVAStuff/"+outfname+"_"+phil+cat_str+"_test_"+testType+".root"
     else:
-      outfname    = outfname+"_"+phil+cat_str+".root"
+      outfname    = "TMVAStuff/"+outfname+"_"+phil+cat_str+".root"
       
     #treeNameSig = treeNameSig + mass_str 
     #treeNameBkg = treeNameBkg + mass_str  
@@ -175,9 +175,9 @@ def main():
     
     # Logon not automatically loaded through PyROOT (logon loads TMVA library)
     # load also GUI
-    gROOT.SetMacroPath( "./" )
-    gROOT.Macro       ( "./TMVAlogon.C" )    
-    gROOT.LoadMacro   ( "./TMVAGui.C" )
+    gROOT.SetMacroPath( "/vols/cms03/mk1009/h2g/MVA/tmvaMacros/" )
+    gROOT.Macro       ( "/vols/cms03/mk1009/h2g/MVA/tmvaMacros/TMVAlogon.C" )    
+    gROOT.LoadMacro   ( "/vols/cms03/mk1009/h2g/MVA/tmvaMacros/TMVAGui.C" )
     
     # Import TMVA classes from ROOT
     from ROOT import TMVA
@@ -200,11 +200,11 @@ def main():
     input = TFile.Open( infname )
 
     # Get the signal and background trees for training
-    signal_train      = input.Get( treeNameSig+"_train")
-    signal_test      = input.Get( treeNameSig+"_test")
+    signal_train      = input.Get( treeNameSig+"_train"+mass_str)
+    signal_test      = input.Get( treeNameSig+"_test"+mass_str)
 
-    background_train  = input.Get( treeNameBkg+"_train")
-    background_test  = input.Get( treeNameBkg+"_test")
+    background_train  = input.Get( treeNameBkg+"_train"+width_str+mass_str)
+    background_test  = input.Get( treeNameBkg+"_test"+width_str+mass_str)
 
     # Global event weights (see below for setting event-wise weights)
     signalWeight     = 1.0
@@ -223,7 +223,7 @@ def main():
 
     # Apply additional cuts on the signal and background sample. 
     # example for cut: mycut = TCut( "abs(var1)<0.5 && abs(var2-0.5)<1" )
-    mycut = TCut( "fabs(deltaMOverM)<="+str(width))#
+    mycut = TCut( "fabs(deltaMOverM)<="+str(width)+" && bdtoutput > -0.5")#
     # Here, the relevant variables are copied over in new, slim trees that are
     # used for TMVA training and testing
     factory.PrepareTrainingAndTestTree( mycut, mycut, "nTrain_Signal=0:nTrain_Background=0:NormMode=NumEvents:!V")
@@ -237,8 +237,8 @@ def main():
         #factory.BookMethod( TMVA.Types.kPDERS, "MultiLikelihood"+phil,"!H:!V:NormTree=T:VolumeRangeMode=Adaptive:KernelEstimator=Gauss:GaussSigma=0.3:NEventsMin=400:NEventsMax=600" );
         
         # BDT
-        factory.BookMethod( TMVA.Types.kBDT, "BDTada"+phil, "!H:!V:NTrees=500:nEventsMin=150:MaxDepth=2:BoostType=AdaBoost:AdaBoostBeta=1:SeparationType=GiniIndex:nCuts=50:PruneMethod=NoPruning" )
-        factory.BookMethod( TMVA.Types.kBDT, "BDTgrad"+phil, "!H:!V:NTrees=100:MaxDepth=2:BoostType=Grad:Shrinkage=1:UseBaggedGrad:GradBaggingFraction=1:SeparationType=GiniIndex:nCuts=50:NNodesMax=10" )
+        factory.BookMethod( TMVA.Types.kBDT, "BDTada"+phil, "!H:!V:NTrees=200:nEventsMin=150:MaxDepth=3:BoostType=AdaBoost:AdaBoostBeta=1.0:SeparationType=GiniIndex:nCuts=50:PruneMethod=NoPruning" )
+        factory.BookMethod( TMVA.Types.kBDT, "BDTgrad"+phil, "!H:!V:NTrees=200:MaxDepth=3:BoostType=Grad:Shrinkage=0.5:UseBaggedGrad:GradBaggingFraction=1.0:SeparationType=GiniIndex:nCuts=50:NNodesMax=10" )
 
     else:  #test
       # BDT ada
@@ -265,7 +265,8 @@ def main():
         if testMethod=="nTrees":
           for nTrees in [10,50,100,200,500]:
             for depth in [2,3]:
-              factory.BookMethod( TMVA.Types.kBDT, "BDT_grad"+str(phil)+"_"+str(nTrees)+"t_"+str(depth)+"d","!H:!V:NTrees="+str(nTrees)+":MaxDepth="+str(depth)+":BoostType=Grad:Shrinkage=1:UseBaggedGrad:GradBaggingFraction=1:SeparationType=GiniIndex:nCuts=50:NNodesMax=10") 
+              for shrinkage in [0.05,0.5,1.]:
+                factory.BookMethod( TMVA.Types.kBDT, "BDT_grad"+str(phil)+"_"+str(nTrees)+"t_"+str(depth)+"d_"+str(shrinkage)+"s","!H:!V:NTrees="+str(nTrees)+":MaxDepth="+str(depth)+":BoostType=Grad:Shrinkage="+str(shrinkage)+":UseBaggedGrad:GradBaggingFraction=1:SeparationType=GiniIndex:nCuts=50:NNodesMax=10") 
         
         #if testMethod=="depth":
          # for depth in [2,3]:
