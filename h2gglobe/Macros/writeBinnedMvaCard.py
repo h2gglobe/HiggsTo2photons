@@ -124,21 +124,21 @@ def getPoissonBinContent(hist,b,exp):
 def writeCard(tfile,mass,scaleErr):
 
   print "Writing Datacard for mass -> ", mass
-  outPut = open("mva-datacard_%3.1f.txt"%mass,"w")
+  outPut = open("mva-datacard_"+type+"_%3.1f.txt"%mass,"w")
 
   # Get All of the histograms we are going to use
   # Data ->
-  dataHist = tfile.Get("th1f_data_grad_%3.1f_cat0"%mass)
+  dataHist = tfile.Get("th1f_data_"+type+"_%3.1f_cat0"%mass)
   nBins    = dataHist.GetNbinsX()
   print "Number of Channels -> ", nBins
   # bkg model ->
-  bkgHist  	= tfile.Get("th1f_bkg_grad_%3.1f_cat0"%mass)
-  if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_grad_%3.1f_cat0_fitsb_biascorr"%mass)
+  bkgHist  	= tfile.Get("th1f_bkg_"+type+"_%3.1f_cat0"%mass)
+  if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_"+type+"_%3.1f_cat0_fitsb_biascorr"%mass)
   # 4 signal channels ->
-  gghHist  = tfile.Get("th1f_sig_grad_ggh_%3.1f_cat0"%mass)
-  vbfHist  = tfile.Get("th1f_sig_grad_vbf_%3.1f_cat0"%mass)
-  wzhHist  = tfile.Get("th1f_sig_grad_wzh_%3.1f_cat0"%mass)
-  tthHist  = tfile.Get("th1f_sig_grad_tth_%3.1f_cat0"%mass)
+  gghHist  = tfile.Get("th1f_sig_"+type+"_ggh_%3.1f_cat0"%mass)
+  vbfHist  = tfile.Get("th1f_sig_"+type+"_vbf_%3.1f_cat0"%mass)
+  wzhHist  = tfile.Get("th1f_sig_"+type+"_wzh_%3.1f_cat0"%mass)
+  tthHist  = tfile.Get("th1f_sig_"+type+"_tth_%3.1f_cat0"%mass)
 
  
   ###############################################################################
@@ -227,14 +227,14 @@ def writeCard(tfile,mass,scaleErr):
    print "Writing Systematics Part (coule be slow)"
    for sys in systematics:
 
-    gghHistU  = tfile.Get("th1f_sig_grad_ggh_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
-    vbfHistU  = tfile.Get("th1f_sig_grad_vbf_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
-    wzhHistU  = tfile.Get("th1f_sig_grad_wzh_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
-    tthHistU  = tfile.Get("th1f_sig_grad_tth_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
-    gghHistD  = tfile.Get("th1f_sig_grad_ggh_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
-    vbfHistD  = tfile.Get("th1f_sig_grad_vbf_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
-    wzhHistD  = tfile.Get("th1f_sig_grad_wzh_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
-    tthHistD  = tfile.Get("th1f_sig_grad_tth_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
+    gghHistU  = tfile.Get("th1f_sig_"+type+"_ggh_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
+    vbfHistU  = tfile.Get("th1f_sig_"+type+"_vbf_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
+    wzhHistU  = tfile.Get("th1f_sig_"+type+"_wzh_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
+    tthHistU  = tfile.Get("th1f_sig_"+type+"_tth_%3.1f_cat0_%sUp01_sigma"%(mass,sys))
+    gghHistD  = tfile.Get("th1f_sig_"+type+"_ggh_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
+    vbfHistD  = tfile.Get("th1f_sig_"+type+"_vbf_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
+    wzhHistD  = tfile.Get("th1f_sig_"+type+"_wzh_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
+    tthHistD  = tfile.Get("th1f_sig_"+type+"_tth_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
 
     outPut.write("\n%s lnN "%sys)
     for b in range(1,nBins+1): 
@@ -308,11 +308,14 @@ parser.add_option("","--throwToy",action="store_true",dest="throwToy",default=Fa
 parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
 parser.add_option("","--makePlot",dest="makePlot",default=False,action="store_true")
 parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
+parser.add_option("-t","--type",dest="bdtType",default="grad");
 
 (options,args)=parser.parse_args()
 print "Creating Binned Datacards from workspace -> ", options.tfileName
 if options.throwToy: print ("Throwing Toy dataset from BKG")
 if options.expSig > 0: print ("(Also throwing signal SMx%f)"%options.expSig)
+
+type=options.bdtType
 
 #if options.biasFile:
 #	biasROOTFile = ROOT.TFile(options.biasFile)
