@@ -14,7 +14,7 @@ These define how the sidebands are calculated
 
 Define sidebands:
 sidebandWidth        defines the "phase-space" for each sideband (obs/bkg)
-signalRegionWidth    defines how far (as %) to put the first sideband
+signalRegionWidth    defines how far (as %) to put the first sideband (ie region in which signal should sit)
 sidebandShift 	     add an extra gap between the signalRegion and 1st sideband
 
 Shich sidebands to use in sums (ie for binning algo and simple bkg model):
@@ -26,7 +26,7 @@ massSidebandMax(Min) if upper(lower) edge of sideband is larger(smaller)
 		     (will still be saved in workspace)
 ->
 
-signalRegionWidth=0.0
+signalRegionWidth=0.02
 sidebandWidth=0.02
 sidebandShift=0.
 numberOfSidebands=15
