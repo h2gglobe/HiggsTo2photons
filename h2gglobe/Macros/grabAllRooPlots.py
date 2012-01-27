@@ -21,6 +21,8 @@ plots = []
 if grepmode: print "grepping ", grep
 for K in keys:
 	obj = K.ReadObj()
+        if type(obj)!=type(ROOT.TCanvas()): continue
+
 	if grepmode:
 	  if "plot" in obj.GetName() and grep in obj.GetName(): plots.append(obj.Clone())
 	else:
