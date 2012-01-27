@@ -30,24 +30,31 @@ void MvaAnalysis::Term(LoopAll& l)
 {
     if (doTraining){
         for (int i = 0; i<nMasses;i++){
+            cout << " ----------- Writing trees ------------ " << endl;
             mvaFile_->cd();
             if (0<signalTrainTree_[i]->GetEntries()    ){
                 signalTrainTree_[i]->Write(("sig_train"+names[i]).c_str());
+                cout << "Wrote " << signalTrainTree_[i]->GetName() << endl;
             }
             if (0<signalTestTree_[i]->GetEntries()    ){
                 signalTestTree_[i]->Write(("sig_test"+names[i]).c_str());
+                cout << "Wrote " << signalTestTree_[i]->GetName() << endl;
             }
             if (0<backgroundTrainTree_7pt_[i]->GetEntries()    ){
                 backgroundTrainTree_7pt_[i]->Write(("bkg_train_7pt"+names[i]).c_str());
+                cout << "Wrote " << backgroundTrainTree_7pt_[i]->GetName() << endl;
             }
             if (0<backgroundTestTree_7pt_[i]->GetEntries()    ){
                 backgroundTestTree_7pt_[i]->Write(("bkg_test_7pt"+names[i]).c_str());
+                cout << "Wrote " << backgroundTestTree_7pt_[i]->GetName() << endl;
             }
             if (0<backgroundTrainTree_2pt_[i]->GetEntries()    ){
                 backgroundTrainTree_2pt_[i]->Write(("bkg_train_2pt"+names[i]).c_str());
+                cout << "Wrote " << backgroundTrainTree_2pt_[i]->GetName() << endl;
             }
             if (0<backgroundTestTree_2pt_[i]->GetEntries()    ){
                 backgroundTestTree_2pt_[i]->Write(("bkg_test_2pt"+names[i]).c_str());
+                cout << "Wrote " << backgroundTestTree_2pt_[i]->GetName() << endl;
             }
         }
         mvaFile_->Close();
@@ -66,8 +73,8 @@ void MvaAnalysis::Term(LoopAll& l)
         //l.rooContainer->AddGenericPdf("data_pow_model", "(1-@3)*TMath::Power(@0,@1) + @3*TMath::Power(@0,@2)","CMS_hgg_mass",data_pow_pars,0);
 
         // loop hypothesis	
-        for (double mass=115.0; mass<150.2; mass+=0.5){
-	    if (mass < masses[2] || mass > masses[nMasses-1] ) continue;	
+        for (double mass=110.0; mass<150.2; mass+=0.5){
+	    if (mass < masses[1] || mass > masses[nMasses-1] ) continue;	
 
             // define hypothesis masses for the sidebands
             float mass_hypothesis = mass;
@@ -148,7 +155,7 @@ void MvaAnalysis::Term(LoopAll& l)
             l.rooContainer->SumMultiBinnedDatasets(Form("data_BDT_sideband_grad_%3.1f",mass),grad_datasets, N_sig, scale);
 
       }
-      for (int i=2; i<nMasses; i++){
+      for (int i=1; i<nMasses; i++){
         // Need to binning on MC!
 //        std::vector <std::vector<double> > optimizedGradBins =  l.rooContainer->OptimizedBinning("bkg_BDT_grad_all"+names[i],50,false,true,-1);
 //        std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->OptimizedBinning("bkg_BDT_ada_all"+names[i],50,false,true,-1);
@@ -192,7 +199,7 @@ void MvaAnalysis::Term(LoopAll& l)
         for (double mass=mass_h_low; mass<mass_h_high; mass+=0.5){
 
           double mass_hypothesis = masses[i]+mass;
-	  if (mass_hypothesis < 115 || mass_hypothesis > 150) continue;
+	  if (mass_hypothesis < 110 || mass_hypothesis > 150) continue;
       
           l.rooContainer->RebinBinnedDataset(Form("bkg_grad_%3.1f",mass_hypothesis),Form("data_BDT_sideband_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
           l.rooContainer->RebinBinnedDataset(Form("bkg_mc_grad_%3.1f",mass_hypothesis),Form("bkg_BDT_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
@@ -225,7 +232,7 @@ void MvaAnalysis::Term(LoopAll& l)
         }
 
         for (int j=-1; j<2; j++){
-        if ((i==2 && j==-1) || (i==nMasses-1 && j==1)) continue;
+        if ((i==1 && j==-1) || (i==nMasses-1 && j==1)) continue;
           l.rooContainer->RebinBinnedDataset("sig_grad_ggh"+names[i]+names[i+j],"sig_BDT_grad_ggh"+names[i+j],optimizedGradBins,true);
           l.rooContainer->RebinBinnedDataset("sig_grad_vbf"+names[i]+names[i+j],"sig_BDT_grad_vbf"+names[i+j],optimizedGradBins,true);
           l.rooContainer->RebinBinnedDataset("sig_grad_wzh"+names[i]+names[i+j],"sig_BDT_grad_wzh"+names[i+j],optimizedGradBins,true);
@@ -546,10 +553,13 @@ void MvaAnalysis::Init(LoopAll& l)
         mvaFile_ = TFile::Open( outfileName, "RECREATE" );
         mvaFile_->cd();
         for (int i = 0; i<nMasses;i++){
+            cout << " --------- Creating trees --------- " << endl;
             signalTrainTree_[i] = new TTree(("sig_train"+names[i]).c_str(),("SignalTrainTree"+names[i]).c_str());
             SetBDTInputTree(signalTrainTree_[i]);
+            cout << "Made " << signalTrainTree_[i]->GetName() << endl;
             signalTestTree_[i]  = new TTree(("sig_test"+names[i]).c_str(), ("SignalTestTree"+names[i]).c_str());
             SetBDTInputTree(signalTestTree_[i]);
+            cout << "Made " << signalTestTree_[i]->GetName() << endl;
 
             backgroundTrainTree_2pt_[i] = new TTree(("bkg_train_2pt"+names[i]).c_str(),("BackgroundTrainTree_2pt"+names[i]).c_str());
             SetBDTInputTree(backgroundTrainTree_2pt_[i]);
@@ -579,7 +589,7 @@ void MvaAnalysis::Init(LoopAll& l)
 	int nBDTbins = 5000;
 
         // Usual datasets
-        for (double mass=115.0; mass<150.5; mass+=0.5){
+        for (double mass=110.0; mass<150.5; mass+=0.5){
 
             //Adaptive Boost
             l.rooContainer->CreateDataSet("BDT",Form("data_BDT_ada_%3.1f",mass)	     ,nBDTbins);
@@ -614,7 +624,7 @@ void MvaAnalysis::Init(LoopAll& l)
         }
 
         // loop signal mass points signal datasets
-        for (double sig=115.0;sig<=150;sig+=5.0){  // We are ignoring masses 105 and 110 for now
+        for (double sig=110.0;sig<=150;sig+=5.0){  // We are ignoring mass 105 for now
             if (sig==145.0) continue;
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_grad_ggh_%3.1f",sig)      ,nBDTbins); 
             l.rooContainer->CreateDataSet("BDT",Form("sig_BDT_grad_vbf_%3.1f",sig)      ,nBDTbins); 
@@ -1067,41 +1077,41 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
 		    if (bdtoutput>-0.5) {
-		      l.FillHist("pt_msig",SignalType(cur_type)-2, Higgs.Pt(), evweight);
-		      l.FillHist("logpt_msig",SignalType(cur_type)-2, log10(Higgs.Pt()), evweight);
-		      l.FillHist("ptOverM_msig",SignalType(cur_type)-2, Higgs.Pt()/mass, evweight);
-		      l.FillHist("ptOverMH_msig",SignalType(cur_type)-2, _H_ptOverM, evweight);
-		      l.FillHist("eta_msig",SignalType(cur_type)-2, Higgs.Eta(), evweight);
-		      l.FillHist("deltaPhi_msig",SignalType(cur_type)-2, _d_phi, evweight);
-		      l.FillHist("cosDeltaPhi_msig",SignalType(cur_type)-2, cos(_d_phi), evweight);
-		      l.FillHist("deltaEta_msig",SignalType(cur_type)-2, _d_eta, evweight);
-		      l.FillHist("helicityAngle_msig",SignalType(cur_type)-2, _cos_theta_star, evweight);
-		      l.FillHist("pho1_pt_msig",SignalType(cur_type)-2,lead_p4.Pt(), evweight);
-		      l.FillHist("pho2_pt_msig",SignalType(cur_type)-2,sublead_p4.Pt(), evweight);
-		      l.FillHist("pho1_ptOverM_msig",SignalType(cur_type)-2,lead_p4.Pt()/mass, evweight);
-		      l.FillHist("pho2_ptOverM_msig",SignalType(cur_type)-2,sublead_p4.Pt()/mass, evweight);
-		      l.FillHist("pho1_ptOverMH_msig",SignalType(cur_type)-2,_pho1_ptOverM, evweight);
-		      l.FillHist("pho2_ptOverMH_msig",SignalType(cur_type)-2,_pho2_ptOverM, evweight);
-		      l.FillHist("pho1_eta_msig",SignalType(cur_type)-2,lead_p4.Eta(), evweight);
-		      l.FillHist("pho2_eta_msig",SignalType(cur_type)-2,sublead_p4.Eta(), evweight);
-		      l.FillHist("pho_minr9_msig",SignalType(cur_type)-2,min(l.pho_r9[diphoton_index.first],l.pho_r9[diphoton_index.second]), evweight);
-		      l.FillHist("pho1_r9_msig",SignalType(cur_type)-2,l.pho_r9[diphoton_index.first], evweight);
-		      l.FillHist("pho2_r9_msig",SignalType(cur_type)-2,l.pho_r9[diphoton_index.second], evweight);
-		      l.FillHist("maxeta_msig",SignalType(cur_type)-2,_max_eta, evweight);
-		      l.FillHist("deltaMOverMH_msig",SignalType(cur_type)-2, _deltaMOverM, evweight);
-		      l.FillHist("sigmaM_msig",SignalType(cur_type)-2,sigmaMrv, evweight);
-		      l.FillHist("sigmaM_wrongVtx_msig",SignalType(cur_type)-2,sigmaMwv, evweight);
-		      l.FillHist("sigmaMOverM_msig",SignalType(cur_type)-2,sigmaMrv/mass, evweight);
-		      l.FillHist("sigmaMOverM_wrongVtx_msig",SignalType(cur_type)-2,sigmaMwv/mass, evweight);
-		      l.FillHist("sigmaMOverMH_msig",SignalType(cur_type)-2,sigmaMrv/mass_hypothesis, evweight);
-		      l.FillHist("sigmaMOverMH_wrongVtx_msig",SignalType(cur_type)-2,sigmaMwv/mass_hypothesis, evweight);
-		      l.FillHist("deltaMOverSigmaM_msig",SignalType(cur_type)-2,_deltaMOverSigmaM, evweight);
-		      l.FillHist("deltaMOverSigmaM_wrongVtx_msig",SignalType(cur_type)-2,(mass-mass_hypothesis)/sigmaMwv, evweight);
-		      l.FillHist("pho1_phoidMva_msig",SignalType(cur_type)-2,phoid_mvaout_lead, evweight);
-		      l.FillHist("pho2_phoidMva_msig",SignalType(cur_type)-2,phoid_mvaout_sublead, evweight);
-		      l.FillHist("vtxProb_msig",SignalType(cur_type)-2,vtxProb, evweight);
+		      l.FillHist("pt_msig",SignalType(cur_type)-1, Higgs.Pt(), evweight);
+		      l.FillHist("logpt_msig",SignalType(cur_type)-1, log10(Higgs.Pt()), evweight);
+		      l.FillHist("ptOverM_msig",SignalType(cur_type)-1, Higgs.Pt()/mass, evweight);
+		      l.FillHist("ptOverMH_msig",SignalType(cur_type)-1, _H_ptOverM, evweight);
+		      l.FillHist("eta_msig",SignalType(cur_type)-1, Higgs.Eta(), evweight);
+		      l.FillHist("deltaPhi_msig",SignalType(cur_type)-1, _d_phi, evweight);
+		      l.FillHist("cosDeltaPhi_msig",SignalType(cur_type)-1, cos(_d_phi), evweight);
+		      l.FillHist("deltaEta_msig",SignalType(cur_type)-1, _d_eta, evweight);
+		      l.FillHist("helicityAngle_msig",SignalType(cur_type)-1, _cos_theta_star, evweight);
+		      l.FillHist("pho1_pt_msig",SignalType(cur_type)-1,lead_p4.Pt(), evweight);
+		      l.FillHist("pho2_pt_msig",SignalType(cur_type)-1,sublead_p4.Pt(), evweight);
+		      l.FillHist("pho1_ptOverM_msig",SignalType(cur_type)-1,lead_p4.Pt()/mass, evweight);
+		      l.FillHist("pho2_ptOverM_msig",SignalType(cur_type)-1,sublead_p4.Pt()/mass, evweight);
+		      l.FillHist("pho1_ptOverMH_msig",SignalType(cur_type)-1,_pho1_ptOverM, evweight);
+		      l.FillHist("pho2_ptOverMH_msig",SignalType(cur_type)-1,_pho2_ptOverM, evweight);
+		      l.FillHist("pho1_eta_msig",SignalType(cur_type)-1,lead_p4.Eta(), evweight);
+		      l.FillHist("pho2_eta_msig",SignalType(cur_type)-1,sublead_p4.Eta(), evweight);
+		      l.FillHist("pho_minr9_msig",SignalType(cur_type)-1,min(l.pho_r9[diphoton_index.first],l.pho_r9[diphoton_index.second]), evweight);
+		      l.FillHist("pho1_r9_msig",SignalType(cur_type)-1,l.pho_r9[diphoton_index.first], evweight);
+		      l.FillHist("pho2_r9_msig",SignalType(cur_type)-1,l.pho_r9[diphoton_index.second], evweight);
+		      l.FillHist("maxeta_msig",SignalType(cur_type)-1,_max_eta, evweight);
+		      l.FillHist("deltaMOverMH_msig",SignalType(cur_type)-1, _deltaMOverM, evweight);
+		      l.FillHist("sigmaM_msig",SignalType(cur_type)-1,sigmaMrv, evweight);
+		      l.FillHist("sigmaM_wrongVtx_msig",SignalType(cur_type)-1,sigmaMwv, evweight);
+		      l.FillHist("sigmaMOverM_msig",SignalType(cur_type)-1,sigmaMrv/mass, evweight);
+		      l.FillHist("sigmaMOverM_wrongVtx_msig",SignalType(cur_type)-1,sigmaMwv/mass, evweight);
+		      l.FillHist("sigmaMOverMH_msig",SignalType(cur_type)-1,sigmaMrv/mass_hypothesis, evweight);
+		      l.FillHist("sigmaMOverMH_wrongVtx_msig",SignalType(cur_type)-1,sigmaMwv/mass_hypothesis, evweight);
+		      l.FillHist("deltaMOverSigmaM_msig",SignalType(cur_type)-1,_deltaMOverSigmaM, evweight);
+		      l.FillHist("deltaMOverSigmaM_wrongVtx_msig",SignalType(cur_type)-1,(mass-mass_hypothesis)/sigmaMwv, evweight);
+		      l.FillHist("pho1_phoidMva_msig",SignalType(cur_type)-1,phoid_mvaout_lead, evweight);
+		      l.FillHist("pho2_phoidMva_msig",SignalType(cur_type)-1,phoid_mvaout_sublead, evweight);
+		      l.FillHist("vtxProb_msig",SignalType(cur_type)-1,vtxProb, evweight);
 		    }
-                    l.FillHist("bdtoutput_msig",SignalType(cur_type)-2,bdtoutput, evweight);
+                    l.FillHist("bdtoutput_msig",SignalType(cur_type)-1,bdtoutput, evweight);
 
                     l.rooContainer->InputBinnedDataPoint("sig_BDT_ada_"+currentTypeSignalLabel  ,category,bdt_ada,evweight);
                     l.rooContainer->InputBinnedDataPoint("sig_BDT_grad_"+currentTypeSignalLabel ,category,bdt_grad,evweight);
@@ -1149,7 +1159,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
            else {
 
             // Iterate over each BDT mass. 
-            for (int i = 2; i<nMasses;i++){ //ignoring masses 105 and 110 for now
+            for (int i = 1; i<nMasses;i++){ //ignoring mass 105 for now
 
 	      double mass_h_low;      
               double mass_h_high;
@@ -1168,7 +1178,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
               for (double mass_h=mass_h_low; mass_h<mass_h_high; mass_h+=0.5){
            
                 float mass_hypothesis = masses[i]+mass_h;
-	        if (mass_hypothesis < masses[2] || mass_hypothesis > masses[nMasses-1]) continue;
+	        if (mass_hypothesis < masses[1] || mass_hypothesis > masses[nMasses-1]) continue;
 
                 float sideband_boundaries[2];
                 sideband_boundaries[0] = mass_hypothesis*(1-sidebandWidth);
@@ -1186,41 +1196,41 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                   if (mass_hypothesis == masses[i]) {
 
 		    if (bdtoutput>-0.5) {
-		      l.FillHist("pt_msig",i-2, Higgs.Pt(), evweight);
-		      l.FillHist("logpt_msig",i-2, log10(Higgs.Pt()), evweight);
-		      l.FillHist("ptOverM_msig",i-2, Higgs.Pt()/mass, evweight);
-		      l.FillHist("ptOverMH_msig",i-2, _H_ptOverM, evweight);
-		      l.FillHist("eta_msig",i-2, Higgs.Eta(), evweight);
-		      l.FillHist("deltaPhi_msig",i-2, _d_phi, evweight);
-		      l.FillHist("cosDeltaPhi_msig",i-2, cos(_d_phi), evweight);
-		      l.FillHist("deltaEta_msig",i-2, _d_eta, evweight);
-		      l.FillHist("helicityAngle_msig",i-2, _cos_theta_star, evweight);
-		      l.FillHist("pho1_pt_msig",i-2,lead_p4.Pt(), evweight);
-		      l.FillHist("pho2_pt_msig",i-2,sublead_p4.Pt(), evweight);
-		      l.FillHist("pho1_ptOverM_msig",i-2,lead_p4.Pt()/mass, evweight);
-		      l.FillHist("pho2_ptOverM_msig",i-2,sublead_p4.Pt()/mass, evweight);
-		      l.FillHist("pho1_ptOverMH_msig",i-2,_pho1_ptOverM, evweight);
-		      l.FillHist("pho2_ptOverMH_msig",i-2,_pho2_ptOverM, evweight);
-		      l.FillHist("pho1_eta_msig",i-2,lead_p4.Eta(), evweight);
-		      l.FillHist("pho2_eta_msig",i-2,sublead_p4.Eta(), evweight);
-		      l.FillHist("pho_minr9_msig",i-2,min(l.pho_r9[diphoton_index.first],l.pho_r9[diphoton_index.second]), evweight);
-		      l.FillHist("pho1_r9_msig",i-2,l.pho_r9[diphoton_index.first], evweight);
+		      l.FillHist("pt_msig",i-1, Higgs.Pt(), evweight);
+		      l.FillHist("logpt_msig",i-1, log10(Higgs.Pt()), evweight);
+		      l.FillHist("ptOverM_msig",i-1, Higgs.Pt()/mass, evweight);
+		      l.FillHist("ptOverMH_msig",i-1, _H_ptOverM, evweight);
+		      l.FillHist("eta_msig",i-1, Higgs.Eta(), evweight);
+		      l.FillHist("deltaPhi_msig",i-1, _d_phi, evweight);
+		      l.FillHist("cosDeltaPhi_msig",i-1, cos(_d_phi), evweight);
+		      l.FillHist("deltaEta_msig",i-1, _d_eta, evweight);
+		      l.FillHist("helicityAngle_msig",i-1, _cos_theta_star, evweight);
+		      l.FillHist("pho1_pt_msig",i-1,lead_p4.Pt(), evweight);
+		      l.FillHist("pho2_pt_msig",i-1,sublead_p4.Pt(), evweight);
+		      l.FillHist("pho1_ptOverM_msig",i-1,lead_p4.Pt()/mass, evweight);
+		      l.FillHist("pho2_ptOverM_msig",i-1,sublead_p4.Pt()/mass, evweight);
+		      l.FillHist("pho1_ptOverMH_msig",i-1,_pho1_ptOverM, evweight);
+		      l.FillHist("pho2_ptOverMH_msig",i-1,_pho2_ptOverM, evweight);
+		      l.FillHist("pho1_eta_msig",i-1,lead_p4.Eta(), evweight);
+		      l.FillHist("pho2_eta_msig",i-1,sublead_p4.Eta(), evweight);
+		      l.FillHist("pho_minr9_msig",i-1,min(l.pho_r9[diphoton_index.first],l.pho_r9[diphoton_index.second]), evweight);
+		      l.FillHist("pho1_r9_msig",i-1,l.pho_r9[diphoton_index.first], evweight);
 		      l.FillHist("pho2_r9_msig",i-2,l.pho_r9[diphoton_index.second], evweight);
-		      l.FillHist("maxeta_msig",i-2,_max_eta, evweight);
-		      l.FillHist("deltaMOverMH_msig",i-2, _deltaMOverM, evweight);
-		      l.FillHist("sigmaM_msig",i-2,sigmaMrv, evweight);
-		      l.FillHist("sigmaM_wrongVtx_msig",i-2,sigmaMwv, evweight);
-		      l.FillHist("sigmaMOverM_msig",i-2,sigmaMrv/mass, evweight);
-		      l.FillHist("sigmaMOverM_wrongVtx_msig",i-2,sigmaMwv/mass, evweight);
-		      l.FillHist("sigmaMOverMH_msig",i-2,sigmaMrv/mass_hypothesis, evweight);
-		      l.FillHist("sigmaMOverMH_wrongVtx_msig",i-2,sigmaMwv/mass_hypothesis, evweight);
-		      l.FillHist("deltaMOverSigmaM_msig",i-2,_deltaMOverSigmaM, evweight);
-		      l.FillHist("deltaMOverSigmaM_wrongVtx_msig",i-2,(mass-mass_hypothesis)/sigmaMwv, evweight);
-		      l.FillHist("pho1_phoidMva_msig",i-2,phoid_mvaout_lead, evweight);
-		      l.FillHist("pho2_phoidMva_msig",i-2,phoid_mvaout_sublead, evweight);
-		      l.FillHist("vtxProb_msig",i-2,vtxProb, evweight);
+		      l.FillHist("maxeta_msig",i-1,_max_eta, evweight);
+		      l.FillHist("deltaMOverMH_msig",i-1, _deltaMOverM, evweight);
+		      l.FillHist("sigmaM_msig",i-1,sigmaMrv, evweight);
+		      l.FillHist("sigmaM_wrongVtx_msig",i-1,sigmaMwv, evweight);
+		      l.FillHist("sigmaMOverM_msig",i-1,sigmaMrv/mass, evweight);
+		      l.FillHist("sigmaMOverM_wrongVtx_msig",i-1,sigmaMwv/mass, evweight);
+		      l.FillHist("sigmaMOverMH_msig",i-1,sigmaMrv/mass_hypothesis, evweight);
+		      l.FillHist("sigmaMOverMH_wrongVtx_msig",i-1,sigmaMwv/mass_hypothesis, evweight);
+		      l.FillHist("deltaMOverSigmaM_msig",i-1,_deltaMOverSigmaM, evweight);
+		      l.FillHist("deltaMOverSigmaM_wrongVtx_msig",i-1,(mass-mass_hypothesis)/sigmaMwv, evweight);
+		      l.FillHist("pho1_phoidMva_msig",i-1,phoid_mvaout_lead, evweight);
+		      l.FillHist("pho2_phoidMva_msig",i-1,phoid_mvaout_sublead, evweight);
+		      l.FillHist("vtxProb_msig",i-1,vtxProb, evweight);
 		    }
-                    l.FillHist("bdtoutput_msig",i-2,bdtoutput, evweight);
+                    l.FillHist("bdtoutput_msig",i-1,bdtoutput, evweight);
 
                   }
 
@@ -1269,41 +1279,41 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                       }
 
 		      if (bdtoutput>-0.5) {
-			l.FillHist("pt_mlow"+sideband_str,i-2, Higgs.Pt(), evweight);
-			l.FillHist("logpt_mlow"+sideband_str,i-2, log10(Higgs.Pt()), evweight);
-			l.FillHist("ptOverM_mlow"+sideband_str,i-2, Higgs.Pt()/mass, evweight);
-			l.FillHist("ptOverMH_mlow"+sideband_str,i-2, _H_ptOverM, evweight);
-			l.FillHist("eta_mlow"+sideband_str,i-2, Higgs.Eta(), evweight);
-			l.FillHist("deltaPhi_mlow"+sideband_str,i-2, _d_phi, evweight);
-			l.FillHist("cosDeltaPhi_mlow"+sideband_str,i-2, cos(_d_phi), evweight);
-			l.FillHist("deltaEta_mlow"+sideband_str,i-2, _d_eta, evweight);
-			l.FillHist("helicityAngle_mlow"+sideband_str,i-2, _cos_theta_star, evweight);
-			l.FillHist("pho1_pt_mlow"+sideband_str,i-2,lead_p4.Pt(), evweight);
-			l.FillHist("pho2_pt_mlow"+sideband_str,i-2,sublead_p4.Pt(), evweight);
-			l.FillHist("pho1_ptOverM_mlow"+sideband_str,i-2,lead_p4.Pt()/mass, evweight);
-			l.FillHist("pho2_ptOverM_mlow"+sideband_str,i-2,sublead_p4.Pt()/mass, evweight);
-			l.FillHist("pho1_ptOverMH_mlow"+sideband_str,i-2,_pho1_ptOverM, evweight);
-			l.FillHist("pho2_ptOverMH_mlow"+sideband_str,i-2,_pho2_ptOverM, evweight);
-			l.FillHist("pho1_eta_mlow"+sideband_str,i-2,lead_p4.Eta(), evweight);
-			l.FillHist("pho2_eta_mlow"+sideband_str,i-2,sublead_p4.Eta(), evweight);
-			l.FillHist("pho_minr9_mlow"+sideband_str,i-2,_min_r9, evweight);
-			l.FillHist("pho1_r9_mlow"+sideband_str,i-2,l.pho_r9[diphoton_index.first], evweight);
-			l.FillHist("pho2_r9_mlow"+sideband_str,i-2,l.pho_r9[diphoton_index.second], evweight);
-			l.FillHist("maxeta_mlow"+sideband_str,i-2,_max_eta, evweight);
-			l.FillHist("deltaMOverMH_mlow"+sideband_str,i-2, _deltaMOverM, evweight);
-			l.FillHist("sigmaM_mlow"+sideband_str,i-2,sigmaMrv, evweight);
-			l.FillHist("sigmaM_wrongVtx_mlow"+sideband_str,i-2,sigmaMwv, evweight);
-			l.FillHist("sigmaMOverM_mlow"+sideband_str,i-2,sigmaMrv/mass, evweight);
-			l.FillHist("sigmaMOverM_wrongVtx_mlow"+sideband_str,i-2,sigmaMwv/mass, evweight);
-			l.FillHist("sigmaMOverMH_mlow"+sideband_str,i-2,sigmaMrv/mass_hypothesis, evweight);
-			l.FillHist("sigmaMOverMH_wrongVtx_mlow"+sideband_str,i-2,sigmaMwv/mass_hypothesis, evweight);
-			l.FillHist("deltaMOverSigmaM_mlow"+sideband_str,i-2,_deltaMOverSigmaM, evweight);
-			l.FillHist("deltaMOverSigmaM_wrongVtx_mlow"+sideband_str,i-2,(mass-mass_hypothesis)/sigmaMwv, evweight);
-			l.FillHist("pho1_phoidMva_mlow"+sideband_str,i-2,phoid_mvaout_lead, evweight);
-			l.FillHist("pho2_phoidMva_mlow"+sideband_str,i-2,phoid_mvaout_sublead, evweight);
-			l.FillHist("vtxProb_mlow"+sideband_str,i-2,vtxProb, evweight);
+			l.FillHist("pt_mlow"+sideband_str,i-1, Higgs.Pt(), evweight);
+			l.FillHist("logpt_mlow"+sideband_str,i-1, log10(Higgs.Pt()), evweight);
+			l.FillHist("ptOverM_mlow"+sideband_str,i-1, Higgs.Pt()/mass, evweight);
+			l.FillHist("ptOverMH_mlow"+sideband_str,i-1, _H_ptOverM, evweight);
+			l.FillHist("eta_mlow"+sideband_str,i-1, Higgs.Eta(), evweight);
+			l.FillHist("deltaPhi_mlow"+sideband_str,i-1, _d_phi, evweight);
+			l.FillHist("cosDeltaPhi_mlow"+sideband_str,i-1, cos(_d_phi), evweight);
+			l.FillHist("deltaEta_mlow"+sideband_str,i-1, _d_eta, evweight);
+			l.FillHist("helicityAngle_mlow"+sideband_str,i-1, _cos_theta_star, evweight);
+			l.FillHist("pho1_pt_mlow"+sideband_str,i-1,lead_p4.Pt(), evweight);
+			l.FillHist("pho2_pt_mlow"+sideband_str,i-1,sublead_p4.Pt(), evweight);
+			l.FillHist("pho1_ptOverM_mlow"+sideband_str,i-1,lead_p4.Pt()/mass, evweight);
+			l.FillHist("pho2_ptOverM_mlow"+sideband_str,i-1,sublead_p4.Pt()/mass, evweight);
+			l.FillHist("pho1_ptOverMH_mlow"+sideband_str,i-1,_pho1_ptOverM, evweight);
+			l.FillHist("pho2_ptOverMH_mlow"+sideband_str,i-1,_pho2_ptOverM, evweight);
+			l.FillHist("pho1_eta_mlow"+sideband_str,i-1,lead_p4.Eta(), evweight);
+			l.FillHist("pho2_eta_mlow"+sideband_str,i-1,sublead_p4.Eta(), evweight);
+			l.FillHist("pho_minr9_mlow"+sideband_str,i-1,_min_r9, evweight);
+			l.FillHist("pho1_r9_mlow"+sideband_str,i-1,l.pho_r9[diphoton_index.first], evweight);
+			l.FillHist("pho2_r9_mlow"+sideband_str,i-1,l.pho_r9[diphoton_index.second], evweight);
+			l.FillHist("maxeta_mlow"+sideband_str,i-1,_max_eta, evweight);
+			l.FillHist("deltaMOverMH_mlow"+sideband_str,i-1, _deltaMOverM, evweight);
+			l.FillHist("sigmaM_mlow"+sideband_str,i-1,sigmaMrv, evweight);
+			l.FillHist("sigmaM_wrongVtx_mlow"+sideband_str,i-1,sigmaMwv, evweight);
+			l.FillHist("sigmaMOverM_mlow"+sideband_str,i-1,sigmaMrv/mass, evweight);
+			l.FillHist("sigmaMOverM_wrongVtx_mlow"+sideband_str,i-1,sigmaMwv/mass, evweight);
+			l.FillHist("sigmaMOverMH_mlow"+sideband_str,i-1,sigmaMrv/mass_hypothesis, evweight);
+			l.FillHist("sigmaMOverMH_wrongVtx_mlow"+sideband_str,i-1,sigmaMwv/mass_hypothesis, evweight);
+			l.FillHist("deltaMOverSigmaM_mlow"+sideband_str,i-1,_deltaMOverSigmaM, evweight);
+			l.FillHist("deltaMOverSigmaM_wrongVtx_mlow"+sideband_str,i-1,(mass-mass_hypothesis)/sigmaMwv, evweight);
+			l.FillHist("pho1_phoidMva_mlow"+sideband_str,i-1,phoid_mvaout_lead, evweight);
+			l.FillHist("pho2_phoidMva_mlow"+sideband_str,i-1,phoid_mvaout_sublead, evweight);
+			l.FillHist("vtxProb_mlow"+sideband_str,i-1,vtxProb, evweight);
 		      }
-                      l.FillHist("bdtoutput_mlow"+sideband_str,i-2,bdtoutput, evweight);
+                      l.FillHist("bdtoutput_mlow"+sideband_str,i-1,bdtoutput, evweight);
 
                     }
 
@@ -1347,41 +1357,41 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                       }
 
 		      if (bdtoutput>-0.5) {
-			l.FillHist("pt_mhigh"+sideband_str,i-2, Higgs.Pt(), evweight);
-			l.FillHist("logpt_mhigh"+sideband_str,i-2, log10(Higgs.Pt()), evweight);
-			l.FillHist("ptOverM_mhigh"+sideband_str,i-2, Higgs.Pt()/mass, evweight);
-			l.FillHist("ptOverMH_mhigh"+sideband_str,i-2, _H_ptOverM, evweight);
-			l.FillHist("eta_mhigh"+sideband_str,i-2, Higgs.Eta(), evweight);
-			l.FillHist("deltaPhi_mhigh"+sideband_str,i-2, _d_phi, evweight);
-			l.FillHist("cosDeltaPhi_mhigh"+sideband_str,i-2, cos(_d_phi), evweight);
-			l.FillHist("deltaEta_mhigh"+sideband_str,i-2, _d_eta, evweight);
-			l.FillHist("helicityAngle_mhigh"+sideband_str,i-2, _cos_theta_star, evweight);
-			l.FillHist("pho1_pt_mhigh"+sideband_str,i-2,lead_p4.Pt(), evweight);
-			l.FillHist("pho2_pt_mhigh"+sideband_str,i-2,sublead_p4.Pt(), evweight);
-			l.FillHist("pho1_ptOverM_mhigh"+sideband_str,i-2,lead_p4.Pt()/mass, evweight);
-			l.FillHist("pho2_ptOverM_mhigh"+sideband_str,i-2,sublead_p4.Pt()/mass, evweight);
-			l.FillHist("pho1_ptOverMH_mhigh"+sideband_str,i-2,_pho1_ptOverM, evweight);
-			l.FillHist("pho2_ptOverMH_mhigh"+sideband_str,i-2,_pho2_ptOverM, evweight);
-			l.FillHist("pho1_eta_mhigh"+sideband_str,i-2,lead_p4.Eta(), evweight);
-			l.FillHist("pho2_eta_mhigh"+sideband_str,i-2,sublead_p4.Eta(), evweight);
-			l.FillHist("pho_minr9_mhigh"+sideband_str,i-2,_min_r9, evweight);
-			l.FillHist("pho1_r9_mhigh"+sideband_str,i-2,l.pho_r9[diphoton_index.first], evweight);
-			l.FillHist("pho2_r9_mhigh"+sideband_str,i-2,l.pho_r9[diphoton_index.second], evweight);
-			l.FillHist("maxeta_mhigh"+sideband_str,i-2,_max_eta, evweight);
-			l.FillHist("deltaMOverMH_mhigh"+sideband_str,i-2, _deltaMOverM, evweight);
-			l.FillHist("sigmaM_mhigh"+sideband_str,i-2,sigmaMrv, evweight);
-			l.FillHist("sigmaM_wrongVtx_mhigh"+sideband_str,i-2,sigmaMwv, evweight);
-			l.FillHist("sigmaMOverM_mhigh"+sideband_str,i-2,sigmaMrv/mass, evweight);
-			l.FillHist("sigmaMOverM_wrongVtx_mhigh"+sideband_str,i-2,sigmaMwv/mass, evweight);
-			l.FillHist("sigmaMOverMH_mhigh"+sideband_str,i-2,sigmaMrv/mass_hypothesis, evweight);
-			l.FillHist("sigmaMOverMH_wrongVtx_mhigh"+sideband_str,i-2,sigmaMwv/mass_hypothesis, evweight);
-			l.FillHist("deltaMOverSigmaM_mhigh"+sideband_str,i-2,_deltaMOverSigmaM, evweight);
-			l.FillHist("deltaMOverSigmaM_wrongVtx_mhigh"+sideband_str,i-2,(mass-mass_hypothesis)/sigmaMwv, evweight);
-			l.FillHist("pho1_phoidMva_mhigh"+sideband_str,i-2,phoid_mvaout_lead, evweight);
-			l.FillHist("pho2_phoidMva_mhigh"+sideband_str,i-2,phoid_mvaout_sublead, evweight);
-			l.FillHist("vtxProb_mhigh"+sideband_str,i-2,vtxProb, evweight);
+			l.FillHist("pt_mhigh"+sideband_str,i-1, Higgs.Pt(), evweight);
+			l.FillHist("logpt_mhigh"+sideband_str,i-1, log10(Higgs.Pt()), evweight);
+			l.FillHist("ptOverM_mhigh"+sideband_str,i-1, Higgs.Pt()/mass, evweight);
+			l.FillHist("ptOverMH_mhigh"+sideband_str,i-1, _H_ptOverM, evweight);
+			l.FillHist("eta_mhigh"+sideband_str,i-1, Higgs.Eta(), evweight);
+			l.FillHist("deltaPhi_mhigh"+sideband_str,i-1, _d_phi, evweight);
+			l.FillHist("cosDeltaPhi_mhigh"+sideband_str,i-1, cos(_d_phi), evweight);
+			l.FillHist("deltaEta_mhigh"+sideband_str,i-1, _d_eta, evweight);
+			l.FillHist("helicityAngle_mhigh"+sideband_str,i-1, _cos_theta_star, evweight);
+			l.FillHist("pho1_pt_mhigh"+sideband_str,i-1,lead_p4.Pt(), evweight);
+			l.FillHist("pho2_pt_mhigh"+sideband_str,i-1,sublead_p4.Pt(), evweight);
+			l.FillHist("pho1_ptOverM_mhigh"+sideband_str,i-1,lead_p4.Pt()/mass, evweight);
+			l.FillHist("pho2_ptOverM_mhigh"+sideband_str,i-1,sublead_p4.Pt()/mass, evweight);
+			l.FillHist("pho1_ptOverMH_mhigh"+sideband_str,i-1,_pho1_ptOverM, evweight);
+			l.FillHist("pho2_ptOverMH_mhigh"+sideband_str,i-1,_pho2_ptOverM, evweight);
+			l.FillHist("pho1_eta_mhigh"+sideband_str,i-1,lead_p4.Eta(), evweight);
+			l.FillHist("pho2_eta_mhigh"+sideband_str,i-1,sublead_p4.Eta(), evweight);
+			l.FillHist("pho_minr9_mhigh"+sideband_str,i-1,_min_r9, evweight);
+			l.FillHist("pho1_r9_mhigh"+sideband_str,i-1,l.pho_r9[diphoton_index.first], evweight);
+			l.FillHist("pho2_r9_mhigh"+sideband_str,i-1,l.pho_r9[diphoton_index.second], evweight);
+			l.FillHist("maxeta_mhigh"+sideband_str,i-1,_max_eta, evweight);
+			l.FillHist("deltaMOverMH_mhigh"+sideband_str,i-1, _deltaMOverM, evweight);
+			l.FillHist("sigmaM_mhigh"+sideband_str,i-1,sigmaMrv, evweight);
+			l.FillHist("sigmaM_wrongVtx_mhigh"+sideband_str,i-1,sigmaMwv, evweight);
+			l.FillHist("sigmaMOverM_mhigh"+sideband_str,i-1,sigmaMrv/mass, evweight);
+			l.FillHist("sigmaMOverM_wrongVtx_mhigh"+sideband_str,i-1,sigmaMwv/mass, evweight);
+			l.FillHist("sigmaMOverMH_mhigh"+sideband_str,i-1,sigmaMrv/mass_hypothesis, evweight);
+			l.FillHist("sigmaMOverMH_wrongVtx_mhigh"+sideband_str,i-1,sigmaMwv/mass_hypothesis, evweight);
+			l.FillHist("deltaMOverSigmaM_mhigh"+sideband_str,i-1,_deltaMOverSigmaM, evweight);
+			l.FillHist("deltaMOverSigmaM_wrongVtx_mhigh"+sideband_str,i-1,(mass-mass_hypothesis)/sigmaMwv, evweight);
+			l.FillHist("pho1_phoidMva_mhigh"+sideband_str,i-1,phoid_mvaout_lead, evweight);
+			l.FillHist("pho2_phoidMva_mhigh"+sideband_str,i-1,phoid_mvaout_sublead, evweight);
+			l.FillHist("vtxProb_mhigh"+sideband_str,i-1,vtxProb, evweight);
 		      }
-                      l.FillHist("bdtoutput_mhigh"+sideband_str,i-2,bdtoutput, evweight);
+                      l.FillHist("bdtoutput_mhigh"+sideband_str,i-1,bdtoutput, evweight);
 
                     }
 
