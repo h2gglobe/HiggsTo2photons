@@ -523,7 +523,9 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6){
 
 	std::string type = types[ty];
 	// Create An output file for the TF1 Sideband Fits
-	TFile *out = new TFile(Form("bdtSidebandFits_%s_%s",type.c_str(),fileName.c_str()),"RECREATE");
+  std::string pathToFile=fileName.substr(0,fileName.find("CMS-HGG"));
+  std::string fName=fileName.substr(fileName.find("CMS-HGG"),fileName.size());
+	TFile *out = new TFile(Form("%sbdtSidebandFits_%s_%s",pathToFile.c_str(),type.c_str(),fName.c_str()),"RECREATE");
 
 	for (double mH=massMin;mH<=massMax;mH+=dM){
 
@@ -562,6 +564,9 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6){
 		correctedHistFR->Write();
 		//hFCovar->Write();
 		uCorrErr->Write();
+    out->cd();
+    mass_dir->cd();
+    uCorrErr->Write();
 	}
 	std::cout << "Saving Fits to file -> " << out->GetName() << std::endl;
         out->Close();
