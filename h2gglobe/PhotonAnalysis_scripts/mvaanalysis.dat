@@ -29,9 +29,9 @@ massSidebandMax(Min) if upper(lower) edge of sideband is larger(smaller)
 signalRegionWidth=0.02
 sidebandWidth=0.02
 sidebandShift=0.
-numberOfSidebands=15
+numberOfSidebands=7
 numberOfSidebandGaps=1
-massSidebandMin=100.
+massSidebandMin=99.5
 massSidebandMax=180.
 
 nEtaCategories=2
