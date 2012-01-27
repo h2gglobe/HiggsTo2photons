@@ -89,7 +89,8 @@ def plotDistributions(mass,data,signals,bkg,errors):
 #	mytext.DrawLatex(0.28,0.8,"#splitline{CMS preliminary}{#sqrt{s} = 7 TeV L = %s}"%(lumistring))
 	mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV L = %s"%(lumistring))
 	leg.Draw()
-	c.SaveAs("m%3.1f.pdf"%mass)
+	c.SaveAs("model_m%3.1f.pdf"%mass)
+	c.SaveAs("model_m%3.1f.png"%mass)
 
 def getBinningMass(mass):
 

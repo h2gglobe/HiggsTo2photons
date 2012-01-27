@@ -184,7 +184,7 @@ void fillData(double mH,TFile *in, std::string type){
 		
 }
 
-void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar){
+void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool makePlots, string type){
       std::string label[global_nMaxMassBins]={"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14"};
 
       TH1F *hMRaw[global_nMaxMassBins],*hMFit[global_nMaxMassBins];
@@ -242,7 +242,7 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar){
       }
 
       hFCorr=new TH2F((std::string("fCorr")).c_str(),
-			 (std::string("Fraction correlation matrix ")).c_str(),
+			 Form("Fraction correlation matrix m %3.1f",global_mH),
 			 global_nBdtBins,0.0,global_nBdtBins,global_nBdtBins,0.0,global_nBdtBins);
       
       fBPar=new TH1F((std::string("fBPar")).c_str(),
@@ -455,8 +455,8 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar){
         fBFit[j]->SetLineWidth(4);
         fBRaw[j]->SetMarkerStyle(20);
         fBRaw[j]->SetMarkerSize(1.0);
-        fBRaw[j]->GetXaxis()->SetTitle("mH");
-        fBRaw[j]->SetTitle("");
+        fBRaw[j]->GetXaxis()->SetTitle("m_{H}");
+        fBRaw[j]->SetTitle(Form("Fit BDT Mass %3.1f Bin %d",global_mH,j));
         double FVal = fBFit[j]->Eval(global_mH);
         fBRaw[j]->GetYaxis()->SetRangeUser(FVal*0.1,FVal*1.9);
 
@@ -468,6 +468,10 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar){
         fBRaw[j]->Draw("sameP");
         l.Draw();
         can->Write();
+        if (makePlots){
+          can->Print(Form("BMplots/%s/fit_m%3.1f_bin%d.png",type.c_str(),global_mH,j));
+          can->Print(Form("BMplots/%s/fit_m%3.1f_bin%d.pdf",type.c_str(),global_mH,j));
+        }
       }
       
       fMFitS->Write();
@@ -478,6 +482,19 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar){
       fBPar->Write();
       fBErr->Write();
 
+      if (makePlots){
+        TCanvas *canv = new TCanvas();
+        gStyle->SetOptStat(0);
+        gPad->SetRightMargin(5.);
+        hFCorr->SetMarkerColor(kGray+2);
+        hFCorr->Draw("colz text");
+        canv->Print(Form("BMplots/%s/fCorr_m%3.1f.png",type.c_str(),global_mH));
+        canv->Print(Form("BMplots/%s/fCorr_m%3.1f.pdf",type.c_str(),global_mH));
+        hFCovar->SetMarkerColor(kGray+2);
+        hFCovar->Draw("colz text");
+        canv->Print(Form("BMplots/%s/fCovar_m%3.1f.png",type.c_str(),global_mH));
+        canv->Print(Form("BMplots/%s/fCovar_m%3.1f.pdf",type.c_str(),global_mH));
+      }
 	    
 }
 void diagonalizeMatrix(TH2F *th2f_covar,TH2F *th2f_out){
@@ -505,8 +522,13 @@ void diagonalizeMatrix(TH2F *th2f_covar,TH2F *th2f_out){
 
 }
 
-void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6){
+void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool makePlots=true){
 
+
+     system("mkdir -p BMplots/ada");
+     system("mkdir -p BMplots/grad");
+     gStyle->SetPalette(1);
+     gStyle->SetOptStat(0);
 
      global_nMassBins=nsidebands;
 
@@ -536,10 +558,10 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6){
 		TH1F *correctedHist = new TH1F(Form("th1f_bkg_%s_%3.1f_cat0_fitsb_biascorr",type.c_str(),mH),Form("th1f_bkg_%s_%3.1f_cat0_fitsb_biascorr",type.c_str(),mH),nBins,0,nBins);		     
 		TH1F *correctedHistFR = new TH1F(Form("th1f_bkg_%s_%3.1f_cat0_fitsb_biascorr_frac",type.c_str(),mH),Form("th1f_bkg_%s_%3.1f_cat0_fitsb_biascorr_frac",type.c_str(),mH),nBins,0,nBins);		     
       	        TH2F *hFCovar=new TH2F(Form("fCovar_%3.1f",mH),
-			 (std::string("Fraction covariance matrix ")).c_str(),
+			 Form("Fraction covariance matrix m %3.1f",mH),
 			 nBins,0.0,nBins,nBins,0.0,nBins);
 		TH2F *uCorrErr = new TH2F(Form("fUncorrErr_%3.1f",mH),
-			 (std::string("Uncorrelated Errors ")).c_str(),
+			 Form("Uncorrelated Errors m %3.1f",mH),
 			 nBins,0.0,nBins,nBins,0.0,nBins);
 	
 		TDirectory *mass_dir = out->mkdir(Form("mH_%3.1f",mH));
@@ -550,7 +572,7 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6){
 		global_nSignalRegion=originalHist->Integral();
 
 		fillData(mH,in,type);
-		paulFit(mass_dir,correctedHistFR,correctedHist,hFCovar);
+		paulFit(mass_dir,correctedHistFR,correctedHist,hFCovar,makePlots,type);
 		
 		// Finally Get the uncorrleated errors from the covariance matrix
 		diagonalizeMatrix(hFCovar,uCorrErr);
@@ -567,6 +589,15 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6){
     out->cd();
     mass_dir->cd();
     uCorrErr->Write();
+
+    if (makePlots){
+      TCanvas *canv = new TCanvas();
+      uCorrErr->SetMarkerColor(kGray);
+      gPad->SetRightMargin(2.);
+      uCorrErr->Draw("colz text");
+      canv->Print(Form("BMplots/%s/uncorrErr_m%3.1f.png",type.c_str(),mH));
+      canv->Print(Form("BMplots/%s/uncorrErr_m%3.1f.pdf",type.c_str(),mH));
+    }
 	}
 	std::cout << "Saving Fits to file -> " << out->GetName() << std::endl;
         out->Close();
