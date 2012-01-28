@@ -22,7 +22,7 @@ def plainBin(hist):
 
 def plotDistributions(mass,data,signals,bkg,errors):
 
-	sigscale = 5.
+	sigscale = 2.
 	for i in range(1,len(signals)):
 		signals[0].Add(signals[i])
 
@@ -62,7 +62,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	leg.SetFillColor(0)
 	leg.SetBorderSize(0)
 	leg.AddEntry(flatdata,"Data","PL")
-	leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.0f GeV (x5)"%(mass) ,"L")
+	leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
 	leg.AddEntry(flatbkg,"Bkg Model","L")
 	leg.AddEntry(fNewT,"\pm 1\sigma","F")
 	leg.AddEntry(fNew2T,"\pm 2\sigma","F")
@@ -92,15 +92,16 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	c.SaveAs("model_m%3.1f.pdf"%mass)
 	c.SaveAs("model_m%3.1f.png"%mass)
 
-def getBinningMass(mass):
 
-	if mass >= 115.0 and mass <= 117.0: return "115"
-	if mass >= 117.5 and mass <= 122.0: return "120"
-	if mass >= 122.5 and mass <= 127.0: return "125"
-	if mass >= 127.5 and mass <= 132.0: return "130"
-	if mass >= 132.5 and mass <= 137.0: return "135"
-	if mass >= 137.5 and mass <= 144.5: return "140"
-	if mass >= 145.0 and mass <= 150.0: return "150"
+#def getBinningMass(mass):
+
+#	if mass >= 115.0 and mass <= 117.0: return "115"
+#	if mass >= 117.5 and mass <= 122.0: return "120"
+#	if mass >= 122.5 and mass <= 127.0: return "125"
+#	if mass >= 127.5 and mass <= 132.0: return "130"
+#	if mass >= 132.5 and mass <= 137.0: return "135"
+#	if mass >= 137.5 and mass <= 144.5: return "140"
+#	if mass >= 145.0 and mass <= 150.0: return "150"
 
 def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
 	resL = quadInterpolate(-1*C,X1,X2,X3,Y1,Y2,Y3)
@@ -321,14 +322,16 @@ type=options.bdtType
 #if options.biasFile:
 #	biasROOTFile = ROOT.TFile(options.biasFile)
 
-genMasses     = [115,120,125,130,135,140,145,150]
+genMasses     = [110,115,120,125,130,135,140,145,150]
 #scalingErrors = [1.008,1.008,1.008,1.008,1.008,1.009,1.01,1.011] # Takes from P.Dauncey studies -> 7% window
 #scalingErrors =  [1.007,1.007,1.006,1.008,1.007,1.008,1.009,1.01] # Takes from P.Dauncey studies -> 2% window
 #scalingErrors = [1.013,1.013,1.012,1.012,1.014,1.015,1.016,1.016] # Takes from P.Dauncey studies -> 7% window (100-180)
 #scalingErrors = [1.011,1.01,1.009,1.011,1.011,1.013,1.014,1.014] 	  # Takes from P.Dauncey studies -> 2% window (100-180)
-scalingErrors = [1.00815,1.01024,1.01076,1.01197,1.0099,1.009,1.00928,1.01054 ] 	  # Takes from P.Dauncey studies -> 2% window (100-180) / MIT Preselection
+#scalingErrors = [1.00815,1.01024,1.01076,1.01197,1.0099,1.009,1.00928,1.01054 ] 	  # Takes from P.Dauncey studies -> 2% window (100-180) / MIT Preselection
 
-evalMasses    = numpy.arange(115,150.5,0.5)
+scalingErrors = [ 1.008,1.008,1.008,1.008,1.01,1.010,1.011,1.012,1.012] # P.Dauncey 100-180 2% window /MIT preselction +BDT>-0.5
+
+evalMasses    = numpy.arange(110,150.5,0.5)
 normG = ROOT.TGraph(len(genMasses))
 
 # Fill the errors graph
