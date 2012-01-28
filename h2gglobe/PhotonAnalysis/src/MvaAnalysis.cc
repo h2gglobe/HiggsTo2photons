@@ -60,6 +60,7 @@ void MvaAnalysis::Term(LoopAll& l)
         mvaFile_->Close();
     }
     else{
+
          // -----------------------------
         //l.rooContainer->AddRealVar("r1",-8,-15.,0.);
         //l.rooContainer->AddRealVar("r2",-0.05,-15.,0.);
@@ -116,7 +117,8 @@ void MvaAnalysis::Term(LoopAll& l)
 	    std::vector<string> grad_datasets;
 
 	    // For summing over sidebands, can skip some of them (defined in .dat) and only include those iside the range 100->180
-	    for (int sideband_i=numberOfSidebandGaps+1;sideband_i<=numberOfSidebands;sideband_i++) {
+	    // Dont use all of the sidebands availablbe but rather only up to the number of sidebands set by numberOfSidebandsForAlgos
+	    for (int sideband_i=numberOfSidebandGaps+1;sideband_i<=numberOfSidebandsForAlgos+numberOfSidebandGaps;sideband_i++) {
 
 	    // Calculate mass hypothesis of sideband and check its boudaries
                 double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
@@ -313,13 +315,15 @@ void MvaAnalysis::Init(LoopAll& l)
 */
     }
 
+    // Make sure that we wont try to use more sidebands than available
+    assert(numberOfSidebandsForAlgos+numberOfSidebandGaps <= numberOfSidebands);
 
-    for (float mass = 90.;
-               mass<150.;
-               mass*= (1+signalRegionWidth)/(1-signalRegionWidth)){
-        bkg_masses.push_back(mass); 
-        cout<<"background mass hypothesis: "<< mass << endl;
-    }
+ //   for (float mass = 90.;
+ //              mass<150.;
+ //              mass*= (1+signalRegionWidth)/(1-signalRegionWidth)){
+ //       bkg_masses.push_back(mass); 
+ //       cout<<"background mass hypothesis: "<< mass << endl;
+ //   }
     //cout << "end weird loop"<<endl;
     std::string outputfilename = (std::string) l.histFileName;
     //

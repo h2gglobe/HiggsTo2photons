@@ -54,13 +54,13 @@ typ=-22 ind=14 draw=1  Nam=vbf_H_gg_115_pu2011    Dir=/vols/cms02/h2g/ntuples/h2
 typ=-24 ind=15 draw=1  Nam=wz_H_gg_115_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-115_7TeV    red=0 lum=1000000.0  xsec=0.002482089 kfac=1.000000  scal=1.000000
 typ=-23 ind=16 draw=1  Nam=tt_H_gg_115_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Sig_Fall11_S6/TTH_HToGG_M-115_7TeV    red=0 lum=1000000.0  xsec=0.000235578 kfac=1.000000  scal=1.000000
 
-->
-minimum point is 115 in MVA Analysis
 typ=-17 ind=17 draw=1  Nam=gluglu_H_gg_110_pu2011 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Sig_Fall11_S6/GluGluToHToGG_M-110_7TeV    red=0 lum=1000000.0  xsec=0.0390848 kfac=1.000000  scal=1.000000
 typ=-18 ind=18 draw=1  Nam=vbf_H_gg_110_pu2011    Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Sig_Fall11_S6/VBF_HToGG_M-110_7TeV    red=0 lum=1000000.0  xsec=0.00275406 kfac=1.000000  scal=1.000000
 typ=-19 ind=19 draw=1  Nam=wz_H_gg_110_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-110_7TeV    red=0 lum=1000000.0  xsec=0.002654575 kfac=1.000000  scal=1.000000
 typ=-20 ind=20 draw=1  Nam=tt_H_gg_110_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Sig_Fall11_S6/TTH_HToGG_M-110_7TeV    red=0 lum=1000000.0  xsec=0.000247629 kfac=1.000000  scal=1.000000
 
+->
+minimum point is 110 in MVA Analysis
 typ=-13 ind=21 draw=1  Nam=gluglu_H_gg_105_pu2011 Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Sig_Fall11_S6/GluGluToHToGG_M-100_7TeV  red=0 lum=1000000.0  xsec=0.0387684 kfac=1.000000  scal=1.000000
 typ=-14 ind=22 draw=1  Nam=vbf_H_gg_105_pu2011 	  Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Sig_Fall11_S6/VBF_HToGG_M-100_7TeV      red=0 lum=1000000.0  xsec=0.00262016 kfac=1.000000  scal=1.000000
 typ=-16 ind=23 draw=1  Nam=wz_H_gg_105_pu2011     Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Sig_Fall11_S6/WH_ZH_HToGG_M-100_7TeV    red=0 lum=1000000.0  xsec=0.002781962 kfac=1.000000  scal=1.000000

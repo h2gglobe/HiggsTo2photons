@@ -69,6 +69,7 @@ public:
 	float massSidebandMax;
 	int numberOfSidebandGaps;
         int numberOfSidebands;
+        int numberOfSidebandsForAlgos;
 	
 	std::string bdtTrainingPhilosophy;
 	std::string photonLevelMvaUCSD  ;
