@@ -604,13 +604,6 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool
         out->Close();
      }
     
-    if (makePlots){
-      system("cp mva-plots-ada/*.png BMplots/ada/");
-      system("cp mva-plots-grad/*.png BMplots/grad/");
-      system(Form("python make_bkg_html.py %s",fileName.c_str()));
-      system("rm -r ~/public_html/h2g/MVA/BMplots");
-      system("cp -r BMplots ~/public_html/h2g/MVA");
-    }
     std::cout << "Updated (with corrected background model) -> " << in->GetName() << std::endl;
     in->Close();
 }
