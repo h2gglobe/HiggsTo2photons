@@ -35,8 +35,12 @@
 #include "TVectorD.h"
 #include "TMinuit.h"
 
+// The following global variables should be the same as definde in PhotonAnalysis_scripts/mvaanalysis.dat
 #define global_SIDEBANDWIDTH 0.02
-#define global_SIGNALREGION  0.07
+#define global_SIGNALREGION  0.02
+#define global_NUMBEROFSIDEBANDGAPS 1
+#define global_MASSSIDEBANDMIN 99
+//#define global_MASSSIDEBANDMAX 180
 
 const int global_nMaxBdtBins(10);
 const int global_nMaxMassBins(15);
@@ -136,35 +140,63 @@ void fcnFit(Int_t &npar, Double_t *gin, Double_t &f, Double_t *p, Int_t iflag) {
 }
 
 void fillData(double mH,TFile *in, std::string type){
-	
-		for (int i=1;i<=global_nMassBins/2;i++){
+
+		int numberofremainingsidebands = global_nMassBins;
+		// Count how many of each side was used
+		int nLowerSidebands  = 0;	
+		//int nHigherSidebands = 0;	
+
+		// Calculate Lower sideband points. Since we only go to 150 (and we don't really care too much about higher masses)
+		// The restriction on the mass will only apply to the lower sideband
+		for (int i=global_NUMBEROFSIDEBANDGAPS+1;i<=global_NUMBEROFSIDEBANDGAPS+global_nMassBins/2;i++){
+
+			double hypothesisModifier = (1.-global_SIDEBANDWIDTH)/(1+global_SIDEBANDWIDTH);
+			double mhsb  = (mH*(1.-global_SIGNALREGION)/(1.+global_SIDEBANDWIDTH))*(TMath::Power(hypothesisModifier,i-1));
+			//lowestMH = mhsb;
+			if (mhsb*(1.-global_SIDEBANDWIDTH) < global_MASSSIDEBANDMIN) break; 
+			nLowerSidebands++;
+			numberofremainingsidebands--;	
+		}
+
+		std::cout << "Number of Lower Sidebands for mass " << mH <<  " " << nLowerSidebands << std::endl;
+		int nHigherSidebands = numberofremainingsidebands;
+		std::cout << "Number of Higher Sidebands for mass " << mH <<  " " << nHigherSidebands << std::endl;
+
+		for (int i=global_NUMBEROFSIDEBANDGAPS+1;i<=global_NUMBEROFSIDEBANDGAPS+nHigherSidebands;i++){
+
+			double hypothesisModifier = (1.+global_SIDEBANDWIDTH)/(1-global_SIDEBANDWIDTH);
+			double mhsb  = (mH*(1.+global_SIGNALREGION)/(1.-global_SIDEBANDWIDTH))*(TMath::Power(hypothesisModifier,i-1));
+			
+		}	
+
+		for (int i=global_NUMBEROFSIDEBANDGAPS+1;i<=global_NUMBEROFSIDEBANDGAPS+nLowerSidebands;i++){
 
 			double hypothesisModifier = (1.-global_SIDEBANDWIDTH)/(1+global_SIDEBANDWIDTH);
 			double mhsb  = (mH*(1.-global_SIGNALREGION)/(1.+global_SIDEBANDWIDTH))*(TMath::Power(hypothesisModifier,i-1));
 
 			TH1F *SB = (TH1F*) in->Get(Form("th1f_bkg_%dlow_%s_%3.1f_cat0",i,type.c_str(),mH));
-//			SB->Scale(1./SB->Integral());
+			int mass_index = global_NUMBEROFSIDEBANDGAPS+nLowerSidebands-i;
 
 			for (int bin_i=1;bin_i<=global_nBdtBins;bin_i++){
-				global_parameters.fData[(global_nMassBins/2)-i][bin_i-1]=(int)SB->GetBinContent(bin_i);
+				global_parameters.fData[mass_index][bin_i-1]=(int)SB->GetBinContent(bin_i);
 			}
 			
-			global_parameters.fMass[(global_nMassBins/2)-i]=mhsb;
+			global_parameters.fMass[mass_index]=mhsb;
 			
 		}
+		for (int i=global_NUMBEROFSIDEBANDGAPS+1;i<=global_NUMBEROFSIDEBANDGAPS+nHigherSidebands;i++){
 
-		for (int i=1;i<=global_nMassBins/2;i++){
 
 			double hypothesisModifier = (1.+global_SIDEBANDWIDTH)/(1-global_SIDEBANDWIDTH);
 			double mhsb  = (mH*(1.+global_SIGNALREGION)/(1.-global_SIDEBANDWIDTH))*(TMath::Power(hypothesisModifier,i-1));
 
 			TH1F *SB = (TH1F*) in->Get(Form("th1f_bkg_%dhigh_%s_%3.1f_cat0",i,type.c_str(),mH));
-//			SB->Scale(1./SB->Integral());
+			int mass_index = nLowerSidebands-1+i-global_NUMBEROFSIDEBANDGAPS ;
 
 			for (int bin_i=1;bin_i<=global_nBdtBins;bin_i++){
-				global_parameters.fData[i-1+global_nMassBins/2][bin_i-1]=(int)SB->GetBinContent(bin_i);
+				global_parameters.fData[mass_index][bin_i-1]=(int)SB->GetBinContent(bin_i);
 			}
-			global_parameters.fMass[i-1+global_nMassBins/2]=mhsb;
+			global_parameters.fMass[mass_index]=mhsb;
 			
 		}
 
