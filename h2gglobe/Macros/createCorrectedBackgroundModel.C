@@ -42,6 +42,10 @@
 #define global_MASSSIDEBANDMIN 99
 //#define global_MASSSIDEBANDMAX 180
 
+// Following is additional fractional error which is added to each error term (squared in error matrix)
+// E.g if each error is scaled by 20%, set this to 0.2 and each term in the error matrix is scaled by 1.44
+#define global_SYSTEMATICBIAS 0.2
+
 const int global_nMaxBdtBins(10);
 const int global_nMaxMassBins(15);
 
@@ -382,10 +386,20 @@ void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool make
 	      
 	    }
 	  }
+	  //std::cout << std::setw(14) << fracErr[i][j];
+	}
+	std::cout << std::endl;
+      }
+
+      // Add Global Error to error matrix -> Motivated from Bias studies of fits:
+      for(int i(0);i<global_nBdtBins;i++) {
+	for(int j(0);j<global_nBdtBins;j++) {
+	  fracErr[i][j]*=(1.+global_SYSTEMATICBIAS)*(1.+global_SYSTEMATICBIAS);	
 	  std::cout << std::setw(14) << fracErr[i][j];
 	}
 	std::cout << std::endl;
       }
+      
 
       std::cout << "FRACCOR" << std::endl;
       double fracCor[global_nBdtBins][global_nBdtBins];
