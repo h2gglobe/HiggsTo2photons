@@ -509,9 +509,9 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
   ofstream diagFile("plots/BDTInterpolationDiagnostics.txt");
 
   const int nBDTs=2;
-  const int nMasses=7;
+  const int nMasses=8;
   std::string BDTtype[nBDTs] = {"ada","grad"};
-  std::string BDTmasses[nMasses] = {"115.0","120.0","125.0","130.0","135.0","140.0","150.0"};
+  std::string BDTmasses[nMasses] = {"110.0","115.0","120.0","125.0","130.0","135.0","140.0","150.0"};
   std::string productionTypes[4] = {"ggh","vbf","wzh","tth"};
 // ----- else can just get rebinned histograms straight out of workspace
 
@@ -532,7 +532,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
   // make plots of background model from sidebands
   if (doSidebands){
     for (int bdt=0; bdt<nBDTs; bdt++){
-      for (double mass=115.; mass<150.5; mass+=0.5){
+      for (double mass=110.; mass<150.5; mass+=0.5){
         TList *bkgModelList = new TList();
         TH1F *bkgModel[7];
         bkgModel[0] = (TH1F*)inFile->Get(Form("th1f_bkg_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
@@ -728,14 +728,14 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
   diagFile << "---------------------------------------------------------------------" << std::endl;
   diagFile << "Interpolating intermediate signals from following lower and upper templates" << std::endl;
 
-  TList *orgHistListInt[2][4][71];
-  for (int i=0; i<2; i++) for (int pT=0; pT<4; pT++) for (int j=0; j<71; j++) orgHistListInt[i][pT][j] = new TList();
+  TList *orgHistListInt[2][4][81];
+  for (int i=0; i<2; i++) for (int pT=0; pT<4; pT++) for (int j=0; j<81; j++) orgHistListInt[i][pT][j] = new TList();
   TH1F *systUp, *systDown, *systTrue;
   TH1F *background, *data, *signal, *sig_ggh, *sig_vbf, *sig_wzh, *sig_tth;
 
   int i=0;
   // loop over mass points etc.
-  for (double mass=115.; mass<150.5; mass+=0.5){
+  for (double mass=110.; mass<150.5; mass+=0.5){
     if (int(mass)%2==0) std::cout << Form("%3.0f",((mass-115.)/35.)*100.) << "% done" << std::endl;
     //points we have signal for
     if (int(mass*2)%10==0 && mass!=145.0) {
@@ -749,10 +749,10 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
         sig_wzh = (TH1F*)inFile->Get(Form("th1f_sig_%s_wzh_%3.1f_%3.1f_cat0",BDTtype[bdt].c_str(),mass,mass));
         sig_tth = (TH1F*)inFile->Get(Form("th1f_sig_%s_tth_%3.1f_%3.1f_cat0",BDTtype[bdt].c_str(),mass,mass));
 	
-	signal = (TH1F*)sig_ggh->Clone();
-	signal->Add(sig_vbf);
-	signal->Add(sig_wzh);
-	signal->Add(sig_tth);
+        signal = (TH1F*)sig_ggh->Clone();
+        signal->Add(sig_vbf);
+        signal->Add(sig_wzh);
+        signal->Add(sig_tth);
 
         std::string name = Form("%3.1f",mass);
         if (Diagnose) {
@@ -770,7 +770,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
           plotSystFracs(systList,central,Form("%3.1f_systFracs",mass));
         }
         // store some systematic histograms
-        if (int(mass)>115 && int(mass)<150){
+        if (int(mass)>110 && int(mass)<150){
           int bdtmass = getIndex(int(mass));
           systTrue = (TH1F*)orgHistList[bdt][pT][bdtmass]->At(0)->Clone();
           systUp = (TH1F*)orgHistListAbove[bdt][pT][bdtmass]->At(0)->Clone();
@@ -889,13 +889,13 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
 
   diagFile << "---------------------------------------------------------------------" << std::endl;
   diagFile << "Writing following interpolated histograms to file: " << std::endl;
-  for (int l=0; l<2; l++) for (int pT=0; pT<4; pT++)for (int j=0; j<71; j++) for (int k=0; k<orgHistListInt[l][pT][j]->GetSize(); k++) {
+  for (int l=0; l<2; l++) for (int pT=0; pT<4; pT++)for (int j=0; j<81; j++) for (int k=0; k<orgHistListInt[l][pT][j]->GetSize(); k++) {
     orgHistListInt[l][pT][j]->At(k)->Write();
     diagFile << orgHistListInt[l][pT][j]->At(k)->GetName() << std::endl;
   }
   
   TList* endList = outFile->GetListOfKeys();
-  for (double mass=115.0; mass<150.5; mass+=0.5){
+  for (double mass=110.0; mass<150.5; mass+=0.5){
     diagFile << mass << std::endl;
     std::pair<int,int> nearestPair = findNearest(mass);
     double nearest = nearestPair.first;

@@ -524,15 +524,16 @@ void diagonalizeMatrix(TH2F *th2f_covar,TH2F *th2f_out){
 
 void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool makePlots=true){
 
-
-     system("mkdir -p BMplots/ada");
-     system("mkdir -p BMplots/grad");
-     gStyle->SetPalette(1);
-     gStyle->SetOptStat(0);
+     if (makePlots){
+       system("mkdir -p BMplots/ada");
+       system("mkdir -p BMplots/grad");
+       gStyle->SetPalette(1);
+       gStyle->SetOptStat(0);
+     }
 
      global_nMassBins=nsidebands;
 
-     double massMin = 115;
+     double massMin = 110;
      double massMax = 150;
      double dM  = 0.5;
 	
@@ -602,7 +603,14 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool
 	std::cout << "Saving Fits to file -> " << out->GetName() << std::endl;
         out->Close();
      }
-
+    
+    if (makePlots){
+      system("cp mva-plots-ada/*.png BMplots/ada/");
+      system("cp mva-plots-grad/*.png BMplots/grad/");
+      system(Form("python make_bkg_html.py %s",fileName.c_str()));
+      system("rm -r ~/public_html/h2g/MVA/BMplots");
+      system("cp -r BMplots ~/public_html/h2g/MVA");
+    }
     std::cout << "Updated (with corrected background model) -> " << in->GetName() << std::endl;
     in->Close();
 }
