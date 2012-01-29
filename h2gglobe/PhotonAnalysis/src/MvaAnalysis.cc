@@ -649,6 +649,15 @@ void MvaAnalysis::Init(LoopAll& l)
               l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_ada_wzh_%3.1f",sideband_i,sig)  ,nBDTbins);
               l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_ada_tth_%3.1f",sideband_i,sig)   ,nBDTbins);
               l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_ada_tth_%3.1f",sideband_i,sig)  ,nBDTbins);
+
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_grad_ggh_%3.1f",sideband_i,sig)   ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_grad_ggh_%3.1f",sideband_i,sig)  ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_grad_vbf_%3.1f",sideband_i,sig)   ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_grad_vbf_%3.1f",sideband_i,sig)  ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_grad_wzh_%3.1f",sideband_i,sig)   ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_grad_wzh_%3.1f",sideband_i,sig)  ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_grad_tth_%3.1f",sideband_i,sig)   ,nBDTbins);
+              l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_grad_tth_%3.1f",sideband_i,sig)  ,nBDTbins);
 	   }
 	    
         
@@ -1133,8 +1142,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
                     bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
-                    l.rooContainer->InputBinnedDataPoint(Form("sig_BDT_ada_%dlow_",sideband_i)+currentTypeSignalLabel ,category,bdt_ada,evweight);
-                    l.rooContainer->InputBinnedDataPoint(Form("sig_BDT_grad_%dlow_",sideband_i)+currentTypeSignalLabel ,category,bdt_grad,evweight);
+                    l.rooContainer->InputBinnedDataPoint(Form("sig_%dlow_BDT_ada_",sideband_i)+currentTypeSignalLabel ,category,bdt_ada,evweight);
+                    l.rooContainer->InputBinnedDataPoint(Form("sig_%dlow_BDT_grad_",sideband_i)+currentTypeSignalLabel ,category,bdt_grad,evweight);
 		   }
 		  }
 
@@ -1151,8 +1160,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                     bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
                     bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
-                    l.rooContainer->InputBinnedDataPoint(Form("sig_BDT_ada_%dhigh_",sideband_i)+currentTypeSignalLabel ,category,bdt_ada,evweight);
-                    l.rooContainer->InputBinnedDataPoint(Form("sig_BDT_grad_%dhigh_",sideband_i)+currentTypeSignalLabel ,category,bdt_grad,evweight);
+                    l.rooContainer->InputBinnedDataPoint(Form("sig_%dhigh_BDT_ada_",sideband_i)+currentTypeSignalLabel ,category,bdt_ada,evweight);
+                    l.rooContainer->InputBinnedDataPoint(Form("sig_%dhigh_BDT_grad_",sideband_i)+currentTypeSignalLabel ,category,bdt_grad,evweight);
 		   }
 		  }
 		}
