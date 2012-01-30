@@ -568,7 +568,7 @@ void diagonalizeMatrix(TH2F *th2f_covar,TH2F *th2f_out){
 
 }
 
-void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool makePlots=true){
+void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool makePlots=false){
 
      if (makePlots){
        system("mkdir -p BMplots/ada");

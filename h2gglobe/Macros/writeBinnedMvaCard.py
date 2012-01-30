@@ -1,5 +1,5 @@
 import ROOT
-import numpy,sys,math
+import os,numpy,sys,math
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gROOT.SetBatch(True)
 
@@ -95,8 +95,8 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	mytext.SetTextSize(0.04)
 	mytext.DrawLatex(0.2,0.2,"#int L = %s"%(lumistring))
 	leg.Draw()
-	c.SaveAs("model_m%3.1f.pdf"%mass)
-	c.SaveAs("model_m%3.1f.png"%mass)
+	c.SaveAs(plotOutDir+"/model_m%3.1f.pdf"%mass)
+	c.SaveAs(plotOutDir+"/model_m%3.1f.png"%mass)
 
 
 #def getBinningMass(mass):
@@ -132,7 +132,7 @@ def getPoissonBinContent(hist,b,exp):
 def writeCard(tfile,mass,scaleErr):
 
   print "Writing Datacard for mass -> ", mass
-  outPut = open("mva-datacard_"+type+"_%3.1f.txt"%mass,"w")
+  outPut = open(cardOutDir+"/mva-datacard_"+type+"_%3.1f.txt"%mass,"w")
 
   # Get All of the histograms we are going to use
   # Data ->
@@ -328,6 +328,15 @@ if options.expSig > 0: print ("(Also throwing signal SMx%f)"%options.expSig)
 
 type=options.bdtType
 
+# create output folders
+cardOutDir="mva-datacards-"+type
+if not os.path.isdir(cardOutDir):
+  os.makedirs(cardOutDir)
+if options.makePlot:
+  plotOutDir="mva-plots-"+type
+  if not os.path.isdir(plotOutDir):
+    os.makedirs(plotOutDir)
+
 #if options.biasFile:
 #	biasROOTFile = ROOT.TFile(options.biasFile)
 
@@ -352,7 +361,7 @@ normG.GetXaxis().SetTitle("mH")
 normG.GetYaxis().SetTitle("(N+dN)/N")
 normG.Draw("ALP")
 print "Check the Errors Look Sensible -> plot saved to normErrors_%s"%options.tfileName
-can.SaveAs("normErrors_%s.pdf"%options.tfileName)
+can.SaveAs(plotOutDir+"/normErrors_%s.pdf"%options.tfileName)
 
 # Now we can write the cards
 #tfileName = sys.argv[1]

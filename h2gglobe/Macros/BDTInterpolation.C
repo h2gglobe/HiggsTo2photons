@@ -29,6 +29,8 @@ int fracCalls=0;
 int linCalls=0;
 int systCalls=0;
 int bkgCalls=0;
+int lowMass=110;
+int highMass=150;
 
 TH1F* Interpolate(double massLow, TH1F* low, double massHigh, TH1F* high, double massInt){
 
@@ -61,7 +63,7 @@ std::pair<int,int> findNearest(double mass){
   int nearest;
   int nnearest;
 
-  for (int i=110; i<155; i+=5){
+  for (int i=110; i<=150; i+=5){
     if (i==145) continue;
     double diff = std::fabs((mass+0.001)-double(i));
     if (diff<bestdiff) {
@@ -69,7 +71,7 @@ std::pair<int,int> findNearest(double mass){
       nearest = i;
     }
   }
-  for (int i=110; i<155; i+=5){
+  for (int i=110; i<=150; i+=5){
     if (i==145) continue;
     double diff = std::fabs((mass+0.001)-double(i));
     if (diff>bestdiff && diff<nbestdiff){
@@ -511,9 +513,10 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
 
   const int nBDTs=2;
   const int nMasses=8;
+  const int nProds=4;
   std::string BDTtype[nBDTs] = {"ada","grad"};
   std::string BDTmasses[nMasses] = {"110.0","115.0","120.0","125.0","130.0","135.0","140.0","150.0"};
-  std::string productionTypes[4] = {"ggh","vbf","wzh","tth"};
+  std::string productionTypes[nProds] = {"ggh","vbf","wzh","tth"};
 // ----- else can just get rebinned histograms straight out of workspace
 
   std::cout << "Extracting histograms from workspace........." << std::endl;
@@ -533,7 +536,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
   // make plots of background model from sidebands
   if (doSidebands){
     for (int bdt=0; bdt<nBDTs; bdt++){
-      for (double mass=110.; mass<150.5; mass+=0.5){
+      for (double mass=110.; mass<=150.0; mass+=0.5){
         TList *bkgModelList = new TList();
         TH1F *bkgModel[7];
         bkgModel[0] = (TH1F*)inFile->Get(Form("th1f_bkg_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
@@ -559,7 +562,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
     TString name = temp->GetName();
 
     // store stuff for interpolation systematic
-    for (int bdt=0; bdt<2; bdt++){
+    for (int bdt=0; bdt<nBDTs; bdt++){
       for (int syst=0; syst<3; syst++){
         if (name.Contains(("th1f_sig_"+BDTtype[bdt]+"_"+productionTypes[0]+"_"+syst120mass[0]+"_"+syst120mass[syst]).c_str()) && !name.Contains("sigma")){
           systHists120[bdt][syst] = (TH1F*)inFile->Get(name.Data());
@@ -590,7 +593,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
   diagFile << "---------------------------------------------------------------------" << std::endl;
   diagFile << "Writing following interpolation systematic templates: " << std::endl;
   
-  for (int bdt=0; bdt<2; bdt++){
+  for (int bdt=0; bdt<nBDTs; bdt++){
     double norm120 = GetNorm(115.0,systHists120[bdt][1],125.0,systHists120[bdt][2],120.0);
     double norm135 = GetNorm(130.0,systHists135[bdt][1],140.0,systHists135[bdt][2],135.0);
     if (doNorm) {
@@ -671,12 +674,12 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
     // -------------------- systematic stuff done ----------------------
 
   // get lists of middle, upper and lower templates for each mass
-  TList *orgHistList[2][4][8];
-  TList *orgHistListBelow[2][4][8];
-  TList *orgHistListAbove[2][4][8];
-  for (int i=0; i<2; i++) {
-   for (int pT=0;pT<4;pT++){
-    for (int j=0; j<8; j++) {
+  TList *orgHistList[nBDTs][nProds][nMasses];
+  TList *orgHistListBelow[nBDTs][nProds][nMasses];
+  TList *orgHistListAbove[nBDTs][nProds][nMasses];
+  for (int i=0; i<nBDTs; i++) {
+   for (int pT=0;pT<nProds;pT++){
+    for (int j=0; j<nMasses; j++) {
       orgHistList[i][pT][j]=new TList();
       orgHistListBelow[i][pT][j]=new TList();
       orgHistListAbove[i][pT][j]=new TList();
@@ -687,7 +690,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
   for (int j=0; j<HistList->GetSize(); j++){
     TString HistName(HistList->At(j)->GetName());
     for (int bdt=0; bdt<nBDTs; bdt++){
-     for (int pT=0;pT<4;pT++){
+     for (int pT=0;pT<nProds;pT++){
       for (int bdtmass=0; bdtmass<nMasses; bdtmass++){
         for (int k=-1; k<2; k++){
           if ((bdtmass==0 && k==-1) || (bdtmass==nMasses-1 && k==1)) continue;
@@ -705,8 +708,8 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
   }
   diagFile << "---------------------------------------------------------------------" << std::endl;
   diagFile << "Following histo's being used for interpolation: " << std::endl;
-  for (int bdt=0; bdt<2; bdt++){
-   for (int pT=0;pT<4;pT++){
+  for (int bdt=0; bdt<nBDTs; bdt++){
+   for (int pT=0;pT<nProds;pT++){
     for (int mass=0; mass<nMasses; mass++){
       diagFile << "BDT: " << BDTtype[bdt] << std::endl;
       diagFile << "Production : " << productionTypes[pT] << std::endl;
@@ -729,19 +732,20 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
   diagFile << "---------------------------------------------------------------------" << std::endl;
   diagFile << "Interpolating intermediate signals from following lower and upper templates" << std::endl;
 
-  TList *orgHistListInt[2][4][81];
-  for (int i=0; i<2; i++) for (int pT=0; pT<4; pT++) for (int j=0; j<81; j++) orgHistListInt[i][pT][j] = new TList();
+  const int nGlobalMs=81; // no of mass points between lowMass and highMass with 0.5 GeV steps
+  TList *orgHistListInt[nBDTs][nProds][nGlobalMs];
+  for (int i=0; i<nBDTs; i++) for (int pT=0; pT<nProds; pT++) for (int j=0; j<nGlobalMs; j++) orgHistListInt[i][pT][j] = new TList();
   TH1F *systUp, *systDown, *systTrue;
   TH1F *background, *data, *signal, *sig_ggh, *sig_vbf, *sig_wzh, *sig_tth;
 
   int i=0;
   // loop over mass points etc.
-  for (double mass=110.; mass<150.5; mass+=0.5){
-    if (int(mass)%2==0) std::cout << Form("%3.0f",((mass-115.)/35.)*100.) << "% done" << std::endl;
+  for (double mass=110.; mass<=150.; mass+=0.5){
+    if (int(mass)%2==0) std::cout << Form("%3.0f",((mass-110.)/40.)*100.) << "% done" << std::endl;
     //points we have signal for
     if (int(mass*2)%10==0 && mass!=145.0) {
-     for (int pT=0;pT<4;pT++){
-      for (int bdt=0; bdt<2; bdt++){  
+     for (int pT=0;pT<nProds;pT++){
+      for (int bdt=0; bdt<nBDTs; bdt++){  
         background = (TH1F*)inFile->Get(Form("th1f_bkg_%s_%3.1f_cat0_fitsb_biascorr",BDTtype[bdt].c_str(),mass));
       //  background = (TH1F*)inFile->Get(Form("th1f_bkg_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
         data = (TH1F*)inFile->Get(Form("th1f_data_%s_%3.1f_cat0",BDTtype[bdt].c_str(),mass));
@@ -811,9 +815,9 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
     int bdtmass = getIndex(nearest); // gives index of bdt to use
 
     // loop bdt type
-    for (int bdt=0; bdt<2; bdt++){
+    for (int bdt=0; bdt<nBDTs; bdt++){
      TH1F *combSignal;
-     for (int pT=0;pT<4;pT++){
+     for (int pT=0;pT<nProds;pT++){
       diagFile << "Mass: " << mass << std::endl;
       diagFile << "BDT: " << BDTtype[bdt] << std::endl;
       // loop different histos in list (signal and systematics)
@@ -890,13 +894,13 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
 
   diagFile << "---------------------------------------------------------------------" << std::endl;
   diagFile << "Writing following interpolated histograms to file: " << std::endl;
-  for (int l=0; l<2; l++) for (int pT=0; pT<4; pT++)for (int j=0; j<81; j++) for (int k=0; k<orgHistListInt[l][pT][j]->GetSize(); k++) {
+  for (int l=0; l<nBDTs; l++) for (int pT=0; pT<nProds; pT++)for (int j=0; j<nGlobalMs; j++) for (int k=0; k<orgHistListInt[l][pT][j]->GetSize(); k++) {
     orgHistListInt[l][pT][j]->At(k)->Write();
     diagFile << orgHistListInt[l][pT][j]->At(k)->GetName() << std::endl;
   }
   
   TList* endList = outFile->GetListOfKeys();
-  for (double mass=110.0; mass<150.5; mass+=0.5){
+  for (double mass=110.0; mass<=150.; mass+=0.5){
     diagFile << mass << std::endl;
     std::pair<int,int> nearestPair = findNearest(mass);
     double nearest = nearestPair.first;
@@ -924,6 +928,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
 
   std::string TIME_DATE = getTime();
   if (Diagnose){
+    /*
     system("whoami > temp.txt");
     std::ifstream temp("temp.txt");
     std::string result;
@@ -937,6 +942,7 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
     system(("ln -s ~/public_html/h2g/MVA/SigInt/Diagnostics/"+TIME_DATE+" ~/public_html/h2g/MVA/SigInt/Diagnostics/Current").c_str());
     std::cout << ("Plots avaiable to view in ~/public_html/h2g/MVA/SigInt/Diagnostics/"+TIME_DATE+"/").c_str() << std::endl;
     std::cout << "If working on /vols/ at IC plots avaliable to view at www.hep.ph.ic.ac.uk/~"+result+"/h2g/MVA/SigInt/Diagnostics/Current/plots/plots.html" << std::endl;
+    */
   }
   std::cout << "Checking all relevant histograms have been written to workspace......" << std::endl;
   //system(("python checkOK.py "+string(outFile->GetName())).c_str());
