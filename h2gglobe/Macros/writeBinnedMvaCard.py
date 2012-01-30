@@ -35,7 +35,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	fNew  = flatbkg.Clone()
 	fNew2 = flatbkg.Clone()
 
-	flatdata.Sumw2();
+	#flatdata.Sumw2();
 	flatdata.SetMarkerStyle(20)
 	flatdata.SetMarkerSize(1.0)
 		
@@ -162,10 +162,15 @@ def writeCard(tfile,mass,scaleErr):
   for b in range(1,nBins+1): outPut.write(" cat%d "%b)
   outPut.write("\nobservation")
 
+  backgroundContents = [bkgHist.GetBinContent(b) for b in range(1,nBins+1)]
+  if options.Bias:
+	print "Using Bkg Model Corrected for mass bias"
+	backgroundContents = [bkgHistCorr.GetBinContent(b) for b in range(1,nBins+1)]
+
   if options.throwToy:
 	print "Throwing toy dataset"
 	for b in range(1,nBins+1): 
-	  nd = r.Poisson(bkgHist.GetBinContent(b))
+	  nd = r.Poisson(backgroundContents[b-1])
 	  ns = 0
 	  if options.expSig>0:
 		print "Injecting %.f x SM"%expSig
@@ -175,6 +180,8 @@ def writeCard(tfile,mass,scaleErr):
 		ns+=getPoissonBinContent(tthHist,b,options.expSig)
 
 	  outPut.write(" %.2f "%(nd+ns))
+	  dataHist.SetBinContent(b,nd+ns)
+	  dataHist.SetBinError(b,(nd+ns)**0.5)
 
   else:
 	for b in range(1,nBins+1): outPut.write(" %d "%dataHist.GetBinContent(b))
@@ -188,10 +195,6 @@ def writeCard(tfile,mass,scaleErr):
   for b in range(1,nBins+1): outPut.write("   0      0      0      0    1    ")
   outPut.write("\nrate       ")
 
-  backgroundContents = [bkgHist.GetBinContent(b) for b in range(1,nBins+1)]
-  if options.Bias:
-	print "Using Bkg Model Corrected for mass bias"
-	backgroundContents = [bkgHistCorr.GetBinContent(b) for b in range(1,nBins+1)]
 
   for b in range(1,nBins+1): outPut.write(" %.12f   %.12f   %.12f   %.12f   %.12f "\
     %(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b)\

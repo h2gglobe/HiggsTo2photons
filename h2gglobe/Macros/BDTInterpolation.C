@@ -61,7 +61,7 @@ std::pair<int,int> findNearest(double mass){
   int nearest;
   int nnearest;
 
-  for (int i=115; i<155; i+=5){
+  for (int i=110; i<155; i+=5){
     if (i==145) continue;
     double diff = std::fabs((mass+0.001)-double(i));
     if (diff<bestdiff) {
@@ -69,7 +69,7 @@ std::pair<int,int> findNearest(double mass){
       nearest = i;
     }
   }
-  for (int i=115; i<155; i+=5){
+  for (int i=110; i<155; i+=5){
     if (i==145) continue;
     double diff = std::fabs((mass+0.001)-double(i));
     if (diff>bestdiff && diff<nbestdiff){
@@ -84,13 +84,14 @@ std::pair<int,int> findNearest(double mass){
 int getIndex(int mass){
 
   int index;
-  if (mass==115) index=0;
-  if (mass==120) index=1;
-  if (mass==125) index=2;
-  if (mass==130) index=3;
-  if (mass==135) index=4;
-  if (mass==140) index=5;
-  if (mass==150) index=6;
+  if (mass==110) index=0;
+  if (mass==115) index=1;
+  if (mass==120) index=2;
+  if (mass==125) index=3;
+  if (mass==130) index=4;
+  if (mass==135) index=5;
+  if (mass==140) index=6;
+  if (mass==150) index=7;
 
   return index;
 }
@@ -670,12 +671,12 @@ int BDTInterpolation(std::string inFileName,bool Diagnose=false, bool doNorm=tru
     // -------------------- systematic stuff done ----------------------
 
   // get lists of middle, upper and lower templates for each mass
-  TList *orgHistList[2][4][7];
-  TList *orgHistListBelow[2][4][7];
-  TList *orgHistListAbove[2][4][7];
+  TList *orgHistList[2][4][8];
+  TList *orgHistListBelow[2][4][8];
+  TList *orgHistListAbove[2][4][8];
   for (int i=0; i<2; i++) {
    for (int pT=0;pT<4;pT++){
-    for (int j=0; j<7; j++) {
+    for (int j=0; j<8; j++) {
       orgHistList[i][pT][j]=new TList();
       orgHistListBelow[i][pT][j]=new TList();
       orgHistListAbove[i][pT][j]=new TList();
