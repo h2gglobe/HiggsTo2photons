@@ -177,9 +177,11 @@ void MvaAnalysis::Term(LoopAll& l)
 	grad_sigsets.push_back("sig_BDT_grad_wzh"+names[i]);
 	grad_sigsets.push_back("sig_BDT_grad_tth"+names[i]);
 
+  cout << "Summing datasets" << endl;
         l.rooContainer->SumMultiBinnedDatasets("sig_BDT_ada_all"+names[i],ada_sigsets,-1.,true);
         l.rooContainer->SumMultiBinnedDatasets("sig_BDT_grad_all"+names[i],grad_sigsets,-1.,true);
 
+  cout << "Calculating optimized binning" << endl;
         std::vector <std::vector<double> > optimizedGradBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_grad_all"+names[i],"bkg_BDT_grad_all"+names[i],20,50);
         std::vector<std::vector <double> > optimizedAdaBins =  l.rooContainer->SoverBOptimizedBinning("sig_BDT_ada_all"+names[i],"bkg_BDT_ada_all"+names[i],20,50);
 
@@ -203,6 +205,7 @@ void MvaAnalysis::Term(LoopAll& l)
           double mass_hypothesis = masses[i]+mass;
 	  if (mass_hypothesis < 110 || mass_hypothesis > 150) continue;
       
+          cout << "Rebinning bkg and data " << mass_hypothesis << endl;
           l.rooContainer->RebinBinnedDataset(Form("bkg_grad_%3.1f",mass_hypothesis),Form("data_BDT_sideband_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
           l.rooContainer->RebinBinnedDataset(Form("bkg_mc_grad_%3.1f",mass_hypothesis),Form("bkg_BDT_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
           l.rooContainer->RebinBinnedDataset(Form("zee_mc_grad_%3.1f",mass_hypothesis),Form("zee_BDT_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
@@ -235,6 +238,7 @@ void MvaAnalysis::Term(LoopAll& l)
 
         for (int j=-1; j<2; j++){
         if ((i==1 && j==-1) || (i==nMasses-1 && j==1)) continue;
+          cout << "Rebinning signal " << names[i] << "_" << names[i+j] << endl;
           l.rooContainer->RebinBinnedDataset("sig_grad_ggh"+names[i]+names[i+j],"sig_BDT_grad_ggh"+names[i+j],optimizedGradBins,true);
           l.rooContainer->RebinBinnedDataset("sig_grad_vbf"+names[i]+names[i+j],"sig_BDT_grad_vbf"+names[i+j],optimizedGradBins,true);
           l.rooContainer->RebinBinnedDataset("sig_grad_wzh"+names[i]+names[i+j],"sig_BDT_grad_wzh"+names[i+j],optimizedGradBins,true);
@@ -936,7 +940,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
   float bdtoutput,phoid_mvaout_lead,phoid_mvaout_sublead;
   if (bdtTrainingPhilosophy=="MIT"){
     bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"MIT");
-    if (bdtoutput < -0.5) category = -1;
+    if (bdtoutput<0.05) category = -1;
     phoid_mvaout_lead = l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,"MIT");
     phoid_mvaout_sublead = l.photonIDMVA(diphoton_index.second,l.dipho_vtxind[diphoton_id],sublead_p4,"MIT");
   } 
@@ -1069,7 +1073,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	    else {l.rooContainer->InputBinnedDataPoint("bkg_mass",category,mass,evweight);}
           }
 
-	  if (bdtoutput>-0.5) l.FillHist("all_mass",0, mass, evweight);
+	  if (bdtoutput>=0.05) l.FillHist("all_mass",0, mass, evweight);
 
           // ------ Deal with Signal MC first
             if (cur_type<0){ // signal MC
@@ -1088,8 +1092,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
            	    bdt_ada  = tmvaReader_->EvaluateMVA( "BDT_ada_123" );
                     bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-
-		    if (bdtoutput>-0.5) {
+		    
+        if (bdtoutput>=0.05) {
 		      l.FillHist("pt_msig",0, Higgs.Pt(), evweight);
 		      l.FillHist("logpt_msig",0, log10(Higgs.Pt()), evweight);
 		      l.FillHist("ptOverM_msig",0, Higgs.Pt()/mass, evweight);
@@ -1207,8 +1211,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                   bdt_grad = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
 
                   if (mass_hypothesis == masses[i]) {
-
-		    if (bdtoutput>-0.5) {
+		    
+        if (bdtoutput>=0.05) {
 		      l.FillHist("pt_msig",0, Higgs.Pt(), evweight);
 		      l.FillHist("logpt_msig",0, log10(Higgs.Pt()), evweight);
 		      l.FillHist("ptOverM_msig",0, Higgs.Pt()/mass, evweight);
@@ -1290,8 +1294,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                         sideband_stream << sideband_i;
                         sideband_str = sideband_stream.str();
                       }
-
-		      if (bdtoutput>-0.5) {
+		      if (bdtoutput>=0.05) {
 			l.FillHist("pt_mlow"+sideband_str,0, Higgs.Pt(), evweight);
 			l.FillHist("logpt_mlow"+sideband_str,0, log10(Higgs.Pt()), evweight);
 			l.FillHist("ptOverM_mlow"+sideband_str,0, Higgs.Pt()/mass, evweight);
@@ -1368,8 +1371,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                         sideband_stream << sideband_i;
                         sideband_str = sideband_stream.str();
                       }
-
-		      if (bdtoutput>-0.5) {
+		      if (bdtoutput>=0.05) {
 			l.FillHist("pt_mhigh"+sideband_str,0, Higgs.Pt(), evweight);
 			l.FillHist("logpt_mhigh"+sideband_str,0, log10(Higgs.Pt()), evweight);
 			l.FillHist("ptOverM_mhigh"+sideband_str,0, Higgs.Pt()/mass, evweight);
@@ -1440,7 +1442,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	 float bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-1.2,bdtoutput,evweight);
 	 float bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-	 if (bdtoutput>=-0.5){
+	 if (bdtoutput>=0.05){
            l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH120_1p"	,0,bdt_grad_1,bdt_grad_2,evweight);
            l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH120_1p"	,0,bdt_grad_1,bdt_grad_3,evweight);
 	 }
@@ -1452,7 +1454,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	 bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-1.4,bdtoutput,evweight);
 	 bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-	 if (bdtoutput>=-0.5){
+	 if (bdtoutput>=0.05){
            l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH140_1p"	,0,bdt_grad_1,bdt_grad_2,evweight);
            l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH140_1p"	,0,bdt_grad_1,bdt_grad_3,evweight);
 	 }
@@ -1464,7 +1466,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	 bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-2.4,bdtoutput,evweight);
 	 bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-	 if (bdtoutput>=-0.5){
+	 if (bdtoutput>=0.05){
            l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH120_2p"	,0,bdt_grad_1,bdt_grad_2,evweight);
            l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH120_2p"	,0,bdt_grad_1,bdt_grad_3,evweight);
 	 }
@@ -1476,13 +1478,13 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	 bdt_grad_2 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
          SetBDTInputVariables(&lead_p4,&sublead_p4,lead_r9,sublead_r9,massResolutionCalculator,vtx_mva,q_mass_hypothesis-2.8,bdtoutput,evweight);
 	 bdt_grad_3 = tmvaReader_->EvaluateMVA( "BDT_grad_123" );
-	 if (bdtoutput>=-0.5){
+	 
+   if (bdtoutput>=0.05){
            l.FillHist2D("shiftingMH_up_bdt1_bdt2_mH140_2p"	,0,bdt_grad_1,bdt_grad_2,evweight);
            l.FillHist2D("shiftingMH_dn_bdt1_bdt2_mH140_2p"	,0,bdt_grad_1,bdt_grad_3,evweight);
 	 }
 	 // ------------------------------------------------------------------------------------------------------------------------------------//
-	
-/*
+     /*    
          l.FillHist2D("bdtgrad_vs_mass"		,histoplace,bdt_grad,mass,evweight);
          l.FillHist2D("bdtgrad_vs_hpt"		,histoplace,bdt_grad,ptHiggs,evweight);
          l.FillHist2D("bdtgrad_vs_leadpt"	,histoplace,bdt_grad,pt_lead,evweight);
@@ -1506,7 +1508,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
          l.FillHist2D("bdtada_vs_sigmamoverm"	,histoplace,bdt_ada,sigmaMrv/mass,evweight);
          l.FillHist2D("bdtada_vs_leadr9"	,histoplace,bdt_ada,lead_r9,evweight);
          l.FillHist2D("bdtada_vs_subleadr9"	,histoplace,bdt_ada,sublead_r9,evweight);
-
+         
          l.FillHist2D("bdtgrad_vs_mass"		,8,bdt_grad,mass,evweight);
          l.FillHist2D("bdtgrad_vs_hpt"		,8,bdt_grad,ptHiggs,evweight);
          l.FillHist2D("bdtgrad_vs_leadpt"	,8,bdt_grad,pt_lead,evweight);
@@ -1532,7 +1534,6 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
          l.FillHist2D("bdtada_vs_subleadr9"	,8,bdt_ada,sublead_r9,evweight);
 */
       }
-
       l.FillCounter( "Accepted", weight );
       l.FillCounter( "Smeared", evweight );
       sumaccept += weight;
@@ -1598,7 +1599,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         float bdtoutput;
         if (bdtTrainingPhilosophy=="MIT"){
           bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"MIT");
-          if (bdtoutput < -0.5) category = -1;
+          if (bdtoutput<0.05) category = -1;
         } 
         else if (bdtTrainingPhilosophy=="UCSD"){
           bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"UCSD");
@@ -1679,7 +1680,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         float bdtoutput;
         if (bdtTrainingPhilosophy=="MIT"){
           bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"MIT");
-          if (bdtoutput < -0.5) category = -1;
+          if (bdtoutput<0.05) category = -1;
         } 
         else if (bdtTrainingPhilosophy=="UCSD"){
           bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"UCSD");
@@ -1811,7 +1812,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         float bdtoutput;
         if (bdtTrainingPhilosophy=="MIT"){
           bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"MIT");
-          if (bdtoutput < -0.5) category = -1;
+          if (bdtoutput<0.05) category = -1;
         } 
         else if (bdtTrainingPhilosophy=="UCSD"){
           bdtoutput = l.diphotonMVA(diphoton_index.first,diphoton_index.second,l.dipho_vtxind[diphoton_id],vtxProb,lead_p4,sublead_p4,sigmaMrv,sigmaMwv,sigmaMeonly,"UCSD");
