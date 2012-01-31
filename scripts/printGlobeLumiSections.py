@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-import os, sys
-
+import os, sys, commands
 ROOTimported = False
 
 try:
@@ -25,6 +24,24 @@ if not ROOTimported:
     print >> sys.stderr,"runtime environment (using the command 'cmsenv')"
     print >> sys.stderr,"before starting this script."
     sys.exit(1)
+
+#----------------------------------------------------------------------
+def makeCaFiles(dir):
+
+   dir = str(dir)
+   return_files = []
+
+   sc,flist = commands.getstatusoutput('nsls %s'%(dir))
+   if not sc:
+      files = flist.split('\n')
+      for f in files:
+         if '.root' in f:
+               return_files.append('rfio://'+dir+'/'+f)
+            
+   else:
+      sys.exit("No Such Directory: %s"%(dir))
+
+   return return_files
 
 #----------------------------------------------------------------------
 def findConsecutiveRanges(values):
@@ -87,8 +104,14 @@ ARGV = sys.argv[1:]
 # value is 1 (we assume that we're still running with python2.4
 # which does not have sets...)
 lumiSectionsFound = {}
+FileList_=[]
+for fname in ARGV:
+    # Check If CASTOR Directory
+    if (fname.split("/"))[0]=="CASTOR":
+	FileList_.extend(makeCaFiles(fname.split("CASTOR")[1]))
+    else: FileList_.append(fname)
 
-for index, fname in enumerate(ARGV):
+for index, fname in enumerate(FileList_):
     print >> sys.stderr,"opening file",(index+1),"of",len(ARGV)
     fin = ROOT.TFile.Open(fname)
 
