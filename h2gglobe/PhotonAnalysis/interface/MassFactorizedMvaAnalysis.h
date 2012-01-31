@@ -36,6 +36,7 @@ public:
 	virtual void Analysis(LoopAll&, Int_t);
 	
 	// Options
+  	bool includeVBF;
 	bool reRunCiCForData;
 	float leadEtCut;
 	float subleadEtCut;
@@ -48,7 +49,7 @@ public:
 	double GetDifferentialKfactor(double, int);
 
 	void FillSignalLabelMap();
-	int GetBDTBoundaryCategory(float,bool);
+	int GetBDTBoundaryCategory(float,bool,bool);
 	std::string GetSignalLabel(int) ;
 
 	bool  doMCSmearing;
@@ -79,6 +80,8 @@ public:
 
 	TH1D *thm110,*thm120,*thm130,*thm140;
 	int nMasses;
+
+	
 
 protected:
 	std::vector<BaseSmearer *> photonSmearers_;

@@ -46,6 +46,7 @@ public:
 	
 	// Options
 	bool reRunCiCForData;
+	bool includeVBF;
 	float leadEtCut;
 	float subleadEtCut;
 	std::string efficiencyFile;

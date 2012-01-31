@@ -14,7 +14,7 @@ print "Checking Signal / Background for - ", f
 #m = [115,120,121,123,125,130,135,140,150]
 
 if doInterp:
-  m = numpy.arange(115,150.5,0.5)
+  m = numpy.arange(110,150.5,0.5)
   for mass in m :
 	ggh = fil.Get("th1f_sig_ada_ggh_%3.1f_cat0"%mass)
 	vbf = fil.Get("th1f_sig_ada_vbf_%3.1f_cat0"%mass)
@@ -44,7 +44,7 @@ if doInterp:
 	       ," Data ", hD.Integral()
 
 else:
-  m = [115,120,125,130,135,140,150]
+  m = [110,115,120,125,130,135,140,150]
   for mass in m :
 	ggh = fil.Get("th1f_sig_ada_ggh_%d.0_%d.0_cat0"%(mass,mass))
 	vbf = fil.Get("th1f_sig_ada_vbf_%d.0_%d.0_cat0"%(mass,mass))

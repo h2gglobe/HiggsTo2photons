@@ -109,6 +109,32 @@ public:
 	//std::string photonFixDat;
 	//std::string regressionFile;
 
+	// VBF
+  	// for N-1
+  	float  myVBFLeadJPt;
+  	float  myVBFSubJPt;
+  	float  myVBFdEta;
+  	float  myVBFZep;
+  	float  myVBFdPhi;
+  	float  myVBF_Mjj;
+
+  	float  myVBF_Mgg;
+
+ 	float  myAllLeadJPt;
+ 	float  myAllSubJPt;
+  	float  myAllLeadJEta;
+  	float  myAllSubJEta;
+ 	float  myAlldEta;
+  	float  myAllZep;
+ 	float  myAlldPhi;
+  	float  myAll_Mjj;
+
+  	float  myAll_Mgg;
+  	float  myAllPtHiggs;
+
+
+  	std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt);
+  	int RescaleJetEnergy(LoopAll&);
 protected:
 	void PreselectPhotons(LoopAll& l, int jentry);
 	void StatAnalysis(LoopAll &l, int jentry);
