@@ -42,6 +42,14 @@ pho_regr_energy_otf
 pho_regr_energyerr_otf
 
 ->
+Jets for VBF
+->
+jet_algoPF1_n
+jet_algoPF1_p4
+jet_algoPF1_erescale
+
+
+->
 CiC inputs
 ->
 pho_tkiso_badvtx_040_002_0000_10_01

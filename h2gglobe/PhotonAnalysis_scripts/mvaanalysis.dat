@@ -38,6 +38,12 @@ numberOfSidebandGaps=1
 massSidebandMin=99.5
 massSidebandMax=180.
 
+->
+General Options
+->
+
+includeVBF=1
+
 nEtaCategories=2
 nR9Categories=2
 nPtCategories=1

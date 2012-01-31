@@ -1,8 +1,10 @@
-intL=4763. histfile=CMS-HGG_mitbdt_jan2.root output=shifo.root
+intL=4763. histfile=CMS-HGG_mitbdt_jan2_vbf.root output=shifo.root
 
-Dir=cms-hgg_mitbdt_jan2
-
-
+Fil=../Macros/CMS-HGG_mitbdt_jan2_vbf.root
+->
+Dir=cms-hgg_mitbdt_jan2_vbf
+Fil=INCOMPLETEVBF.root
+->
 ->
 Branches to use
 ->
@@ -22,5 +24,7 @@ syntax:
 
 analyzer PhotonAnalysis photonanalysis.dat	
 ->
- 
+-> 
+analyzer MvaAnalysis photonanalysis.dat mvaanalysis.dat
+->
 analyzer MassFactorizedMvaAnalysis photonanalysis.dat massfactorizedmvaanalysis.dat

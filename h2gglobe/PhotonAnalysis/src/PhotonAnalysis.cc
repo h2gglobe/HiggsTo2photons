@@ -488,6 +488,7 @@ void PhotonAnalysis::Init(LoopAll& l)
 		cout << "InitRealPhotonAnalysis END"<<endl;
 
 	// FIXME book of additional variables
+
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -1283,3 +1284,106 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
  }
 }
 */
+
+std::pair<int, int> PhotonAnalysis::Select2HighestPtJets(LoopAll& l, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt){
+
+  std::pair<int, int> myJets(-1,-1);
+  std::pair<int, int> fail(-1,-1);
+
+  std::pair<int, int> myJetsnew(-1,-1);
+  std::pair<float, float> myJetspt(-1.,-1.);
+
+  float dr2pho = 0.5;
+  float dr2jet = 0.5;
+
+  TLorentzVector* j1p4;
+  TLorentzVector* j2p4;
+  float j1pt=-1;
+  float j2pt=-1;
+
+  // select ighest pt jets
+  // veto jets close to photons or each other
+  for(int j1_i=0; j1_i<l.jet_algoPF1_n; j1_i++){
+    j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j1_i);
+    if(fabs(j1p4->Eta()) > 4.7) continue;
+    if(j1p4->DeltaR(leadpho) < dr2pho) continue;
+    if(j1p4->DeltaR(subleadpho) < dr2pho) continue;
+    j1pt=j1p4->Pt();
+    if(j1pt<jtTMinPt) continue;
+    for(int j2_i=j1_i+1; j2_i<l.jet_algoPF1_n; j2_i++){
+      j2p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j2_i);
+      if(fabs(j2p4->Eta()) > 4.7) continue;
+      if(j2p4->DeltaR(leadpho) < dr2pho) continue;
+      if(j2p4->DeltaR(subleadpho) < dr2pho) continue;
+      if(j2p4->DeltaR(*j1p4) < dr2jet) continue;
+      j2pt=j2p4->Pt();
+      
+      if(j2pt<jtTMinPt) continue;
+      if(std::max(j1pt,j2pt)<jtLMinPt) continue;
+
+      if(j1pt>j2pt){
+        jtLMinPt=j1pt;
+        jtTMinPt=j2pt;
+
+        myJets.first = j1_i;
+        myJets.second = j2_i;
+      } else {
+        jtLMinPt=j2pt;
+        jtTMinPt=j1pt;
+
+        myJets.first = j2_i;
+        myJets.second = j1_i;
+      }
+    }
+  }
+
+  for(int j1_i=0; j1_i<l.jet_algoPF1_n; j1_i++){
+    j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(j1_i);
+    if(fabs(j1p4->Eta()) > 4.7) continue;
+    if(j1p4->DeltaR(leadpho) < dr2pho) continue;
+    if(j1p4->DeltaR(subleadpho) < dr2pho) continue;
+    j1pt=j1p4->Pt();
+
+    //cout<<"AAA MARCOMM "<<j1_i<<" "<<j1p4->Pt()<<" "<<j1p4->Eta()<<endl;
+
+    //if(j1pt<jtTMinPt) continue;
+
+    if(j1pt>myJetspt.first) {
+      myJetsnew.second=myJetsnew.first;
+      myJetspt.second=myJetspt.first;
+      myJetspt.first=j1pt;
+      myJetsnew.first=j1_i;
+    }
+    else if(j1pt>myJetspt.second) {
+      myJetspt.second=j1pt;
+      myJetsnew.second=j1_i;
+    }
+  }
+
+  //cout<<"AAA MARCOMM "<<l.jet_algoPF1_n<<" "<<myJetsnew.first<<" "<<myJetsnew.second<<endl;
+
+  //if(myJets.first==-1) return fail;
+  //return myJets;
+
+  if(myJetsnew.second!=-1&&myJetspt.first>jtTMinPt&&myJetspt.second>jtTMinPt) {
+    if(myJetsnew!=myJets) {
+      j1p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(myJetsnew.first);
+      j2p4 = (TLorentzVector*) l.jet_algoPF1_p4->At(myJetsnew.second);
+      float dr=j2p4->DeltaR(*j1p4);
+      //cout<<"myJetsnew myJets "<<myJetsnew.first<<myJetsnew.second<<myJets.first<<myJets.second<<" dr "<<dr<<endl;
+      //cout<<"myJetsnew myJets "<<myJetspt.first<<" "<<myJetspt.second<<" "<<jtLMinPt<<jtTMinPt<<endl;
+    }
+  }
+
+  return myJetsnew;
+}
+
+
+
+int  PhotonAnalysis::RescaleJetEnergy(LoopAll& l) {
+  for (int i = 0; i<l.jet_algoPF1_n; i++) {
+    TLorentzVector * thisjet = (TLorentzVector *) l.jet_algoPF1_p4->At(i);
+    *thisjet*=l.jet_algoPF1_erescale[i];
+  }
+  return 1;
+}
