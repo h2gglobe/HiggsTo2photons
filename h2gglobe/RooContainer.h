@@ -84,6 +84,7 @@ class RooContainer {
    // void ConvolutePdf(std::string,std::string,std::string,std::string
    //		      ,double norm_guess=100);
 
+   void MergeHistograms(std::string,std::string, bool systematics=false);
    void SumBinnedDatasets(std::string,std::string,std::string,std::vector<double>, std::vector<double>, bool scale=true);
    void SumBinnedDatasets(std::string,std::string,std::string,double,double, bool scale=true);
    void SumMultiBinnedDatasets(std::string,std::vector<std::string>,std::vector<double>,bool scale=true);
@@ -147,6 +148,7 @@ class RooContainer {
 			     ,std::vector<std::string> &,bool);
   // void convolutePdf(std::string,std::string,std::string,RooRealVar &,double norm_guess=100);
 
+   void mergeHistograms(std::string, TH1F*, TH1F*);
    void sumBinnedDatasets(std::string,std::string,std::string,double,double,bool);
    void sumMultiBinnedDatasets(std::string,std::vector<std::string>,double,bool scale=true);
    void createDataSet(std::string,std::string,int,double x1,double x2);

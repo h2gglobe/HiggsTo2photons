@@ -729,6 +729,100 @@ void RooContainer::SumBinnedDatasets(std::string new_name, std::string data_one,
 	}
 	
 }
+// -----------------------------------------------------------------------------------------
+void RooContainer::MergeHistograms(std::string data_one,std::string data_two, bool systematics){
+
+	// This will take 2 histograms and stick them one after another on the same x-axis, (as long as xmax_1=xmin_2)
+	// WARNING- this will not work on Datasets because It replaces the histograms
+
+	for (int cat=0;cat<ncat;cat++){
+
+	  std::string catNameOne = getcatName(data_one,cat);
+	  std::string catNameTwo = getcatName(data_two,cat);
+	  std::map<std::string,RooDataSet>::iterator it_data = data_.find(catNameOne);
+
+	  if (it_data!=data_.end()){
+
+		std::cerr << "WARNING -- RooContainer::MergeHistograms -- Cannot Merge Original Datasets "
+			  << catNameOne
+			  << std::endl;
+		return;
+	  }
+	
+	  std::map<std::string,TH1F>::iterator itOne = m_th1f_.find(catNameOne);
+	  std::map<std::string,TH1F>::iterator itTwo = m_th1f_.find(catNameTwo);
+
+	  if (itOne!=m_th1f_.end() && itTwo!=m_th1f_.end())
+		mergeHistograms(catNameOne,&(itOne->second),&(itTwo->second));
+	  else {
+		std::cerr << "WARNING -- RooContainer::MergeHistograms -- No Histograms found named "
+			  << catNameOne << " or " << catNameTwo
+			  << std::endl;
+		return;
+	  }
+
+	  if (systematics){
+		for (it_sys=systematics_.begin(); it_sys!=systematics_.end();it_sys++){ 
+		  for (int sys=1;sys<=nsigmas;sys++){
+		     std::string sysDNameOne = getsysindexName(catNameOne,it_sys->first,sys,-1);
+		     std::string sysUNameOne = getsysindexName(catNameOne,it_sys->first,sys,1);
+		     std::string sysDNameTwo = getsysindexName(catNameTwo,it_sys->first,sys,-1);
+		     std::string sysUNameTwo = getsysindexName(catNameTwo,it_sys->first,sys,1);
+		     std::map<std::string,TH1F>::iterator itOneD = m_th1f_.find(sysDNameOne);
+		     std::map<std::string,TH1F>::iterator itOneU = m_th1f_.find(sysUNameOne);
+		     std::map<std::string,TH1F>::iterator itTwoD = m_th1f_.find(sysDNameTwo);
+		     std::map<std::string,TH1F>::iterator itTwoU = m_th1f_.find(sysUNameTwo);
+		     if (itOneD!=m_th1f_.end()) {
+			mergeHistograms(sysDNameOne,&(itOneD->second),&(itTwoD->second));
+			mergeHistograms(sysUNameOne,&(itOneD->second),&(itTwoD->second));
+		     } else {
+			  std::cerr << "WARNING -- RooContainer::MergeHistograms -- No (systematic) Histograms found named "
+			  	    << sysDNameOne
+			  	    << std::endl;
+
+		     }	
+		  }
+	        }
+	  }
+
+	}
+	
+}
+// -----------------------------------------------------------------------------------------
+void RooContainer::mergeHistograms(std::string nameHist, TH1F* hist1, TH1F* hist2){
+   
+   //Get Bin Low edges of histogram 1
+   int nbins1 = hist1->GetNbinsX();
+   int nbins2 = hist2->GetNbinsX();
+   int nbinsTot = nbins1+nbins2;
+
+   double *arrBins1 = new double[nbins1];
+   double *arrBins2 = new double[nbins2+1];
+   double *arrBinsTot = new double[nbinsTot+1];
+
+   for (int i=1;i<=nbins1;i++){
+     arrBinsTot[i-1]=hist1->GetBinLowEdge(i);
+   }
+   for (int i=1;i<=nbins2+1;i++){	// Include upper edge in 2nd hist
+     arrBinsTot[i+nbins1-1]=hist2->GetBinLowEdge(i);
+   }
+
+   TH1F *newHist = new TH1F(hist1->GetName(),hist1->GetTitle(),nbinsTot,arrBinsTot);
+   for (int i=1;i<=nbins1;i++){
+	newHist->SetBinContent(i,hist1->GetBinContent(i));
+	newHist->SetBinError(i,hist1->GetBinError(i));
+   } 
+   for (int i=1;i<=nbins2;i++){
+	newHist->SetBinContent(i+nbins1,hist2->GetBinContent(i));
+	newHist->SetBinError(i+nbins1,hist2->GetBinError(i));
+   } 
+
+   // Now the dangerous part!
+   hist1 = newHist;
+   
+   
+}
+// -----------------------------------------------------------------------------------------
 
 void RooContainer::SumMultiBinnedDatasets(std::string new_name, std::vector<std::string > data, std::vector<double> normalisation,bool scale){
 	// this version takes a vector of histograms and sums them to the total normalisations. 

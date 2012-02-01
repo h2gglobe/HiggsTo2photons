@@ -9,7 +9,35 @@ from ROOT import quadInterpolate
 from optparse import OptionParser
 
 r=ROOT.TRandom3(0)
+
+# Some "Global" Variables
+# PLOT OPS ----------------
 lumistring = "4.76 fb^{-1}"
+sigscale = 5.
+# THEORY SYSTEMATICS ------
+lumi 		= "1.045"
+QCDscale_ggH  = "0.918/1.125"
+PDF_gg_1      = "0.923/1.079"
+PDF_gg_2      = "0.915/1.085"
+QCDscale_qqH  = "0.997/1.005"
+PDF_qqbar_1   = "0.979/1.027"
+PDF_qqbar_2   = "0.958/1.042" 
+QCDscale_VH   = "0.982/1.018"
+QCDscale_ttH  = "0.905/1.036"
+# SHAPE SYSTEMATICS -------
+systematics = [
+	       "E_res"
+	      ,"E_scale"
+	      ,"idEff"
+	      ,"r9Eff"
+	      ,"kFactor"
+	      ,"triggerEff"
+	      ,"vtxEff"
+	      ]
+# ADDITIONAL SYSTEMATICS --
+JetID_vbf = 0.1
+JetID_ggh = 0.7
+# -------------------------
 
 def plainBin(hist):
 	nb = hist.GetNbinsX()
@@ -22,7 +50,6 @@ def plainBin(hist):
 
 def plotDistributions(mass,data,signals,bkg,errors):
 
-	sigscale = 5.
 	for i in range(1,len(signals)):
 		signals[0].Add(signals[i])
 
@@ -201,17 +228,6 @@ def writeCard(tfile,mass,scaleErr):
      ,backgroundContents[b-1]))
   outPut.write("\n--------------------------------------------------------------\n")
 
-  # Some Globals #################################################################
-  lumi 		= "1.045"
-  QCDscale_ggH  = "0.918/1.125"
-  PDF_gg_1      = "0.923/1.079"
-  PDF_gg_2      = "0.915/1.085"
-  QCDscale_qqH  = "0.997/1.005"
-  PDF_qqbar_1   = "0.979/1.027"
-  PDF_qqbar_2   = "0.958/1.042" 
-  QCDscale_VH   = "0.982/1.018"
-  QCDscale_ttH  = "0.905/1.036"
-  ################################################################################
 
   # This next bit is for the signal systematics, first lets do the easy ones, lumi and theory
   outPut.write("\nlumi          lnN ")
@@ -231,8 +247,36 @@ def writeCard(tfile,mass,scaleErr):
 
   outPut.write("\n")
 
+  # includeVBF means the last bin is the VBF tagged bin and we apply and additional 
+  # 70% GGH(TTH) and 10% on the VBF(WZH) part of that category (configurable above)
+  if options.includeVBF:
+    print "Including VBF (last Bin) Systematics"
+    # calculate the effect on each bin, eg 70%, always assume last bin is VBF tag
+    numberOfGGH_dijet = gghHist.GetBinContent(nBins)*JetID_ggh
+    numberOfTTH_dijet = tthHist.GetBinContent(nBins)*JetID_ggh
+    numberOfVBF_dijet = vbfHist.GetBinContent(nBins)*JetID_vbf
+    numberOfWZH_dijet = wzhHist.GetBinContent(nBins)*JetID_vbf
+    
+    numberOfGGH_incl  = sum([gghHist.GetBinContent(b) for b in range(1,nBins)])
+    numberOfTTH_incl  = sum([tthHist.GetBinContent(b) for b in range(1,nBins)])
+    numberOfVBF_incl  = sum([vbfHist.GetBinContent(b) for b in range(1,nBins)])
+    numberOfWZH_incl  = sum([wzhHist.GetBinContent(b) for b in range(1,nBins)])
+
+    outPut.write("\nJetID_ggh  lnN ")
+      for b in range(1,nBins): outPut.write(" %.2f/%.2f   -   -   %.2f/%.2f   -  "%\
+		    (1.-(numberOfGGH_dijet/numberOfGGH_incl),1.+(numberOfGGH_dijet/numberOfGGH_incl))\
+		    (1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
+      outPut.write(" %.2f/%.2f   -   -   %.2f/%.2f   -  "%(1+JetID_ggh,1-JetID_ggh))
+    outPut.write("\nJetID_vbf  lnN ")
+      for b in range(1,nBins): outPut.write(" -  %.2f/%.2f  %.2f/%.2f  -   -  "%\
+		    (1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl))\
+		    (1.-(numberOfWZH_dijet/numberOfWZH_incl),1.+(numberOfWZH_dijet/numberOfWZH_incl)))
+      outPut.write(" -  %.2f/%.2f   %.2f/%.2f  -   -  "%(1+JetID_vbf,1-JetID_vbf))
+    outPut.write("\n")
+
+    
+   
   # Now is the very tedious part of the signal shape systematics, for each shape, simply do -/+ sigma
-  systematics = ["E_res","E_scale","idEff","r9Eff","kFactor","triggerEff","vtxEff"]
   
   if options.signalSys:
    print "Writing Systematics Part (coule be slow)"
@@ -318,6 +362,7 @@ parser.add_option("","--noSignalSys",action="store_false",dest="signalSys",defau
 parser.add_option("","--throwToy",action="store_true",dest="throwToy",default=False)
 parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
 parser.add_option("","--makePlot",dest="makePlot",default=False,action="store_true")
+parser.add_option("","--includeVBF",dest="includeVBF",default=False,action="store_true")
 parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
 parser.add_option("-t","--type",dest="bdtType",default="grad");
 
