@@ -221,7 +221,7 @@ void fillData(double mH,TFile *in, std::string type){
 }
 
 void paulFit(TDirectory *mDir,TH1F* fMFitS,TH1F* hMFitS,TH2F* hFCovar, bool makePlots, string type){
-      std::string label[global_nMaxMassBins]={"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16"};
+      std::string label[global_nMaxMassBins]={"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14"};
 
       TH1F *hMRaw[global_nMaxMassBins],*hMFit[global_nMaxMassBins];
       TGraphErrors *hBRaw[global_nMaxBdtBins],*hBFit[global_nMaxBdtBins];
@@ -598,8 +598,9 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool
 
 	for (double mH=massMin;mH<=massMax;mH+=dM){
 
-		TH1F *originalHist  = (TH1F*) in->Get(Form("th1f_bkg_%s_%3.1f_cat0",type.c_str(),mH));
-		int nBins = originalHist->GetNbinsX();
+		TH1F *originalHist      = (TH1F*) in->Get(Form("th1f_bkg_%s_%3.1f_cat0",type.c_str(),mH)); // This histogram is normalized to the inclusive fit (will not include VBF cat)
+		TH1F *dataHist  = (TH1F*) in->Get(Form("th1f_data_%s_%3.1f_cat0",type.c_str(),mH)); // Data Histogram, includes VBF category
+		int nBins = dataHist->GetNbinsX();
 
 		// Want to make a "corrected" histogram 
 		TH1F *correctedHist = new TH1F(Form("th1f_bkg_%s_%3.1f_cat0_fitsb_biascorr",type.c_str(),mH),Form("th1f_bkg_%s_%3.1f_cat0_fitsb_biascorr",type.c_str(),mH),nBins,0,nBins);		     

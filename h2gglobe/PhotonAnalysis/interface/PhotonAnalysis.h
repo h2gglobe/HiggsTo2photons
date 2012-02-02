@@ -40,6 +40,7 @@ public:
 
 //	void GetRegressionCorrections(LoopAll&);	
 	// Public parameters to be read from config file
+	float zero_;
 	VertexAlgoParameters vtxAlgoParams;	 
 	std::vector<std::string> vtxVarNames;
 	bool useDefaultVertex;

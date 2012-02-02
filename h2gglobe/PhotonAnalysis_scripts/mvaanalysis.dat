@@ -95,13 +95,16 @@ doVtxEffSmear=1
 doTriggerEffSmear=1
 doTriggerEffSyst=1
 
-doR9Smear=1
-doR9Syst=1
+doPhotonMvaIdSmear=1
+doPhotonMvaIdSyst=1
+
+doR9Smear=0
+doR9Syst=0
 
 doKFactorSmear=1
 doKFactorSyst=1
 
-mvaWeightsFolder=/vols/cms03/mk1009/h2g/MVA/weights/wt_23Jan/
+mvaWeightsFolder=/vols/cms02/h2g/weights/wt_01Feb/
 
 ->
 Inputs for reweighing
@@ -110,7 +113,7 @@ Inputs for reweighing
 ->
 
 kfacHist=aux/KFactors_AllScales_interpolated.root
-efficiencyFile=aux/sig_reweighing_v16_mit.root
+efficiencyFile=aux/sig_reweighing_v17_mit.root
 puHist=aux/2011_0100_73500.weights3.root
 
 puMap=pu_weights_map.dat

@@ -28,7 +28,7 @@ std::string EfficiencySmearer::photonCategory(PhotonReducedInfo & aPho) const
       else
 	myCategory+="EE";
       
-      if (aPho.r9()>=0.94)
+      if (aPho.r9()>=0.9)	// Change of the category for pre-selection
 	myCategory+="HighR9";
       else
 	myCategory+="LowR9";

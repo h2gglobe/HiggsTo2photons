@@ -39,7 +39,7 @@ def defineEvList(fname,dataset):
 
 class configProducer:
 
-  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0):
+  def __init__(self,Ut,conf_filename,Type,njobs=-1,jobId=0,makehistos=True):
 
     print "h2gglobe: step %d, with Config %s. Number of jobs %d. Running job %d" %(Type,conf_filename,njobs,jobId)
 
@@ -50,6 +50,8 @@ class configProducer:
     self.njobs_ = njobs
     self.jobId_ = jobId
     self.nf_ 	= [0]
+	
+    self.make_histograms=makehistos
 
     self.sample_weights_file_ = 0
     self.file_processed_events_ = {}
@@ -124,10 +126,11 @@ class configProducer:
       self.ut_.AddCounter(dum['ncat'] ,dum['countername'], dum['denomname1'], dum['denomname2'], dum['denomname3'])
       
   def init_histos(self):
-    self.read_dat_plotvariables('plotvariables.dat')
-    self.ut_.InitHistos()
-    for dum in self.plotvar_.vardef:
-      self.ut_.BookHisto(dum['htyp'],dum['plot'],dum['default'],dum['ncat'],dum['xbins'],dum['ybins'],dum['xmin'],dum['xmax'],dum['ymin'],dum['ymax'],dum['name'])
+    if self.make_histograms:
+      self.read_dat_plotvariables('plotvariables.dat')
+      self.ut_.InitHistos()
+      for dum in self.plotvar_.vardef:
+        self.ut_.BookHisto(dum['htyp'],dum['plot'],dum['default'],dum['ncat'],dum['xbins'],dum['ybins'],dum['xmin'],dum['xmax'],dum['ymin'],dum['ymax'],dum['name'])
       
   def init_reduce(self):
     self.read_config_reduce(self.conf_filename)

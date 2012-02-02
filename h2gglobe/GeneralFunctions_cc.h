@@ -191,7 +191,7 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, const
   return mva;
 }
 
-Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector &leadP4, TLorentzVector &subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, const char* type) {
+Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, float vtxProb, TLorentzVector &leadP4, TLorentzVector &subleadP4, float sigmaMrv, float sigmaMwv, float sigmaMeonly, const char* type, float photonID_1,float photonID_2) {
 
   // Ok need to re-write the diphoton-mva part since the systematics won't work unless we can change the Et of the photons
   // all we have to do is to pass in the ->Et of the two photons also rather than take them from the four-vector branches
@@ -231,8 +231,15 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
 //    tmva_dipho_MIT_dphi = TMath::Cos(((TLorentzVector*)pho_p4->At(leadingPho))->Phi() - ((TLorentzVector*)pho_p4->At(subleadingPho))->Phi());
     tmva_dipho_MIT_dphi = TMath::Cos(leadP4.Phi() - subleadP4.Phi());
       
+    if (photonID_1 < -1 && photonID_2 < -1){
     tmva_dipho_MIT_ph1mva = photonIDMVA(leadingPho,vtx, leadP4, "MIT");
     tmva_dipho_MIT_ph2mva = photonIDMVA(subleadingPho,vtx, subleadP4, "MIT");
+
+    } else {
+    tmva_dipho_MIT_ph1mva = photonID_1;//photonIDMVA(leadingPho,vtx, leadP4, "MIT");
+    tmva_dipho_MIT_ph2mva = photonID_2;//photonIDMVA(subleadingPho,vtx, subleadP4, "MIT");
+
+    }
     mva = tmvaReader_dipho_MIT->EvaluateMVA("Gradient");
   }
   
@@ -1587,7 +1594,7 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    float val_hcaliso = pho_hcalsumetconedr04[photon_index] - 0.002*phop4.Et();                              
    float val_trkiso  = pho_trksumptsolidconedr03[photon_index] - 0.005*phop4.Et();                          
    float val_hcalecal   = (val_ecaliso+val_hcaliso-rho*rhofac);                                             
-   float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vtx_std_sel];                
+   float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];                
    float val_trkiso_hollow03 = pho_trksumpthollowconedr03[photon_index];                                    
 //   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
    int   val_pho_isconv = pho_isconv[photon_index];
@@ -1637,7 +1644,7 @@ int LoopAll::PhotonCiCSelectionLevel( int photon_index, int vertex_index, std::v
   TLorentzVector phop4 = get_pho_p4( photon_index, vertex_index, pho_energy_array  );
   TLorentzVector phop4_badvtx = get_pho_p4( photon_index, pho_tkiso_badvtx_id[photon_index], pho_energy_array  );
 
-  float val_tkiso = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vtx_std_sel];
+  float val_tkiso = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];
   float val_ecaliso = pho_ecalsumetconedr03[photon_index];
   float val_hcaliso = pho_hcalsumetconedr04[photon_index];
   float val_ecalisobad = pho_ecalsumetconedr04[photon_index];

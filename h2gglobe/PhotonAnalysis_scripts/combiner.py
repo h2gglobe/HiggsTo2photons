@@ -24,7 +24,7 @@ if options.inputDat:
     config_file = options.inputDat
 
 ut = ROOT.LoopAll();
-cfg = configProducer(ut,config_file,0,int(options.nJobs),int(options.jobId))
+cfg = configProducer(ut,config_file,0,int(options.nJobs),int(options.jobId),False)
 #cfg = configProducer(ut,config_file,0,-1,0)
 
 if not options.dryRun:

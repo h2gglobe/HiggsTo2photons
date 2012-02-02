@@ -139,14 +139,14 @@ void plotBkgModel(TList* HistList, std::string name){
   txt->AddText("#int L = 4.70 fb^{-1}");
 
   for (int i=1; i<HistList->GetEntries(); i++){
-    if (((TH1F*)HistList->At(i))->GetNbinsX()!=((TH1F*)HistList->At(0))->GetNbinsX()) std::cout << "Plot problem: calling plot for histograms with different number of bins" << std::endl;
-    assert (((TH1F*)HistList->At(i))->GetNbinsX()==((TH1F*)HistList->At(0))->GetNbinsX());
+    //if (((TH1F*)HistList->At(i))->GetNbinsX()!=((TH1F*)HistList->At(0))->GetNbinsX()) std::cout << "Plot problem: calling plot for histograms with different number of bins" << std::endl;
+    //assert (((TH1F*)HistList->At(i))->GetNbinsX()==((TH1F*)HistList->At(0))->GetNbinsX());
     TH1F *temp = linearBin((TH1F*)HistList->At(i));
     temp->Scale(((TH1F*)HistList->At(0))->Integral()/temp->Integral());
     temp->SetLineColor(color[i-1]);
     temp->SetMarkerStyle(20);
     temp->SetMarkerColor(color[i-1]);
-    temp->SetTitle(Form("Background model in signal region from sidebands %s %s",bdt.c_str(),name.c_str()));
+    temp->SetTitle(Form("Data in sidebands %s %s",bdt.c_str(),name.c_str()));
     temp->GetXaxis()->SetTitle("BDT Output Bin");
     temp->GetYaxis()->SetRangeUser(1.0,2.*(((TH1F*)HistList->At(0))->GetMaximum()));
     if (i==1) temp->Draw("p");

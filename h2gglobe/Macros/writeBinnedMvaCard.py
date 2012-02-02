@@ -29,7 +29,7 @@ systematics = [
 	       "E_res"
 	      ,"E_scale"
 	      ,"idEff"
-	      ,"r9Eff"
+	      ,"phoIdMva"
 	      ,"kFactor"
 	      ,"triggerEff"
 	      ,"vtxEff"
@@ -50,13 +50,19 @@ def plainBin(hist):
 
 def plotDistributions(mass,data,signals,bkg,errors):
 
-	for i in range(1,len(signals)):
+	if options.splitSignal: # last signal is separated off
+	  for i in range(1,len(signals)-1):
+		signals[0].Add(signals[i])
+	else:
+	  for i in range(1,len(signals)):
 		signals[0].Add(signals[i])
 
 	nbins = data.GetNbinsX()
 
 	flatdata = plainBin(data)
 	flatsignal  = plainBin(signals[0])
+	flatsignal1  = plainBin(signals[-1])
+
 	flatbkg  = plainBin(bkg)
 
 	fNew  = flatbkg.Clone()
@@ -85,6 +91,9 @@ def plotDistributions(mass,data,signals,bkg,errors):
 #	flatsignal.SetFillColor(ROOT.kRed-10)
 #	flatsignal.SetFillStyle(1001)
 	flatsignal.Scale(sigscale)
+	flatsignal1.SetLineWidth(2)
+	flatsignal1.SetLineColor(ROOT.kGreen+3)
+	flatsignal1.Scale(sigscale)
 		
 	leg = ROOT.TLegend(0.56,0.56,0.88,0.88)
 	leg.SetFillColor(0)
@@ -98,17 +107,27 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	#c = ROOT.TCanvas("c","c",900,600)
 	c = ROOT.TCanvas()
 	c.SetLogy()
-	flatdata.GetXaxis().SetTitle("BDT Output Bin")
+	flatdata.GetXaxis().SetTitle("Category")
 	flatdata.Draw("9")
 	fNew2.Draw("9sameE2")
 	fNew.Draw("9sameE2")
 	flatbkg.Draw("9samehist")
-	flatsignal.Draw("9samehist")
+	if options.splitSignal: 
+	  sigst = ROOT.THStack()
+	  sigst.Add(flatsignal)
+	  sigst.Add(flatsignal1)
+	  sigst.Draw("9samehist")
+	else:
+	  flatsignal.Draw("9samehist")
 	flatdata.Draw("9sameP")
 	flatdata.SetMinimum(1)
 
 	leg.AddEntry(flatdata,"Data","PLE")
-	leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+	if options.splitSignal:
+	  leg.AddEntry(flatsignal,"Higgs (GG,WZ,TT), m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+	  leg.AddEntry(flatsignal1,"Higgs (VBF), m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+
+	else: leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
 	leg.AddEntry(flatbkg,"Background","L")
 	leg.AddEntry(fNewT,"\pm 1\sigma","F")
 	leg.AddEntry(fNew2T,"\pm 2\sigma","F")
@@ -168,6 +187,7 @@ def writeCard(tfile,mass,scaleErr):
   print "Number of Channels -> ", nBins
   # bkg model ->
   bkgHist  	= tfile.Get("th1f_bkg_"+type+"_%3.1f_cat0"%mass)
+  
   if options.Bias: bkgHistCorr   = tfile.Get("th1f_bkg_"+type+"_%3.1f_cat0_fitsb_biascorr"%mass)
   # 4 signal channels ->
   gghHist  = tfile.Get("th1f_sig_"+type+"_ggh_%3.1f_cat0"%mass)
@@ -231,19 +251,21 @@ def writeCard(tfile,mass,scaleErr):
 
   # This next bit is for the signal systematics, first lets do the easy ones, lumi and theory
   outPut.write("\nlumi          lnN ")
-  for b in range(1,nBins+1): outPut.write(" %s  %s  %s  %s  -  "%(lumi,lumi,lumi,lumi))
-  outPut.write("\nQCDscale_ggH  lnN ")
-  for b in range(1,nBins+1): outPut.write(" %s  -   -   -   -  "%(QCDscale_ggH))
-  outPut.write("\nPDF_gg        lnN ")
-  for b in range(1,nBins+1): outPut.write(" %s  -   -   %s  -  "%(PDF_gg_1,PDF_gg_2))
-  outPut.write("\nQCDscale_qqH  lnN ")
-  for b in range(1,nBins+1): outPut.write(" -   %s  -   -   -  "%(QCDscale_qqH))
-  outPut.write("\nPDF_qqbar     lnN ")
-  for b in range(1,nBins+1): outPut.write(" -   %s  %s  -   -  "%(PDF_qqbar_1,PDF_qqbar_2))
-  outPut.write("\nQCDscale_VH   lnN ")
-  for b in range(1,nBins+1): outPut.write(" -   -   %s  -   -  "%(QCDscale_VH))
-  outPut.write("\nQCDscale_ttH  lnN ")
-  for b in range(1,nBins+1): outPut.write(" -   -   -   %s  -  "%(QCDscale_ttH))
+
+  if options.theorySys:
+    for b in range(1,nBins+1): outPut.write(" %s  %s  %s  %s  -  "%(lumi,lumi,lumi,lumi))
+    outPut.write("\nQCDscale_ggH  lnN ")
+    for b in range(1,nBins+1): outPut.write(" %s  -   -   -   -  "%(QCDscale_ggH))
+    outPut.write("\nPDF_gg        lnN ")
+    for b in range(1,nBins+1): outPut.write(" %s  -   -   %s  -  "%(PDF_gg_1,PDF_gg_2))
+    outPut.write("\nQCDscale_qqH  lnN ")
+    for b in range(1,nBins+1): outPut.write(" -   %s  -   -   -  "%(QCDscale_qqH))
+    outPut.write("\nPDF_qqbar     lnN ")
+    for b in range(1,nBins+1): outPut.write(" -   %s  %s  -   -  "%(PDF_qqbar_1,PDF_qqbar_2))
+    outPut.write("\nQCDscale_VH   lnN ")
+    for b in range(1,nBins+1): outPut.write(" -   -   %s  -   -  "%(QCDscale_VH))
+    outPut.write("\nQCDscale_ttH  lnN ")
+    for b in range(1,nBins+1): outPut.write(" -   -   -   %s  -  "%(QCDscale_ttH))
 
   outPut.write("\n")
 
@@ -263,15 +285,15 @@ def writeCard(tfile,mass,scaleErr):
     numberOfWZH_incl  = sum([wzhHist.GetBinContent(b) for b in range(1,nBins)])
 
     outPut.write("\nJetID_ggh  lnN ")
-      for b in range(1,nBins): outPut.write(" %.2f/%.2f   -   -   %.2f/%.2f   -  "%\
-		    (1.-(numberOfGGH_dijet/numberOfGGH_incl),1.+(numberOfGGH_dijet/numberOfGGH_incl))\
-		    (1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
-      outPut.write(" %.2f/%.2f   -   -   %.2f/%.2f   -  "%(1+JetID_ggh,1-JetID_ggh))
+    for b in range(1,nBins): outPut.write(" %.2f/%.2f   -   -   %.2f/%.2f   -  "%\
+		    (1.-(numberOfGGH_dijet/numberOfGGH_incl),1.+(numberOfGGH_dijet/numberOfGGH_incl),\
+		     1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
+    outPut.write(" %.2f/%.2f   -   -   %.2f/%.2f   -  "%(1+JetID_ggh,1-JetID_ggh,1+JetID_ggh,1-JetID_ggh))
     outPut.write("\nJetID_vbf  lnN ")
-      for b in range(1,nBins): outPut.write(" -  %.2f/%.2f  %.2f/%.2f  -   -  "%\
-		    (1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl))\
-		    (1.-(numberOfWZH_dijet/numberOfWZH_incl),1.+(numberOfWZH_dijet/numberOfWZH_incl)))
-      outPut.write(" -  %.2f/%.2f   %.2f/%.2f  -   -  "%(1+JetID_vbf,1-JetID_vbf))
+    for b in range(1,nBins): outPut.write(" -  %.2f/%.2f  %.2f/%.2f  -   -  "%\
+		    (1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl),\
+		     1.-(numberOfWZH_dijet/numberOfWZH_incl),1.+(numberOfWZH_dijet/numberOfWZH_incl)))
+    outPut.write(" -  %.2f/%.2f   %.2f/%.2f  -   -  "%(1+JetID_vbf,1-JetID_vbf,1+JetID_vbf,1-JetID_vbf))
     outPut.write("\n")
 
     
@@ -318,7 +340,7 @@ def writeCard(tfile,mass,scaleErr):
 
 	# Input Signed Error Matrix from Fit 
 	th2f_errmatrix = tfile.Get("fUncorrErr_%3.1f"%mass)
-	for b in range(1,nBins+1):
+	for b in range(1,nBins):  # This error matrix is nBins-1 X nBins-1 due to constraint on sum on fractions
            outPut.write("\nmassBias%d lnN"%b)
 	   for q in range(1,nBins+1):
 	   	f_errentry = th2f_errmatrix.GetBinContent(b,q)
@@ -344,9 +366,9 @@ def writeCard(tfile,mass,scaleErr):
 	if options.Bias : plotBKG = bkgHistCorr.Clone()
 	else: plotBKG = bkgHist.Clone()
 	plotDistributions(mass,dataHist.Clone() \
-			,[gghHist.Clone(),vbfHist.Clone(),wzhHist.Clone(),tthHist.Clone()] \
+			,[gghHist.Clone(),wzhHist.Clone(),tthHist.Clone(),vbfHist.Clone()]\
 			,plotBKG \
-			,[scaleErr-1. for b in range(nBins)])
+			,[scaleErr-1. for b in range(nBins)])# put VBF at the end for plot option
 
   outPut.write("\n")  # done
   outPut.close()
@@ -359,17 +381,23 @@ parser.add_option("","--noB2B",action="store_false",dest="B2B",default=True)
 #parser.add_option("","--addBias",dest="biasFile",default=None)
 parser.add_option("","--noBias",dest="Bias",default=True,action="store_false")
 parser.add_option("","--noSignalSys",action="store_false",dest="signalSys",default=True)
+parser.add_option("","--noTheorySys",action="store_false",dest="theorySys",default=True)
 parser.add_option("","--throwToy",action="store_true",dest="throwToy",default=False)
 parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
 parser.add_option("","--makePlot",dest="makePlot",default=False,action="store_true")
-parser.add_option("","--includeVBF",dest="includeVBF",default=False,action="store_true")
+parser.add_option("","--noVbfTag",dest="includeVBF",default=True,action="store_false")
+parser.add_option("","--plotCombineVbf",dest="splitSignal",default=True,action="store_false")
 parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
 parser.add_option("-t","--type",dest="bdtType",default="grad");
+
 
 (options,args)=parser.parse_args()
 print "Creating Binned Datacards from workspace -> ", options.tfileName
 if options.throwToy: print ("Throwing Toy dataset from BKG")
 if options.expSig > 0: print ("(Also throwing signal SMx%f)"%options.expSig)
+
+if not options.includeVBF: options.splitSignal=False
+if (not options.Bias) and options.includeVBF: sys.exit("Cannot use summed sideband (ie assume no mH dependance) for VBF (currently unsupported)")
 
 type=options.bdtType
 
@@ -391,8 +419,9 @@ genMasses     = [110,115,120,125,130,135,140,145,150]
 #scalingErrors = [1.013,1.013,1.012,1.012,1.014,1.015,1.016,1.016] # Takes from P.Dauncey studies -> 7% window (100-180)
 #scalingErrors = [1.011,1.01,1.009,1.011,1.011,1.013,1.014,1.014] 	  # Takes from P.Dauncey studies -> 2% window (100-180)
 #scalingErrors = [1.00815,1.01024,1.01076,1.01197,1.0099,1.009,1.00928,1.01054 ] 	  # Takes from P.Dauncey studies -> 2% window (100-180) / MIT Preselection
-
-scalingErrors = [ 1.008,1.008,1.008,1.008,1.01,1.010,1.011,1.012,1.012] # P.Dauncey 100-180 2% window /MIT preselction +BDT>-0.5
+#scalingErrors = [ 1.008,1.008,1.008,1.008,1.01,1.010,1.011,1.012,1.012] # P.Dauncey 100-180 2% window /MIT preselction +BDT>-0.5
+scalingErrors = [1.0136,1.0152,1.01425,1.01102,1.01283,1.01568,1.02157,1.02467,1.02466] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 (Pow2 Fit)
+ 
 
 evalMasses    = numpy.arange(110,150.5,0.5)
 normG = ROOT.TGraph(len(genMasses))

@@ -516,6 +516,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
   if(PADEBUG) 
     cout << "Analysis START; cur_type is: " << l.itype[l.current] <<endl;
 
+
   int cur_type = l.itype[l.current];
   float weight = l.sampleContainer[l.current_sample_index].weight;
   l.FillCounter( "Processed", 1. );
@@ -773,7 +774,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
       float pth = Higgs.Pt();
       for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
         float rewei=1.;
-        (*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
+        (*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), zero_ ,zero_,0.);
         if( rewei < 0. ) {
           std::cerr << "Negative weight from smearer " << (*si)->name() << std::endl;
           assert(0);
@@ -991,9 +992,9 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             float swei=1.;
             float pth = Higgs.Pt();
             if( *si == *sj ) { 
-              (*si)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), syst_shift );
+              (*si)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)) ,zero_,zero_, syst_shift);
             } else { 
-              (*sj)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
+              (*sj)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)),zero_,zero_, 0. );
             }
             evweight *= swei;
           }
@@ -1095,7 +1096,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
             for(std::vector<BaseDiPhotonSmearer *>::iterator si=diPhotonSmearers_.begin(); si!= diPhotonSmearers_.end(); ++si ) {
               float rewei=1.;
               float pth = Higgs.Pt();
-              (*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), 0. );
+              (*si)->smearDiPhoton( Higgs, *vtx, rewei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)),zero_,zero_,0.);
               evweight *= rewei;
             }
           }

@@ -774,7 +774,7 @@ void RooContainer::MergeHistograms(std::string data_one,std::string data_two, bo
 		     std::map<std::string,TH1F>::iterator itTwoU = m_th1f_.find(sysUNameTwo);
 		     if (itOneD!=m_th1f_.end()) {
 			mergeHistograms(sysDNameOne,&(itOneD->second),&(itTwoD->second));
-			mergeHistograms(sysUNameOne,&(itOneD->second),&(itTwoD->second));
+			mergeHistograms(sysUNameOne,&(itOneU->second),&(itTwoU->second));
 		     } else {
 			  std::cerr << "WARNING -- RooContainer::MergeHistograms -- No (systematic) Histograms found named "
 			  	    << sysDNameOne
@@ -807,7 +807,11 @@ void RooContainer::mergeHistograms(std::string nameHist, TH1F* hist1, TH1F* hist
      arrBinsTot[i+nbins1-1]=hist2->GetBinLowEdge(i);
    }
 
-   TH1F *newHist = new TH1F(hist1->GetName(),hist1->GetTitle(),nbinsTot,arrBinsTot);
+   const char *histoname = hist1->GetName();
+   const char *histotitle = hist1->GetTitle();
+
+   TH1F *newHist = new TH1F(Form("NUMPTYNAME%s",hist1->GetName()),histotitle,nbinsTot,arrBinsTot);
+   newHist->SetName(hist1->GetName());
    for (int i=1;i<=nbins1;i++){
 	newHist->SetBinContent(i,hist1->GetBinContent(i));
 	newHist->SetBinError(i,hist1->GetBinError(i));
@@ -817,8 +821,11 @@ void RooContainer::mergeHistograms(std::string nameHist, TH1F* hist1, TH1F* hist
 	newHist->SetBinError(i+nbins1,hist2->GetBinError(i));
    } 
 
+   std::cout << "RooContainer::MergeHistograms -- Replacing histogram - " 
+	     << newHist->GetName()
+	     << std::endl;
    // Now the dangerous part!
-   hist1 = newHist;
+   *hist1 = *newHist;
    
    
 }
