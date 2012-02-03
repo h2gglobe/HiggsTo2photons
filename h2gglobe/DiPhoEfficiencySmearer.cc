@@ -23,8 +23,8 @@ bool DiPhoEfficiencySmearer::smearDiPhoton( TLorentzVector & p4, TVector3 & selV
   if (doMvaIdEff_){
     
       float frac_idvary = 0.02;
-      idMVA1 *= 1.+syst_shift*frac_idvary; 
-      idMVA2 *= 1.+syst_shift*frac_idvary;
+      idMVA1 += syst_shift*frac_idvary; 
+      idMVA2 += syst_shift*frac_idvary;
  
   } else {
     std::string cat=Form("cat%d", category);
