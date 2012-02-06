@@ -53,7 +53,7 @@ reRunCiCForData=1
 
 doTraining=0
 splitSignalSample=0
-splitBackgroundSample=1
+splitBackgroundSample=0
 
 ->
 choose between UCSD and MIT trainings

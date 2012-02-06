@@ -1,7 +1,9 @@
-intL=4763. histfile=CMS-HGG_icbdt_mitbdt_jan2_vbf.root output=shifo.root
-Fil=../Macros/CMS-HGG_icbdt_mitbdt_jan2_vbf.root
+intL=4763. histfile=apol5try.root output=shifo.root
+
+Fil=../Macros/cmshgg/CMS-HGG_icbdt_mitbdt_jan2_vbf.root
 ->
-Dir=cms-hgg_icvbf_merged
+Dir=cms-hgg_icvbf_fixtrkiso
+Dir=cms-hgg_icvbf_fixtrkiso_merged
 ->
 ->
 Branches to use

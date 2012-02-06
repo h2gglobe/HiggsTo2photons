@@ -45,6 +45,14 @@ def plainBin(hist):
 	for i in range (1,nb+1):
 		h2.SetBinContent(i,hist.GetBinContent(i))
 		h2.SetBinError(i,hist.GetBinError(i))
+		if (options.includeVBF):
+			#h2.GetXaxis().SetLabelSize(0.03)
+			print hist.GetBinLowEdge(i)
+			if hist.GetBinLowEdge(i+1) <= 1.:
+			 # h2.GetXaxis().SetBinLabel(i,"%.4f < BDT < %.4f "%(hist.GetBinLowEdge(i),hist.GetBinLowEdge(i+1)))
+			  h2.GetXaxis().SetBinLabel(i,"BDT Bin %d "%(i))
+			else: 
+			  h2.GetXaxis().SetBinLabel(i," Di-jet ")
 	h2.GetXaxis().SetNdivisions(nb)
 	return h2
 
@@ -64,6 +72,8 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	flatsignal1  = plainBin(signals[-1])
 
 	flatbkg  = plainBin(bkg)
+	flatbkg.SetLineColor(4)
+	flatbkg.SetLineWidth(2)
 
 	fNew  = flatbkg.Clone()
 	fNew2 = flatbkg.Clone()
@@ -92,7 +102,7 @@ def plotDistributions(mass,data,signals,bkg,errors):
 #	flatsignal.SetFillStyle(1001)
 	flatsignal.Scale(sigscale)
 	flatsignal1.SetLineWidth(2)
-	flatsignal1.SetLineColor(ROOT.kGreen+3)
+	flatsignal1.SetLineColor(ROOT.kGreen+4)
 	flatsignal1.Scale(sigscale)
 		
 	leg = ROOT.TLegend(0.56,0.56,0.88,0.88)
@@ -103,11 +113,12 @@ def plotDistributions(mass,data,signals,bkg,errors):
 		additional = errors[b-1]
   		fNew.SetBinError(b,((fNew.GetBinError(b)**2)+((fNew.GetBinContent(b)*additional)**2))**0.5)
   		fNew2.SetBinError(b,2*(((fNew2.GetBinError(b)**2)+((fNew2.GetBinContent(b)*additional)**2))**0.5))
+  	#	flatbkg.SetBinError(b,((flatbkg.GetBinError(b)**2)+((flatbkg.GetBinContent(b)*additional)**2))**0.5)
 	
 	#c = ROOT.TCanvas("c","c",900,600)
 	c = ROOT.TCanvas()
 	c.SetLogy()
-	flatdata.GetXaxis().SetTitle("Category")
+	if (not options.includeVBF): flatdata.GetXaxis().SetTitle("Category")
 	flatdata.Draw("9")
 	fNew2.Draw("9sameE2")
 	fNew.Draw("9sameE2")
@@ -124,10 +135,10 @@ def plotDistributions(mass,data,signals,bkg,errors):
 
 	leg.AddEntry(flatdata,"Data","PLE")
 	if options.splitSignal:
-	  leg.AddEntry(flatsignal,"Higgs (GG,WZ,TT), m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
-	  leg.AddEntry(flatsignal1,"Higgs (VBF), m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+	  leg.AddEntry(flatsignal,"Higgs (GG,WZ,TT), m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+	  leg.AddEntry(flatsignal1,"Higgs, m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
 
-	else: leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+	else: leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
 	leg.AddEntry(flatbkg,"Background","L")
 	leg.AddEntry(fNewT,"\pm 1\sigma","F")
 	leg.AddEntry(fNew2T,"\pm 2\sigma","F")
@@ -143,6 +154,57 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	leg.Draw()
 	c.SaveAs(plotOutDir+"/model_m%3.1f.pdf"%mass)
 	c.SaveAs(plotOutDir+"/model_m%3.1f.png"%mass)
+	
+	d = ROOT.TCanvas()
+	leg2 = ROOT.TLegend(0.56,0.56,0.88,0.88)
+	leg2.SetFillColor(0)
+	leg2.SetBorderSize(0)
+	#d.SetLogy()
+	if (not options.includeVBF): flatdata.GetXaxis().SetTitle("Category")
+	flatdata.GetYaxis().SetTitle("Data - Background");
+	datErrs = []
+	for b in range(1,nbins+1): datErrs.append((flatdata.GetBinContent(b))**0.5);
+	flatdata.Add(flatbkg,-1)
+	for b in range(1,nbins+1): 
+		flatdata.SetBinError(b,((datErrs[b-1]*datErrs[b-1]) +(fNew.GetBinError(b)*fNew.GetBinError(b)))**0.5 )
+	flatbkg.Add(flatbkg,-1)
+
+	flatdata.Draw("9")
+	#fNew2.Draw("9sameE2")
+	#fNew.Draw("9sameE2")
+	flatbkg.Draw("9samehist")
+	if options.splitSignal: 
+	  sigst = ROOT.THStack()
+	  sigst.Add(flatsignal)
+	  sigst.Add(flatsignal1)
+	  sigst.Draw("9samehist")
+	else:
+	  flatsignal.Draw("9samehist")
+	flatdata.Draw("9sameP")
+	flatdata.SetMaximum(250)
+	flatdata.SetMinimum(-100)
+
+	leg2.AddEntry(flatdata,"Data","PLE")
+	if options.splitSignal:
+	  leg2.AddEntry(flatsignal,"Higgs (GG,WZ,TT), m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+	  leg2.AddEntry(flatsignal1,"Higgs, m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+
+	else: leg2.AddEntry(flatsignal,"Higgs, m_{H}=%3.0f GeV (x%d)"%(mass,int(sigscale)) ,"L")
+	leg2.AddEntry(flatbkg,"Background","L")
+
+	mytext.SetTextSize(0.04)
+
+	leg2.Draw()
+	mytext = ROOT.TLatex()
+	mytext.SetTextSize(0.03)
+	mytext.SetNDC()
+#	mytext.DrawLatex(0.28,0.8,"#splitline{CMS preliminary}{#sqrt{s} = 7 TeV L = %s}"%(lumistring))
+	mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ")
+	mytext.SetTextSize(0.04)
+	mytext.DrawLatex(0.2,0.8,"#int L = %s"%(lumistring))
+	d.SaveAs(plotOutDir+"/diff_model_m%3.1f.pdf"%mass)
+	d.SaveAs(plotOutDir+"/diff_model_m%3.1f.png"%mass)
+	
 
 
 #def getBinningMass(mass):
@@ -199,6 +261,7 @@ def writeCard(tfile,mass,scaleErr):
   ###############################################################################
   # Write the basics
   outPut.write("Mva Binned Analysis DataCard (mH=%3.1f) \n"%mass)
+  outPut.write("DataCard extracted from %s \n"%tfile.GetName())
   outPut.write("--------------------------------------------------------------\n")
   outPut.write("imax *\n")
   outPut.write("jmax *\n")
@@ -285,15 +348,15 @@ def writeCard(tfile,mass,scaleErr):
     numberOfWZH_incl  = sum([wzhHist.GetBinContent(b) for b in range(1,nBins)])
 
     outPut.write("\nJetID_ggh  lnN ")
-    for b in range(1,nBins): outPut.write(" %.2f/%.2f   -   -   %.2f/%.2f   -  "%\
+    for b in range(1,nBins): outPut.write(" %.3f/%.3f   -   -   %.3f/%.3f   -  "%\
 		    (1.-(numberOfGGH_dijet/numberOfGGH_incl),1.+(numberOfGGH_dijet/numberOfGGH_incl),\
 		     1.-(numberOfTTH_dijet/numberOfTTH_incl),1.+(numberOfTTH_dijet/numberOfTTH_incl)))
-    outPut.write(" %.2f/%.2f   -   -   %.2f/%.2f   -  "%(1+JetID_ggh,1-JetID_ggh,1+JetID_ggh,1-JetID_ggh))
+    outPut.write(" %.3f/%.3f   -   -   %.3f/%.3f   -  "%(1+JetID_ggh,1-JetID_ggh,1+JetID_ggh,1-JetID_ggh))
     outPut.write("\nJetID_vbf  lnN ")
-    for b in range(1,nBins): outPut.write(" -  %.2f/%.2f  %.2f/%.2f  -   -  "%\
+    for b in range(1,nBins): outPut.write(" -  %.3f/%.3f  %.3f/%.3f  -   -  "%\
 		    (1.-(numberOfVBF_dijet/numberOfVBF_incl),1.+(numberOfVBF_dijet/numberOfVBF_incl),\
 		     1.-(numberOfWZH_dijet/numberOfWZH_incl),1.+(numberOfWZH_dijet/numberOfWZH_incl)))
-    outPut.write(" -  %.2f/%.2f   %.2f/%.2f  -   -  "%(1+JetID_vbf,1-JetID_vbf,1+JetID_vbf,1-JetID_vbf))
+    outPut.write(" -  %.3f/%.3f   %.3f/%.3f  -   -  "%(1+JetID_vbf,1-JetID_vbf,1+JetID_vbf,1-JetID_vbf))
     outPut.write("\n")
 
     
@@ -421,7 +484,9 @@ genMasses     = [110,115,120,125,130,135,140,145,150]
 #scalingErrors = [1.00815,1.01024,1.01076,1.01197,1.0099,1.009,1.00928,1.01054 ] 	  # Takes from P.Dauncey studies -> 2% window (100-180) / MIT Preselection
 #scalingErrors = [ 1.008,1.008,1.008,1.008,1.01,1.010,1.011,1.012,1.012] # P.Dauncey 100-180 2% window /MIT preselction +BDT>-0.5
 scalingErrors = [1.0136,1.0152,1.01425,1.01102,1.01283,1.01568,1.02157,1.02467,1.02466] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 (Pow2 Fit)
- 
+#scalingErrors = [1.025,1.025,1.025,1.025,1.025,1.025,1.025,1.025,1.025] # FLAT 25%
+#scalingErrors = [ 1.01185,1.01292,1.01378,1.01378,1.01594,1.01539,1.01814,1.02052,1.02257] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 (Pol5 Fit)
+
 
 evalMasses    = numpy.arange(110,150.5,0.5)
 normG = ROOT.TGraph(len(genMasses))
@@ -434,8 +499,8 @@ normG.SetMarkerStyle(20)
 normG.GetXaxis().SetTitle("mH")
 normG.GetYaxis().SetTitle("(N+dN)/N")
 normG.Draw("ALP")
-print "Check the Errors Look Sensible -> plot saved to normErrors_%s"%options.tfileName
-can.SaveAs(plotOutDir+"/normErrors_%s.pdf"%options.tfileName)
+print "Check the Errors Look Sensible -> plot saved to normErrors_%s"%(options.tfileName)
+can.SaveAs("normErrors_%s.pdf"%options.tfileName)
 
 # Now we can write the cards
 #tfileName = sys.argv[1]

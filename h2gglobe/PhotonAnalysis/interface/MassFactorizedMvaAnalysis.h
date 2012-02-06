@@ -53,8 +53,8 @@ public:
 	std::string GetSignalLabel(int) ;
 
 	bool  doMCSmearing;
-	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst;
-	bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear;
+	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst, doPhotonMvaIdSyst;
+	bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear, doPhotonMvaIdSmear;
 	float systRange;
 	int   nSystSteps;   
 	int   nEtaCategories, nR9Categories, nPtCategories;
@@ -93,7 +93,7 @@ protected:
 	
 	EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer ; // moved to PhotonAnalysis GF 
 	EfficiencySmearer *idEffSmearer, *r9Smearer;
-	DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer;
+	DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer,*photonMvaIdSmearer ;
 	KFactorSmearer * kFactorSmearer;
 	
 	std::string name_;

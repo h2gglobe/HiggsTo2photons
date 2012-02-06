@@ -1445,11 +1445,22 @@ int LoopAll::DiphotonCiCSelection( phoCiCIDLevel LEADCUTLEVEL, phoCiCIDLevel SUB
 	  if( leadEta > 2.5 || subleadEta > 2.5 || 
 	      ( leadEta > 1.4442 && leadEta < 1.566 ) ||
 	      ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
-	  
+
+	  float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
+      	  float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt(); 	  
+
 	  if( applyPtoverM ) {
-	    if ( lead_p4.Pt()/m_gamgam < leadPtMin/120. || sublead_p4.Pt()/m_gamgam < subleadPtMin/120. ) { continue; }
+	    if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ) { continue; }
 	  } else {
-	    if ( lead_p4.Pt() < leadPtMin || sublead_p4.Pt() < subleadPtMin ) { continue; }
+	    if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
+	  }
+	  
+	  if (subleadpt > leadpt){ // Swap them
+		int tmp = lead;
+		lead = sublead;
+		sublead =tmp;
+		dipho_leadind[idipho] = lead;
+		dipho_subleadind[idipho] = sublead;
 	  }
 
 	  std::vector<std::vector<bool> > ph_passcut;
@@ -1533,11 +1544,23 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
 	  if( leadEta > 2.5 || subleadEta > 2.5 || 
 	      ( leadEta > 1.4442 && leadEta < 1.566 ) ||
 	      ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
-	  
+
+
+	  float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
+      	  float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt(); 	  
+
 	  if( applyPtoverM ) {
-	    if ( lead_p4.Pt()/m_gamgam < leadPtMin/120. || sublead_p4.Pt()/m_gamgam < subleadPtMin/120. ) { continue; }
+	    if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ) { continue; }
 	  } else {
-	    if ( lead_p4.Pt() < leadPtMin || sublead_p4.Pt() < subleadPtMin ) { continue; }
+	    if ( leadpt < leadPtMin || subleadpt < subleadPtMin ) { continue; }
+	  }
+	  
+	  if (subleadpt > leadpt){ // Swap them
+		int tmp = lead;
+		lead = sublead;
+		sublead =tmp;
+		dipho_leadind[idipho] = lead;
+		dipho_subleadind[idipho] = sublead;
 	  }
 
 	  std::vector<std::vector<bool> > ph_passcut;

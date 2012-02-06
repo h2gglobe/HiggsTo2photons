@@ -149,6 +149,17 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     triggerEffSmearer->init();
     diPhotonSmearers_.push_back(triggerEffSmearer);
   }
+  if( doPhotonMvaIdSmear ) {
+    // trigger efficiency
+    std::cerr << __LINE__ << std::endl; 
+    photonMvaIdSmearer = new DiPhoEfficiencySmearer( diPhoEffSmearPars );
+    photonMvaIdSmearer->name("phoIdMva");
+    photonMvaIdSmearer->setEffName("effL1HLT");
+    photonMvaIdSmearer->doVtxEff(false);
+    photonMvaIdSmearer->doMvaIdEff(true);
+    photonMvaIdSmearer->init();
+    diPhotonSmearers_.push_back(photonMvaIdSmearer);
+  }
   if(doKFactorSmear) {
     // kFactor efficiency
     std::cerr << __LINE__ << std::endl; 
@@ -214,6 +225,12 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
   if( doTriggerEffSmear && doTriggerEffSyst ) {
     systDiPhotonSmearers_.push_back( triggerEffSmearer );
     std::vector<std::string> sys(1,triggerEffSmearer->name());
+    std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
+    l.rooContainer->MakeSystematicStudy(sys,sys_t);
+  }
+  if( doPhotonMvaIdSmear && doPhotonMvaIdSyst ) {
+    systDiPhotonSmearers_.push_back( photonMvaIdSmearer );
+    std::vector<std::string> sys(1,photonMvaIdSmearer->name());
     std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
     l.rooContainer->MakeSystematicStudy(sys,sys_t);
   }
@@ -309,9 +326,9 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
   l.rooContainer->AddConstant("ff_XSBR_vbf_105",0.151616);
   l.rooContainer->AddConstant("ff_XSBR_wzh_105",0.1609787);
 
-  l.rooContainer->AddRealVar("pol0",-0.05,-1.5,1.5);
-  l.rooContainer->AddRealVar("pol1",-0.05,-1.5,1.5);
-  l.rooContainer->AddRealVar("pol2",-0.05,-1.5,1.5);
+  l.rooContainer->AddRealVar("pol0",-0.01,-1.5,1.5);
+  l.rooContainer->AddRealVar("pol1",-0.01,-1.5,1.5);
+  l.rooContainer->AddRealVar("pol2",-0.01,-1.5,1.5);
   l.rooContainer->AddRealVar("pol3",-0.01,-1.5,1.5);
   l.rooContainer->AddRealVar("pol4",-0.01,-1.5,1.5);
   l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
@@ -354,9 +371,9 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
        "0","CMS_hgg_mass",data_pol3_pars,73);    // >= 71 means RooBernstein of order >= 1
      */
     if (includeVBF){
-      int poly2cats[5] = {1,0,0,0,1};
-      int poly4cats[5] = {0,1,0,0,0};
-      int poly5cats[5] = {0,0,1,1,0};
+      int poly3cats[5] = {0,0,0,0,1};
+      int poly4cats[5] = {1,0,0,0,0};
+      int poly5cats[5] = {0,1,1,1,0};
 
       std::vector<std::string> data_pol5_pars(5,"p");   
       data_pol5_pars[0] = "modpol0";
@@ -375,11 +392,12 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
       l.rooContainer->AddSpecificCategoryPdf(poly4cats,"data_pol_model",
           "0","CMS_hgg_mass",data_pol4_pars,74);    // >= 71 means RooBernstein of order >= 1
 
-      std::vector<std::string> data_pol2_pars(2,"p");   
-      data_pol2_pars[0] = "modpol0";
-      data_pol2_pars[1] = "modpol1";
-      l.rooContainer->AddSpecificCategoryPdf(poly2cats,"data_pol_model",
-          "0","CMS_hgg_mass",data_pol2_pars,72);    // >= 71 means RooBernstein of order >= 1
+      std::vector<std::string> data_pol3_pars(3,"p");   
+      data_pol3_pars[0] = "modpol0";
+      data_pol3_pars[1] = "modpol1";
+      data_pol3_pars[2] = "modpol2";
+      l.rooContainer->AddSpecificCategoryPdf(poly3cats,"data_pol_model",
+          "0","CMS_hgg_mass",data_pol3_pars,73);    // >= 71 means RooBernstein of order >= 1
     }
     else{
       int poly2cats[4] = {1,0,0,0};
@@ -659,46 +677,28 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
   // Get Ready for VBF Tagging
   bool VBFevent = false;
-
-  // Divergence from StatAnalysis Here! Apply loose pre-selection to select photons
-  // FIXME pass smeared R9
+  double leadEtCutVBF = 55.;
   int diphoton_id=-1;
-  if (bdtTrainingPhilosophy=="MIT"){
-    diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
-  } else if (bdtTrainingPhilosophy=="UCSD"){
-    diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
-  }
-
-  /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
-
-  if (diphoton_id > -1 ) {
-
-
-    diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
-    // bring all the weights together: lumi & Xsection, single gammas, pt kfactor
-    float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
-
-    l.countersred[diPhoCounter_]++;
-
-    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
-    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
-    float lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id]];
-    float sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id]];
-    TLorentzVector Higgs = lead_p4 + sublead_p4;   
-    TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
-
-    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
     // VBF-TAGGING -------------------------------------------------------------------------- //
     // CP // NW Use Same pre-selected events but tag as VBF if pass Jet Requirements
 
     if(includeVBF) {
-      // JET MET Corrections
       PhotonAnalysis::RescaleJetEnergy(l);
+      int diphoton_id_vbf = l.DiphotonMITPreSelection(leadEtCutVBF,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+
+      if (diphoton_id_vbf > -1){
+        diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id_vbf],  l.dipho_subleadind[diphoton_id_vbf] );
+
+        TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id_vbf], l.dipho_vtxind[diphoton_id_vbf], &smeared_pho_energy[0]);
+        TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id_vbf], l.dipho_vtxind[diphoton_id_vbf], &smeared_pho_energy[0]);
+        float lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id_vbf]];
+        float sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id_vbf]];
+        TLorentzVector Higgs = lead_p4 + sublead_p4;   
+      // JET MET Corrections
       float jet1ptcut =0.0;
       float jet2ptcut =0.0;
       bool crosscheck = false;
       std::pair<int,int> highestPtJets(-1,-1);
-      int CAT4 = selectioncategory; 
 
       highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
       bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
@@ -730,8 +730,6 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         myVBFdPhi = fabs(Higgs.DeltaPhi(dijet));
         myVBF_Mgg =Higgs.M();
 
-        float myweight=1.;
-        if(evweight*weight!=0) myweight=evweight/weight;
 
         // Cannot Get Apply cuts to work -> Need to discuss with C.Palmer, for now, jyst apply the cuts
         //l.ApplyCutsFill(0,3,evweight, myweight);
@@ -744,6 +742,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                 if (myVBFdPhi   >2.6){
                   if (myVBFZep    <2.5){
                     VBFevent=true;
+			  diphoton_id = diphoton_id_vbf;
                   }
                 }
               }   
@@ -765,8 +764,39 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
          */
       }
     }
+  }
     // CP // NW VBF Tagging
     // --------------------- END VBF-TAGGING --------------------------------------------------------//
+
+  // Divergence from StatAnalysis Here! Apply loose pre-selection to select photons
+  // FIXME pass smeared R9
+  if (diphoton_id<0 ){ // then the VBF selection failed at some point and so we try for inclusive
+  if (bdtTrainingPhilosophy=="MIT"){
+    diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+  } else if (bdtTrainingPhilosophy=="UCSD"){
+    diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
+  }
+  }
+
+  /// std::cerr << "Selected pair " << l.dipho_n << " " << diphoton_id << std::endl;
+
+  if (diphoton_id > -1 ) {
+
+
+    diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id],  l.dipho_subleadind[diphoton_id] );
+    // bring all the weights together: lumi & Xsection, single gammas, pt kfactor
+    float evweight = weight * smeared_pho_weight[diphoton_index.first] * smeared_pho_weight[diphoton_index.second] * genLevWeight;
+
+    l.countersred[diPhoCounter_]++;
+
+    TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+    TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id], l.dipho_vtxind[diphoton_id], &smeared_pho_energy[0]);
+    float lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id]];
+    float sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id]];
+    TLorentzVector Higgs = lead_p4 + sublead_p4;   
+    TVector3 * vtx = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_id]);
+
+    int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
 
     bool CorrectVertex;
     // FIXME pass smeared R9
@@ -884,10 +914,10 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
        */
     }
 
-    //  if (cur_type==0){
-    //    eventListText << setprecision(4) <<"Type = "<< cur_type <<  "Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << "  SelVtx = " << l.vtx_std_sel << "  CAT4 = " << category % 4 << "  ggM = " << mass << " gg_Pt =  " << ptHiggs;
-    //    eventListText << endl;
-    //  }
+      if (cur_type==0){
+        eventListText <<"Type = "<< cur_type <<  " Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << " BDT CAT = " << category << "  ggM = " << mass << " gg_Pt =  " << ptHiggs << " Lead Photon Phoid = " <<phoid_mvaout_lead << " Sublead Photon Phoid = " <<phoid_mvaout_sublead << " diphotonBDT = " << diphobdt_output;
+        eventListText << endl;
+      }
 
     // --------------------------------------------------------------------------------------------- 
     if (cur_type == 0 ){
@@ -987,14 +1017,18 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
           // FIXME pass smeared R9 and di-photon
 
           int selectioncategory = l.DiphotonCategory(diphoton_index.first,diphoton_index.second,Higgs.Pt(),nEtaCategories,nR9Categories,0);
+
+	  float photon_idMVA1=l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],lead_p4,"MIT");
+	  float photon_idMVA2=l.photonIDMVA(diphoton_index.first,l.dipho_vtxind[diphoton_id],sublead_p4,"MIT");
+
           bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
           for(std::vector<BaseDiPhotonSmearer *>::iterator sj=diPhotonSmearers_.begin(); sj!= diPhotonSmearers_.end(); ++sj ) {
             float swei=1.;
             float pth = Higgs.Pt();
             if( *si == *sj ) { 
-              (*si)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)) ,zero_,zero_, syst_shift);
+              (*si)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)), photon_idMVA1,photon_idMVA2,syst_shift);
             } else { 
-              (*sj)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)),zero_,zero_, 0. );
+              (*sj)->smearDiPhoton( Higgs, *vtx, swei, selectioncategory, cur_type, *((TVector3*)l.gv_pos->At(0)) ,photon_idMVA1,photon_idMVA2,0.);
             }
             evweight *= swei;
           }
@@ -1074,11 +1108,102 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         bool VBFevent = false;
 
         int diphoton_id=-1;
+
+          // VBF-TAGGING -------------------------------------------------------------------------- //
+          // CP // NW Use Same pre-selected events but tag as VBF if pass Jet Requirements
+          // Reset VBF event to False
+          VBFevent = false;
+          if(includeVBF) {
+          int diphoton_id_vbf = l.DiphotonMITPreSelection(leadEtCutVBF,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
+	  if (diphoton_id_vbf >-1){
+            diphoton_index = std::make_pair( l.dipho_leadind[diphoton_id_vbf],  l.dipho_subleadind[diphoton_id_vbf] );
+
+            TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphoton_id_vbf], l.dipho_vtxind[diphoton_id_vbf], &smeared_pho_energy[0]);
+            TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphoton_id_vbf], l.dipho_vtxind[diphoton_id_vbf], &smeared_pho_energy[0]);
+            float lead_r9    = l.pho_r9[l.dipho_leadind[diphoton_id_vbf]];
+            float sublead_r9 = l.pho_r9[l.dipho_subleadind[diphoton_id_vbf]];
+            TLorentzVector Higgs = lead_p4 + sublead_p4;   
+            // JET MET Corrections // No need to reset the pointers again
+            //PhotonAnalysis::RescaleJetEnergy(l);
+            float jet1ptcut =0.0;
+            float jet2ptcut =0.0;
+            bool crosscheck = false;
+            std::pair<int,int> highestPtJets(-1,-1);
+
+            highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
+            bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
+
+            if(VBFpresel){
+
+              TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
+              TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
+              TLorentzVector dijet = (*jet1) + (*jet2);
+
+              myAllLeadJPt = jet1->Pt();
+              myAllSubJPt = jet2->Pt();
+              myAllLeadJEta = jet1->Eta();
+              myAllSubJEta = jet2->Eta();
+              myAll_Mjj = dijet.M();
+              myAlldEta = fabs(jet1->Eta() - jet2->Eta());
+              myAllZep  = fabs(Higgs.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
+              myAlldPhi = fabs(Higgs.DeltaPhi(dijet));
+              myAll_Mgg =Higgs.M();
+              myAllPtHiggs =Higgs.Pt();
+
+              myVBFLeadJPt = jet1->Pt();
+              myVBFSubJPt = jet2->Pt();
+              myVBF_Mjj = dijet.M();
+              myVBFdEta = fabs(jet1->Eta() - jet2->Eta());
+              myVBFZep  = fabs(Higgs.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
+              myVBFdPhi = fabs(Higgs.DeltaPhi(dijet));
+              myVBF_Mgg =Higgs.M();
+
+
+              // Cannot Get Apply cuts to work -> Need to discuss with C.Palmer, for now, jyst apply the cuts
+              //l.ApplyCutsFill(0,3,evweight, myweight);
+              //VBFevent = l.ApplyCutsFill(0,5,evweight, myweight);
+              //VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
+              if (myVBFLeadJPt  >30.){
+                if (myVBFSubJPt >20.){
+                  if (myVBF_Mjj   >350.){
+                    if (myVBFdEta   >3.5){
+                      if (myVBFdPhi   >2.6){
+                        if (myVBFZep    <2.5){
+                          VBFevent=true;
+			  diphoton_id = diphoton_id_vbf;
+                        }
+                      }
+                    }   
+                  }
+                }
+              }
+
+              /*
+                 if(VBFevent) 
+                 std::cout << setprecision(4) <<  "Run = " << l.run << "  LS = " << l.lumis <<
+                 "  Event = " << l.event << "  SelVtx = " << l.dipho_vtxind[diphoton_id] 
+                 << "  CAT4 = " << CAT4 << "  ggM = " << myVBF_Mgg << " ggPt =  " << myAllPtHiggs 
+                 << "  jetEta1 = " << jet1->Eta() << "  jetEta2 = " << jet2->Eta()
+                 << "  jetPhi1 = " << jet1->Phi() << "  jetPhi2 = " << jet2->Phi()
+                 <<  "  jetEt1 = " << jet1->Et() << "  jetEt2 = "  << jet2->Et()
+                 << " Mjj " << myVBF_Mjj
+                 << " dEtajj " << myVBFdEta 
+                 << " Zeppenfeld " << myVBFZep
+                 << " dPhijjgg " << myVBFdPhi << " VBF itype " <<cur_type << std::endl;
+               */
+            }
+          }
+	}
+          // CP // NW VBF Tagging
+          // --------------------- END VBF-TAGGING --------------------------------------------------------//
+	
+	if (diphoton_id < 0){ // failed to find a VBF 
         if (bdtTrainingPhilosophy=="MIT"){
           diphoton_id = l.DiphotonMITPreSelection(leadEtCut,subleadEtCut,applyPtoverM, &smeared_pho_energy[0] ); 
         } else if (bdtTrainingPhilosophy=="UCSD"){
           diphoton_id = l.DiphotonCiCSelection(l.phoLOOSE, l.phoLOOSE, leadEtCut, subleadEtCut, nPhotonCategories_,applyPtoverM, &smeared_pho_energy[0] ); 
         }
+	}
 
         if (diphoton_id > -1 ) {
 
@@ -1121,86 +1246,6 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
           bool isEBEB  = (lead_p4.Eta() < 1.4442 ) && fabs(sublead_p4.Eta()<1.4442);
 
-
-          // VBF-TAGGING -------------------------------------------------------------------------- //
-          // CP // NW Use Same pre-selected events but tag as VBF if pass Jet Requirements
-          // Reset VBF event to False
-          VBFevent = false;
-          if(includeVBF) {
-            // JET MET Corrections // No need to reset the pointers again
-            //PhotonAnalysis::RescaleJetEnergy(l);
-            float jet1ptcut =0.0;
-            float jet2ptcut =0.0;
-            bool crosscheck = false;
-            std::pair<int,int> highestPtJets(-1,-1);
-            int CAT4 = selectioncategory; 
-
-            highestPtJets = Select2HighestPtJets(l, lead_p4, sublead_p4, jet1ptcut, jet2ptcut );
-            bool VBFpresel = (highestPtJets.first!=-1)&&(highestPtJets.second!=-1);
-
-            if(VBFpresel){
-
-              TLorentzVector* jet1 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.first);
-              TLorentzVector* jet2 = (TLorentzVector*)l.jet_algoPF1_p4->At(highestPtJets.second);
-              TLorentzVector dijet = (*jet1) + (*jet2);
-
-              myAllLeadJPt = jet1->Pt();
-              myAllSubJPt = jet2->Pt();
-              myAllLeadJEta = jet1->Eta();
-              myAllSubJEta = jet2->Eta();
-              myAll_Mjj = dijet.M();
-              myAlldEta = fabs(jet1->Eta() - jet2->Eta());
-              myAllZep  = fabs(Higgs.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-              myAlldPhi = fabs(Higgs.DeltaPhi(dijet));
-              myAll_Mgg =Higgs.M();
-              myAllPtHiggs =Higgs.Pt();
-
-              myVBFLeadJPt = jet1->Pt();
-              myVBFSubJPt = jet2->Pt();
-              myVBF_Mjj = dijet.M();
-              myVBFdEta = fabs(jet1->Eta() - jet2->Eta());
-              myVBFZep  = fabs(Higgs.Eta() - 0.5*(jet1->Eta() + jet2->Eta()));
-              myVBFdPhi = fabs(Higgs.DeltaPhi(dijet));
-              myVBF_Mgg =Higgs.M();
-
-              float myweight=1.;
-              if(evweight*weight!=0) myweight=evweight/weight;
-
-              // Cannot Get Apply cuts to work -> Need to discuss with C.Palmer, for now, jyst apply the cuts
-              //l.ApplyCutsFill(0,3,evweight, myweight);
-              //VBFevent = l.ApplyCutsFill(0,5,evweight, myweight);
-              //VBFevent = l.ApplyCutsFill(0,1,evweight, myweight);
-              if (myVBFLeadJPt  >30.){
-                if (myVBFSubJPt >20.){
-                  if (myVBF_Mjj   >350.){
-                    if (myVBFdEta   >3.5){
-                      if (myVBFdPhi   >2.6){
-                        if (myVBFZep    <2.5){
-                          VBFevent=true;
-                        }
-                      }
-                    }   
-                  }
-                }
-              }
-
-              /*
-                 if(VBFevent) 
-                 std::cout << setprecision(4) <<  "Run = " << l.run << "  LS = " << l.lumis <<
-                 "  Event = " << l.event << "  SelVtx = " << l.dipho_vtxind[diphoton_id] 
-                 << "  CAT4 = " << CAT4 << "  ggM = " << myVBF_Mgg << " ggPt =  " << myAllPtHiggs 
-                 << "  jetEta1 = " << jet1->Eta() << "  jetEta2 = " << jet2->Eta()
-                 << "  jetPhi1 = " << jet1->Phi() << "  jetPhi2 = " << jet2->Phi()
-                 <<  "  jetEt1 = " << jet1->Et() << "  jetEt2 = "  << jet2->Et()
-                 << " Mjj " << myVBF_Mjj
-                 << " dEtajj " << myVBFdEta 
-                 << " Zeppenfeld " << myVBFZep
-                 << " dPhijjgg " << myVBFdPhi << " VBF itype " <<cur_type << std::endl;
-               */
-            }
-          }
-          // CP // NW VBF Tagging
-          // --------------------- END VBF-TAGGING --------------------------------------------------------//
           // Recalculate BDT since kinematics could change now.  
 
           int category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);

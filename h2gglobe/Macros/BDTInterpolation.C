@@ -10,6 +10,7 @@
 #include <ctime>
 
 #include "TFile.h"
+#include "TAxis.h"
 #include "TH1F.h"
 #include "TCanvas.h"
 #include "TPad.h"
@@ -105,6 +106,8 @@ TH1F* linearBin(TH1F *hist){
   TH1F *temp = new TH1F(Form("lin_%s_%d",hist->GetName(),linCalls),Form("lin_%s_%d",hist->GetName(),linCalls),nBins,0,nBins);
   for (int i=0; i<nBins; i++){
     temp->SetBinContent(i+1,hist->GetBinContent(i+1));
+    if (hist->GetBinLowEdge(i+1) < 1.)    temp->GetXaxis()->SetBinLabel(i+1,Form("BDT Bin %d",i+1));
+    else temp->GetXaxis()->SetBinLabel(i+1,"Di-jet");
     temp->SetBinError(i+1,hist->GetBinError(i+1));
   }
   linCalls++;
@@ -136,7 +139,7 @@ void plotBkgModel(TList* HistList, std::string name){
   TPaveText *txt = new TPaveText(0.2,0.1,0.4,0.35,"NDC");
   txt->SetFillColor(0);
   txt->SetLineColor(0);
-  txt->AddText("#int L = 4.70 fb^{-1}");
+  txt->AddText("#int L = 4.76 fb^{-1}");
 
   for (int i=1; i<HistList->GetEntries(); i++){
     //if (((TH1F*)HistList->At(i))->GetNbinsX()!=((TH1F*)HistList->At(0))->GetNbinsX()) std::cout << "Plot problem: calling plot for histograms with different number of bins" << std::endl;
@@ -147,7 +150,7 @@ void plotBkgModel(TList* HistList, std::string name){
     temp->SetMarkerStyle(20);
     temp->SetMarkerColor(color[i-1]);
     temp->SetTitle(Form("Data in sidebands %s %s",bdt.c_str(),name.c_str()));
-    temp->GetXaxis()->SetTitle("BDT Output Bin");
+    temp->GetXaxis()->SetTitle("");
     temp->GetYaxis()->SetRangeUser(1.0,2.*(((TH1F*)HistList->At(0))->GetMaximum()));
     if (i==1) temp->Draw("p");
     else temp->Draw("same p");
@@ -207,19 +210,19 @@ void plotDavid(TH1F* bkgT, TH1F* sigT, TH1F* dataT, std::string name){
   bkg->SetFillColor(kBlue-9);
   sig2->SetLineColor(kRed);
   sig2->SetLineStyle(3);
-  sig2->Scale(2.);
+  sig2->Scale(1.);
   sig5->SetLineColor(kRed);
   sig5->SetLineStyle(7);
-  sig5->Scale(5.);
+  sig5->Scale(3.);
   sig10->SetLineColor(kRed);
-  sig10->Scale(10.);
+  sig10->Scale(5.);
   data->SetMarkerStyle(20);
   bkg->SetTitle(("Background, data and signal distributions for "+bdt+" "+name).c_str());
   sig2->SetTitle(("Background, data and signal distributions for "+bdt+" "+name).c_str());
   data->SetTitle(("Background, data and signal distributions for "+bdt+" "+name).c_str());
-  bkg->GetXaxis()->SetTitle("BDT Output Bin");
-  sig2->GetXaxis()->SetTitle("BDT Output Bin");
-  data->GetXaxis()->SetTitle("BDT Output Bin");
+  bkg->GetXaxis()->SetTitle("");
+  sig2->GetXaxis()->SetTitle("");
+  data->GetXaxis()->SetTitle("");
   bkg->GetYaxis()->SetTitle("Events");
   sig2->GetYaxis()->SetTitle("Events");
   data->GetYaxis()->SetTitle("Events");
@@ -229,11 +232,11 @@ void plotDavid(TH1F* bkgT, TH1F* sigT, TH1F* dataT, std::string name){
   leg->SetFillColor(0);
   leg->AddEntry(bkg,"Background","f");
   leg->AddEntry(data,"Data","lep");
-  leg->AddEntry(sig10,"Signal (2, 5, 10 #times SM)","l");
+  leg->AddEntry(sig10,"Signal (1, 3, 5 #times SM)","l");
   TPaveText *txt = new TPaveText(0.2,0.1,0.4,0.35,"NDC");
   txt->SetFillColor(0);
   txt->SetLineColor(0);
-  txt->AddText("#int L = 4.7 fb^{-1}");
+  txt->AddText("#int L = 4.76 fb^{-1}");
 
   bkg->GetYaxis()->SetRangeUser(1.0,2.*(data->GetMaximum()));
 
@@ -253,14 +256,14 @@ void plotDavid(TH1F* bkgT, TH1F* sigT, TH1F* dataT, std::string name){
   leg2->SetFillColor(0);
   leg2->SetLineColor(0);
   sig10->GetYaxis()->SetRangeUser((-1*sig10->GetMaximum())+10,sig10->GetMaximum()+20);
-  sig10->GetXaxis()->SetTitle("BDT Output Bin");
+  sig10->GetXaxis()->SetTitle("");
   sig10->GetYaxis()->SetTitle("Events");
   sig10->SetTitle(Form("Data, background difference compared to signal %s %s",bdt.c_str(),name.c_str()));
   diff->SetMarkerStyle(20);
-  diff->GetXaxis()->SetTitle("BDT Output Bin");
+  diff->GetXaxis()->SetTitle("");
   diff->GetYaxis()->SetTitle("Events");
   leg2->AddEntry(diff,"Data - background model","lep");
-  leg2->AddEntry(sig10,"Signal (2, 5, 10 #times SM)","l");
+  leg2->AddEntry(sig10,"Signal (1, 3, 5 #times SM)","l");
   TF1 *line = new TF1("line","0.0",0.0,sig10->GetNbinsX()+1);
   line->SetLineColor(kBlue);
   sig10->Draw("hist");

@@ -7,7 +7,7 @@ from optparse import OptionParser
 # UserInput
 parser=OptionParser()
 parser.add_option("-i","--input",dest="fileName",help="Input file name")
-parser.add_option("-o","--output",dest="outputDir",help="Output directory for plots")
+parser.add_option("-o","--output",dest="outputDir",default="h2g",help="Output directory for plots")
 parser.add_option("-d","--diagnostics",action="store_false",default=True,help="Turn diagnostic plot making off")
 parser.add_option("-w","--www",action="store_false",default=True,help="Turn webpage making off")
 parser.add_option("-W","--htmlOnly",action="store_true",default=False,help="Run only html making")
@@ -18,7 +18,6 @@ parser.add_option("-D","--datacardsOnly",action="store_true",default=False,help=
   
 interpFileName = options.fileName+"_interpolated.root"
 #-------------------------------------------------------------------------
-
 ROOT.gROOT.ProcessLine(".L createCorrectedBackgroundModel.C+g")
 ROOT.gROOT.ProcessLine(".L BDTInterpolation.C+g")
 
@@ -57,7 +56,6 @@ if not options.htmlOnly:
     bashCommand = "python writeBinnedMvaCard.py -i "+interpFileName +" --makePlot -t"
     os.system(bashCommand+" ada")
     os.system(bashCommand+" grad")
-
 # Now make html pages
 if options.www or options.htmlOnly:
   print '----------------------------------------------------------'
@@ -70,8 +68,10 @@ if options.www or options.htmlOnly:
   tempF = open('temp.txt')
   user = tempF.readlines()[0]
 
-  os.system("cp mva-plots-ada/model*.png BMplots/ada")
-  os.system("cp mva-plots-grad/model*.png BMplots/grad")
+  os.system("cp mva-plots-ada/model* BMplots/ada")
+  os.system("cp mva-plots-grad/model* BMplots/grad")
+  os.system("cp mva-plots-ada/diff_model* BMplots/ada")
+  os.system("cp mva-plots-grad/diff_model* BMplots/grad")
 
   os.system("python make_html.py "+interpFileName)
   os.system("python make_bkg_html.py "+interpFileName)
