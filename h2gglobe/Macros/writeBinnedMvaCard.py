@@ -402,7 +402,7 @@ def writeCard(tfile,mass,scaleErr):
 	print "Including Mass Bias nuisances (bin-to-bin stat error included)"
 
 	# Input Signed Error Matrix from Fit 
-	th2f_errmatrix = tfile.Get("fUncorrErr_%3.1f"%mass)
+	th2f_errmatrix = tfile.Get("fUncorrErr_%s_%3.1f"%(options.bdtType,mass))
 	for b in range(1,nBins):  # This error matrix is nBins-1 X nBins-1 due to constraint on sum on fractions
            outPut.write("\nmassBias%d lnN"%b)
 	   for q in range(1,nBins+1):
@@ -498,7 +498,7 @@ for i,ne in enumerate(scalingErrors):
 normG.SetMarkerStyle(20)
 normG.GetXaxis().SetTitle("mH")
 normG.GetYaxis().SetTitle("(N+dN)/N")
-normG.Draw("ALP")
+#normG.Draw("ALP")
 print "Check the Errors Look Sensible -> plot saved to normErrors_%s"%(options.tfileName)
 can.SaveAs("normErrors_%s.pdf"%options.tfileName)
 

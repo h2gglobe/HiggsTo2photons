@@ -33,6 +33,7 @@
 #include "TMatrixD.h"
 #include "TMatrix.h"
 #include "TVectorD.h"
+#include "TObject.h"
 #include "TMinuit.h"
 
 // The following global variables should be the same as definde in PhotonAnalysis_scripts/mvaanalysis.dat
@@ -608,7 +609,7 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool
       	        TH2F *hFCovar=new TH2F(Form("fCovar_%3.1f",mH),
 			 Form("Fraction covariance matrix m %3.1f",mH),
 			 nBins,0.0,nBins,nBins,0.0,nBins);
-		TH2F *uCorrErr = new TH2F(Form("fUncorrErr_%3.1f",mH),
+		TH2F *uCorrErr = new TH2F(Form("fUncorrErr_%s_%3.1f",type.c_str(),mH),
 			 Form("Uncorrelated Errors m %3.1f",mH),
 			 nBins,0.0,nBins,nBins,0.0,nBins);
 	
@@ -630,13 +631,13 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool
 		
 		// Write out the Hists into the original File
 		in->cd();
-		correctedHist->Write();
-		correctedHistFR->Write();
+		correctedHist->Write(correctedHist->GetName(),TObject::kOverwrite);
+		correctedHistFR->Write(correctedHistFR->GetName(),TObject::kOverwrite);
 		//hFCovar->Write();
-		uCorrErr->Write();
+		uCorrErr->Write(uCorrErr->GetName(),TObject::kOverwrite);
     out->cd();
     mass_dir->cd();
-    uCorrErr->Write();
+    uCorrErr->Write(uCorrErr->GetName(),TObject::kOverwrite);
 
     if (makePlots){
       TCanvas *canv = new TCanvas();
