@@ -113,7 +113,7 @@ void MvaAnalysis::Term(LoopAll& l)
       l.rooContainer->AddRealVar(Form("r1_%3.1f",mass),-8.,-10.,0.);
       l.rooContainer->AddRealVar(Form("r2_%3.1f",mass),-0.05,-10.,0.);
       l.rooContainer->AddRealVar(Form("f2_%3.1f",mass),0.01,0.,1.);
-
+/*
     // 5th Order Polynomial
     l.rooContainer->AddRealVar(Form("pol0_%3.1f",mass),-0.05,-1.5,1.5);
     l.rooContainer->AddRealVar(Form("pol1_%3.1f",mass),0.05,-1.5,1.5);
@@ -145,16 +145,16 @@ void MvaAnalysis::Term(LoopAll& l)
     l.rooContainer->AddGenericPdf(Form("data_pow_model_%3.1f",mass),
         "0","CMS_hgg_mass",data_pol_pars,65);	// >= 71 means RooBernstein of order >= 1
     // -----------------------------
+*/
 
-/*
       // Power law
       std::vector<std::string> data_pow_pars(3,Form("p_%3.1f",mass));   
       data_pow_pars[0] = Form("r1_%3.1f",mass);
       data_pow_pars[1] = Form("r2_%3.1f",mass);
       data_pow_pars[2] = Form("f2_%3.1f",mass);
       l.rooContainer->AddGenericPdf(Form("data_pow_model_%3.1f",mass), "(1-@3)*TMath::Power(@0,@1) + @3*TMath::Power(@0,@2)","CMS_hgg_mass",data_pow_pars,0);
-*/
-      l.rooContainer->FitToData(Form("data_poly4_model_%3.1f",mass), "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax); // try to fit with lower order first
+
+//      l.rooContainer->FitToData(Form("data_poly4_model_%3.1f",mass), "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax); // try to fit with lower order first
       l.rooContainer->FitToData(Form("data_pow_model_%3.1f",mass), "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax);
       std::vector<std::pair<double,double> > N_sigErr = l.rooContainer->GetFitNormalisationsAndErrors(Form("data_pow_model_%3.1f",mass),"data_mass",sideband_boundaries[0],sideband_boundaries[1]);
       //l.rooContainer->FitToData("data_pow_model", "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax);
