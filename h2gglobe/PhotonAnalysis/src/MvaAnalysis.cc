@@ -963,7 +963,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
       else {l.pho_sieie[ipho]*=0.99;}
       l.sc_seta[l.pho_scind[ipho]]*=0.99;  
       l.sc_sphi[l.pho_scind[ipho]]*=0.99;  
-      energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.06 : 1.09 ;
+      energyCorrectedError[ipho] *=(l.pho_isEB[ipho]) ? 1.09 : 1.06 ;
     }
   }
   // ---------------------------------------------------------------------------------------------------------------------//
