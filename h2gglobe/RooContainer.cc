@@ -2139,28 +2139,28 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
      if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){ // Full Range Fit
      //   real_var->setRange("FullObservableRange",x_min,x_max);
         real_var->setRange("rnge",x_min,x_max);
-        fit_result = (it_pdf->second).fitTo(it_data->second,Range("rnge"),RooFit::Extended(true),RooFit::Save(true),RooFit::Strategy(2));
+        fit_result = (it_pdf->second).fitTo(it_data->second,Range("rnge"),RooFit::Extended(true),RooFit::Save(true),RooFit::Strategy(1));
         mode = 0;
      } else if (x3 < -990 && x4 < -990){ // Single window fit
       if (x1 < x_min || x2 > x_max){
      //   real_var->setRange("FullObservableRange",x_min,x_max);
         std::cerr << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!! " 
 		  << std::endl;
-        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
+        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(1));
         std::cerr << " Fitted To Full Range -- WARNING!!" 
 		  << std::endl;
         mode = 0;
       } else {
       //  real_var->setRange("FullObservableRange",x_min,x_max);
         real_var->setRange("rnge",x1,x2);
-        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
+        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(1));
         mode = 1;
       }
      } else {
       if (x1 < x_min || x4 > x_max){ // Excluded window fit
         std::cerr << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!!" 
 		  << std::endl;
-        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
+        fit_result = (it_pdf->second).fitTo(it_data->second,RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(1));
         std::cerr << " Fitted To Full Range -- WARNING!!" 
 		  << std::endl;
         mode = 0;
@@ -2168,7 +2168,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
       //  real_var->setRange("FullObservableRange",x2,x3);
         real_var->setRange("rnge1",x1,x2);
         real_var->setRange("rnge2",x3,x4);
-        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
+        fit_result = (it_pdf->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(1));
 	// Not sure what to do with combined PDF in terms of getting Nevents correct with multiple ranges
 	// idea is to sum over all components and then scale by sum / sum entries
 	double nEntries = (it_data->second).sumEntries(0,"rnge1") + (it_data->second).sumEntries(0,"rnge2");
@@ -2196,21 +2196,21 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
        if (x1 < -990. && x2 < -990.  && x3 < -990. && x4 < -990.){
      //   real_var->setRange("FullObservableRange",x_min,x_max);
         real_var->setRange("rnge",x_min,x_max);
-        fit_result = (it_exp->second).fitTo(it_data->second,Range("rnge"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
+        fit_result = (it_exp->second).fitTo(it_data->second,Range("rnge"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(1));
         mode = 0;
       } else if (x3 < -990 && x4 < -990){ // Single window fit
         if (x1 < x_min || x2 > x_max){
      //     real_var->setRange("FullObservableRange",x_min,x_max);
           std::cerr << "RooContainer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!!" 
 		    << std::endl;
-          fit_result = (it_exp->second).fitTo(it_data->second,RooFit::Extended(true),RooFit::Save(true),RooFit::Strategy(2));
+          fit_result = (it_exp->second).fitTo(it_data->second,RooFit::Extended(true),RooFit::Save(true),RooFit::Strategy(1));
           std::cerr << " Fitted To Full Range -- WARNING!!" 
 		    << std::endl;
           mode = 0;
         } else {
      //    real_var->setRange("FullObservableRange",x_min,x_max);
          real_var->setRange("rnge",x1,x2);
-         fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
+         fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(1));
          mode = 1;
         }	
        } else {
@@ -2218,7 +2218,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
      //     real_var->setRange("FullObservableRange",x_min,x_max);
           std::cerr << "RooContianer::FitToData -- WARNING!! Ranges outside of DataSet Range! Will Fit to full range, Normalisation may be wrong!!!" 
 		    << std::endl;
-          fit_result = (it_exp->second).fitTo((it_data->second),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
+          fit_result = (it_exp->second).fitTo((it_data->second),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(1));
           std::cerr << " Fitted To Full Range -- WARNING!!" 
 		    << std::endl;
           mode = 0;
@@ -2226,7 +2226,7 @@ void RooContainer::fitToData(std::string name_func, std::string name_data, std::
         //  real_var->setRange("FullObservableRange",x1,x4);
           real_var->setRange("rnge1",x1,x2);
           real_var->setRange("rnge2",x3,x4);
-          fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(2));
+          fit_result = (it_exp->second).fitTo((it_data->second),Range("rnge1,rnge2"),RooFit::Save(true),RooFit::Extended(true),RooFit::Strategy(1));
 
 	  // This Fix just counts events in the sideband and uses that for Normalisation purposes
 	  double newNorm =(it_data->second).sumEntries(0,"rnge1") + (it_data->second).sumEntries(0,"rnge2");

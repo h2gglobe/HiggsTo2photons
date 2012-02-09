@@ -115,7 +115,7 @@ int PhotonEtaCategory(int photonindex, int n_etacat=4) {
   // Float_t eta = fabs(((TVector3*)pho_calopos->At(photonindex))->Eta());
   Float_t eta = fabs(((TVector3*)sc_xyz->At(pho_scind[photonindex]))->Eta());
   if(n_etacat==4) {
-    etacat = (Int_t)((eta>0.9) + (eta>1.479) + (eta>2.1));   // 0, 1, 2, or 3 (barrel --> endcap)
+    etacat = (Int_t)(eta>0.9) + (Int_t)(eta>1.479) + (Int_t)(eta>2.1);   // 0, 1, 2, or 3 (barrel --> endcap)
   } else if(n_etacat==2) {
     etacat = (Int_t)(eta>1.479);   // 0, 1 (barrel --> endcap)
   }
@@ -405,7 +405,7 @@ int ElectronSelection(TLorentzVector& pho1, TLorentzVector& pho2, int vtxind);
 
 void SetAllMVA();
 Float_t photonIDMVA(Int_t, Int_t, TLorentzVector &, const char*);
-Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector &, float,float,float,const char*,float photonID_1=-50,float photonID_2=-50);
+Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector &, float,float,float,const char*,float photonID_1=-50.,float photonID_2=-50.);
 float getDmOverDz(Int_t, Int_t, Float_t*);
 Float_t deltaMassVtx(Int_t, Int_t, Float_t);
 

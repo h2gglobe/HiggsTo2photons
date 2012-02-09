@@ -73,13 +73,12 @@ void MvaAnalysis::Term(LoopAll& l)
    /// data_pow_pars[1] = "r2";
     //data_pow_pars[2] = "f2";
     //l.rooContainer->AddGenericPdf("data_pow_model", "(1-@3)*TMath::Power(@0,@1) + @3*TMath::Power(@0,@2)","CMS_hgg_mass",data_pow_pars,0);
-    // 5th Order Polynomial
-/*
-    l.rooContainer->AddRealVar("pol0",-0.05,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol1",-0.05,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol2",-0.05,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol3",-0.01,-1.5,1.5);
-    l.rooContainer->AddRealVar("pol4",-0.01,-1.5,1.5);
+    /*// 5th Order Polynomial
+    l.rooContainer->AddRealVar("pol0",-0.5,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol1",0.4,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol2",0.04,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol3",-0.03,-1.5,1.5);
+    l.rooContainer->AddRealVar("pol4",-0.03,-1.5,1.5);
     l.rooContainer->AddFormulaVar("modpol0","@0*@0","pol0");
     l.rooContainer->AddFormulaVar("modpol1","@0*@0","pol1");
     l.rooContainer->AddFormulaVar("modpol2","@0*@0","pol2");
@@ -95,7 +94,7 @@ void MvaAnalysis::Term(LoopAll& l)
     l.rooContainer->AddGenericPdf("data_pow_model",
         "0","CMS_hgg_mass",data_pol_pars,75);	// >= 71 means RooBernstein of order >= 1
     // -----------------------------
-*/
+    */
 
     // loop hypothesis  
     for (double mass=110.0; mass<150.2; mass+=0.5){
@@ -115,22 +114,59 @@ void MvaAnalysis::Term(LoopAll& l)
       l.rooContainer->AddRealVar(Form("r2_%3.1f",mass),-0.05,-10.,0.);
       l.rooContainer->AddRealVar(Form("f2_%3.1f",mass),0.01,0.,1.);
 
+    // 5th Order Polynomial
+    l.rooContainer->AddRealVar(Form("pol0_%3.1f",mass),-0.05,-1.5,1.5);
+    l.rooContainer->AddRealVar(Form("pol1_%3.1f",mass),0.05,-1.5,1.5);
+    l.rooContainer->AddRealVar(Form("pol2_%3.1f",mass),0.05,-1.5,1.5);
+    l.rooContainer->AddRealVar(Form("pol3_%3.1f",mass),-0.001,-1.5,1.5);
+    l.rooContainer->AddRealVar(Form("pol4_%3.1f",mass),-0.001,-1.5,1.5);
+    l.rooContainer->AddFormulaVar(Form("modpol0_%3.1f",mass),"@0*@0",Form("pol0_%3.1f",mass));
+    l.rooContainer->AddFormulaVar(Form("modpol1_%3.1f",mass),"@0*@0",Form("pol1_%3.1f",mass));
+    l.rooContainer->AddFormulaVar(Form("modpol2_%3.1f",mass),"@0*@0",Form("pol2_%3.1f",mass));
+    l.rooContainer->AddFormulaVar(Form("modpol3_%3.1f",mass),"@0*@0",Form("pol3_%3.1f",mass));
+    l.rooContainer->AddFormulaVar(Form("modpol4_%3.1f",mass),"@0*@0",Form("pol4_%3.1f",mass));
+
+    std::vector<std::string> data_poly4_pars(4,"p");	 
+    data_poly4_pars[0] = Form("modpol0_%3.1f",mass);
+    data_poly4_pars[1] = Form("modpol1_%3.1f",mass);
+    data_poly4_pars[2] = Form("modpol2_%3.1f",mass);
+    data_poly4_pars[3] = Form("modpol3_%3.1f",mass);
+
+    l.rooContainer->AddGenericPdf(Form("data_poly4_model_%3.1f",mass),
+        "0","CMS_hgg_mass",data_poly4_pars,64);	// >= 71 means RooBernstein of order >= 1
+
+    std::vector<std::string> data_pol_pars(5,"p");	 
+    data_pol_pars[0] = Form("modpol0_%3.1f",mass);
+    data_pol_pars[1] = Form("modpol1_%3.1f",mass);
+    data_pol_pars[2] = Form("modpol2_%3.1f",mass);
+    data_pol_pars[3] = Form("modpol3_%3.1f",mass);
+    data_pol_pars[4] = Form("modpol4_%3.1f",mass);
+
+    l.rooContainer->AddGenericPdf(Form("data_pow_model_%3.1f",mass),
+        "0","CMS_hgg_mass",data_pol_pars,65);	// >= 71 means RooBernstein of order >= 1
+    // -----------------------------
+
+/*
       // Power law
       std::vector<std::string> data_pow_pars(3,Form("p_%3.1f",mass));   
       data_pow_pars[0] = Form("r1_%3.1f",mass);
       data_pow_pars[1] = Form("r2_%3.1f",mass);
       data_pow_pars[2] = Form("f2_%3.1f",mass);
       l.rooContainer->AddGenericPdf(Form("data_pow_model_%3.1f",mass), "(1-@3)*TMath::Power(@0,@1) + @3*TMath::Power(@0,@2)","CMS_hgg_mass",data_pow_pars,0);
+*/
+      l.rooContainer->FitToData(Form("data_poly4_model_%3.1f",mass), "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax); // try to fit with lower order first
       l.rooContainer->FitToData(Form("data_pow_model_%3.1f",mass), "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax);
       std::vector<std::pair<double,double> > N_sigErr = l.rooContainer->GetFitNormalisationsAndErrors(Form("data_pow_model_%3.1f",mass),"data_mass",sideband_boundaries[0],sideband_boundaries[1]);
-//      l.rooContainer->FitToData("data_pow_model", "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax);
- //     std::vector<std::pair<double,double> > N_sigErr = l.rooContainer->GetFitNormalisationsAndErrors("data_pow_model","data_mass",sideband_boundaries[0],sideband_boundaries[1]);
+      //l.rooContainer->FitToData("data_pow_model", "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax);
+      //std::vector<std::pair<double,double> > N_sigErr = l.rooContainer->GetFitNormalisationsAndErrors("data_pow_model","data_mass",sideband_boundaries[0],sideband_boundaries[1]);
 
       l.rooContainer->AddNormalisationSystematics(Form("bkg_norm_%3.1f",mass),N_sigErr, 1); // 1 means it effect the background only
 
       // Calculate weights to apply to the sidebands
       std::vector<double> N_sig = l.rooContainer->GetFitNormalisations(Form("data_pow_model_%3.1f",mass),"data_mass",sideband_boundaries[0],sideband_boundaries[1]);
       //std::vector<double> N_sig = l.rooContainer->GetFitNormalisations("data_pow_model","data_mass",sideband_boundaries[0],sideband_boundaries[1]);
+
+      std::cout << "Number Of Events In Background -- " << N_sig[0] << std::endl;
 
       bool scale = true;//true;
       std::vector<string> ada_bkgsets;

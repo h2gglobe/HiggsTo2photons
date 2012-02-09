@@ -231,7 +231,7 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
 //    tmva_dipho_MIT_dphi = TMath::Cos(((TLorentzVector*)pho_p4->At(leadingPho))->Phi() - ((TLorentzVector*)pho_p4->At(subleadingPho))->Phi());
     tmva_dipho_MIT_dphi = TMath::Cos(leadP4.Phi() - subleadP4.Phi());
       
-    if (photonID_1 < -1 && photonID_2 < -1){
+    if (photonID_1 < -1. && photonID_2 < -1.){
     tmva_dipho_MIT_ph1mva = photonIDMVA(leadingPho,vtx, leadP4, "MIT");
     tmva_dipho_MIT_ph2mva = photonIDMVA(subleadingPho,vtx, subleadP4, "MIT");
 
@@ -1592,7 +1592,7 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
 bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *pho_energy_array ) {
 
 
-   int r9_category = (int) pho_r9[photon_index] < 0.9;                                                      
+   int r9_category = (int) (pho_r9[photon_index] <= 0.9);                                                      
    int photon_category = r9_category + 2*PhotonEtaCategory(photon_index,2);                                 
    int photon_cic_category = PhotonCategory(photon_index,2,2);
    
@@ -1614,13 +1614,35 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    float val_sieie      = pho_sieie[photon_index];                                                          
    // not sure if should be using the dr03 or 04 for these so stick to "usual" choices                      
    float val_ecaliso = pho_ecalsumetconedr03[photon_index] - 0.012*phop4.Et();                              
-   float val_hcaliso = pho_hcalsumetconedr04[photon_index] - 0.002*phop4.Et();                              
-   float val_trkiso  = pho_trksumptsolidconedr03[photon_index] - 0.005*phop4.Et();                          
+   float val_hcaliso = pho_hcalsumetconedr03[photon_index] - 0.005*phop4.Et();                              
+   float val_trkiso  = pho_trksumptsolidconedr03[photon_index] - 0.002*phop4.Et();                          
    float val_hcalecal   = (val_ecaliso+val_hcaliso-rho*rhofac);                                             
    float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];                
    float val_trkiso_hollow03 = pho_trksumpthollowconedr03[photon_index];                                    
 //   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
    int   val_pho_isconv = pho_isconv[photon_index];
+
+   if (run==173439 && lumis==155 && event==236661419) {
+
+	std::cout << "I will lose this photon, but MIT will not" << std::endl;
+	
+	std::cout << "rho " << rho <<std::endl;
+	std::cout << "pho_n " << pho_n <<std::endl;
+	std::cout << "pho_index " << photon_index <<std::endl;
+	std::cout << "pho_et " << phop4.Et() <<std::endl;
+	std::cout << "hoe " << val_hoe <<std::endl;
+	std::cout << "sieie " << val_sieie <<std::endl;
+	std::cout << "ecaliso " << val_ecaliso <<std::endl;
+	std::cout << "hcaliso " << val_hcaliso <<std::endl;
+	std::cout << "hcalecal " << val_hcalecal <<std::endl;
+	std::cout << "abstrkiso " << val_abstrkiso <<std::endl;
+	std::cout << "trkiso " << val_trkiso_hollow03 <<std::endl;
+
+	std::cout << "r9 " << pho_r9[photon_index] <<std::endl;
+	std::cout << "r9 categoty " << r9_category <<std::endl;
+	std::cout << "eta scxyz" << fabs(((TVector3*)sc_xyz->At(pho_scind[photon_index]))->Eta()) <<std::endl;
+
+   }
 
    if (val_hoe             >= mitCuts_hoe[photon_category]         ) return false;                                           
    if (val_sieie           >= mitCuts_sieie[photon_category]       ) return false;

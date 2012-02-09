@@ -914,8 +914,8 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
        */
     }
 
-      if (cur_type==0){
-        eventListText <<"Type = "<< cur_type <<  " Run = " << l.run << "  LS = " << l.lumis << "  Event = " << l.event << " BDT CAT = " << category << "  ggM = " << mass << " gg_Pt =  " << ptHiggs << " Lead Photon Phoid = " <<phoid_mvaout_lead << " Sublead Photon Phoid = " <<phoid_mvaout_sublead << " diphotonBDT = " << diphobdt_output;
+      if (cur_type==0 && mass >= 100. && mass < 180.){
+        eventListText <<"Type="<< cur_type <<  " Run=" << l.run << "  LS=" << l.lumis << "  Event=" << l.event << " BDTCAT=" << category << " ggM=" << mass << " gg_Pt=" << ptHiggs << " LeadPhotonPhoid=" <<phoid_mvaout_lead << " SubleadPhotonPhoid=" <<phoid_mvaout_sublead << " diphotonBDT=" << diphobdt_output << " photon1Eta=" << lead_p4.Eta() <<" photon2Eta="<<sublead_p4.Eta() << " sigmaMrv="<<sigmaMrv << " sigmaMwv=" << sigmaMwv;
         eventListText << endl;
       }
 
