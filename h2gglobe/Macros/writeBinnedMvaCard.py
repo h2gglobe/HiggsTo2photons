@@ -223,18 +223,18 @@ def py_quadInterpolate(C,X1,X2,X3,Y1,Y2,Y3):
 	if math.isnan(resL) or math.isinf(resL) or  math.isnan(resH) or math.isinf(resL): return " - "
 	if abs(resL - 1) < 0.00001 or abs(resL - 1) > 1: return " - "
 	if abs(resH - 1) < 0.00001 or abs(resH - 1) > 1: return " - "
-	return " %.8f/%.8f "%(resL,resH) 
+	return " %.3f/%.3f "%(resL,resH) 
 
 def getBinContent(hist,b):
   
 	res = hist.GetBinContent(b)
-	if res==0: return 0.00000001
+	if res==0: return 0.0001
 	else: return res
 
 def getPoissonBinContent(hist,b,exp):
   
 	res = exp*(hist.GetBinContent(b))
-	if res==0: return 0.00000001
+	if res==0: return 0.0001
 	else: return r.Poisson(res)
 
 def writeCard(tfile,mass,scaleErr):
@@ -306,7 +306,7 @@ def writeCard(tfile,mass,scaleErr):
   outPut.write("\nrate       ")
 
 
-  for b in range(1,nBins+1): outPut.write(" %.12f   %.12f   %.12f   %.12f   %.12f "\
+  for b in range(1,nBins+1): outPut.write(" %.5f   %.5f   %.5f   %.5f   %.5f "\
     %(getBinContent(gghHist,b),getBinContent(vbfHist,b),getBinContent(wzhHist,b),getBinContent(tthHist,b)\
      ,backgroundContents[b-1]))
   outPut.write("\n--------------------------------------------------------------\n")
@@ -395,7 +395,7 @@ def writeCard(tfile,mass,scaleErr):
   outPut.write("\n")
   # Finally the background errors, these are realtively simple
   outPut.write("\nbkg_norm lnN ")
-  for b in range(1,nBins+1): outPut.write(" -   -   -   -  %.8f "%(scaleErr))
+  for b in range(1,nBins+1): outPut.write(" -   -   -   -  %.3f "%(scaleErr))
 
   ## now for the David errors
   if options.Bias:
@@ -420,7 +420,7 @@ def writeCard(tfile,mass,scaleErr):
         bkgScale = bkgHist.Integral()/bkgHist.GetEntries()
         outPut.write("\nbkg_stat%d gmN %d "%(b,int(backgroundContents[b-1]/bkgScale)))
 	for q in range(1,nBins+1):
-		if q==b: outPut.write(" - - - - %.8f "%bkgScale)
+		if q==b: outPut.write(" - - - - %.3f "%bkgScale)
 		else:    outPut.write(" - - - - - ")
 
   # Finally make a plot of what will go into the limit
@@ -486,7 +486,7 @@ genMasses     = [110,115,120,125,130,135,140,145,150]
 scalingErrors = [1.0136,1.0152,1.01425,1.01102,1.01283,1.01568,1.02157,1.02467,1.02466] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 (Pow2 Fit)
 #scalingErrors = [1.025,1.025,1.025,1.025,1.025,1.025,1.025,1.025,1.025] # FLAT 25%
 #scalingErrors = [ 1.01185,1.01292,1.01378,1.01378,1.01594,1.01539,1.01814,1.02052,1.02257] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 (Pol5 Fit)
-
+#scalingErrors=[1+((s-1)*0.95) for s in scalingErrors]
 
 evalMasses    = numpy.arange(110,150.5,0.5)
 normG = ROOT.TGraph(len(genMasses))
@@ -498,7 +498,7 @@ for i,ne in enumerate(scalingErrors):
 normG.SetMarkerStyle(20)
 normG.GetXaxis().SetTitle("mH")
 normG.GetYaxis().SetTitle("(N+dN)/N")
-#normG.Draw("ALP")
+normG.Draw("ALP")
 print "Check the Errors Look Sensible -> plot saved to normErrors_%s"%(options.tfileName)
 can.SaveAs("normErrors_%s.pdf"%options.tfileName)
 
