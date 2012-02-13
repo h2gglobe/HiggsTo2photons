@@ -1,5 +1,5 @@
 import ROOT
-import os,numpy,sys,math
+import os,numpy,sys,math,array
 ROOT.gROOT.SetStyle("Plain")
 ROOT.gROOT.SetBatch(True)
 
@@ -8,12 +8,21 @@ from ROOT import quadInterpolate
 
 from optparse import OptionParser
 
-r=ROOT.TRandom3(0)
+from BdtToyMaker import BdtToyMaker
+
+g_r=ROOT.TRandom3(0)
+
+# Some Configury global options
+g_toydatalist		= []
+g_tmva			= 0
+g_SIDEBANDWIDTH		= 0.02
+g_expdijet		= 0.00495
+#--------------------------
 
 # Some "Global" Variables
 # PLOT OPS ----------------
 lumistring = "4.76 fb^{-1}"
-sigscale = 5.
+sigscale   = 5.
 # THEORY SYSTEMATICS ------
 lumi 		= "1.045"
 QCDscale_ggH  = "0.918/1.125"
@@ -38,7 +47,37 @@ systematics = [
 JetID_vbf = 0.1
 JetID_ggh = 0.7
 # -------------------------
+def generateFixedNData(backgroundEntries,nToyData):
 
+	returnbins = [0 for b in backgroundEntries]
+	totback = sum(backgroundEntries)
+	cdfbkg = [float(sum(backgroundEntries[0:j+1]))/totback for j in range(len(backgroundEntries))]
+
+	for i in range(int(nToyData)):
+	  unirandom=g_r.Uniform()
+	  for bb in range(len(cdfbkg)): 
+		if unirandom<=cdfbkg[bb]: returnbins[bb]+=1; break
+	
+	return returnbins
+
+def fillToyBDT(histogram):
+
+	toydata = g_toydatalist[:]
+	histNew = histogram.Clone()
+	for b in range(1,histNew.GetNbinsX()+1): histNew.SetBinContent(b,0)
+	for j in range(len(toydata)):
+		# first check if its a VBF
+		val = array.array('f',[0])
+		if options.includeVBF:
+		   unirand=g_r.Uniform()
+		   if unirand < g_expdijet : val[0] = 1.5
+		   else: g_tmva.tmvaGetVal(toydata[j][0],toydata[j][1],val)
+		else:g_tmva.tmvaGetVal(toydata[j][0],toydata[j][1],val)	
+		histNew.Fill(val[0])
+	listret = []
+	for b in range(1,histNew.GetNbinsX()+1):listret.append(histNew.GetBinContent(b))
+	return listret
+	
 def plainBin(hist):
 	nb = hist.GetNbinsX()
 	h2 = ROOT.TH1F(hist.GetName()+"new","",nb,0,nb)
@@ -46,10 +85,7 @@ def plainBin(hist):
 		h2.SetBinContent(i,hist.GetBinContent(i))
 		h2.SetBinError(i,hist.GetBinError(i))
 		if (options.includeVBF):
-			#h2.GetXaxis().SetLabelSize(0.03)
-			print hist.GetBinLowEdge(i)
 			if hist.GetBinLowEdge(i+1) <= 1.:
-			 # h2.GetXaxis().SetBinLabel(i,"%.4f < BDT < %.4f "%(hist.GetBinLowEdge(i),hist.GetBinLowEdge(i+1)))
 			  h2.GetXaxis().SetBinLabel(i,"BDT Bin %d "%(i))
 			else: 
 			  h2.GetXaxis().SetBinLabel(i," Di-jet ")
@@ -67,71 +103,38 @@ def plotDistributions(mass,data,signals,bkg,errors):
 
 	nbins = data.GetNbinsX()
 
-	flatdata = plainBin(data)
+	flatdata    = plainBin(data)
 	flatsignal  = plainBin(signals[0])
-	flatsignal1  = plainBin(signals[-1])
+	flatsignal1 = plainBin(signals[-1])
 
-	flatbkg  = plainBin(bkg)
-	flatbkg.SetLineColor(4)
-	flatbkg.SetLineWidth(2)
+	flatbkg  = plainBin(bkg);flatbkg.SetLineColor(4);flatbkg.SetLineWidth(2)
 
 	fNew  = flatbkg.Clone()
 	fNew2 = flatbkg.Clone()
 
-	#flatdata.Sumw2();
-	flatdata.SetMarkerStyle(20)
-	flatdata.SetMarkerSize(1.0)
+	flatdata.SetMarkerStyle(20);flatdata.SetMarkerSize(1.0)
 		
-	fNew.SetLineColor(1)
-	fNew.SetLineWidth(2)
-	fNew.SetFillStyle(1001)
-	fNew.SetFillColor(3)
-	
-	fNew2.SetFillColor(5)
-	fNew2.SetLineColor(1)
-	fNew2.SetLineWidth(2)
-	fNew2.SetFillStyle(1001)
-	fNewT = fNew.Clone()
-	fNew2T = fNew2.Clone()
-	fNewT.SetFillStyle(1001)
-	fNew2T.SetFillStyle(1001)
+	fNew.SetLineColor(1);fNew.SetLineWidth(2);fNew.SetFillStyle(1001);fNew.SetFillColor(3)
+	fNew2.SetFillColor(5);fNew2.SetLineColor(1);fNew2.SetLineWidth(2);fNew2.SetFillStyle(1001)
 
-	flatsignal.SetLineWidth(2)
-	flatsignal.SetLineColor(ROOT.kRed)
-#	flatsignal.SetFillColor(ROOT.kRed-10)
-#	flatsignal.SetFillStyle(1001)
-	flatsignal.Scale(sigscale)
-	flatsignal1.SetLineWidth(2)
-	flatsignal1.SetLineColor(ROOT.kGreen+4)
-	flatsignal1.Scale(sigscale)
+	fNewT = fNew.Clone();fNew2T = fNew2.Clone();fNewT.SetFillStyle(1001);fNew2T.SetFillStyle(1001)
+
+	flatsignal.SetLineWidth(2);flatsignal.SetLineColor(ROOT.kRed);flatsignal.Scale(sigscale)
+	flatsignal1.SetLineWidth(2);flatsignal1.SetLineColor(ROOT.kGreen+4);flatsignal1.Scale(sigscale)
 		
-	leg = ROOT.TLegend(0.56,0.56,0.88,0.88)
-	leg.SetFillColor(0)
-	leg.SetBorderSize(0)
+	leg = ROOT.TLegend(0.56,0.56,0.88,0.88);leg.SetFillColor(0);leg.SetBorderSize(0)
 
 	for b in range(1,nbins+1):
 		additional = errors[b-1]
   		fNew.SetBinError(b,((fNew.GetBinError(b)**2)+((fNew.GetBinContent(b)*additional)**2))**0.5)
   		fNew2.SetBinError(b,2*(((fNew2.GetBinError(b)**2)+((fNew2.GetBinContent(b)*additional)**2))**0.5))
-  	#	flatbkg.SetBinError(b,((flatbkg.GetBinError(b)**2)+((flatbkg.GetBinContent(b)*additional)**2))**0.5)
-	
-	#c = ROOT.TCanvas("c","c",900,600)
-	c = ROOT.TCanvas()
-	c.SetLogy()
+	c = ROOT.TCanvas();c.SetLogy()
 	if (not options.includeVBF): flatdata.GetXaxis().SetTitle("Category")
-	flatdata.Draw("9")
-	fNew2.Draw("9sameE2")
-	fNew.Draw("9sameE2")
-	flatbkg.Draw("9samehist")
+	flatdata.Draw("9");fNew2.Draw("9sameE2");fNew.Draw("9sameE2");flatbkg.Draw("9samehist")
 	if options.splitSignal: 
-	  sigst = ROOT.THStack()
-	  sigst.Add(flatsignal)
-	  sigst.Add(flatsignal1)
-	  sigst.Draw("9samehist")
-	else:
-	  flatsignal.Draw("9samehist")
-	flatdata.Draw("9sameP")
-	flatdata.SetMinimum(1)
+	  sigst = ROOT.THStack();sigst.Add(flatsignal);sigst.Add(flatsignal1);sigst.Draw("9samehist")
+	else:  flatsignal.Draw("9samehist")
+	flatdata.Draw("9sameP");flatdata.SetMinimum(1)
 
 	leg.AddEntry(flatdata,"Data","PLE")
 	if options.splitSignal:
@@ -139,27 +142,16 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	  leg.AddEntry(flatsignal1,"Higgs, m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
 
 	else: leg.AddEntry(flatsignal,"Higgs, m_{H}=%3.1f GeV (x%d)"%(mass,int(sigscale)) ,"L")
-	leg.AddEntry(flatbkg,"Background","L")
-	leg.AddEntry(fNewT,"\pm 1\sigma","F")
-	leg.AddEntry(fNew2T,"\pm 2\sigma","F")
+	leg.AddEntry(flatbkg,"Background","L");leg.AddEntry(fNewT,"\pm 1\sigma","F");leg.AddEntry(fNew2T,"\pm 2\sigma","F")
 	leg.Draw()
-	mytext = ROOT.TLatex()
-	mytext.SetTextSize(0.03)
-	mytext.SetNDC()
-#	mytext.DrawLatex(0.28,0.8,"#splitline{CMS preliminary}{#sqrt{s} = 7 TeV L = %s}"%(lumistring))
-	mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ")
-	
-	mytext.SetTextSize(0.04)
+	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ");mytext.SetTextSize(0.04)
 	mytext.DrawLatex(0.2,0.2,"#int L = %s"%(lumistring))
 	leg.Draw()
-	c.SaveAs(plotOutDir+"/model_m%3.1f.pdf"%mass)
-	c.SaveAs(plotOutDir+"/model_m%3.1f.png"%mass)
+	c.SaveAs(plotOutDir+"/model_m%3.1f.pdf"%mass);c.SaveAs(plotOutDir+"/model_m%3.1f.png"%mass)
 	
 	d = ROOT.TCanvas()
 	leg2 = ROOT.TLegend(0.56,0.56,0.88,0.88)
-	leg2.SetFillColor(0)
-	leg2.SetBorderSize(0)
-	#d.SetLogy()
+	leg2.SetFillColor(0);leg2.SetBorderSize(0)
 	if (not options.includeVBF): flatdata.GetXaxis().SetTitle("Category")
 	flatdata.GetYaxis().SetTitle("Data - Background");
 	datErrs = []
@@ -169,20 +161,13 @@ def plotDistributions(mass,data,signals,bkg,errors):
 		flatdata.SetBinError(b,((datErrs[b-1]*datErrs[b-1]) +(fNew.GetBinError(b)*fNew.GetBinError(b)))**0.5 )
 	flatbkg.Add(flatbkg,-1)
 
-	flatdata.Draw("9")
-	#fNew2.Draw("9sameE2")
-	#fNew.Draw("9sameE2")
-	flatbkg.Draw("9samehist")
+	flatdata.Draw("9");flatbkg.Draw("9samehist")
 	if options.splitSignal: 
-	  sigst = ROOT.THStack()
-	  sigst.Add(flatsignal)
-	  sigst.Add(flatsignal1)
+	  sigst = ROOT.THStack();sigst.Add(flatsignal);sigst.Add(flatsignal1)
 	  sigst.Draw("9samehist")
 	else:
 	  flatsignal.Draw("9samehist")
-	flatdata.Draw("9sameP")
-	flatdata.SetMaximum(250)
-	flatdata.SetMinimum(-100)
+	flatdata.Draw("9sameP");flatdata.SetMaximum(250);flatdata.SetMinimum(-100)
 
 	leg2.AddEntry(flatdata,"Data","PLE")
 	if options.splitSignal:
@@ -195,15 +180,9 @@ def plotDistributions(mass,data,signals,bkg,errors):
 	mytext.SetTextSize(0.04)
 
 	leg2.Draw()
-	mytext = ROOT.TLatex()
-	mytext.SetTextSize(0.03)
-	mytext.SetNDC()
-#	mytext.DrawLatex(0.28,0.8,"#splitline{CMS preliminary}{#sqrt{s} = 7 TeV L = %s}"%(lumistring))
-	mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ")
-	mytext.SetTextSize(0.04)
+	mytext = ROOT.TLatex();mytext.SetTextSize(0.03);mytext.SetNDC();mytext.DrawLatex(0.1,0.92,"CMS preliminary,  #sqrt{s} = 7 TeV ");mytext.SetTextSize(0.04)
 	mytext.DrawLatex(0.2,0.8,"#int L = %s"%(lumistring))
-	d.SaveAs(plotOutDir+"/diff_model_m%3.1f.pdf"%mass)
-	d.SaveAs(plotOutDir+"/diff_model_m%3.1f.png"%mass)
+	d.SaveAs(plotOutDir+"/diff_model_m%3.1f.pdf"%mass);d.SaveAs(plotOutDir+"/diff_model_m%3.1f.png"%mass)
 	
 
 
@@ -234,8 +213,8 @@ def getBinContent(hist,b):
 def getPoissonBinContent(hist,b,exp):
   
 	res = exp*(hist.GetBinContent(b))
-	if res==0: return 0.0001
-	else: return r.Poisson(res)
+#	if res==0: return 0.0001
+	return g_r.Poisson(res)
 
 def writeCard(tfile,mass,scaleErr):
 
@@ -278,9 +257,14 @@ def writeCard(tfile,mass,scaleErr):
 	backgroundContents = [bkgHistCorr.GetBinContent(b) for b in range(1,nBins+1)]
 
   if options.throwToy:
-	print "Throwing toy dataset"
+        print "Throwing toy dataset"
+
+#	if options.throwGlobalToy: pseudoBackgroundOnlyDataset=generateFixedNData(backgroundContents,g_normalisation_toy)
+	if options.throwGlobalToy:pseudoBackgroundOnlyDataset=fillToyBDT(dataHist)
+	else: pseudoBackgroundOnlyDataset=[g_r.Poisson(backgroundContents[b-1]) for b in range(1,nBins+1)]
+
 	for b in range(1,nBins+1): 
-	  nd = r.Poisson(backgroundContents[b-1])
+	  nd = pseudoBackgroundOnlyDataset[b-1]
 	  ns = 0
 	  if options.expSig>0:
 		print "Injecting %.f x SM"%expSig
@@ -289,7 +273,7 @@ def writeCard(tfile,mass,scaleErr):
 		ns+=getPoissonBinContent(wzhHist,b,options.expSig)
 		ns+=getPoissonBinContent(tthHist,b,options.expSig)
 
-	  outPut.write(" %.2f "%(nd+ns))
+	  outPut.write(" %d "%(nd+ns))
 	  dataHist.SetBinContent(b,nd+ns)
 	  dataHist.SetBinError(b,(nd+ns)**0.5)
 
@@ -446,10 +430,16 @@ parser.add_option("","--noBias",dest="Bias",default=True,action="store_false")
 parser.add_option("","--noSignalSys",action="store_false",dest="signalSys",default=True)
 parser.add_option("","--noTheorySys",action="store_false",dest="theorySys",default=True)
 parser.add_option("","--throwToy",action="store_true",dest="throwToy",default=False)
+parser.add_option("","--throwGlobalToy",action="store_true",dest="throwGlobalToy",default=False)
 parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
 parser.add_option("","--makePlot",dest="makePlot",default=False,action="store_true")
 parser.add_option("","--noVbfTag",dest="includeVBF",default=True,action="store_false")
-parser.add_option("","--plotCombineVbf",dest="splitSignal",default=True,action="store_false")
+parser.add_option("","--plotCombinedVbf",dest="splitSignal",default=True,action="store_false")
+parser.add_option("","--inputBdtPdf",dest="inputpdfworkspace")
+parser.add_option("","--outputBdtPdf",dest="bdtworkspacename",default="bdtws.root")
+parser.add_option("","--diphotonBdtFile",dest="diphotonmvahistfilename",default="bdttree.root")
+parser.add_option("","--diphotonBdtTree",dest="diphotonmvahisttreename",default="bdttree")
+parser.add_option("","--tmvaWeightsFolder",dest="tmvaweightsfolder",default="/vols/cms02/h2g/weights/wt_01Feb/")
 parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
 parser.add_option("-t","--type",dest="bdtType",default="grad");
 
@@ -457,6 +447,7 @@ parser.add_option("-t","--type",dest="bdtType",default="grad");
 (options,args)=parser.parse_args()
 print "Creating Binned Datacards from workspace -> ", options.tfileName
 if options.throwToy: print ("Throwing Toy dataset from BKG")
+if options.throwGlobalToy: print ("Throwing Global Toy dataset from BKG"); options.throwToy=True
 if options.expSig > 0: print ("(Also throwing signal SMx%f)"%options.expSig)
 
 if not options.includeVBF: options.splitSignal=False
@@ -490,7 +481,6 @@ scalingErrors = [1.0119,1.01277,1.01203,1.00998,1.01213,1.0141,1.01822,1.02004,1
 #scalingErrors = [ 1.01185,1.01292,1.01378,1.01378,1.01594,1.01539,1.01814,1.02052,1.02257] # P.Dauncey 100-180, 2% window, MIT presel + BDT > 0.05 (Pol5 Fit)
 #scalingErrors=[1+((s-1)*0.95) for s in scalingErrors]
 
-
 evalMasses    = numpy.arange(110,150.5,0.5)
 normG = ROOT.TGraph(len(genMasses))
 
@@ -505,11 +495,39 @@ normG.Draw("ALP")
 print "Check the Errors Look Sensible -> plot saved to normErrors_%s"%(options.tfileName)
 can.SaveAs("normErrors_%s.pdf"%options.tfileName)
 
+
+# can make a special "global toy" set of datacards
+toymaker=0
+if options.throwGlobalToy:
+  backgrounddiphotonmvafile=ROOT.TFile(options.diphotonmvahistfilename)
+  toymaker = BdtToyMaker(options.tfileName,"data_pow_model_150.0")
+  toymaker.fitData()
+
+  if options.inputpdfworkspace:
+    if not os.path.isfile(options.inputpdfworkspace): 
+	sys.exit("No file named %s, generate it first (remove option)"%options.inputpdfworkspace)
+    backgroundpdfws = ROOT.TFile(options.inputpdfworkspace)
+    toymaker.loadKeysPdf(backgroundpdfws)	
+  else: 
+    backgrounddiphotonmvahist=backgrounddiphotonmvafile.Get(options.diphotonmvahisttreename)
+    toymaker.createKeysPdf(backgrounddiphotonmvahist)	
+    toymaker.saveBdtWorkspace(options.bdtworkspacename)
+
+  toymaker.genData()
+  toymaker.plotRealData(160)
+  toymaker.plotGenData(160)
+  ROOT.gROOT.ProcessLine(".L tmvaLoader.C+")
+  from ROOT import tmvaLoader
+  g_tmva = tmvaLoader(options.tmvaweightsfolder+"/TMVAClassification_BDT%sMIT.weights.xml"%options.bdtType,options.bdtType)
+  
+  
 # Now we can write the cards
-#tfileName = sys.argv[1]
 tfile = ROOT.TFile(options.tfileName)
 if options.singleMass>0: evalMasses=[float(options.singleMass)]
-for m in evalMasses: writeCard(tfile,m,normG.Eval(m))
+for m in evalMasses: 
+	if options.throwGlobalToy: g_toydatalist=toymaker.returnWindowToyData(float(m),g_SIDEBANDWIDTH)
+	#print toymaker.getN(m,0.02)
+	writeCard(tfile,m,normG.Eval(m))
 print "Done Writing Cards"
 
 

@@ -313,7 +313,7 @@ void plotFrac(TList* HistList, TH1F* compT, std::string name, bool fracAll){
   comp->SetTitle(("Up, down and interpolated templates for "+bdt+" "+name).c_str());
   comp->GetYaxis()->SetRangeUser(0.0,((TH1F*)HistList->At(0))->GetMaximum()+0.5);
   comp->GetYaxis()->SetTitle("Events / bin");
-  comp->GetXaxis()->SetTitle("BDT output bin");
+  comp->GetXaxis()->SetTitle("Category");
   int mass;
   if (name=="syst120") mass=120;
   if (name=="syst135") mass=135;
