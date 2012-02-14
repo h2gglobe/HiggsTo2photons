@@ -51,11 +51,17 @@ void MassResolution::Setup(LoopAll &l, TLorentzVector *in_lead_p4, TLorentzVecto
 
   lead_iDet = (bool)l.pho_isEB[lead_index];
   sublead_iDet =(bool) l.pho_isEB[sublead_index];
-
+  sphericalLeadPhoton_=false;
+  sphericalSubleadPhoton_=false;
 //  dz = dz_plot->Eval(higgsPt);
   higgsMass = higgsM;
 }
-  
+void MassResolution::setSphericalLeadPhoton(bool sph){
+  sphericalLeadPhoton_   =sph;
+}
+void MassResolution::setSphericalSubleadPhoton(bool sph){
+  sphericalSubleadPhoton_=sph;
+}
 // return the mass resolution
 /*
 double MassResolution::massResolution(){
@@ -180,14 +186,14 @@ double MassResolution::subleadPhotonResolutionNoSmear() {
 }
 // return lead photon resolution 
 double MassResolution::leadPhotonResolution() {
-  return getPhotonResolution(lead_p4->E(),lead_Eres,lead_r9, lead_phoCat,lead_sc_pos->Eta(),lead_iDet);
+  return getPhotonResolution(lead_p4->E(),lead_Eres,lead_r9, lead_phoCat,lead_sc_pos->Eta(),lead_iDet,sphericalLeadPhoton_);
 }
 // return sublead photon resolution
 double MassResolution::subleadPhotonResolution() {
-  return getPhotonResolution(sublead_p4->E(),sublead_Eres,sublead_r9,sublead_phoCat,sublead_sc_pos->Eta(),sublead_iDet);
+  return getPhotonResolution(sublead_p4->E(),sublead_Eres,sublead_r9,sublead_phoCat,sublead_sc_pos->Eta(),sublead_iDet,sphericalSubleadPhoton_);
 }
 // Actually compute resolution given a photon
-double MassResolution::getPhotonResolution(double photonEnergy, double photonResolution, double r9, int phoCat, double scEta, bool iDet) {
+double MassResolution::getPhotonResolution(double photonEnergy, double photonResolution, double r9, int phoCat, double scEta, bool iDet, bool ispherical) {
 
 
   // Get the photon-category sigma
@@ -243,9 +249,9 @@ double MassResolution::getPhotonResolution(double photonEnergy, double photonRes
 
 
 
+    double categoryResolution = ispherical ? 0.0045*photonEnergy : _eSmearPars.smearing_sigma[myCategory]*photonEnergy;	
+    return TMath::Sqrt(categoryResolution*categoryResolution + photonResolution*photonResolution);
 
-	double categoryResolution = _eSmearPars.smearing_sigma[myCategory]*photonEnergy;	
-	return TMath::Sqrt(categoryResolution*categoryResolution + photonResolution*photonResolution);
 }
 
 //return dz resolution given correct vertex (used 10mm)

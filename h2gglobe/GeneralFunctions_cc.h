@@ -1897,6 +1897,29 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 }
 
 
+bool LoopAll::CheckSphericalPhoton(int phoid){
+ 
+  TVector3 *bcpos   = (TVector3*)bc_xyz->At(sc_bcseedind[pho_scind[phoid]]);
+  TVector3 *phoCalo = (TVector3*)pho_calopos->At(phoid);
+
+  int ieta=IEta(bcpos->Eta());
+  int iphi=IPhi(bcpos->Phi());
+  int ietaTT=(std::abs(ieta)-1)/5+1;
+
+  if (pho_r9[phoid]<0.94 || fabs(phoCalo->Eta())>1.) return false;
+
+  if((
+   (ietaTT>= 2&&     ietaTT<    5 ) ||
+   (ietaTT>= 7&&     ietaTT<    9 ) ||
+   (ietaTT>= 11&&    ietaTT<    13) ||
+   (ietaTT>= 15&&    ietaTT<    17)
+   ) &&  (iphi %20)>5 && (iphi%20)<16){
+	return true;
+  } 
+
+  return false;
+
+}
 // CiC SELECTION CODE END - SSIMON
 
 // Functions moved from Tools.h

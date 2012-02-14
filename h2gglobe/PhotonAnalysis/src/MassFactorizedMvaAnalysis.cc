@@ -648,6 +648,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_),
         (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
         );
+    if (l.CheckSphericalPhoton(ipho)) phoInfo.setSphericalPhoton(true);
     float pweight = 1.;
     // smear MC. But apply energy shift to data 
     if( cur_type != 0 && doMCSmearing ) { // if it's MC
@@ -819,6 +820,10 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     // Mass Resolution of the Event
     massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
 
+    // Make sure we know about the additional smearing category
+    massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
+    massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
+
     float vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
     float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
     float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
@@ -915,7 +920,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     }
 
       if (cur_type==0 && mass >= 100. && mass < 180.){
-        eventListText <<"Type="<< cur_type <<  " Run=" << l.run << "  LS=" << l.lumis << "  Event=" << l.event << " BDTCAT=" << category << " ggM=" << mass << " gg_Pt=" << ptHiggs << " LeadPhotonPhoid=" <<phoid_mvaout_lead << " SubleadPhotonPhoid=" <<phoid_mvaout_sublead << " diphotonBDT=" << diphobdt_output << " photon1Eta=" << lead_p4.Eta() <<" photon2Eta="<<sublead_p4.Eta() << " sigmaMrv="<<sigmaMrv << " sigmaMwv=" << sigmaMwv;
+        eventListText <<"Type="<< cur_type <<  " Run=" << l.run << "  LS=" << l.lumis << "  Event=" << l.event << " BDTCAT=" << category << " ggM=" << mass << " gg_Pt=" << ptHiggs << " LeadPhotonPhoid=" <<phoid_mvaout_lead << " SubleadPhotonPhoid=" <<phoid_mvaout_sublead << " diphotonBDT=" << diphobdt_output << " photon1Eta=" << lead_p4.Eta() <<" photon2Eta="<<sublead_p4.Eta() << " sigmaMrv="<<sigmaMrv << " sigmaMwv=" << sigmaMwv << " photon1Pt="<<lead_p4.Pt()<<" photon2Pt="<<sublead_p4.Pt() << " vtxProb="<<vtxProb <<" cosDphi="<<TMath::Cos(lead_p4.Phi() - sublead_p4.Phi());
         eventListText << endl;
       }
 
@@ -974,6 +979,9 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
           // Mass Resolution of the Event
           massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+    	  // Make sure we know about the additional smearing category
+    	  massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
+    	  massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
 
           float vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
           float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
@@ -1037,6 +1045,9 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
           // Mass Resolution of the Event
           massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+    	   // Make sure we know about the additional smearing category
+    	  massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
+    	  massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
 
           float vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
           float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
@@ -1084,6 +1095,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
               energyCorrected[ipho],
               l.pho_isEB[ipho], l.pho_r9[ipho],
               l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_));
+    	  if (l.CheckSphericalPhoton(ipho)) phoInfo.setSphericalPhoton(true);
 
           float pweight = 1.;
           for(std::vector<BaseSmearer *>::iterator  sj=photonSmearers_.begin(); sj!= photonSmearers_.end(); ++sj ) {
@@ -1230,6 +1242,9 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
           // Mass Resolution of the Event
           massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+    	  // Make sure we know about the additional smearing category
+    	  massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
+   	  massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
 
           float vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
           float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();

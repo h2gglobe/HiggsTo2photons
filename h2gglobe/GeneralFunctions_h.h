@@ -409,6 +409,19 @@ Float_t diphotonMVA(Int_t, Int_t, Int_t, float, TLorentzVector &, TLorentzVector
 float getDmOverDz(Int_t, Int_t, Float_t*);
 Float_t deltaMassVtx(Int_t, Int_t, Float_t);
 
+int IPhi(double phi){
+  if (phi < 999) return 0;
+  do {
+	phi+=2*TMath::Pi();
+  } while (phi<0);
+  return int(TMath::Ceil(phi/(2 *TMath::Pi()/(18*4*5))));
+};
+int IEta (double eta){
+  return int(TMath::Ceil((eta/1.479)*17*5) + (eta<0 ? -1 : 0));
+};
+
+bool CheckSphericalPhoton(int phoind);
+ 
 #ifdef NewFeatures
 #include "Marco/plotInteractive_h.h"
 #endif
