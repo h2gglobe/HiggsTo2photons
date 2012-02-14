@@ -517,8 +517,8 @@ if options.throwGlobalToy:
     toymaker.saveBdtWorkspace(options.bdtworkspacename)
 
   toymaker.genData()
-  toymaker.plotRealData(160)
-  toymaker.plotGenData(160)
+#  toymaker.plotRealData(160)
+#  toymaker.plotGenData(160)
   ROOT.gROOT.ProcessLine(".L tmvaLoader.C+")
   from ROOT import tmvaLoader
   g_tmva = tmvaLoader(options.tmvaweightsfolder+"/TMVAClassification_BDT%sMIT.weights.xml"%options.bdtType,options.bdtType)
