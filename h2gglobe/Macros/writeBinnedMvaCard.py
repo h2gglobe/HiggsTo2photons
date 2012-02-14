@@ -60,18 +60,21 @@ def generateFixedNData(backgroundEntries,nToyData):
 	
 	return returnbins
 
+def tagPseudoDijets():
+	#Tag the Dijets of the global toy
+	print "Tagging Pseudo Di-jets in Global Toy"
+	for p,gtoy in enumerate(g_toydatalist):
+		unirandom=g_r.Uniform()
+		if unirandom<g_expdijet: g_toydatalist[p]=(1.5,gtoy[1])
+
 def fillToyBDT(histogram):
 
 	toydata = g_toydatalist[:]
 	histNew = histogram.Clone()
 	for b in range(1,histNew.GetNbinsX()+1): histNew.SetBinContent(b,0)
 	for j in range(len(toydata)):
-		# first check if its a VBF
 		val = array.array('f',[0])
-		if options.includeVBF:
-		   unirand=g_r.Uniform()
-		   if unirand < g_expdijet : val[0] = 1.5
-		   else: g_tmva.tmvaGetVal(toydata[j][0],toydata[j][1],val)
+		if toydata[j][0]>1.1 : val[0] = 1.5
 		else:g_tmva.tmvaGetVal(toydata[j][0],toydata[j][1],val)	
 		histNew.Fill(val[0])
 	listret = []
@@ -434,7 +437,7 @@ parser.add_option("","--throwGlobalToy",action="store_true",dest="throwGlobalToy
 parser.add_option("","--expSig",dest="expSig",default=-1.,type="float")
 parser.add_option("","--makePlot",dest="makePlot",default=False,action="store_true")
 parser.add_option("","--noVbfTag",dest="includeVBF",default=True,action="store_false")
-parser.add_option("","--plotCombinedVbf",dest="splitSignal",default=True,action="store_false")
+parser.add_option("","--plotStackedVbf",dest="splitSignal",default=False,action="store_true")
 parser.add_option("","--inputBdtPdf",dest="inputpdfworkspace")
 parser.add_option("","--outputBdtPdf",dest="bdtworkspacename",default="bdtws.root")
 parser.add_option("","--diphotonBdtFile",dest="diphotonmvahistfilename",default="bdttree.root")
@@ -525,7 +528,9 @@ if options.throwGlobalToy:
 tfile = ROOT.TFile(options.tfileName)
 if options.singleMass>0: evalMasses=[float(options.singleMass)]
 for m in evalMasses: 
-	if options.throwGlobalToy: g_toydatalist=toymaker.returnWindowToyData(float(m),g_SIDEBANDWIDTH)
+	if options.throwGlobalToy: 
+		g_toydatalist=toymaker.returnWindowToyData(float(m),g_SIDEBANDWIDTH)
+		if options.includeVBF: tagPseudoDijets()
 	#print toymaker.getN(m,0.02)
 	writeCard(tfile,m,normG.Eval(m))
 print "Done Writing Cards"
