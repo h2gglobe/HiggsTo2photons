@@ -4,6 +4,7 @@
 *******************************************************/
    
 #include "RooContainer.h"
+#include "RooMsgService.h"
 
 using namespace RooFit;
 
@@ -15,6 +16,7 @@ void RooContainer::SetNCategories(int n){
 }
 void RooContainer::Verbose(bool noisy){
 	verbosity_=noisy;
+	if (!noisy) RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
 }
 void RooContainer::AddGlobalSystematic(std::string name,double val_sig, double val_bkg){
   global_systematics_[name] = std::pair<double,double>(val_sig,val_bkg);

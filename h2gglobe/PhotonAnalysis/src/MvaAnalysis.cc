@@ -958,6 +958,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
   // ---------------------------------------------------------------------------------------------------------------------//
   if (cur_type !=0){
     for (int ipho=0;ipho<l.pho_n;ipho++){
+      l.pho_isEB[ipho]=(*((TVector3*)l.sc_xyz->At(l.pho_scind[ipho]))).Eta()<1.5;
       l.pho_r9[ipho]*=1.0035;
       if (l.pho_isEB[ipho]){ l.pho_sieie[ipho] = (0.87*l.pho_sieie[ipho]) + 0.0011 ;}
       else {l.pho_sieie[ipho]*=0.99;}
@@ -973,14 +974,15 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
   for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
     std::vector<std::vector<bool> > p;
-    PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
-        // *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
+    PhotonReducedInfo phoInfo (// *((TVector3*)l.pho_calopos->At(ipho)), 
+         *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
         ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), 
         energyCorrected[ipho],
         l.pho_isEB[ipho], l.pho_r9[ipho],
         l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_),
         (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
         );
+//    	  if (l.CheckSphericalPhoton(ipho)) phoInfo.setSphericalPhoton(true);
     float pweight = 1.;
     // smear MC. But apply energy shift to data 
     if( cur_type != 0 && doMCSmearing ) { // if it's MC
@@ -1153,11 +1155,13 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     // Mass Resolution of the Event
     massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+//  massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
+//  massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
 
     double massResolution = massResolutionCalculator->massResolutionCorrVtx();
     //  double massResolution = massResolutionCalculator->massResolution();  //no longer use one or other
     double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
-    float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
+    float sigmaMrv = massResolutionCalculator->massResolutionEonly();
     float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
     float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
     float vtxProb = 1.-0.49*(vtx_mva+1.0);
@@ -1850,10 +1854,12 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
           // Mass Resolution of the Event
           massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+//    	  massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
+//   	  massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
 
           double massResolution = massResolutionCalculator->massResolutionCorrVtx();
           double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
-          float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
+          float sigmaMrv = massResolutionCalculator->massResolutionEonly();
           float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
           float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
           float vtxProb = 1.-0.49*(vtx_mva+1.0);
@@ -1945,10 +1951,12 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
           float ptHiggs = Higgs.Pt();
           // Mass Resolution of the Event
           massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+//    	  massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
+//   	  massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
 
           double massResolution = massResolutionCalculator->massResolutionCorrVtx();
           double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
-          float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
+          float sigmaMrv = massResolutionCalculator->massResolutionEonly();
           float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
           float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
           float vtxProb = 1.-0.49*(vtx_mva+1.0);
@@ -2023,14 +2031,15 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         // smear the photons 
         for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
           std::vector<std::vector<bool> > p;
-          PhotonReducedInfo phoInfo ( *((TVector3*)l.pho_calopos->At(ipho)), 
-              /// *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
+          PhotonReducedInfo phoInfo (/// *((TVector3*)l.pho_calopos->At(ipho)), 
+               *((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])), 
               ((TLorentzVector*)l.pho_p4->At(ipho))->Energy(), 
               energyCorrected[ipho],
               l.pho_isEB[ipho], l.pho_r9[ipho],
               l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_),
               (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
               );
+//    	  if (l.CheckSphericalPhoton(ipho)) phoInfo.setSphericalPhoton(true);
 
           float pweight = 1.;
           for(std::vector<BaseSmearer *>::iterator  sj=photonSmearers_.begin(); sj!= photonSmearers_.end(); ++sj ) {
@@ -2162,10 +2171,12 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
           float ptHiggs = Higgs.Pt();
           // Mass Resolution of the Event
           massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+//    	  massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
+//   	  massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
 
           double massResolution = massResolutionCalculator->massResolutionCorrVtx();
           double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
-          float sigmaMrv = massResolutionCalculator->massResolutionCorrVtx();
+          float sigmaMrv = massResolutionCalculator->massResolutionEonly();
           float sigmaMwv = massResolutionCalculator->massResolutionWrongVtx();
           float sigmaMeonly = massResolutionCalculator->massResolutionEonly();
           float vtxProb = 1.-0.49*(vtx_mva+1.0);

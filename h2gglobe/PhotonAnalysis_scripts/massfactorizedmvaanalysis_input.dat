@@ -23,8 +23,10 @@ sc_sphi
 sc_seta
 sc_raw
 sc_pre
+->
 sc_bcseedind
 bc_xyz
+->
 
 ->
 Photons 
@@ -146,3 +148,18 @@ dipho_n
 dipho_leadind
 dipho_subleadind
 dipho_vtxind
+
+
+->
+Temp inputs for vertexing
+->
+
+conv_n
+conv_p4
+conv_ntracks
+conv_pairinvmass
+conv_paircotthetasep
+conv_eoverp
+conv_chi2_probability
+conv_vtx
+

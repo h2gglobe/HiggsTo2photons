@@ -83,8 +83,9 @@ typ=+12   ind=94 draw=1  Nam=QCD40PF Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04
 typ=+3    ind=95 draw=1  Nam=GJet    Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Bkg_Fall11_S6/GJet_Pt-20_pf  red=0 lum=1.e10 xsec=501.15 kfac=1.3  scal=1.
 typ=+4    ind=96 draw=1  Nam=DiPhotonJets Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Bkg_Fall11_S6/DiPhotonJets    red=0   lum=1.e10  xsec=154.7   kfac=1.15  scal=1.
 typ=+5    ind=97 draw=1  Nam=Box25        Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Bkg_Fall11_S6/BoxPt25to250    red=0   lum=1.e10   xsec=12.37   kfac=1.3  scal=1.
+->
 typ=+6    ind=98 draw=1  Nam=DYJetsToLL   Dir=/vols/cms02/h2g/ntuples/h2gglobe_V11_04_05_reduction_MITeleVeto/MC_Bkg_Fall11_S6/DYJetsToLL_M50    red=0   lum=1.e10  xsec=2475.   kfac=1.15  scal=1.
-
+->
 ->
 Branches to use
 ->

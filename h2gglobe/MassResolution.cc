@@ -111,6 +111,13 @@ double MassResolution::massResolutionEonly() {
   double sublead_E = sublead_p4->E();
   double lead_sig = leadPhotonResolution();
   double sublead_sig = subleadPhotonResolution();
+/*
+  std::cout << "lead Energy = " << lead_E << std::endl;
+  std::cout << "sublead Energy = " << sublead_E << std::endl;
+  std::cout << "lead sigma = " << leadPhotonResolution() << std::endl;
+  std::cout << "sublead sigma = " << subleadPhotonResolution() << std::endl;
+  std::cout << "MASS = " << higgsMass << std::endl;
+*/
 
   return 0.5*higgsMass*TMath::Sqrt((lead_sig*lead_sig)/(lead_E*lead_E)+(sublead_sig*sublead_sig)/(sublead_E*sublead_E));
 }

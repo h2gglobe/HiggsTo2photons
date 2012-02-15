@@ -198,8 +198,8 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
   
   Float_t mva = 99.;
   TLorentzVector Higgs = leadP4+subleadP4;
-  float leadEt    = leadP4.Et();
-  float subleadEt = subleadP4.Et();
+  float leadPt    = leadP4.Pt();
+  float subleadPt = subleadP4.Pt();
   float mass 	  = Higgs.M();
   float diphopt   = Higgs.Pt();
 
@@ -208,10 +208,10 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
     tmva_dipho_UCSD_subleadr9 = pho_r9[subleadingPho];
     tmva_dipho_UCSD_leadeta = fabs(leadP4.Eta());
     tmva_dipho_UCSD_subleadeta = fabs(subleadP4.Eta());
-  //  tmva_dipho_UCSD_leadptomass = leadEt/mass;  
-    tmva_dipho_UCSD_subleadptomass = subleadEt/mass;  
+  //  tmva_dipho_UCSD_leadptomass = leadPt/mass;  
+    tmva_dipho_UCSD_subleadptomass = subleadPt/mass;  
     tmva_dipho_UCSD_diphoptom = diphopt/mass;
-    tmva_dipho_UCSD_sumptom = (leadEt+subleadEt)/mass;
+    tmva_dipho_UCSD_sumptom = (leadPt+subleadPt)/mass;
     tmva_dipho_UCSD_subleadmva = photonIDMVA(subleadingPho, vtx,leadP4, "UCSD");
     tmva_dipho_UCSD_leadmva = photonIDMVA(leadingPho, vtx,subleadP4, "UCSD");
    // tmva_dipho_UCSD_dmom = sigmaMrv/mass;
@@ -222,8 +222,8 @@ Float_t LoopAll::diphotonMVA(Int_t leadingPho, Int_t subleadingPho, Int_t vtx, f
     tmva_dipho_MIT_dmom = sigmaMrv/mass;
     tmva_dipho_MIT_dmom_wrong_vtx = sigmaMwv/mass;
     tmva_dipho_MIT_vtxprob = vtxProb;
-    tmva_dipho_MIT_ptom1 = leadEt/mass;
-    tmva_dipho_MIT_ptom2 = subleadEt/mass;
+    tmva_dipho_MIT_ptom1 = leadPt/mass;
+    tmva_dipho_MIT_ptom2 = subleadPt/mass;
 //    tmva_dipho_MIT_eta1 = fabs(leadP4.Eta());
 //    tmva_dipho_MIT_eta2 =  fabs(subleadP4.Eta());
     tmva_dipho_MIT_eta1 = leadP4.Eta();
@@ -1546,9 +1546,16 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
 	      ( subleadEta > 1.4442 && subleadEta < 1.566 ) ) { continue; }
 
 
+
 	  float leadpt = lead_p4.Pt() > sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt();
       	  float subleadpt = lead_p4.Pt() < sublead_p4.Pt() ? lead_p4.Pt() : sublead_p4.Pt(); 	  
 
+   if (run==173439 && lumis==155 && event==236661419) {
+ std::cout <<	"Inside diphotonSelection now" <<std::endl;
+ std::cout <<	"mass - " <<m_gamgam<<std::endl;
+ std::cout <<	"lead ET - " <<leadpt<<std::endl;
+ std::cout <<	"sublead ET - " <<subleadpt<<std::endl;
+}
 	  if( applyPtoverM ) {
 	    if ( leadpt/m_gamgam < leadPtMin/120. || subleadpt/m_gamgam < subleadPtMin/120. ) { continue; }
 	  } else {
@@ -1580,10 +1587,19 @@ int LoopAll::DiphotonMITPreSelection(Float_t leadPtMin, Float_t subleadPtMin,boo
   int selected_dipho_vtx     = dipho_vtxind[selected_dipho_ind];
   TLorentzVector selected_lead_p4 = get_pho_p4(selected_dipho_lead,selected_dipho_vtx,pho_energy_array); 
   TLorentzVector selected_sublead_p4 = get_pho_p4(selected_dipho_sublead,selected_dipho_vtx,pho_energy_array);
+   if (run==173439 && lumis==155 && event==236661419) {
+ std::cout <<	"Inside diphotonSelection now" <<std::endl;
+std::cout << photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT")<<std::endl;
+std::cout << photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")<<std::endl;
+
+}
  
   if ( photonIDMVA(selected_dipho_lead,selected_dipho_vtx,selected_lead_p4,"MIT") <= -0.3
     || photonIDMVA(selected_dipho_sublead,selected_dipho_vtx,selected_sublead_p4,"MIT")	<= -0.3
      ) {return -1;}
+   if (run==173439 && lumis==155 && event==236661419) {
+ std::cout <<	"Diphoton selected index -- "<< selected_dipho_ind <<std::endl;
+}
   
   return selected_dipho_ind;
 
@@ -1615,34 +1631,36 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    // not sure if should be using the dr03 or 04 for these so stick to "usual" choices                      
    float val_ecaliso = pho_ecalsumetconedr03[photon_index] - 0.012*phop4.Et();                              
    float val_hcaliso = pho_hcalsumetconedr03[photon_index] - 0.005*phop4.Et();                              
-   float val_trkiso  = pho_trksumptsolidconedr03[photon_index] - 0.002*phop4.Et();                          
+   float val_trkiso  = pho_trksumpthollowconedr03[photon_index] - 0.002*phop4.Et();                          
    float val_hcalecal   = (val_ecaliso+val_hcaliso-rho*rhofac);                                             
    float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];                
    float val_trkiso_hollow03 = pho_trksumpthollowconedr03[photon_index];                                    
 //   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
    int   val_pho_isconv = pho_isconv[photon_index];
 
-   if (run==173439 && lumis==155 && event==236661419) {
+   //if (run==173439 && lumis==155 && event==236661419) {
 
-	std::cout << "I will lose this photon, but MIT will not" << std::endl;
+//	std::cout << "I will lose this photon, but MIT will not" << std::endl;
 	
-	std::cout << "rho " << rho <<std::endl;
-	std::cout << "pho_n " << pho_n <<std::endl;
-	std::cout << "pho_index " << photon_index <<std::endl;
-	std::cout << "pho_et " << phop4.Et() <<std::endl;
-	std::cout << "hoe " << val_hoe <<std::endl;
-	std::cout << "sieie " << val_sieie <<std::endl;
-	std::cout << "ecaliso " << val_ecaliso <<std::endl;
-	std::cout << "hcaliso " << val_hcaliso <<std::endl;
-	std::cout << "hcalecal " << val_hcalecal <<std::endl;
-	std::cout << "abstrkiso " << val_abstrkiso <<std::endl;
-	std::cout << "trkiso " << val_trkiso_hollow03 <<std::endl;
+//	std::cout << "rho " << rho <<std::endl;
+//	std::cout << "pho_n " << pho_n <<std::endl;
+//	std::cout << "pho_index " << photon_index <<std::endl;
+//	std::cout << "pho_et " << phop4.Et() <<std::endl;
+//	std::cout << "hoe " << val_hoe <<std::endl;
+//	std::cout << "sieie " << val_sieie <<std::endl;
+//	std::cout << "ecaliso " << val_ecaliso <<std::endl;
+//	std::cout << "hcaliso " << val_hcaliso <<std::endl;
+//	std::cout << "hcalecal " << val_hcalecal <<std::endl;
+//	std::cout << "abstrkiso " << val_abstrkiso <<std::endl;
+//	std::cout << "trkiso " << val_trkiso_hollow03 <<std::endl;
+//	std::cout << "isconv " << val_pho_isconv <<std::endl;
 
-	std::cout << "r9 " << pho_r9[photon_index] <<std::endl;
-	std::cout << "r9 categoty " << r9_category <<std::endl;
-	std::cout << "eta scxyz" << fabs(((TVector3*)sc_xyz->At(pho_scind[photon_index]))->Eta()) <<std::endl;
+//	std::cout << "r9 " << pho_r9[photon_index] <<std::endl;
+//	std::cout << "r9 categoty " << r9_category <<std::endl;
+//	std::cout << "eta scxyz" << fabs(((TVector3*)sc_xyz->At(pho_scind[photon_index]))->Eta()) <<std::endl;
+//	std::cout << "category" << photon_category <<std::endl;
 
-   }
+//   }
 
    if (val_hoe             >= mitCuts_hoe[photon_category]         ) return false;                                           
    if (val_sieie           >= mitCuts_sieie[photon_category]       ) return false;
@@ -1899,8 +1917,8 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 
 bool LoopAll::CheckSphericalPhoton(int phoid){
  
-  TVector3 *bcpos   = (TVector3*)bc_xyz->At(sc_bcseedind[pho_scind[phoid]]);
-  TVector3 *phoCalo = (TVector3*)pho_calopos->At(phoid);
+  TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
+  TVector3 *phoCalo = (TVector3*)sc_xyz->At(pho_scind[phoid]);
 
   int ieta=IEta(bcpos->Eta());
   int iphi=IPhi(bcpos->Phi());
