@@ -182,7 +182,6 @@ double MassResolution::getPhotonResolution(double photonEnergy, double photonRes
     }
 
 
-
     double categoryResolution = ispherical ? 0.0045*photonEnergy : _eSmearPars.smearing_sigma[myCategory]*photonEnergy;	
     return TMath::Sqrt(categoryResolution*categoryResolution + photonResolution*photonResolution);
 
@@ -210,7 +209,15 @@ double MassResolution::propagateDz(double dz){
 
   double alpha = lead_p4.Angle(sublead_p4.Vect());
   if (alpha!= sublead_p4.Angle(lead_p4.Vect())) std::cout << "Error: Angle between photons not consistent" << std::endl;
-  
+
+  double x1 = leadPhoton->caloPosition().X();
+  double y1 = leadPhoton->caloPosition().Y();
+  double z1 = leadPhoton->caloPosition().Z();
+
+  double x2 = subleadPhoton->caloPosition().X();
+  double y2 = subleadPhoton->caloPosition().Y();
+  double z2 = subleadPhoton->caloPosition().Z();
+/*  
   double x1 = leadPhoton->caloPosition().X()-vertex->X();
   double y1 = leadPhoton->caloPosition().Y()-vertex->Y();
   double z1 = leadPhoton->caloPosition().Z()-vertex->Z();
@@ -218,6 +225,7 @@ double MassResolution::propagateDz(double dz){
   double x2 = subleadPhoton->caloPosition().X()-vertex->X();
   double y2 = subleadPhoton->caloPosition().Y()-vertex->Y();
   double z2 = subleadPhoton->caloPosition().Z()-vertex->Z();
+*/
  
   double r1 = TMath::Sqrt(x1*x1+y1*y1+z1*z1);
   double r2 = TMath::Sqrt(x2*x2+y2*y2+z2*z2);
