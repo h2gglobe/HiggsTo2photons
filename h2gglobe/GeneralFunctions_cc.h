@@ -148,12 +148,12 @@ Float_t LoopAll::photonIDMVA(Int_t iPhoton, Int_t vtx, TLorentzVector &p4, const
 
     float pho_tkiso_goodvtx = (*pho_tkiso_recvtx_030_002_0000_10_01)[iPhoton][vtx];
     float pho_tkiso_badvtx = pho_tkiso_badvtx_040_002_0000_10_01[iPhoton];
-    tmva_id_mit_tiso1    = (pho_tkiso_goodvtx + pho_ecalsumetconedr03[iPhoton] + pho_hcalsumetconedr04[iPhoton] - rho*rhofac);
-    tmva_id_mit_tiso2    = (pho_tkiso_badvtx + pho_ecalsumetconedr04[iPhoton] + pho_hcalsumetconedr04[iPhoton] - rho*rhofacbad);
+    tmva_id_mit_tiso1    = (pho_tkiso_goodvtx + pho_ecalsumetconedr03[iPhoton] + pho_hcalsumetconedr03[iPhoton] - rho*rhofac);
+    tmva_id_mit_tiso2    = (pho_tkiso_badvtx + pho_ecalsumetconedr03[iPhoton] + pho_hcalsumetconedr03[iPhoton] - rho*rhofacbad);
     tmva_id_mit_tiso3    = pho_tkiso_goodvtx;
     tmva_id_mit_r9       = pho_r9[iPhoton];
     tmva_id_mit_ecal     = pho_ecalsumetconedr03[iPhoton]-rho*rhofac;
-    tmva_id_mit_hcal     = pho_hcalsumetconedr04[iPhoton]-rho*rhofac;
+    tmva_id_mit_hcal     = pho_hcalsumetconedr03[iPhoton]-rho*rhofac;
     tmva_id_mit_e5x5     = pho_e5x5[iPhoton]/raw;
     tmva_id_mit_etawidth = sc_seta[pho_scind[iPhoton]];
     tmva_id_mit_phiwidth = sc_sphi[pho_scind[iPhoton]];
