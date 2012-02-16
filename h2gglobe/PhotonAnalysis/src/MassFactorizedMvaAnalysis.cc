@@ -844,7 +844,8 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
     // Mass Resolution of the Event
     //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-    massResolutionCalculator->Setup(l,photonInfoCollection[diphoton_index.first],photonInfoCollection[diphoton_index.first],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
+
+    massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
 
     // Make sure we know about the additional smearing category
 //    massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
@@ -1048,7 +1049,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
           // Mass Resolution of the Event
           //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
     	  //massResolutionCalculator->Setup(l,photonLeadInfo,photonSubleadInfo,diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
-    	  massResolutionCalculator->Setup(l,photonInfoCollection[diphoton_index.first],photonInfoCollection[diphoton_index.first],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
+    	  massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
     	  // Make sure we know about the additional smearing category
     	  //massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
     	  //massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
@@ -1117,7 +1118,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
           // Mass Resolution of the Event
           //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
     	  //massResolutionCalculator->Setup(l,photonLeadInfo,photonSubleadInfo,diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
-    	  massResolutionCalculator->Setup(l,photonInfoCollection[diphoton_index.first],photonInfoCollection[diphoton_index.first],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
+    	  massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
     	   // Make sure we know about the additional smearing category
     	  //massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
     	  //massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
@@ -1318,7 +1319,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
           // Mass Resolution of the Event
           //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-    	   massResolutionCalculator->Setup(l,photonInfoCollection[diphoton_index.first],photonInfoCollection[diphoton_index.first],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
+    	   massResolutionCalculator->Setup(l,&photonInfoCollection[diphoton_index.first],&photonInfoCollection[diphoton_index.second],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
     	  // Make sure we know about the additional smearing category
     	  //massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
    	  //massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));

@@ -57,6 +57,7 @@ DICTS = LoopAll.h BaseAnalysis.h BaseSmearer.h EnergySmearer.h EfficiencySmearer
 	PhotonAnalysis/interface/StatAnalysis.h\
 	PhotonAnalysis/interface/MassFactorizedMvaAnalysis.h\
 	PhotonAnalysis/interface/MvaAnalysis.h\
+	PhotonReducedInfo.h \
 	RooContainer.h \
 	MassResolution.h
 
@@ -106,6 +107,7 @@ LoopAllDict.$(SrcSuf): CommonParameters.h LoopAll.h \
 	CounterContainer.h \
 	SampleContainer.h \
 	RooContainer.h \
+	PhotonReducedInfo.h \
 	MassResolution.h \
 	PhotonFix.h \
 	Cut.h \

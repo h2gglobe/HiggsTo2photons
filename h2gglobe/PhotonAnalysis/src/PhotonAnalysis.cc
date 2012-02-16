@@ -444,8 +444,10 @@ void PhotonAnalysis::Init(LoopAll& l)
 	if (l.typerun == 2 || l.typerun == 1) {
 	}
 
+	std::cout << "About to create MassResolution Calculator!!!! " <<std::endl;
 	// MassResolution 
 	massResolutionCalculator = new MassResolution();	
+	std::cout << "After we create MassResolution Calculator!!!! " <<std::endl;
     /* -------------------------------------------------------------------------------------------
     Pileup Reweighting
     https://twiki.cern.ch/twiki/bin/viewauth/CMS/PileupReweighting

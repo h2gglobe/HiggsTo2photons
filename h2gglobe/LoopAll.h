@@ -24,6 +24,7 @@ class BaseAnalysis;
 #include "Cut.h"
 #include "branchdef/Limits.h"
 #include "RooContainer.h"
+#include "PhotonReducedInfo.h"
 #include "VertexAnalysis/interface/HggVertexAnalyzer.h"
 #include "VertexAnalysis/interface/HggVertexFromConversions.h"
 #include "VertexAnalysis/interface/VertexAlgoParameters.h"

@@ -86,6 +86,9 @@ energyCorrectionMethod=Bendavid
 doEcorrectionSmear=1
 doEcorrectionSyst=0
 
+doRegressionSmear=1
+doRegressionSyst=1
+
 doPhotonIdEffSyst=1
 doPhotonIdEffSmear=1
 

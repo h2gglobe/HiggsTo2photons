@@ -63,7 +63,7 @@ class MassResolution {
   public:
     MassResolution();
 
-    void Setup(LoopAll&,PhotonReducedInfo&,PhotonReducedInfo&,int,EnergySmearer::energySmearingParameters,int,int);
+    void Setup(LoopAll&,PhotonReducedInfo*,PhotonReducedInfo*,int,EnergySmearer::energySmearingParameters,int,int);
 
     double massResolutionCorrVtx();
     double massResolutionWrongVtx();
@@ -99,8 +99,8 @@ class MassResolution {
     
    // TLorentzVector *lead_p4;
    // TLorentzVector *sublead_p4;
-    PhotonReducedInfo leadPhoton;
-    PhotonReducedInfo subleadPhoton;
+    PhotonReducedInfo *leadPhoton;
+    PhotonReducedInfo *subleadPhoton;
 
     TVector3 lead_sc_pos;
     TVector3 sublead_sc_pos;

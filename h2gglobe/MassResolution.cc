@@ -13,36 +13,44 @@ See MassResolution.h for instructions
 
 MassResolution::MassResolution(){}
 
-void MassResolution::Setup(LoopAll &l, PhotonReducedInfo &leadInfo, PhotonReducedInfo &subleadInfo,int diphoton_index,EnergySmearer::energySmearingParameters eSmearPars, int nR9Categories, int nEtaCategories) 
-//  leadPhoton(leadInfo),
-//  subleadPhoton(subleadInfo)
+void MassResolution::Setup(LoopAll &l, PhotonReducedInfo *leadInfo, PhotonReducedInfo *subleadInfo,int diphoton_index,EnergySmearer::energySmearingParameters eSmearPars, int nR9Categories, int nEtaCategories) 
 {
 
-  leadPhoton = leadInfo;	
-  subleadPhoton = subleadInfo;	
+  leadPhoton= leadInfo;	
+  subleadPhoton= subleadInfo;	
   vertex = (TVector3*)l.vtx_std_xyz->At(l.dipho_vtxind[diphoton_index]);
   vtx_dxdydz = (TVector3*)l.vtx_std_dxdydz->At(l.dipho_vtxind[diphoton_index]);
 
-  lead_sc_pos    = leadPhoton.caloPosition();
-  sublead_sc_pos = subleadPhoton.caloPosition();
+  //lead_sc_pos    = leadPhoton->caloPosition();
+  //sublead_sc_pos = subleadPhoton->caloPosition();
 
-  lead_Eres    = leadPhoton.corrEnergyErr();
-  sublead_Eres = subleadPhoton.corrEnergyErr();
+  lead_Eres    = leadPhoton->corrEnergyErr();
+  sublead_Eres = subleadPhoton->corrEnergyErr();
 
-  lead_r9      = leadPhoton.r9();
-  sublead_r9   = subleadPhoton.r9();
+  lead_r9      = leadPhoton->r9();
+  sublead_r9   = subleadPhoton->r9();
 
-  TLorentzVector lead_p4=leadPhoton.p4(vertex->X(),vertex->Y(),vertex->Z());
-  TLorentzVector sublead_p4=subleadPhoton.p4(vertex->X(),vertex->Y(),vertex->Z());
+  TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+  TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
 
   higgsMass=(lead_p4+sublead_p4).M();
+  _eSmearPars=eSmearPars;
+
+/*  std::cout << "Inside the mmassreso calc -- E1 - " <<leadPhoton->energy() <<std::endl;
+  std::cout << "Inside the mmassreso calc -- E2 - " <<subleadPhoton->energy() <<std::endl;
+  std::cout << "Inside the mmassreso calc -- r91 - " <<lead_r9 <<std::endl;
+  std::cout << "Inside the mmassreso calc -- r92 - " <<sublead_r9 <<std::endl;
+  std::cout << "Inside the mmassreso calc -- mass - " <<higgsMass <<std::endl;
+  std::cout << "Inside the mmassreso calc -- calopos Eta1 - " <<leadPhoton->caloPosition().Eta() <<std::endl;
+  std::cout << "Inside the mmassreso calc -- calopos Eta2 - " <<subleadPhoton->caloPosition().Eta() <<std::endl;
+*/
 
 }
 // return the mass resolution given correct vertex
 double MassResolution::massResolutionCorrVtx(){
 
-  TLorentzVector lead_p4=leadPhoton.p4(vertex->X(),vertex->Y(),vertex->Z());
-  TLorentzVector sublead_p4=subleadPhoton.p4(vertex->X(),vertex->Y(),vertex->Z());
+  TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+  TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
 
   double lead_E = lead_p4.E();
   double sublead_E = sublead_p4.E();
@@ -57,8 +65,8 @@ double MassResolution::massResolutionCorrVtx(){
 // return the mass resolution wrong vertex
 double MassResolution::massResolutionWrongVtx(){
   
-  TLorentzVector lead_p4=leadPhoton.p4(vertex->X(),vertex->Y(),vertex->Z());
-  TLorentzVector sublead_p4=subleadPhoton.p4(vertex->X(),vertex->Y(),vertex->Z());
+  TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+  TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
 
   double lead_E = lead_p4.E();
   double sublead_E = sublead_p4.E();
@@ -74,8 +82,8 @@ double MassResolution::massResolutionWrongVtx(){
 // return energy contribution to mass resolution only
 double MassResolution::massResolutionEonly() {
 
-  double lead_E = leadPhoton.energy();
-  double sublead_E = subleadPhoton.energy();
+  double lead_E = leadPhoton->energy();
+  double sublead_E = subleadPhoton->energy();
   double lead_sig = leadPhotonResolution();
   double sublead_sig = subleadPhotonResolution();
 
@@ -107,15 +115,15 @@ double MassResolution::subleadPhotonResolutionNoSmear() {
 }
 // return lead photon resolution 
 double MassResolution::leadPhotonResolution() {
-  TLorentzVector lead_p4=leadPhoton.p4(vertex->X(),vertex->Y(),vertex->Z());
-  bool sphericalLeadPhoton_=leadPhoton.isSphericalPhoton();
-  return getPhotonResolution(lead_p4.E(),lead_Eres,lead_r9, lead_sc_pos.Eta(),lead_iDet,sphericalLeadPhoton_);
+  TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+  bool sphericalLeadPhoton_=leadPhoton->isSphericalPhoton();
+  return getPhotonResolution(lead_p4.E(),lead_Eres,lead_r9, leadPhoton->caloPosition().Eta(),lead_iDet,sphericalLeadPhoton_);
 }
 // return sublead photon resolution
 double MassResolution::subleadPhotonResolution() {
-  TLorentzVector sublead_p4=subleadPhoton.p4(vertex->X(),vertex->Y(),vertex->Z());
-  bool sphericalSubleadPhoton_=subleadPhoton.isSphericalPhoton();
-  return getPhotonResolution(sublead_p4.E(),sublead_Eres,sublead_r9,sublead_sc_pos.Eta(),sublead_iDet,sphericalSubleadPhoton_);
+  TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+  bool sphericalSubleadPhoton_=subleadPhoton->isSphericalPhoton();
+  return getPhotonResolution(sublead_p4.E(),sublead_Eres,sublead_r9,subleadPhoton->caloPosition().Eta(),sublead_iDet,sphericalSubleadPhoton_);
 }
 
 // Actually compute resolution given a photon
@@ -124,6 +132,7 @@ double MassResolution::getPhotonResolution(double photonEnergy, double photonRes
 
   // Get the photon-category sigma
   std::string myCategory="";
+  std::cout << "MassRes  " << _eSmearPars.categoryType<<std::endl;
   if (_eSmearPars.categoryType=="Automagic") 
     {
 	    EnergySmearer::energySmearingParameters::phoCatVectorConstIt vit = find(_eSmearPars.photon_categories.begin(), _eSmearPars.photon_categories.end(), 
@@ -197,19 +206,19 @@ double MassResolution::dzResolution() {
 // propagate error on z to error on angle
 double MassResolution::propagateDz(double dz){
 
-  TLorentzVector lead_p4=leadPhoton.p4(vertex->X(),vertex->Y(),vertex->Z());
-  TLorentzVector sublead_p4=subleadPhoton.p4(vertex->X(),vertex->Y(),vertex->Z());
+  TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+  TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
 
   double alpha = lead_p4.Angle(sublead_p4.Vect());
   if (alpha!= sublead_p4.Angle(lead_p4.Vect())) std::cout << "Error: Angle between photons not consistent" << std::endl;
   
-  double x1 = lead_sc_pos.X()-vertex->X();
-  double y1 = lead_sc_pos.Y()-vertex->Y();
-  double z1 = lead_sc_pos.Z()-vertex->Z();
+  double x1 = leadPhoton->caloPosition().X()-vertex->X();
+  double y1 = leadPhoton->caloPosition().Y()-vertex->Y();
+  double z1 = leadPhoton->caloPosition().Z()-vertex->Z();
  
-  double x2 = sublead_sc_pos.X()-vertex->X();
-  double y2 = sublead_sc_pos.Y()-vertex->Y();
-  double z2 = sublead_sc_pos.Z()-vertex->Z();
+  double x2 = subleadPhoton->caloPosition().X()-vertex->X();
+  double y2 = subleadPhoton->caloPosition().Y()-vertex->Y();
+  double z2 = subleadPhoton->caloPosition().Z()-vertex->Z();
  
   double r1 = TMath::Sqrt(x1*x1+y1*y1+z1*z1);
   double r2 = TMath::Sqrt(x2*x2+y2*y2+z2*z2);
