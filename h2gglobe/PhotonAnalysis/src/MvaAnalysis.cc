@@ -160,48 +160,53 @@ void MvaAnalysis::Term(LoopAll& l)
       //l.rooContainer->FitToData("data_pow_model", "data_mass",massMin,sideband_boundaries[0],sideband_boundaries[1],massMax);
       //std::vector<std::pair<double,double> > N_sigErr = l.rooContainer->GetFitNormalisationsAndErrors("data_pow_model","data_mass",sideband_boundaries[0],sideband_boundaries[1]);
 
-      l.rooContainer->AddNormalisationSystematics(Form("bkg_norm_%3.1f",mass),N_sigErr, 1); // 1 means it effect the background only
+      //l.rooContainer->AddNormalisationSystematics(Form("bkg_norm_%3.1f",mass),N_sigErr, 1); // 1 means it effect the background only
 
       // Calculate weights to apply to the sidebands
       std::vector<double> N_sig = l.rooContainer->GetFitNormalisations(Form("data_pow_model_%3.1f",mass),"data_mass",sideband_boundaries[0],sideband_boundaries[1]);
       //std::vector<double> N_sig = l.rooContainer->GetFitNormalisations("data_pow_model","data_mass",sideband_boundaries[0],sideband_boundaries[1]);
-
+      // Used to store this number in the histograms of original sideband model, now just store as a RooRealVar
+      l.rooContainer->AddConstant(Form("NBkgInSignal_mH%3.1f",mass),N_sig[0]);
       std::cout << "Number Of Events In Background -- " << N_sig[0] << std::endl;
 
       bool scale = true;//true;
       std::vector<string> ada_bkgsets;
       std::vector<string> grad_bkgsets;
-      std::vector<string> ada_datasets;
-      std::vector<string> grad_datasets;
+      //std::vector<string> ada_datasets;
+      //std::vector<string> grad_datasets;
 
       // For summing over sidebands, can skip some of them (defined in .dat) and only include those iside the range 100->180
       // Dont use all of the sidebands availablbe but rather only up to the number of sidebands set by numberOfSidebandsForAlgos
-      for (int sideband_i=numberOfSidebandGaps+1;sideband_i<=numberOfSidebandsForAlgos+numberOfSidebandGaps;sideband_i++) {
+      // Actually, we only *need* these sums for 5GeV steps
 
-        // Calculate mass hypothesis of sideband and check its boudaries
-        double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
-        double mass_hypothesis_sb = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));               double sideband_boundaries_high= mass_hypothesis_sb*(1.+sidebandWidth);
+      if ((int)mass - mass==0 && ((int)mass)%5==0){
+       for (int sideband_i=numberOfSidebandGaps+1;sideband_i<=numberOfSidebandsForAlgos+numberOfSidebandGaps;sideband_i++) {
 
-        if (sideband_boundaries_high <= massSidebandMax){
+         // Calculate mass hypothesis of sideband and check its boudaries
+         double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
+         double mass_hypothesis_sb = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));               
+	 double sideband_boundaries_high= mass_hypothesis_sb*(1.+sidebandWidth);
+
+         if (sideband_boundaries_high <= massSidebandMax){
 
           ada_bkgsets.push_back(Form("bkg_%dhigh_BDT_ada_%3.1f",sideband_i,mass));
-          ada_datasets.push_back(Form("data_%dhigh_BDT_ada_%3.1f",sideband_i,mass));
+       //   ada_datasets.push_back(Form("data_%dhigh_BDT_ada_%3.1f",sideband_i,mass));
           grad_bkgsets.push_back(Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mass));
-          grad_datasets.push_back(Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mass));
-        }
+       //   grad_datasets.push_back(Form("data_%dhigh_BDT_grad_%3.1f",sideband_i,mass));
+         }
 
-        hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
-        mass_hypothesis_sb = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
-        double sideband_boundaries_low = mass_hypothesis_sb*(1.-sidebandWidth);
+         hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
+         mass_hypothesis_sb = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
+         double sideband_boundaries_low = mass_hypothesis_sb*(1.-sidebandWidth);
 
-        if (sideband_boundaries_low >= massSidebandMin){
-          ada_bkgsets.push_back(Form("bkg_%dlow_BDT_ada_%3.1f",sideband_i,mass));
-          ada_datasets.push_back(Form("data_%dlow_BDT_ada_%3.1f",sideband_i,mass));
-          grad_bkgsets.push_back(Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mass));
-          grad_datasets.push_back(Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mass));
-        }
+         if (sideband_boundaries_low >= massSidebandMin){
+           ada_bkgsets.push_back(Form("bkg_%dlow_BDT_ada_%3.1f",sideband_i,mass));
+//           ada_datasets.push_back(Form("data_%dlow_BDT_ada_%3.1f",sideband_i,mass));
+           grad_bkgsets.push_back(Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mass));
+//           grad_datasets.push_back(Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mass));
+         }
 
-      }
+       }
 
       // Also for the bkg MC we want to throw in the signal region for the binning algos
       ada_bkgsets.push_back(Form("bkg_BDT_ada_%3.1f",mass)) ;
@@ -211,8 +216,9 @@ void MvaAnalysis::Term(LoopAll& l)
       l.rooContainer->SumMultiBinnedDatasets(Form("bkg_BDT_ada_all_%3.1f",mass),ada_bkgsets, N_sig, scale);
       l.rooContainer->SumMultiBinnedDatasets(Form("bkg_BDT_grad_all_%3.1f",mass),grad_bkgsets, N_sig, scale);
 
-      l.rooContainer->SumMultiBinnedDatasets(Form("data_BDT_sideband_ada_%3.1f",mass),ada_datasets, N_sig, scale);
-      l.rooContainer->SumMultiBinnedDatasets(Form("data_BDT_sideband_grad_%3.1f",mass),grad_datasets, N_sig, scale);
+//      l.rooContainer->SumMultiBinnedDatasets(Form("data_BDT_sideband_ada_%3.1f",mass),ada_datasets, N_sig, scale);
+//      l.rooContainer->SumMultiBinnedDatasets(Form("data_BDT_sideband_grad_%3.1f",mass),grad_datasets, N_sig, scale);
+     }
 
     }
     for (int i=1; i<nMasses; i++){
@@ -261,16 +267,16 @@ void MvaAnalysis::Term(LoopAll& l)
         double mass_hypothesis = masses[i]+mass;
         if (mass_hypothesis < 110 || mass_hypothesis > 150) continue;
 
-        l.rooContainer->RebinBinnedDataset(Form("bkg_grad_%3.1f",mass_hypothesis),Form("data_BDT_sideband_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
+        //l.rooContainer->RebinBinnedDataset(Form("bkg_grad_%3.1f",mass_hypothesis),Form("data_BDT_sideband_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
         l.rooContainer->RebinBinnedDataset(Form("bkg_mc_grad_%3.1f",mass_hypothesis),Form("bkg_BDT_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
-        l.rooContainer->RebinBinnedDataset(Form("zee_mc_grad_%3.1f",mass_hypothesis),Form("zee_BDT_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
-        l.rooContainer->RebinBinnedDataset(Form("bkg_mc_balg_grad_%3.1f",mass_hypothesis),Form("bkg_BDT_grad_all_%3.1f",mass_hypothesis),optimizedGradBins,false); 
+       // l.rooContainer->RebinBinnedDataset(Form("zee_mc_grad_%3.1f",mass_hypothesis),Form("zee_BDT_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
+        //l.rooContainer->RebinBinnedDataset(Form("bkg_mc_balg_grad_%3.1f",mass_hypothesis),Form("bkg_BDT_grad_all_%3.1f",mass_hypothesis),optimizedGradBins,false); 
         l.rooContainer->RebinBinnedDataset(Form("data_grad_%3.1f",mass_hypothesis),Form("data_BDT_grad_%3.1f",mass_hypothesis),optimizedGradBins,false);
 
-        l.rooContainer->RebinBinnedDataset(Form("bkg_ada_%3.1f",mass_hypothesis),Form("data_BDT_sideband_ada_%3.1f",mass_hypothesis),optimizedAdaBins,false);
+        //l.rooContainer->RebinBinnedDataset(Form("bkg_ada_%3.1f",mass_hypothesis),Form("data_BDT_sideband_ada_%3.1f",mass_hypothesis),optimizedAdaBins,false);
         l.rooContainer->RebinBinnedDataset(Form("bkg_mc_ada_%3.1f",mass_hypothesis),Form("bkg_BDT_ada_%3.1f",mass_hypothesis),optimizedAdaBins,false);
-        l.rooContainer->RebinBinnedDataset(Form("zee_mc_ada_%3.1f",mass_hypothesis),Form("zee_BDT_ada_%3.1f",mass_hypothesis),optimizedAdaBins,false);
-        l.rooContainer->RebinBinnedDataset(Form("bkg_mc_balg_ada_%3.1f",mass_hypothesis),Form("bkg_BDT_ada_all_%3.1f",mass_hypothesis),optimizedAdaBins,false);
+       // l.rooContainer->RebinBinnedDataset(Form("zee_mc_ada_%3.1f",mass_hypothesis),Form("zee_BDT_ada_%3.1f",mass_hypothesis),optimizedAdaBins,false);
+       // l.rooContainer->RebinBinnedDataset(Form("bkg_mc_balg_ada_%3.1f",mass_hypothesis),Form("bkg_BDT_ada_all_%3.1f",mass_hypothesis),optimizedAdaBins,false);
         l.rooContainer->RebinBinnedDataset(Form("data_ada_%3.1f",mass_hypothesis),Form("data_BDT_ada_%3.1f",mass_hypothesis),optimizedAdaBins,false);
 
 	
@@ -288,15 +294,15 @@ void MvaAnalysis::Term(LoopAll& l)
           l.rooContainer->RebinBinnedDataset(Form("bkg_%dlow_grad_%3.1f",sideband_i,mass_hypothesis),Form("data_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
           l.rooContainer->RebinBinnedDataset(Form("bkg_mc_%dhigh_grad_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
           l.rooContainer->RebinBinnedDataset(Form("bkg_mc_%dlow_grad_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
-          l.rooContainer->RebinBinnedDataset(Form("zee_mc_%dhigh_grad_%3.1f",sideband_i,mass_hypothesis),Form("zee_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
-          l.rooContainer->RebinBinnedDataset(Form("zee_mc_%dlow_grad_%3.1f",sideband_i,mass_hypothesis),Form("zee_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
+         // l.rooContainer->RebinBinnedDataset(Form("zee_mc_%dhigh_grad_%3.1f",sideband_i,mass_hypothesis),Form("zee_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
+         // l.rooContainer->RebinBinnedDataset(Form("zee_mc_%dlow_grad_%3.1f",sideband_i,mass_hypothesis),Form("zee_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis),optimizedGradBins,false);
 
           l.rooContainer->RebinBinnedDataset(Form("bkg_%dhigh_ada_%3.1f",sideband_i,mass_hypothesis),Form("data_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
           l.rooContainer->RebinBinnedDataset(Form("bkg_%dlow_ada_%3.1f",sideband_i,mass_hypothesis),Form("data_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
           l.rooContainer->RebinBinnedDataset(Form("bkg_mc_%dhigh_ada_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
           l.rooContainer->RebinBinnedDataset(Form("bkg_mc_%dlow_ada_%3.1f",sideband_i,mass_hypothesis),Form("bkg_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
-          l.rooContainer->RebinBinnedDataset(Form("zee_mc_%dhigh_ada_%3.1f",sideband_i,mass_hypothesis),Form("zee_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
-          l.rooContainer->RebinBinnedDataset(Form("zee_mc_%dlow_ada_%3.1f",sideband_i,mass_hypothesis),Form("zee_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
+         // l.rooContainer->RebinBinnedDataset(Form("zee_mc_%dhigh_ada_%3.1f",sideband_i,mass_hypothesis),Form("zee_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
+         // l.rooContainer->RebinBinnedDataset(Form("zee_mc_%dlow_ada_%3.1f",sideband_i,mass_hypothesis),Form("zee_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),optimizedAdaBins,false);
 
 	  if (includeVBF){
 	    // Also add sidbeband from VBF
@@ -744,10 +750,10 @@ void MvaAnalysis::Init(LoopAll& l)
           l.rooContainer->CreateDataSet("VBF",Form("data_%dhigh_VBF_%3.1f",sideband_i,mass),1);
 	}
 
-        l.rooContainer->CreateDataSet("BDT",Form("zee_%dlow_BDT_ada_%3.1f",sideband_i,mass)   ,nBDTbins);
-        l.rooContainer->CreateDataSet("BDT",Form("zee_%dhigh_BDT_ada_%3.1f",sideband_i,mass)  ,nBDTbins);
-        l.rooContainer->CreateDataSet("BDT",Form("zee_%dlow_BDT_grad_%3.1f",sideband_i,mass)   ,nBDTbins);
-        l.rooContainer->CreateDataSet("BDT",Form("zee_%dhigh_BDT_grad_%3.1f",sideband_i,mass)  ,nBDTbins);
+      //  l.rooContainer->CreateDataSet("BDT",Form("zee_%dlow_BDT_ada_%3.1f",sideband_i,mass)   ,nBDTbins);
+      //  l.rooContainer->CreateDataSet("BDT",Form("zee_%dhigh_BDT_ada_%3.1f",sideband_i,mass)  ,nBDTbins);
+      //  l.rooContainer->CreateDataSet("BDT",Form("zee_%dlow_BDT_grad_%3.1f",sideband_i,mass)   ,nBDTbins);
+      //  l.rooContainer->CreateDataSet("BDT",Form("zee_%dhigh_BDT_grad_%3.1f",sideband_i,mass)  ,nBDTbins);
 
       }
 
@@ -773,6 +779,7 @@ void MvaAnalysis::Init(LoopAll& l)
         l.rooContainer->CreateDataSet("VBF",Form("sig_VBF_tth_%3.1f",sig)       ,1);   
       }
 
+/*
       for (int sideband_i=1;sideband_i<=numberOfSidebands;sideband_i++){
         l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_ada_ggh_%3.1f",sideband_i,sig)   ,nBDTbins);
         l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_ada_ggh_%3.1f",sideband_i,sig)  ,nBDTbins);
@@ -792,7 +799,7 @@ void MvaAnalysis::Init(LoopAll& l)
         l.rooContainer->CreateDataSet("BDT",Form("sig_%dlow_BDT_grad_tth_%3.1f",sideband_i,sig)   ,nBDTbins);
         l.rooContainer->CreateDataSet("BDT",Form("sig_%dhigh_BDT_grad_tth_%3.1f",sideband_i,sig)  ,nBDTbins);
       }
-
+*/
 
       // Make the signal Systematic Sets
       l.rooContainer->MakeSystematics("BDT",Form("sig_BDT_grad_ggh_%3.1f",sig),-1);
@@ -1369,7 +1376,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	  }
         }
         else {
-          // Loop over N lower sidebands
+        /*  // Loop over N lower sidebands
           for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
             double hypothesisModifier = (1.-sidebandWidth)/(1+sidebandWidth);
             double mass_hypothesis_low     = (mass_hypothesis*(1.-signalRegionWidth)/(1.+sidebandWidth)-sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
@@ -1387,9 +1394,10 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	      }
             }
           }
+	*/
 
           // Loop over N higher sidebands
-          for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
+        /*  for (int sideband_i = 1 ; sideband_i <= numberOfSidebands ; sideband_i++){
 
             double hypothesisModifier = (1.+sidebandWidth)/(1-sidebandWidth);
             double mass_hypothesis_high     = (mass_hypothesis*(1.+signalRegionWidth)/(1.-sidebandWidth)+sidebandShift)*(TMath::Power(hypothesisModifier,sideband_i-1));
@@ -1407,6 +1415,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 	      }
             }
           }
+	*/
         }
 
 
@@ -1502,8 +1511,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
               }
               if (cur_type > 0 ){// background MC
                 if (cur_type==6){
-                  l.rooContainer->InputBinnedDataPoint(Form("zee_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
-                  l.rooContainer->InputBinnedDataPoint(Form("zee_BDT_grad_%3.1f",mass_hypothesis) ,category,bdt_grad,evweight);
+                  //l.rooContainer->InputBinnedDataPoint(Form("zee_BDT_ada_%3.1f",mass_hypothesis),category,bdt_ada,evweight);
+                  //l.rooContainer->InputBinnedDataPoint(Form("zee_BDT_grad_%3.1f",mass_hypothesis) ,category,bdt_grad,evweight);
                 }
                 else{
 		  if (VBFevent){
@@ -1591,8 +1600,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                   }
                   else if (cur_type > 0 ){// background MC
                     if (cur_type==6){
-                      l.rooContainer->InputBinnedDataPoint(Form("zee_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
-                      l.rooContainer->InputBinnedDataPoint(Form("zee_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
+                      //l.rooContainer->InputBinnedDataPoint(Form("zee_%dlow_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
+                      //l.rooContainer->InputBinnedDataPoint(Form("zee_%dlow_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
                     } else {
 		      if (VBFevent){
                         l.rooContainer->InputBinnedDataPoint(Form("bkg_%dlow_VBF_%3.1f",sideband_i,mass_hypothesis),category,1.5,evweight);
@@ -1677,8 +1686,8 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
                   }
                   else if (cur_type > 0 ){// background MC
                     if (cur_type==6){
-                      l.rooContainer->InputBinnedDataPoint(Form("zee_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
-                      l.rooContainer->InputBinnedDataPoint(Form("zee_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
+                      //l.rooContainer->InputBinnedDataPoint(Form("zee_%dhigh_BDT_ada_%3.1f",sideband_i,mass_hypothesis),category,bdt_ada,evweight);
+                      //l.rooContainer->InputBinnedDataPoint(Form("zee_%dhigh_BDT_grad_%3.1f",sideband_i,mass_hypothesis) ,category,bdt_grad,evweight);
                     } else {
 		      if (VBFevent){
                         l.rooContainer->InputBinnedDataPoint(Form("bkg_%dhigh_VBF_%3.1f",sideband_i,mass_hypothesis),category,1.5,evweight);

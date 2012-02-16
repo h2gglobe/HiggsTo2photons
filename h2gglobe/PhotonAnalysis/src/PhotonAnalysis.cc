@@ -846,7 +846,7 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 	for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 		std::vector<std::vector<bool> > p;
 		PhotonReducedInfo phoInfo (
-				*((TVector3*)l.pho_calopos->At(ipho)),
+				*((TVector3*)l.sc_xyz->At(l.pho_scind[ipho])),
 				((TLorentzVector*)l.pho_p4->At(ipho))->Energy(),
 				energyCorrected[ipho],
 				l.pho_isEB[ipho],

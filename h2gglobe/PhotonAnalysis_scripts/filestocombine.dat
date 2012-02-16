@@ -1,7 +1,7 @@
 intL=4763. histfile=test.root output=shifo.root
 
 
-Fil=/vols/cms04/nw709/cms-hgg-09-02-12_sigmaEscale_merged/CMS-HGG_0.root
+Fil=/vols/cms02/h2g/latest_workspace/CMS-HGG_10-02-2012_an048_icbdt_interpolated.root
 ->
 Dir=cms-hgg_icvbf_fixtrkiso
 Dir=cms-hgg_icvbf_fixtrkiso_merged

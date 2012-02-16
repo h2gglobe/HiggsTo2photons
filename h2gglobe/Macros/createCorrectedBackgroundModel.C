@@ -36,6 +36,10 @@
 #include "TObject.h"
 #include "TMinuit.h"
 
+// RooFit includes
+#include "RooWorkspace.h"
+#include "RooRealVar.h"
+
 // The following global variables should be the same as definde in PhotonAnalysis_scripts/mvaanalysis.dat
 #define global_SIDEBANDWIDTH 0.02
 #define global_SIGNALREGION  0.02
@@ -586,6 +590,7 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool
 	
      // Open the original Workspace
      TFile *in = TFile::Open(fileName.c_str(),"UPDATE");
+     RooWorkspace *work = (RooWorkspace*)in->Get("cms_hgg_workspace");
  
      std::string types[2]={"grad","ada"};
 
@@ -593,13 +598,13 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool
 
 	std::string type = types[ty];
 	// Create An output file for the TF1 Sideband Fits
-  std::string pathToFile=fileName.substr(0,fileName.find("CMS-HGG"));
-  std::string fName=fileName.substr(fileName.find("CMS-HGG"),fileName.size());
+  	std::string pathToFile=fileName.substr(0,fileName.find("CMS-HGG"));
+ 	std::string fName=fileName.substr(fileName.find("CMS-HGG"),fileName.size());
 	TFile *out = new TFile(Form("%sbdtSidebandFits_%s_%s",pathToFile.c_str(),type.c_str(),fName.c_str()),"RECREATE");
-
 	for (double mH=massMin;mH<=massMax;mH+=dM){
 
-		TH1F *originalHist      = (TH1F*) in->Get(Form("th1f_bkg_%s_%3.1f_cat0",type.c_str(),mH)); // This histogram is normalized to the inclusive fit (will not include VBF cat)
+		//TH1F *originalHist      = (TH1F*) in->Get(Form("th1f_bkg_%s_%3.1f_cat0",type.c_str(),mH)); // This histogram is normalized to the inclusive fit (will not include VBF cat)
+		RooRealVar *nSignalVar = (RooRealVar*)work->var(Form("NBkgInSignal_mH%3.1f"),mH);
 		TH1F *dataHist  = (TH1F*) in->Get(Form("th1f_data_%s_%3.1f_cat0",type.c_str(),mH)); // Data Histogram, includes VBF category
 		int nBins = dataHist->GetNbinsX();
 
@@ -618,7 +623,7 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool
 		// For a given mass point, need to set up globals
 		global_nBdtBins=nBins;		
 		global_mH=mH;
-		global_nSignalRegion=originalHist->Integral();
+		global_nSignalRegion=nSignalVar->getVal();
 
 		fillData(mH,in,type);
 		paulFit(mass_dir,correctedHistFR,correctedHist,hFCovar,makePlots,type);
@@ -627,7 +632,7 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool
 		diagonalizeMatrix(hFCovar,uCorrErr);
 
 		std::cout << "Final Check of Normalizations at mH="<<mH <<std::endl;
-		std::cout << "Original - "<< originalHist->Integral()<<  ", After - " <<correctedHist->Integral() <<std::endl;
+		std::cout << "Original - "<< global_nSignalRegion <<  ", After - " <<correctedHist->Integral() <<std::endl;
 		
 		// Write out the Hists into the original File
 		in->cd();
