@@ -410,7 +410,7 @@ float getDmOverDz(Int_t, Int_t, Float_t*);
 Float_t deltaMassVtx(Int_t, Int_t, Float_t);
 
 int IPhi(double phi){
-  if (phi < 999) return 0;
+  if (phi < -999) return 0;
   do {
 	phi+=2*TMath::Pi();
   } while (phi<0);
