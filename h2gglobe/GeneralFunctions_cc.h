@@ -526,9 +526,10 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
   double conv_eta=-999.;
   double conv_phi=-999.;
   
-  float sc_eta  = ((TVector3 *) pho_calopos->At(lpho))->Eta();
-  /// float sc_eta  = ((TVector3 *) sc_xyz->At(pho_scind[lpho]))->Eta();
-  float  phi  = ((TVector3 *) pho_calopos->At(lpho))->Phi();
+  //// float sc_eta  = ((TVector3 *) pho_calopos->At(lpho))->Eta();
+  //// float  phi  = ((TVector3 *) pho_calopos->At(lpho))->Phi();
+  float sc_eta  = ((TVector3 *) sc_xyz->At(pho_scind[lpho]))->Eta();
+  float  phi  = ((TVector3 *) sc_xyz->At(pho_scind[lpho]))->Phi();
   double sc_phi = phiNorm(phi);
   
   TLorentzVector * p4 = (TLorentzVector *) pho_p4->At(lpho);
@@ -547,8 +548,11 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
   for(int iconv=0; iconv<conv_n; iconv++) {
     TVector3 refittedPairMomentum= *((TVector3*) conv_refitted_momentum->At(iconv));
     conv_pt =  refittedPairMomentum.Pt();
-    if (conv_pt < 1 ) continue;    
-    if ( !conv_validvtx[iconv] || conv_ntracks[iconv]!=2 || conv_chi2_probability[iconv]<0.000001) continue;
+    if (conv_pt <= 1. ) continue;    
+    if ( !conv_validvtx[iconv] || conv_ntracks[iconv]!=2 
+            /// || conv_chi2_probability[iconv]<0.000001 
+	 || conv_chi2_probability[iconv]<=0.0005
+	    ) { continue; }
 
     phi  = ((TVector3 *) conv_refitted_momentum->At(iconv))->Phi();
     conv_phi  = phiNorm(phi);
@@ -565,12 +569,10 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
     //// assert( delta_phi >= 0. && delta_phi <= TMath::Pi() ); 
  
     //cout << " delta_eta " << delta_eta << " delta_phi " << delta_phi << endl;
-    delta_phi*=delta_phi;
-    delta_eta*=delta_eta;
-    float dR = sqrt( delta_phi + delta_eta ); 
+    float dR = sqrt( delta_phi*delta_phi + delta_eta*delta_eta ); 
     
-    if ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
-    // if ( dR < dRMin ) {
+    /// if  ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
+    if ( dR < dRMin ) {
       detaMin=  fabs(delta_eta);
       dphiMin=  fabs(delta_phi);
       dRMin=dR;
@@ -582,7 +584,8 @@ int  LoopAll::matchPhotonToConversion( int lpho) {
   
   //  cout << " minimized conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi <<endl; 
 
-  if ( detaMin < 0.1 && dphiMin < 0.1 ) {
+  /// if ( detaMin < 0.1 && dphiMin < 0.1 ) {
+  if ( dRMin < 0.1 ) {
     //if ( dRMin< 0.1 ) {
     if(LDEBUG)    cout << " matched conversion index " << iMatch << " eta " <<conv_eta<< " phi " << conv_phi << " pt " << mconv_pt << endl; 	
     result = iMatch;
@@ -612,7 +615,8 @@ TLorentzVector LoopAll::get_pho_p4(int ipho, int ivtx, float * energy)
 TLorentzVector LoopAll::get_pho_p4(int ipho, TVector3 * vtx, float * energy)
 {
 	/// PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
-	PhotonInfo p(ipho, *((TVector3*)pho_calopos->At(ipho)),
+	PhotonInfo p(ipho, *((TVector3*)sc_xyz->At(pho_scind[ipho])),
+		     // *((TVector3*)pho_calopos->At(ipho)),
 		     energy != 0 ? energy[ipho] : ((TLorentzVector*)pho_p4->At(ipho))->Energy() );
 	return p.p4( vtx->X(), vtx->Y(), vtx->Z() );
 }
