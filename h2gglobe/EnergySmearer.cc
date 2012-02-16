@@ -2,7 +2,7 @@
 #include "PhotonReducedInfo.h"
 #include <assert.h>
 
-EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters_(par), scaleOrSmear_(true), doCorrections_(false)
+EnergySmearer::EnergySmearer(const energySmearingParameters& par) : myParameters_(par), scaleOrSmear_(true), doCorrections_(false), doRegressionSmear_(false)
 {
   rgen_ = new TRandom3(12345);
   name_="EnergySmearer_"+ par.categoryType + "_" + par.parameterSetName;
@@ -139,6 +139,10 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
   if (  doCorrections_ ) {
     // corrEnergy is the corrected photon energy
     newEnergy = aPho.corrEnergy() + syst_shift * myParameters_.corrRelErr * (aPho.corrEnergy() - aPho.energy());
+  } else if ( doRegressionSmear_){
+    // leave energy alone, bus change resolution (10% uncertainty on sigmaE/E)
+    float newSigma = aPho.corrEnergyErr()*(1.+syst_shift*0.1);
+    aPho.setCorrEnergyErr(newSigma);
   }
 
   else {

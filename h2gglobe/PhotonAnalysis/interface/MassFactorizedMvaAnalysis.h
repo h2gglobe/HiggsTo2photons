@@ -55,6 +55,7 @@ public:
 	bool  doMCSmearing;
 	bool  doEscaleSyst, doEresolSyst, doPhotonIdEffSyst, doVtxEffSyst, doR9Syst, doTriggerEffSyst, doKFactorSyst, doPhotonMvaIdSyst;
 	bool  doEscaleSmear, doEresolSmear, doPhotonIdEffSmear, doVtxEffSmear, doR9Smear, doTriggerEffSmear, doKFactorSmear, doPhotonMvaIdSmear;
+	bool doRegressionSmear, doRegressionSyst;
 	float systRange;
 	int   nSystSteps;   
 	int   nEtaCategories, nR9Categories, nPtCategories;
@@ -91,7 +92,7 @@ protected:
 	std::vector<BaseGenLevelSmearer *> genLevelSmearers_;
 	std::vector<BaseGenLevelSmearer *> systGenLevelSmearers_;
 	
-	EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer ; // moved to PhotonAnalysis GF 
+	EnergySmearer /* *eScaleSmearer,*/ *eResolSmearer, *eRegressionSmearer ; // moved to PhotonAnalysis GF 
 	EfficiencySmearer *idEffSmearer, *r9Smearer;
 	DiPhoEfficiencySmearer *vtxEffSmearer, *triggerEffSmearer,*photonMvaIdSmearer ;
 	KFactorSmearer * kFactorSmearer;

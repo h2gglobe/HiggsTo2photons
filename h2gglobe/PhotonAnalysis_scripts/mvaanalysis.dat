@@ -6,7 +6,7 @@ Options for the mass spectrum range
 ->
 massMin=100.
 massMax=180.
-nDataBins=80
+nDataBins=160
 
 ->
 Options for the sidebands mH ranges

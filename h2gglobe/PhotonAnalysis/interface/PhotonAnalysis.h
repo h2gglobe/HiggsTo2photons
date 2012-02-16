@@ -134,6 +134,7 @@ public:
   	float  myAllPtHiggs;
 
 
+
   	std::pair<int, int> Select2HighestPtJets(LoopAll&, TLorentzVector& leadpho, TLorentzVector& subleadpho, float jtLMinPt, float jtTMinPt);
   	int RescaleJetEnergy(LoopAll&);
 protected:
@@ -163,6 +164,7 @@ protected:
 	TMVA::Reader *tmvaPerVtxReader_;
 	TMVA::Reader *tmvaPerEvtReader_;
 
+	std::vector<PhotonReducedInfo> photonInfoCollection;
 /*
 	TFile *fgbr;
 	GBRForest *fReadereb;

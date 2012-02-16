@@ -44,6 +44,9 @@ doEscaleSyst=1
 doEresolSmear=1
 doEresolSyst=1
 
+doRegressionSmear=1
+doRegressionSyst=1
+
 doPhotonIdEffSyst=1
 doPhotonIdEffSmear=1
 

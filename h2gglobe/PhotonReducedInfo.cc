@@ -9,6 +9,23 @@ PhotonReducedInfo::PhotonReducedInfo(const TVector3 & caloPosition, float energy
 {
 }
 
+PhotonReducedInfo& PhotonReducedInfo::operator=(const PhotonReducedInfo &obj){
+	copy_(obj);
+	return *this;
+}
+
+void PhotonReducedInfo::copy_(const PhotonReducedInfo &obj){
+	
+	caloPosition_=obj.caloPosition_;
+	energy_=obj.energy_;
+	corrEnergy_=obj.corrEnergy_;
+	corrEnergyErr_=obj.corrEnergyErr_;
+	iDet_=obj.iDet_;
+	r9_=obj.r9_;
+	passId_=obj.passId_;
+	sphericalPhoton_=obj.sphericalPhoton_;
+
+}
 // -------------------------------------------------------------------------------------------------------------------------------------------------------------
 TLorentzVector PhotonReducedInfo::p4(float vtxx, float vtxy, float vtxz) const
 {

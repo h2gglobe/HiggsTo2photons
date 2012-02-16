@@ -56,25 +56,23 @@
 #include "LoopAll.h"
 #include "EnergySmearer.h"
 #include "RooContainer.h"
+#include "PhotonReducedInfo.h"
 
 class MassResolution {
 
   public:
     MassResolution();
-    MassResolution(std::string);
 
-    void Setup(LoopAll&,TLorentzVector *,TLorentzVector *,int,int,int,double,double,EnergySmearer::energySmearingParameters,int,int);
+    void Setup(LoopAll&,PhotonReducedInfo&,PhotonReducedInfo&,int,EnergySmearer::energySmearingParameters,int,int);
 
     double massResolutionCorrVtx();
     double massResolutionWrongVtx();
     double massResolutionEonly();
-    void setSphericalLeadPhoton(bool sph);
-    void setSphericalSubleadPhoton(bool sph);
 
   private:
     double leadPhotonResolution();
     double subleadPhotonResolution();
-    double getPhotonResolution(double,double,double,int,double,bool, bool ispherical=false);
+    double getPhotonResolution(double,double,double,double,bool, bool ispherical=false);
     
     double leadPhotonResolutionNoSmear();
     double subleadPhotonResolutionNoSmear();
@@ -99,31 +97,24 @@ class MassResolution {
     double SecH(double);
     double TanH(double);
     
-    void printInfo();
-    void dumpInfo(std::ostream&);
-    
-    bool sphericalLeadPhoton;
-    bool sphericalSubleadPhoton;
-    
-    TLorentzVector *lead_p4;
-    TLorentzVector *sublead_p4;
-    TVector3 *lead_sc_pos;
-    TVector3 *sublead_sc_pos;
+   // TLorentzVector *lead_p4;
+   // TLorentzVector *sublead_p4;
+    PhotonReducedInfo leadPhoton;
+    PhotonReducedInfo subleadPhoton;
+
+    TVector3 lead_sc_pos;
+    TVector3 sublead_sc_pos;
+
     TVector3 *vertex;
     TVector3 *vtx_dxdydz;
     double lead_Eres;
     double sublead_Eres;
     double lead_r9;
     double sublead_r9;
-    int lead_phoCat;
-    int sublead_phoCat;
     bool lead_iDet;
     bool sublead_iDet;
     EnergySmearer::energySmearingParameters _eSmearPars;
 
-    bool sphericalLeadPhoton_;
-    bool sphericalSubleadPhoton_;
-    std::string energyCorrectionMethod;
     double dz;
     double higgsMass;
 

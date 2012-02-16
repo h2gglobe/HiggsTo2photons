@@ -22,7 +22,7 @@ bool DiPhoEfficiencySmearer::smearDiPhoton( TLorentzVector & p4, TVector3 & selV
 {
   if (doMvaIdEff_){
     
-      float frac_idvary = 0.02;
+      float frac_idvary = 0.025;
       idMVA1 += syst_shift*frac_idvary; 
       idMVA2 += syst_shift*frac_idvary;
  

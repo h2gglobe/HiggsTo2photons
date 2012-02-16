@@ -496,6 +496,15 @@ void MvaAnalysis::Init(LoopAll& l)
     eResolSmearer->scaleOrSmear(false);
     photonSmearers_.push_back(eResolSmearer);
   }
+  if( doRegressionSmear ) {
+    // energy regression. smearing
+    std::cerr << __LINE__ << std::endl; 
+    eRegressionSmearer = new EnergySmearer( eSmearPars );
+    eRegressionSmearer->name("regSig");
+    eRegressionSmearer->doEnergy(false);// allows for future reweighting also
+    eRegressionSmearer->doRegressionSigma(true);
+    photonSmearers_.push_back(eRegressionSmearer);
+  }
   if( doPhotonIdEffSmear ) {
     // photon ID efficiency 
     std::cerr << __LINE__ << std::endl; 
@@ -590,6 +599,12 @@ void MvaAnalysis::Init(LoopAll& l)
   if( doEresolSmear && doEresolSyst ) {
     systPhotonSmearers_.push_back( eResolSmearer );
     std::vector<std::string> sys(1,eResolSmearer->name());
+    std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
+    l.rooContainer->MakeSystematicStudy(sys,sys_t);
+  }
+  if( doRegressionSmear && doRegressionSyst ) {
+    systPhotonSmearers_.push_back( eRegressionSmearer );
+    std::vector<std::string> sys(1,eRegressionSmearer->name());
     std::vector<int> sys_t(1,-1);  // -1 for signal, 1 for background 0 for both
     l.rooContainer->MakeSystematicStudy(sys,sys_t);
   }
@@ -978,7 +993,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
   // ---------------------------------------------------------------------------------------------------------------------//
   // ---------------------------------------------------------------------------------------------------------------------//
   // ---------------------------------------------------------------------------------------------------------------------//
-
+  photonInfoCollection.clear();
   for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
     std::vector<std::vector<bool> > p;
     PhotonReducedInfo phoInfo (// *((TVector3*)l.pho_calopos->At(ipho)), 
@@ -989,7 +1004,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
         l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_),
         (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
         );
-//    	  if (l.CheckSphericalPhoton(ipho)) phoInfo.setSphericalPhoton(true);
+    	  if (l.CheckSphericalPhoton(ipho)) phoInfo.setSphericalPhoton(true);
     float pweight = 1.;
     // smear MC. But apply energy shift to data 
     if( cur_type != 0 && doMCSmearing ) { // if it's MC
@@ -1014,6 +1029,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     smeared_pho_energy[ipho] = phoInfo.energy();
     smeared_pho_r9[ipho] = phoInfo.r9();
     smeared_pho_weight[ipho] = pweight;
+    photonInfoCollection.push_back(phoInfo);
   }
 
   sumev += weight;
@@ -1161,9 +1177,10 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
     assert( evweight >= 0. ); 
 
     // Mass Resolution of the Event
-    massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-//  massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
-//  massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
+    //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+    massResolutionCalculator->Setup(l,photonInfoCollection[diphoton_index.first],photonInfoCollection[diphoton_index.first],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
+//    massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
+//    massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
 
     double massResolution = massResolutionCalculator->massResolutionCorrVtx();
     //  double massResolution = massResolutionCalculator->massResolution();  //no longer use one or other
@@ -1862,9 +1879,10 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
           float ptHiggs = Higgs.Pt();
 
           // Mass Resolution of the Event
-          massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-//    	  massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
-//   	  massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
+          //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+    	  massResolutionCalculator->Setup(l,photonInfoCollection[diphoton_index.first],photonInfoCollection[diphoton_index.first],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
+    	  //massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
+   	  //massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
 
           double massResolution = massResolutionCalculator->massResolutionCorrVtx();
           double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
@@ -1959,9 +1977,10 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
           float mass = Higgs.M();
           float ptHiggs = Higgs.Pt();
           // Mass Resolution of the Event
-          massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-//    	  massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
-//   	  massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
+          //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+    	  massResolutionCalculator->Setup(l,photonInfoCollection[diphoton_index.first],photonInfoCollection[diphoton_index.first],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
+    	  //massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
+   	  //massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
 
           double massResolution = massResolutionCalculator->massResolutionCorrVtx();
           double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
@@ -2038,6 +2057,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
       for(float syst_shift=-systRange; syst_shift<=systRange; syst_shift+=systStep ) { 
         if( syst_shift == 0. ) { continue; } // skip the central value
         // smear the photons 
+	photonInfoCollection.clear();
         for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
           std::vector<std::vector<bool> > p;
           PhotonReducedInfo phoInfo (/// *((TVector3*)l.pho_calopos->At(ipho)), 
@@ -2048,7 +2068,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
               l.PhotonCiCSelectionLevel(ipho,l.vtx_std_sel,p,nPhotonCategories_),
               (energyCorrectedError!=0?energyCorrectedError[ipho]:0)
               );
-//    	  if (l.CheckSphericalPhoton(ipho)) phoInfo.setSphericalPhoton(true);
+    	  if (l.CheckSphericalPhoton(ipho)) phoInfo.setSphericalPhoton(true);
 
           float pweight = 1.;
           for(std::vector<BaseSmearer *>::iterator  sj=photonSmearers_.begin(); sj!= photonSmearers_.end(); ++sj ) {
@@ -2065,6 +2085,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
           smeared_pho_energy[ipho] = phoInfo.energy();
           smeared_pho_r9[ipho] = phoInfo.r9();
           smeared_pho_weight[ipho] = pweight;
+	  photonInfoCollection.push_back(phoInfo);
         }
 
         // analyze the event
@@ -2179,9 +2200,10 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
           float ptHiggs = Higgs.Pt();
           // Mass Resolution of the Event
-          massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
-//    	  massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
-//   	  massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
+          //massResolutionCalculator->Setup(l,&lead_p4,&sublead_p4,diphoton_index.first,diphoton_index.second,diphoton_id,ptHiggs,mass,eSmearPars,nR9Categories,nEtaCategories);
+    	  massResolutionCalculator->Setup(l,photonInfoCollection[diphoton_index.first],photonInfoCollection[diphoton_index.first],diphoton_id,eSmearPars,nR9Categories,nEtaCategories);
+    	  //massResolutionCalculator->setSphericalLeadPhoton(l.CheckSphericalPhoton(diphoton_index.first));
+   	  //massResolutionCalculator->setSphericalSubleadPhoton(l.CheckSphericalPhoton(diphoton_index.second));
 
           double massResolution = massResolutionCalculator->massResolutionCorrVtx();
           double vtx_mva = l.vtx_std_evt_mva->at(diphoton_id);
