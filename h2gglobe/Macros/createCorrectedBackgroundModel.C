@@ -40,6 +40,8 @@
 #include "RooWorkspace.h"
 #include "RooRealVar.h"
 
+using namespace RooFit;
+
 // The following global variables should be the same as definde in PhotonAnalysis_scripts/mvaanalysis.dat
 #define global_SIDEBANDWIDTH 0.02
 #define global_SIGNALREGION  0.02
@@ -573,7 +575,7 @@ void diagonalizeMatrix(TH2F *th2f_covar,TH2F *th2f_out){
 
 }
 
-void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool makePlots=false){
+void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool makePlots=false, std::string defaultPrepend="CMS-HGG" ){
 
      if (makePlots){
        system("mkdir -p BMplots/ada");
@@ -598,8 +600,8 @@ void createCorrectedBackgroundModel(std::string fileName, int nsidebands=6, bool
 
 	std::string type = types[ty];
 	// Create An output file for the TF1 Sideband Fits
-  	std::string pathToFile=fileName.substr(0,fileName.find("CMS-HGG"));
- 	std::string fName=fileName.substr(fileName.find("CMS-HGG"),fileName.size());
+  	std::string pathToFile=fileName.substr(0,fileName.find(defaultPrepend.c_str()));
+ 	std::string fName=fileName.substr(fileName.find(defaultPrepend.c_str()),fileName.size());
 	TFile *out = new TFile(Form("%sbdtSidebandFits_%s_%s",pathToFile.c_str(),type.c_str(),fName.c_str()),"RECREATE");
 	for (double mH=massMin;mH<=massMax;mH+=dM){
 
