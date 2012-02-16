@@ -132,7 +132,6 @@ double MassResolution::getPhotonResolution(double photonEnergy, double photonRes
 
   // Get the photon-category sigma
   std::string myCategory="";
-  std::cout << "MassRes  " << _eSmearPars.categoryType<<std::endl;
   if (_eSmearPars.categoryType=="Automagic") 
     {
 	    EnergySmearer::energySmearingParameters::phoCatVectorConstIt vit = find(_eSmearPars.photon_categories.begin(), _eSmearPars.photon_categories.end(), 
