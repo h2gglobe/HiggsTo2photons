@@ -24,6 +24,8 @@ sc_sphi
 sc_seta
 sc_raw
 sc_pre
+sc_bcseedind
+bc_p4
 
 ->
 Tracks 

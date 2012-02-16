@@ -843,7 +843,8 @@ void PhotonAnalysis::PreselectPhotons(LoopAll& l, int jentry)
 	for(int ipho=0; ipho<l.pho_n; ++ipho ) { 
 		std::vector<std::vector<bool> > p;
 		PhotonReducedInfo phoInfo (
-				*((TVector3*)l.pho_calopos->At(ipho)),
+			/// *((TVector3*)l.pho_calopos->At(ipho)),
+			        *((TVector3 *)l.sc_xyz->At(l.pho_scind[ipho])),
 				((TLorentzVector*)l.pho_p4->At(ipho))->Energy(),
 				energyCorrected[ipho],
 				l.pho_isEB[ipho],
@@ -1021,8 +1022,8 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
 			int ipho2 = diphotons[id].second;
 			
 			if(PADEBUG)        cout << " SelectEventsReduction going to fill photon info " << endl;
-			PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions);
-			PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions);
+			PhotonInfo pho1=l.fillPhotonInfos(ipho1,vtxAlgoParams.useAllConversions,&corrected_pho_energy[0]);
+			PhotonInfo pho2=l.fillPhotonInfos(ipho2,vtxAlgoParams.useAllConversions,&corrected_pho_energy[0]);
 			if(PADEBUG) cout << " SelectEventsReduction done with fill photon info " << endl;
 			
 			l.vertexAnalysis(vtxAna_, pho1, pho2 );
@@ -1206,7 +1207,8 @@ void PhotonAnalysis::GetRegressionCorrections(LoopAll &l){
    float *fVals = new float[18];
 
    double photonE = ((TLorentzVector*)l.pho_p4->At(ipho))->Energy();
-   TVector3 *sc = ((TVector3*)l.pho_calopos->At(ipho));	
+   TVector3 *sc = ((TVector3 *)l.sc_xyz->At(l.pho_scind[ipho]));
+   /// ((TVector3*)l.pho_calopos->At(ipho));	
    int sc_index = l.pho_scind[ipho];
    double r9=l.pho_r9[ipho];
 
