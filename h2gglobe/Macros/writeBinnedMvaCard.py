@@ -39,6 +39,7 @@ systematics = [
 	      ,"E_scale"
 	      ,"idEff"
 	      ,"phoIdMva"
+	      ,"regSig"
 	      ,"kFactor"
 	      ,"triggerEff"
 	      ,"vtxEff"
