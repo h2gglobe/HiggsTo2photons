@@ -74,11 +74,8 @@ double MassResolution::massResolutionWrongVtx(){
 // return energy contribution to mass resolution only
 double MassResolution::massResolutionEonly() {
 
-  TLorentzVector lead_p4=leadPhoton.p4(vertex->X(),vertex->Y(),vertex->Z());
-  TLorentzVector sublead_p4=subleadPhoton.p4(vertex->X(),vertex->Y(),vertex->Z());
-
-  double lead_E = lead_p4.E();
-  double sublead_E = sublead_p4.E();
+  double lead_E = leadPhoton.energy();
+  double sublead_E = subleadPhoton.energy();
   double lead_sig = leadPhotonResolution();
   double sublead_sig = subleadPhotonResolution();
 
