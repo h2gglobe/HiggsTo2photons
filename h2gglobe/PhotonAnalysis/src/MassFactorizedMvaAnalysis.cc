@@ -647,7 +647,7 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 
   if (cur_type !=0){
     for (int ipho=0;ipho<l.pho_n;ipho++){
-      l.pho_isEB[ipho]=(*((TVector3*)l.sc_xyz->At(l.pho_scind[ipho]))).Eta()<1.5;
+      l.pho_isEB[ipho]=fabs((*((TVector3*)l.sc_xyz->At(l.pho_scind[ipho]))).Eta())<1.5;
       //double R9_rescale = (l.pho_isEB[ipho]) ? 1.0048 : 1.00492 ;
       //l.pho_r9[ipho]*=R9_rescale;
       l.pho_r9[ipho]*=1.0035;

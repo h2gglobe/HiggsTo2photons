@@ -980,7 +980,7 @@ void MvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
   // ---------------------------------------------------------------------------------------------------------------------//
   if (cur_type !=0){
     for (int ipho=0;ipho<l.pho_n;ipho++){
-      l.pho_isEB[ipho]=(*((TVector3*)l.sc_xyz->At(l.pho_scind[ipho]))).Eta()<1.5;
+      l.pho_isEB[ipho]=fabs((*((TVector3*)l.sc_xyz->At(l.pho_scind[ipho]))).Eta())<1.5;
       l.pho_r9[ipho]*=1.0035;
       if (l.pho_isEB[ipho]){ l.pho_sieie[ipho] = (0.87*l.pho_sieie[ipho]) + 0.0011 ;}
       else {l.pho_sieie[ipho]*=0.99;}
