@@ -30,6 +30,9 @@ void MassResolution::Setup(LoopAll &l, PhotonReducedInfo *leadInfo, PhotonReduce
   lead_r9      = leadPhoton->r9();
   sublead_r9   = subleadPhoton->r9();
 
+  lead_iDet    = leadPhoton->iDet();
+  sublead_iDet = subleadPhoton->iDet();
+
   TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
   TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
 
