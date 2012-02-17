@@ -45,8 +45,8 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
   nevents=0., sumwei=0.; 
   sumaccept=0., sumsmear=0., sumev=0.;
 
-  std::string outputfilename = (std::string) l.histFileName;
-  eventListText.open(Form("%s_ascii_events.txt",outputfilename.c_str()));
+//  std::string outputfilename = (std::string) l.histFileName;
+  eventListText.open(Form("%s",l.outputTextFileName.c_str()));
   FillSignalLabelMap();
   //
   // These parameters are set in the configuration file
