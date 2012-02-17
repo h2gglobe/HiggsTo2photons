@@ -147,8 +147,8 @@ class configProducer:
       self.conf_.print_conf()
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.histfile)
-    if self.jobId_>-1 :self.ut_.outputTextFileName = "eventList_%d.%s" % (self.jobId_, "txt" )
-    else self.ut_.outputTextFileName = "eventList.txt" 
+    if self.jobId_>-1 :self.ut_.outputTextFileName = "%s_%d.%s" % (self.conf_.outfile,self.jobId_, "txt" )
+    else :self.ut_.outputTextFileName = "%s.txt"%self.conf_.outfile
     for dum in self.conf_.confs:
       dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['addnevents'])
       if("json" in dum and dum["json"] != ""):
@@ -586,12 +586,13 @@ class configProducer:
       if fi_type!=0 and fi_type!=-99999 and map_c["tot"] == 0:
           allfiles = mkFiles(dir,-1,-1)
           for file_s in allfiles:
-	      print "Getting N Processed Events for - ", file_s[0]
 	      if self.sample_weights_file_==0 :
+	        print "Calculating N Processed Events for - ", file_s[0]
 		nEventsInFile = getTreeEntry(file_s[0],"global_variables","processedEvents")
                 map_c["tot"] = map_c["tot"] + nEventsInFile
 		self.file_processed_events_[file_s[0]] = nEventsInFile
 	      else:
+	        print "Reading N Processed Events for - ", file_s[0]
 		if file_s[0] in self.file_processed_events_: map_c["tot"] = map_c["tot"] + self.file_processed_events_[file_s[0]]
 		else: (sys.exit("No Entry for %s found in %s, Please Delete %s and re-run with option --dryRun to regenerate it"%(file_s[0],self.sample_weights_file_,self.sample_weights_file_)))
 
