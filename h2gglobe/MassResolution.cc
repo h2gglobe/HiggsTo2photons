@@ -65,17 +65,20 @@ double MassResolution::massResolutionCorrVtx(){
 // return the mass resolution wrong vertex
 double MassResolution::massResolutionWrongVtx(){
   
-  TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
-  TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+//  TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+//  TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
 
-  double lead_E = lead_p4.E();
-  double sublead_E = sublead_p4.E();
-  double alpha = lead_p4.Angle(sublead_p4.Vect());
-  double lead_sig = leadPhotonResolution();
-  double sublead_sig = subleadPhotonResolution();
-  double alpha_sig = angleResolutionWrongVtx();
+//  double lead_E = lead_p4.E();
+//  double sublead_E = sublead_p4.E();
+//  double alpha = lead_p4.Angle(sublead_p4.Vect());
+//  double lead_sig = leadPhotonResolution();
+//  double sublead_sig = subleadPhotonResolution();
+  double alpha_sig = higgsMass*0.5*angleResolutionWrongVtx();
   
-  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
+//  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
+   double sigmaM = massResolutionEonly();
+//  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)));
+  return TMath::Sqrt((sigmaM*sigmaM)+(alpha_sig*alpha_sig));
 
 }
 
@@ -204,11 +207,11 @@ double MassResolution::dzResolution() {
 // propagate error on z to error on angle
 double MassResolution::propagateDz(double dz){
 
-  TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
-  TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+//  TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
+//  TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
 
-  double alpha = lead_p4.Angle(sublead_p4.Vect());
-  if (alpha!= sublead_p4.Angle(lead_p4.Vect())) std::cout << "Error: Angle between photons not consistent" << std::endl;
+//  double alpha = //lead_p4.Angle(sublead_p4.Vect());
+//  if (alpha!= sublead_p4.Angle(lead_p4.Vect())) std::cout << "Error: Angle between photons not consistent" << std::endl;
 
   double x1 = leadPhoton->caloPosition().X();
   double y1 = leadPhoton->caloPosition().Y();
@@ -230,19 +233,20 @@ double MassResolution::propagateDz(double dz){
   double r1 = TMath::Sqrt(x1*x1+y1*y1+z1*z1);
   double r2 = TMath::Sqrt(x2*x2+y2*y2+z2*z2);
 
-  double cos_term = TMath::Cos(lead_p4.Phi()-sublead_p4.Phi());
-  double sech1 = SecH(lead_p4.Eta());
-  double sech2 = SecH(sublead_p4.Eta());
-  double tanh1 = TanH(lead_p4.Eta());
-  double tanh2 = TanH(sublead_p4.Eta());
+  double cos_term = TMath::Cos(leadPhoton->caloPosition().Phi()-subleadPhoton->caloPosition().Phi());
+  double sech1 = SecH(leadPhoton->caloPosition().Eta());
+  double sech2 = SecH(subleadPhoton->caloPosition().Eta());
+  double tanh1 = TanH(leadPhoton->caloPosition().Eta());
+  double tanh2 = TanH(subleadPhoton->caloPosition().Eta());
 
   double numerator1 = sech1*(sech1*tanh2-tanh1*sech2*cos_term);
   double numerator2 = sech2*(sech2*tanh1-tanh2*sech1*cos_term);
-  double denominator = 1. - tanh1*tanh2-sech1*sech2*cos_term;
+  double denominator = 1. - tanh1*tanh2 - sech1*sech2*cos_term;
 
   double ResTerm = (-1.*dz/denominator)*(numerator1/r1 + numerator2/r2);
 
-  double angleResolution = ResTerm*(1.-TMath::Cos(alpha))/TMath::Sin(alpha);
+  //double angleResolution = ResTerm*(1.-TMath::Cos(alpha))/TMath::Sin(alpha);
+  double angleResolution = ResTerm;
 
   return angleResolution;
 
