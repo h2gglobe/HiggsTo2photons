@@ -1923,13 +1923,15 @@ bool LoopAll::CheckSphericalPhoton(int phoid){
  // int iphi=IPhi(bcpos->Phi());
 
   TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
-  TVector3 bcxyz = bcpos->Vect();
+  //TVector3 bcxyz = bcpos->Vect();
 
   double minDR=999.;
   int closestHit=-1;
   for (int i=0;i<ecalhit_n;i++){
-  	TVector3 xtalxyz = ((TLorentzVector*)ecalhit_p4->At(i))->Vect();
-	double dR = (xtalxyz-bcxyz).Mag();
+	TLorentzVector *xtalpos = (TLorentzVector*)ecalhit_p4->At(i);
+  	//TVector3 xtalxyz = xtalpos->Vect();
+	//double dR = (xtalxyz-bcxyz).Mag();
+	double dR = xtalpos->DeltaR(*bcpos);
 	if(dR<minDR){
 	 	closestHit = i;
 		minDR = dR;
