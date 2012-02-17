@@ -1918,19 +1918,35 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 
 bool LoopAll::CheckSphericalPhoton(int phoid){
 
-  TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
   TVector3 *phoCalo = (TVector3*)sc_xyz->At(pho_scind[phoid]);
+ // int ieta=IEta(bcpos->Eta());
+ // int iphi=IPhi(bcpos->Phi());
 
-  int ieta=IEta(bcpos->Eta());
-  int iphi=IPhi(bcpos->Phi());
-  int ietaTT=(std::abs(ieta)-1)/5+1;
+  TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
+  TVector3 bcxyz = bcpos->Vect();
 
+  double minDR=999.;
+  int closestHit=-1;
+  for (int i=0;i<ecalhit_n;i++){
+  	TVector3 xtalxyz = ((TLorentzVector*)ecalhit_p4->At(i))->Vect();
+	double dR = (xtalxyz-bcxyz).Mag();
+	if(dR<minDR){
+	 	closestHit = i;
+		minDR = dR;
+	}
+  }
+  
+  int detid = ecalhit_detid[closestHit];
+  //int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
+  int ieta  = (detid>>9)&0x7F; 
+  int iphi  = detid&0x1FF; 
 
   if (pho_r9[phoid]<0.94 || fabs(phoCalo->Eta())>1.) return false;
   if ((iphi %20)<=5 || (iphi%20)>=16){
    return false;
   }
 
+  int ietaTT=(std::abs(ieta)-1)/5+1;
   if
     (
      (ietaTT>= 2&&     ietaTT<    5 ) ||
