@@ -78,7 +78,6 @@ double MassResolution::massResolutionWrongVtx(){
 //  double sublead_sig = subleadPhotonResolution();
   double alpha_sig = higgsMass*0.5*angleResolutionWrongVtx();
   
-//  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))*(TMath::Sin(alpha)/(1.-TMath::Cos(alpha)))));
    double sigmaM = massResolutionEonly();
 //  return 0.5*higgsMass*TMath::Sqrt(((lead_sig*lead_sig)/(lead_E*lead_E))+((sublead_sig*sublead_sig)/(sublead_E*sublead_E))+((alpha_sig*alpha_sig)));
   return TMath::Sqrt((sigmaM*sigmaM)+(alpha_sig*alpha_sig));
@@ -123,12 +122,14 @@ double MassResolution::subleadPhotonResolutionNoSmear() {
 double MassResolution::leadPhotonResolution() {
   TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
   bool sphericalLeadPhoton_=leadPhoton->isSphericalPhoton();
+  std::cout << " MassResolution -- Lead special ? " << sphericalLeadPhoton_ <<std::endl;
   return getPhotonResolution(lead_p4.E(),lead_Eres,lead_r9, leadPhoton->caloPosition().Eta(),lead_iDet,sphericalLeadPhoton_);
 }
 // return sublead photon resolution
 double MassResolution::subleadPhotonResolution() {
   TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
   bool sphericalSubleadPhoton_=subleadPhoton->isSphericalPhoton();
+  std::cout << " MassResolution -- SubLead special ? " << sphericalSubleadPhoton_ <<std::endl;
   return getPhotonResolution(sublead_p4.E(),sublead_Eres,sublead_r9,subleadPhoton->caloPosition().Eta(),sublead_iDet,sphericalSubleadPhoton_);
 }
 

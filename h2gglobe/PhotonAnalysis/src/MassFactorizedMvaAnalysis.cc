@@ -470,7 +470,6 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_wzh_mass_m%d_wv",sig),nDataBins);    
     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);    
   }
-
 /*
   // Also create the 121 and 123 test points
   l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121",nDataBins);    
@@ -502,6 +501,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
   l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123_wv",nDataBins);    
   l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_wv",nDataBins);    
   l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_wv",nDataBins);    
+
 */
 
   // Make more datasets representing Systematic Shifts of various quantities
@@ -513,6 +513,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);  
     l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);  
   }
+
 /*
   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m121",-1);  
   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m121",-1);  
@@ -961,6 +962,10 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
 <<" etcortrkiso2="<<l.pho_trksumpthollowconedr03[diphoton_index.second] - 0.002*sublead_p4.Et()
 <<" etcortrkisoabs1="<<l.pho_trksumpthollowconedr03[diphoton_index.first] 
 <<" etcortrkisoabs2="<<l.pho_trksumpthollowconedr03[diphoton_index.second]
+<<" specialphoton1="<<photonInfoCollection[diphoton_index.first].isSphericalPhoton()	
+<<" specialphoton2="<<photonInfoCollection[diphoton_index.second].isSphericalPhoton()
+<<" specialphotongen1="<<l.CheckSphericalPhoton(diphoton_index.first)	
+<<" specialphotongen2="<<l.CheckSphericalPhoton(diphoton_index.second)
 
 
 <<" FileName="<<l.histFileName;

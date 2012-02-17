@@ -26,6 +26,11 @@ sc_pre
 sc_bcseedind
 bc_p4
 
+ecalhit_n
+ecalhit_p4
+ecalhit_detid
+
+
 ->
 Photons 
 ->

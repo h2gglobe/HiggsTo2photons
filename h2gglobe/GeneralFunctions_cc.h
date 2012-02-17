@@ -1919,8 +1919,7 @@ Float_t LoopAll::SumTrackPtInCone(TLorentzVector *photon_p4, Int_t vtxind, Float
 bool LoopAll::CheckSphericalPhoton(int phoid){
 
   TVector3 *phoCalo = (TVector3*)sc_xyz->At(pho_scind[phoid]);
- // int ieta=IEta(bcpos->Eta());
- // int iphi=IPhi(bcpos->Phi());
+  if (pho_r9[phoid]<0.94 || fabs(phoCalo->Eta())>1.) return false;
 
   TLorentzVector *bcpos   = (TLorentzVector*)bc_p4->At(sc_bcseedind[pho_scind[phoid]]);
   //TVector3 bcxyz = bcpos->Vect();
@@ -1937,13 +1936,18 @@ bool LoopAll::CheckSphericalPhoton(int phoid){
 		minDR = dR;
 	}
   }
-  
+  if (closestHit<0) std::cout << "Fishy !!!!!!" <<std::endl;
+ 
   int detid = ecalhit_detid[closestHit];
   //int detid = ecalhit_detid[bc_seed[sc_bcseedind[pho_scind[phoid]]]];
   int ieta  = (detid>>9)&0x7F; 
   int iphi  = detid&0x1FF; 
 
-  if (pho_r9[phoid]<0.94 || fabs(phoCalo->Eta())>1.) return false;
+ //int ieta=IEta(bcpos->Eta());
+ //int iphi=IPhi(bcpos->Phi());
+//int ieta = IEta( ((TLorentzVector*)ecalhit_p4->At(closestHit))->Eta()); 
+//int iphi = IPhi( ((TLorentzVector*)ecalhit_p4->At(closestHit))->Phi()); 
+
   if ((iphi %20)<=5 || (iphi%20)>=16){
    return false;
   }

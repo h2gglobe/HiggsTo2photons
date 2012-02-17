@@ -35,7 +35,11 @@ void dofit(double fitmass, vector <TString> InterpolationList, TFile* SourceFile
   if (floor(fitmass)-fitmass<0.00001 && floor(fitmass)-fitmass>0) fitmass=floor(fitmass);
   if (fitmass-ceil(fitmass)>-0.00001 && fitmass-ceil(fitmass)<0) fitmass=ceil(fitmass);
   
+<<<<<<< InterpolateMass.C
+  double Masses[9] = {105.0, 110.0, 115.0, 120.0,125.0, 130.0, 135.0,140.0,150.0};
+=======
   double Masses[12] = {105.0, 110.0, 115.0, 120.0,125.0, 130.0, 135.0,140.0,150.0};
+>>>>>>> 1.9.4.1
   double lowerbound = 0;
   double upperbound = 0;
   for (unsigned int i=0; i<10; i++) {
