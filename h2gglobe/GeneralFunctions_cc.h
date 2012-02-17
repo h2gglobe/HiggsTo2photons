@@ -1629,11 +1629,11 @@ bool LoopAll::PhotonMITPreSelection( int photon_index, int vertex_index, float *
    float rhofac=0.17;
    float val_hoe        = pho_hoe[photon_index];
    float val_sieie      = pho_sieie[photon_index];                                                          
-   // not sure if should be using the dr03 or 04 for these so stick to "usual" choices                      
    float val_ecaliso = pho_ecalsumetconedr03[photon_index] - 0.012*phop4.Et();                              
-   float val_hcaliso = pho_hcalsumetconedr03[photon_index] - 0.005*phop4.Et();                              
+   float val_hcaliso = pho_hcalsumetconedr03[photon_index] - 0.005*phop4.Et(); 
+                             
    float val_trkiso  = pho_trksumpthollowconedr03[photon_index] - 0.002*phop4.Et();                          
-   float val_hcalecal   = (val_ecaliso+val_hcaliso-rho*rhofac);                                             
+   float val_hcalecal   = (pho_ecalsumetconedr03[photon_index]+pho_hcalsumetconedr03[photon_index]-rho*rhofac);                                             
    float val_abstrkiso  = (*pho_tkiso_recvtx_030_002_0000_10_01)[photon_index][vertex_index];                
    float val_trkiso_hollow03 = pho_trksumpthollowconedr03[photon_index];                                    
 //   float val_drtotk_25_99 = pho_drtotk_25_99[photon_index];
