@@ -471,6 +471,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.rooContainer->CreateDataSet("CMS_hgg_mass",Form("sig_tth_mass_m%d_wv",sig),nDataBins);    
   }
 
+/*
   // Also create the 121 and 123 test points
   l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_ggh_mass_m121",nDataBins);    
   l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m121",nDataBins);    
@@ -501,7 +502,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
   l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_vbf_mass_m123_wv",nDataBins);    
   l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_wzh_mass_m123_wv",nDataBins);    
   l.rooContainer->CreateDataSet("CMS_hgg_mass","sig_tth_mass_m123_wv",nDataBins);    
-
+*/
 
   // Make more datasets representing Systematic Shifts of various quantities
 
@@ -512,7 +513,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
     l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_wzh_mass_m%d",sig),-1);  
     l.rooContainer->MakeSystematics("CMS_hgg_mass",Form("sig_tth_mass_m%d",sig),-1);  
   }
-
+/*
   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_ggh_mass_m121",-1);  
   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m121",-1);  
   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m121",-1);  
@@ -522,6 +523,7 @@ void MassFactorizedMvaAnalysis::Init(LoopAll& l)
   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_vbf_mass_m123",-1);  
   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_wzh_mass_m123",-1);  
   l.rooContainer->MakeSystematics("CMS_hgg_mass","sig_tth_mass_m123",-1);  
+*/
 
   // Make sure the Map is filled
   FillSignalLabelMap();
