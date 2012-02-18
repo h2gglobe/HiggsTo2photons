@@ -1155,7 +1155,8 @@ void MassFactorizedMvaAnalysis::Analysis(LoopAll& l, Int_t jentry)
               ,l.dipho_vtxind[diphoton_id]
               ,vtxProb,lead_p4,sublead_p4
               ,sigmaMrv,sigmaMwv,sigmaMeonly
-              ,bdtTrainingPhilosophy.c_str());
+              ,bdtTrainingPhilosophy.c_str()
+	      ,photon_idMVA1,photon_idMVA2);
 
           int category = GetBDTBoundaryCategory(diphobdt_output,isEBEB,VBFevent);
 

@@ -63,8 +63,8 @@ class BdtToyMaker:
 
 	def createKeysPdf(self,tree):
 		#self.nEvents_ = tree.GetEntries()
-		self.bdtvar_=r.RooRealVar("diphotonMVA","diphotonMVA",-0.1,1.0)	# go a littel below actual cut to let keysPdf fit properly 
-		self.bdtdatahist_=r.RooDataSet("roohist_bdt","roohist_bdt",tree,r.RooArgSet(self.bdtvar_),"diphotonMVA>-0.1")	
+		self.bdtvar_=r.RooRealVar("diphotonMVA","diphotonMVA",-1.0,1.0)	# go a littel below actual cut to let keysPdf fit properly 
+		self.bdtdatahist_=r.RooDataSet("roohist_bdt","roohist_bdt",tree,r.RooArgSet(self.bdtvar_),"diphotonMVA>-1.0")	
 		self.nEvents_=self.bdtdatahist_.sumEntries()
 		self.pdfbdt_=r.RooKeysPdf("pdf_bdt","pdf_bdt",self.bdtvar_,self.bdtdatahist_)
 
@@ -115,7 +115,7 @@ class BdtToyMaker:
 		self.pdf_.plotOn(frame1); frame1.Draw()
 
 		can.cd(2);frame2 = self.bdtvar_.frame();self.bdtdatahist_.plotOn(frame2)
-		self.pdfbdt_.plotOn(frame2); frame2.Draw()
+		self.pdfbdt_.plotOn(frame2); frame2.Draw(); frame2.GetXaxis().SetRangeUser(0.05,1.0)
 		can.SaveAs("datafitFullSpec_%s.pdf"%(self.fileName_))	
 
 	def plotGenData(self,nbins):

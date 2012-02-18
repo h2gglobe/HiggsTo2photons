@@ -39,7 +39,6 @@ systematics = [
 	      ,"E_scale"
 	      ,"idEff"
 	      ,"phoIdMva"
-	      ,"regSig"
 	      ,"kFactor"
 	      ,"triggerEff"
 	      ,"vtxEff"
@@ -503,7 +502,7 @@ can.SaveAs("normErrors_%s.pdf"%options.tfileName)
 # can make a special "global toy" set of datacards
 toymaker=0
 if options.throwGlobalToy:
-  if not options.inputpdfworkspace : backgrounddiphotonmvafile=ROOT.TFile(options.diphotonmvahistfilename)
+  if not options.inputpdfworkspace: backgrounddiphotonmvafile=ROOT.TFile(options.diphotonmvahistfilename)
   toymaker = BdtToyMaker(options.tfileName,"data_pow_model_150.0")
   toymaker.fitData()
 
