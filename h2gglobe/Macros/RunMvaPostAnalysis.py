@@ -14,14 +14,15 @@ parser.add_option("-W","--htmlOnly",action="store_true",default=False,help="Run 
 parser.add_option("-B","--backgroundOnly",action="store_true",default=False,help="Run correction to background model only")
 parser.add_option("-I","--sigInterpOnly",action="store_true",default=False,help="Run signal interpolation only")
 parser.add_option("-D","--datacardsOnly",action="store_true",default=False,help="Run datacard creation only")
-parser.add_option("","--notAtIC",action="store_false",default=True,help="need to source ROOT elsewhere if at IC")
+parser.add_option("","--atCERN",action="store_true",default=FALSE,help="need to source setupROOT csh if at CERN")
 (options,args)=parser.parse_args()
   
 interpFileName = options.fileName+"_interpolated.root"
 #-------------------------------------------------------------------------
-if not options.notAtIC :os.system("source /vols/cms02/h2g/root/bin/thisroot.sh")
+if options.atCERN :os.system("source setupROOT.csh")
+else:os.system("source setupROOT.sh")
 ROOT.gROOT.ProcessLine(".L createCorrectedBackgroundModel.C+g")
-if not options.notAtIC :os.system("cmsenv")
+os.system("cmsenv")
 ROOT.gROOT.ProcessLine(".L BDTInterpolation.C+g")
 
 from ROOT import createCorrectedBackgroundModel
