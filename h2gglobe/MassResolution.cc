@@ -122,14 +122,14 @@ double MassResolution::subleadPhotonResolutionNoSmear() {
 double MassResolution::leadPhotonResolution() {
   TLorentzVector lead_p4=leadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
   bool sphericalLeadPhoton_=leadPhoton->isSphericalPhoton();
-  std::cout << " MassResolution -- Lead special ? " << sphericalLeadPhoton_ <<std::endl;
+//  std::cout << " MassResolution -- Lead special ? " << sphericalLeadPhoton_ <<std::endl;
   return getPhotonResolution(lead_p4.E(),lead_Eres,lead_r9, leadPhoton->caloPosition().Eta(),lead_iDet,sphericalLeadPhoton_);
 }
 // return sublead photon resolution
 double MassResolution::subleadPhotonResolution() {
   TLorentzVector sublead_p4=subleadPhoton->p4(vertex->X(),vertex->Y(),vertex->Z());
   bool sphericalSubleadPhoton_=subleadPhoton->isSphericalPhoton();
-  std::cout << " MassResolution -- SubLead special ? " << sphericalSubleadPhoton_ <<std::endl;
+//  std::cout << " MassResolution -- SubLead special ? " << sphericalSubleadPhoton_ <<std::endl;
   return getPhotonResolution(sublead_p4.E(),sublead_Eres,sublead_r9,subleadPhoton->caloPosition().Eta(),sublead_iDet,sphericalSubleadPhoton_);
 }
 
