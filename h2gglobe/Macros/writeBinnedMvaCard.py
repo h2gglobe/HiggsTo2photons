@@ -239,6 +239,12 @@ def writeCard(tfile,mass,scaleErr):
   wzhHist  = tfile.Get("th1f_sig_"+type+"_wzh_%3.1f_cat0"%mass)
   tthHist  = tfile.Get("th1f_sig_"+type+"_tth_%3.1f_cat0"%mass)
 
+  if options.signalyieldsweight > 0:
+    print "Re-weighting Signal yields x %d"%signalyieldsweight
+    gghHist.Scale(signalyieldsweight)
+    vbfHist.Scale(signalyieldsweight)
+    wzhHist.Scale(signalyieldsweight)
+    tthHist.Scale(signalyieldsweight)
  
   ###############################################################################
   # Write the basics
@@ -363,6 +369,16 @@ def writeCard(tfile,mass,scaleErr):
     wzhHistD  = tfile.Get("th1f_sig_"+type+"_wzh_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
     tthHistD  = tfile.Get("th1f_sig_"+type+"_tth_%3.1f_cat0_%sDown01_sigma"%(mass,sys))
 
+    if options.signalyieldsweight > 0:
+      gghHistU.Scale(signalyieldsweight)
+      vbfHistU.Scale(signalyieldsweight)
+      wzhHistU.Scale(signalyieldsweight)
+      tthHistU.Scale(signalyieldsweight)
+      gghHistD.Scale(signalyieldsweight)
+      vbfHistD.Scale(signalyieldsweight)
+      wzhHistD.Scale(signalyieldsweight)
+      tthHistD.Scale(signalyieldsweight)
+
     outPut.write("\n%s lnN "%sys)
     for b in range(1,nBins+1): 
 	 outPut.write(" %s %s %s %s - "%(\
@@ -443,6 +459,7 @@ parser.add_option("","--outputBdtPdf",dest="bdtworkspacename",default="bdtws.roo
 parser.add_option("","--diphotonBdtFile",dest="diphotonmvahistfilename",default="bdttree.root")
 parser.add_option("","--diphotonBdtTree",dest="diphotonmvahisttreename",default="bdttree")
 parser.add_option("","--tmvaWeightsFolder",dest="tmvaweightsfolder",default="/vols/cms02/h2g/weights/wt_01Feb/")
+parser.add_option("","--reweightSignalYields",dest="signalyieldsweight",default=-999.,type="float")
 parser.add_option("-m","--mass",dest="singleMass",default=-1.,type="float")
 parser.add_option("-t","--type",dest="bdtType",default="grad");
 
