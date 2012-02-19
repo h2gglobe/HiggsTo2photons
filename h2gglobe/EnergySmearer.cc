@@ -140,8 +140,13 @@ bool EnergySmearer::smearPhoton(PhotonReducedInfo & aPho, float & weight, int ru
     // corrEnergy is the corrected photon energy
     newEnergy = aPho.corrEnergy() + syst_shift * myParameters_.corrRelErr * (aPho.corrEnergy() - aPho.energy());
   } else if ( doRegressionSmear_){
-    // leave energy alone, bus change resolution (10% uncertainty on sigmaE/E)
-    float newSigma = aPho.corrEnergyErr()*(1.+syst_shift*0.1);
+    // leave energy alone, bus change resolution (10% uncertainty on sigmaE/E scaling)
+    float newSigma;
+    if (fabs(aPho.caloPosition().Eta())<1.5){
+    	newSigma = (aPho.corrEnergyErr()/1.07)*(1.07+syst_shift*0.1);
+    } else {
+    	newSigma = (aPho.corrEnergyErr()/1.045)*(1.045+syst_shift*0.1);
+    }
     aPho.setCorrEnergyErr(newSigma);
   }
 
