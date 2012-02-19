@@ -147,8 +147,7 @@ class configProducer:
       self.conf_.print_conf()
     self.add_files()
     self.ut_.SetTypeRun(self.type_,self.conf_.histfile)
-    if self.njobs_>-1 :self.ut_.outputTextFileName = "%s_%d.%s" % (self.conf_.outfile,self.jobId_, "txt" )
-    else :self.ut_.outputTextFileName = "%s.txt"%self.conf_.outfile
+    self.ut_.outputTextFileName = self.conf_.outfile
     for dum in self.conf_.confs:
       dataContainer = self.ut_.DefineSamples(dum['Nam'],dum['typ'],dum['ind'],dum['draw'],dum['red'],dum['tot'],dum['intL'],dum['lum'],dum['xsec'],dum['kfac'],dum['scal'],dum['addnevents'])
       if("json" in dum and dum["json"] != ""):
