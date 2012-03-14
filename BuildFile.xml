@@ -38,7 +38,6 @@
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoEgamma/EgammaElectronAlgos"/>
 <use   name="JetMETCorrections/Objects"/>
-<use   name="HiggsAnalysis/HiggsToGammaGamma"/>
 <use   name="hepmc"/>
 <use   name="heppdt"/>
 <use   name="clhep"/>
