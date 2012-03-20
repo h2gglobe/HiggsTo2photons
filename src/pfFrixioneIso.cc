@@ -355,7 +355,7 @@ vector<float > pfFrixioneIso::getIsolationFromIsodeps(reco::PFCandidatePtr PFCan
   
   
   edm::Handle<edm::ValueMap<reco::PFCandidatePtr> > photonValMapH;
-  const edm::ValueMap<reco::PFCandidatePtr> & myPhotonValMap(*photonValMapH); 
+  //const edm::ValueMap<reco::PFCandidatePtr> & myPhotonValMap(*photonValMapH); 
  
   unsigned nIsoDepTypes=photonIsoDep.size(); 
 
