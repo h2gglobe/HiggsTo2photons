@@ -224,7 +224,7 @@ process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 
 process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfPileUp)
 
-if (flagFastSim == 'OFF'):
+if (flagFastSim == 'OFF' or flagAOD == 'OFF'):
   process.p11 *= process.piZeroDiscriminators
     
 process.p11 *= (process.kt6PFJets* process.ak5PFJets* process.kt6PFJetsForRhoCorrection* process.h2ganalyzerPath)
