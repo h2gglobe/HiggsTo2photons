@@ -105,6 +105,8 @@ class GlobeElectrons {
   Int_t el_validhits[MAX_ELECTRONS];
   Int_t el_hp_expin[MAX_ELECTRONS];
   Int_t el_hp_expout[MAX_ELECTRONS];
+  Float_t el_must[MAX_ELECTRONS];
+  Int_t el_mustnc[MAX_ELECTRONS];
 
   Int_t el_scind[MAX_ELECTRONS];
   Int_t el_crack[MAX_ELECTRONS];

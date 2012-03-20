@@ -24,6 +24,8 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 
+#include "HiggsAnalysis/HiggsTo2photons/interface/Mustache.h"
+
 #include <cstdlib>
 #include <iostream>
 
@@ -437,6 +439,14 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_psnstriply2", nome);
   sprintf(a2, "el_%s_psnstriply2[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_psnstriply2, a2);
+
+  sprintf(a1, "el_%s_must", nome);
+  sprintf(a2, "el_%s_must[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_must, a2);
+
+  sprintf(a1, "el_%s_mustnc", nome);
+  sprintf(a2, "el_%s_mustnc[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_mustnc, a2);
 }
 
 
@@ -607,8 +617,12 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_e5x5[el_n] = egsf.e5x5();
     el_e2x5[el_n] = egsf.e2x5Max();
     el_e1x5[el_n] = egsf.e1x5();
-
     el_sieie[el_n] = egsf.sigmaIetaIeta();
+
+    el_must[el_n] = -9999.;
+    el_mustnc[el_n] = -1;
+    reco::Mustache m;
+    m.MustacheID(*(egsf.superCluster()), el_mustnc[el_n], el_must[el_n]);
 
     // Regression Correction
     if (!ecorr_.IsInitialized()) {  

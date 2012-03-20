@@ -129,6 +129,8 @@ class GlobePhotons {
 // OutIn Conv trks variable
   Int_t pho_IsConvOutIn[MAX_PHOTONS];
 
+  Float_t pho_must[MAX_PHOTONS];
+  Int_t pho_mustnc[MAX_PHOTONS];
   Float_t pho_e2nd[MAX_PHOTONS];
   Float_t pho_e2x5right[MAX_PHOTONS];
   Float_t pho_e2x5left[MAX_PHOTONS];
@@ -178,7 +180,6 @@ class GlobePhotons {
   Float_t pho_ntrksolidconedr03[MAX_PHOTONS];
   Float_t pho_ntrkhollowconedr03[MAX_PHOTONS];
   std::vector<std::vector<float> >* pho_frixiso;
-  Float_t pho_must[MAX_PHOTONS];
 
   Int_t pho_barrel[MAX_PHOTONS];
   Int_t pho_scind[MAX_PHOTONS];

@@ -13,6 +13,8 @@
 //#include "HiggsAnalysis/HiggsTo2photons/interface/pfFrixioneIso.h"
 //#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/Mustache.h"
+
 #include "DataFormats/Math/interface/deltaR.h"
 #include <cstdlib>
 
@@ -190,6 +192,7 @@ void GlobePhotons::defineBranch(TTree* tree) {
 
   tree->Branch("pho_frixiso", "std::vector<std::vector<float> >", &pho_frixiso);  
   tree->Branch("pho_must", &pho_must, "pho_must[pho_n]/F");
+  tree->Branch("pho_mustnc", &pho_mustnc, "pho_mustnc[pho_n]/I");
 
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
@@ -584,7 +587,12 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_r2x5[pho_n] = localPho->r2x5();
     pho_r9[pho_n] = localPho->r9();
 
-// more cluster shapes from Lazy Tools
+    pho_must[pho_n] = -9999.;
+    pho_mustnc[pho_n] = -1;
+    reco::Mustache m;
+    m.MustacheID(*(localPho->superCluster()), pho_mustnc[pho_n], pho_must[pho_n]);
+
+    // more cluster shapes from Lazy Tools
     std::vector<float> viCov;
     viCov = lazyTool.localCovariances(*seed_clu);
     pho_sipip[pho_n] = viCov[2];
