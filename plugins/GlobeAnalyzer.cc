@@ -1,4 +1,4 @@
-#include "HiggsAnalysis/HiggsTo2photons/interface/GlobeAnalyzer.h"
+#include "GlobeAnalyzer.h"
 #include "DataFormats/Common/interface/MergeableCounter.h"
 
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"

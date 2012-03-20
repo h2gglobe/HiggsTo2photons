@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Matteosan SANI
 //         Created:  Thu Feb  7 10:14:43 CET 2008
-// $Id: GlobeAnalyzer.h,v 1.11 2011/07/22 09:45:50 musella Exp $
+// $Id: GlobeAnalyzer.h,v 1.12 2011/10/12 22:37:14 pioppi Exp $
 //
 //
 
