@@ -15,6 +15,6 @@ float pfHcalIso(const reco::GsfElectron&, const reco::PFCandidateCollection*, fl
 
 float pfEcalIso(const reco::GsfElectron&, const reco::PFCandidateCollection*, float, float, std::vector<reco::PFCandidate::ParticleType>);
 
-float pfTkIso(const reco::GsfElectron&, edm::Handle<reco::PFCandidateCollection>, edm::Handle<reco::PileUpPFCandidateCollection>, float, float, std::vector<reco::PFCandidate::ParticleType>);
+float pfTkIso(const reco::GsfElectron&, edm::Handle<reco::PFCandidateCollection>, edm::Handle<reco::PFCandidateCollection>, float, float, std::vector<reco::PFCandidate::ParticleType>);
 
 #endif

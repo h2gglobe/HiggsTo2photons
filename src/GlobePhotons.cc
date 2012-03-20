@@ -11,7 +11,6 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 //#include "HiggsAnalysis/HiggsTo2photons/interface/pfFrixioneIso.h"
-
 //#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -464,12 +463,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       char filename[200];
       char* descr = getenv("CMSSW_BASE");
       sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ph.root", descr);
+      //sprintf(filename, "http://sani.cern.ch/gbrv2ph.root");
       ecorr_.Initialize(iSetup, filename);
     }
 
     EcalClusterLazyTools lazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);   
-    
-    //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*localPho);
     std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(*localPho, *(hVertex.product()), lazyTool, iSetup);
     pho_regr_energy[pho_n]    = cor.first;
     pho_regr_energyerr[pho_n] = cor.second;

@@ -64,7 +64,7 @@ float pfEcalIso(const reco::GsfElectron& egsf, const reco::PFCandidateCollection
   return sum;
 }
 
-float pfTkIso(const reco::GsfElectron& egsf, edm::Handle<reco::PFCandidateCollection> pfCollectionH, edm::Handle<reco::PileUpPFCandidateCollection> pfCollectionPUH, float dRmax, float dRveto, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
+float pfTkIso(const reco::GsfElectron& egsf, edm::Handle<reco::PFCandidateCollection> pfCollectionH, edm::Handle<reco::PFCandidateCollection> pfCollectionPUH, float dRmax, float dRveto, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
 
   math::XYZVector dir(egsf.px(), egsf.py(), egsf.pz());
   edm::ProductID originalID = pfCollectionH.id();
@@ -78,7 +78,7 @@ float pfTkIso(const reco::GsfElectron& egsf, edm::Handle<reco::PFCandidateCollec
       bool isCandFromPU = false;
       for (unsigned npuit=0; npuit < pfCollectionPUH->size(); npuit++)   {
 	
-	edm::Ptr<reco::PileUpPFCandidate>  ptr(pfCollectionPUH, npuit);
+	edm::Ptr<reco::PFCandidate>  ptr(pfCollectionPUH, npuit);
 	reco::CandidatePtr candPtr(ptr);
 	unsigned nSources = candPtr->numberOfSourceCandidatePtrs();
 	if(nSources > 1) {
