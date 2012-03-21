@@ -28,15 +28,19 @@
 
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
 #include "TTree.h"
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
+
+class ElectronMVAEstimator;
 
 class GlobeElectrons {
  public:
   
   GlobeElectrons(const edm::ParameterSet&, const char* n = "std");
-  virtual ~GlobeElectrons() {};
+  virtual ~GlobeElectrons();
 
   void defineBranch(TTree* tree);
   bool analyze(const edm::Event&, const edm::EventSetup&);
@@ -133,7 +137,8 @@ class GlobeElectrons {
   Float_t el_hcalbciso03[MAX_ELECTRONS];
   Float_t el_hcalbciso04[MAX_ELECTRONS];
 
-  Float_t el_mva[MAX_ELECTRONS];
+  Float_t el_mva[MAX_ELECTRONS];  
+  Float_t el_mva_noiso[MAX_ELECTRONS];
   Bool_t el_ecaldrv[MAX_ELECTRONS];
   Bool_t el_tkdrv[MAX_ELECTRONS];
   Float_t el_ip_ctf[MAX_ELECTRONS];
@@ -188,9 +193,11 @@ class GlobeElectrons {
   edm::InputTag ecalHitEEColl;
   edm::InputTag ecalHitESColl;
   edm::InputTag hcalHitColl;
+  edm::FileInPath mvaWeightFile;  
 
   EcalClusterLazyTools* ecalLazyTool;
   EGEnergyCorrector ecorr_;
+  ElectronMVAEstimator*  mvaEstimator;
 };
 
 #endif

@@ -25,6 +25,8 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 
 #include "HiggsAnalysis/HiggsTo2photons/interface/Mustache.h"
+#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
+#include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -52,10 +54,18 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
   hcalHitColl = iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
 
   eIDLabels = iConfig.getParameter<std::vector<edm::InputTag> >("eIDLabels");
+  mvaWeightFile = iConfig.getParameter<edm::FileInPath>("electronMVAWeightFileName");
+  mvaEstimator = new ElectronMVAEstimator(mvaWeightFile.fullPath());
 
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
   gES  = new GlobeEcalClusters(iConfig);
+}
+
+GlobeElectrons::~GlobeElectrons() {
+  delete mvaEstimator;
+  delete gCUT;
+  delete gES;
 }
 
 void GlobeElectrons::defineBranch(TTree* tree) {
@@ -229,6 +239,10 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a2, "el_%s_chi2[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_chi2, a2);
   
+  sprintf(a1, "el_%s_mva_noiso", nome);
+  sprintf(a2, "el_%s_mva_noiso[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_mva_noiso, a2);
+
   sprintf(a1, "el_%s_mva", nome);
   sprintf(a2, "el_%s_mva[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_mva, a2);
@@ -527,12 +541,12 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   el_poscalo->Clear(); 
   el_catbased ->clear();
   el_n = 0;
-  
+
   if (debug_level > 9)
     std::cout << "GlobeElectrons: Electron collection size: "<< elH->size() << std::endl;
-  
-  for(reco::GsfElectronCollection::const_iterator igsf = elH->begin(); igsf != elH->end(); igsf++) {
 
+  for(reco::GsfElectronCollection::const_iterator igsf = elH->begin(); igsf != elH->end(); igsf++) {
+    
     if (el_n >= MAX_ELECTRONS) {
       std::cout << "GlobeElectrons: WARNING TOO MANY ELECTRONS: " << elH->size() << " (allowed " << MAX_ELECTRONS << ")" << std::endl;
       break;
@@ -607,13 +621,9 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_detaout[el_n] = egsf.deltaEtaSeedClusterTrackAtCalo();
     el_dphiout[el_n] = egsf.deltaPhiSeedClusterTrackAtCalo();
     el_detaeleout[el_n] = egsf.deltaEtaEleClusterTrackAtCalo();
-    
-
     el_nambtk[el_n] = egsf.ambiguousGsfTracksSize();
     el_class[el_n] = egsf.classification();
-
     el_nbrem[el_n] = egsf.numberOfBrems();
-   
     el_e5x5[el_n] = egsf.e5x5();
     el_e2x5[el_n] = egsf.e2x5Max();
     el_e1x5[el_n] = egsf.e1x5();
@@ -782,7 +792,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
 
-    el_mva[el_n] = egsf.mva();
+    el_mva_noiso[el_n] = egsf.mva();
+    el_mva[el_n] = mvaEstimator->mva(egsf, vtxH->size());
 
     /* NEW variables */
     
@@ -890,7 +901,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
     el_n++;
   }
-  
+
   return true;
 }
 

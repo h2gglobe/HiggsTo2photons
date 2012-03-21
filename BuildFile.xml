@@ -11,6 +11,7 @@
 <use name="HLTrigger/HLTcore"/>
 <use name="TrackingTools/TrackAssociator"/>
 <use name="RecoEgamma/EgammaElectronAlgos"/>
+<use name="RecoEgamma/ElectronIdentification"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/Vertex"/>
