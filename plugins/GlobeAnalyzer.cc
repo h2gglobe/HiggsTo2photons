@@ -4,8 +4,6 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
 
 GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
-  
-  //jobmaker = new std::string("");
 
   fileName = iConfig.getParameter<std::string>("RootFileName");
   jobmaker = iConfig.getParameter<std::string>("JobMaker");
@@ -13,33 +11,26 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   globalCountersNames = iConfig.getParameter<std::vector<std::string> >("globalCounters");
 
   doElectronStd = iConfig.getParameter<bool>("doElectron_std");
-
   doMuon = iConfig.getParameter<bool>("doMuon");
-
   doJetAlgo1 = iConfig.getParameter<bool>("doJet_algo1");
   doJetAlgo2 = iConfig.getParameter<bool>("doJet_algo2");
   doJetAlgo3 = iConfig.getParameter<bool>("doJet_algo3");
   doJetAlgoPF1 = iConfig.getParameter<bool>("doJet_algoPF1");
   doJetAlgoPF2 = iConfig.getParameter<bool>("doJet_algoPF2");
   doJetAlgoPF3 = iConfig.getParameter<bool>("doJet_algoPF3");
-
   doGenJetAlgo1 = iConfig.getParameter<bool>("doGenJet_algo1");
   doGenJetAlgo2 = iConfig.getParameter<bool>("doGenJet_algo2");
   doGenJetAlgo3 = iConfig.getParameter<bool>("doGenJet_algo3");
-
   doGenerator = iConfig.getParameter<bool>("doGenerator");
   doGenParticles = iConfig.getParameter<bool>("doGenParticles");
   doGenVertices = iConfig.getParameter<bool>("doGenVertices");
-
   doPhoton = iConfig.getParameter<bool>("doPhoton"); 
   doAllConversions = iConfig.getParameter<bool>("doAllConversions"); 
   doCaloTower = iConfig.getParameter<bool>("doCaloTower"); 
   doHcal = iConfig.getParameter<bool>("doHcal"); 
   doEcal = iConfig.getParameter<bool>("doEcal"); 
-
   doL1 = iConfig.getParameter<bool>("doL1");
   doHLT = iConfig.getParameter<bool>("doHLT");
-
   doVertices_std = iConfig.getParameter<bool>("doVertices_std"); 
   doVertices_nobs = iConfig.getParameter<bool>("doVertices_nobs"); 
   doMet = iConfig.getParameter<bool>("doMet"); 
@@ -50,24 +41,16 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   doTracks = iConfig.getParameter<bool>("doTracks"); 
   doGsfTracks = iConfig.getParameter<bool>("doGsfTracks"); 
   doTrackingParticles = iConfig.getParameter<bool>("doTrackingParticles"); 
-
   doEcalRecHits = iConfig.getParameter<bool>("doEcalRecHits");
   doReducedGen = iConfig.getParameter<bool>("doReducedGen");
-
   doLeptons = iConfig.getParameter<bool>("doLeptons");
   //doHt = iConfig.getParameter<bool>("doHt");
-
   doPFCandidates = iConfig.getParameter<bool>("doPFCandidates");
   //doPAT = iConfig.getParameter<bool>("doPAT");
-
   doRho = iConfig.getParameter<bool>("doRho");
   doPileup = iConfig.getParameter<bool>("doPileup");
-  
   doPdfWeight = iConfig.getParameter<bool>("doPdfWeight");
-
-
   debug_level = iConfig.getParameter<int>("Debug_Level");
-  
 
   common = new GlobeCommon(iConfig);
 
@@ -76,8 +59,6 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
     throw;
   }
 
-  //GENERATOR
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeGenerator"<<std::endl;
   if (doGenerator)
     gen = new GlobeGenerator(iConfig);
 
@@ -87,24 +68,18 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if (doGenVertices)
     genV = new GlobeGenVertices(iConfig);
 
-
-  //SIMHITS
   if (doSimHits)
     simhits = new GlobeSimHits(iConfig);
 
-  //SIMTRACKS
   if (doSimTracks)
     simtracks = new GlobeSimTracks(iConfig);
 
-  //LEVEL 1 TRIGGER
   if (doL1)
     level1   = new GlobeL1(iConfig); 
 
-  //HLTRIGGER
   if (doHLT)
     hlt = new GlobeHLT(iConfig); 
    
-  //ECAL HCAL TRACKS VERTICES
   if (doEcal)
     ecalclusters = new GlobeEcalClusters(iConfig);
 
@@ -132,39 +107,27 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if (doVertices_nobs) 
     vertex_nobs   = new GlobeVertex(iConfig, "nobs");
 
-  //PHOTONS
   if (doPhoton)
     photons = new GlobePhotons(iConfig);
 
-  // Conversions
   if (doAllConversions)
     allConversions = new GlobeConversions(iConfig);
 
-  //ELECTRONS
-
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeElectrons"<<std::endl;
   if (doElectronStd)
     std_electrons = new GlobeElectrons(iConfig, "std");
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeElectrons"<<std::endl;
 
-  //MUONS
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeMuons"<<std::endl;
   if (doMuon)
     muons = new GlobeMuons(iConfig);
 
-  //MET
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeMET"<<std::endl;
   if (doMet)
     met = new GlobeMET(iConfig, "met"); 
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeTCMET"<<std::endl;
+
   if (dotcMet)
     tcmet = new GlobeMET(iConfig, "tcmet");
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobePFMET"<<std::endl;
+
   if (doPFMet)
     pfmet = new GlobeMET(iConfig, "pfmet");
 
-  //GENJETS
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: coutall GlobeGenJets"<<std::endl;
   if (doGenJetAlgo1)
     algo1_genJets = new GlobeGenJets(iConfig, "algo1");
   if (doGenJetAlgo2)
@@ -172,8 +135,6 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if (doGenJetAlgo3)
     algo3_genJets = new GlobeGenJets(iConfig, "algo3");
 
-  //JETS
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeJets"<<std::endl;
   if (doJetAlgo1)
     algo1_jets = new GlobeJets(iConfig, "algo1");
   if (doJetAlgo2)
@@ -186,19 +147,12 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
     algoPF2_jets = new GlobeJets(iConfig, "algoPF2");
   if (doJetAlgoPF3)
     algoPF3_jets = new GlobeJets(iConfig, "algoPF3");
-  
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeSelector"<<std::endl;
+
   selector = new GlobeSelector(iConfig);
 
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeLeptons"<<std::endl;
   if (doLeptons)
     leptons = new GlobeLeptons();
-  
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeHt"<<std::endl;
-  //if (doHt)
-  //  ht = new GlobeHT(iConfig);
 
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: call GlobeReducedGen"<<std::endl;
   if (doReducedGen)
     reducedgen = new GlobeReducedGen(iConfig);
 
@@ -211,15 +165,9 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if (doPileup)
     pileup = new GlobePileup(iConfig);
 
-  //if (doPAT)
-  //  pat = new GlobePAT(iConfig);
-
-
   if (doPdfWeight)
     pdfweights = new GlobePdfWeights(iConfig);
 
-
-  if(debug_level > 9) std::cout<<"GlobeAnalyzer: readConfiguration"<<std::endl;
   readConfiguration(iConfig);
 }
 
@@ -227,15 +175,14 @@ GlobeAnalyzer::~GlobeAnalyzer() {}
 
 void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  if(debug_level > 9) std::cout << "GlobeAnalyzer: Begin" << std::endl;
 
- if(debug_level > 9) std::cout << "GlobeAnalyzer: Begin" << std::endl;
-  
   tot_events++;
-
+  
   common->analyze(iEvent, iSetup);
 
   //PHOTONS
-  if(debug_level > 2) std::cout << "GlobeAnalyzer: photons" << std::endl;
+  if(debug_level > 2) std::cout << "GlobeAnalyzer: photons" << std::endl;  
   if (doPhoton)
     photons->analyze(iEvent, iSetup);
 
@@ -253,7 +200,7 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if(debug_level > 2) std::cout << "GlobeAnalyzer: muons" << std::endl;
   if (doMuon)
     muons->analyze(iEvent, iSetup);
-  
+
   //Leptons
   if (doLeptons)
     leptons->Zero();
@@ -270,9 +217,7 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   if(debug_level > 2) std::cout << "GlobeAnalyzer: leptons->addphotons" << std::endl;
   if(doPhoton && doLeptons)
-    leptons->addPhotons(photons);
- 
-
+    leptons->addPhotons(photons);  
 
   //GENERATOR
   if(debug_level > 2) std::cout << "GlobeAnalyzer: gen" << std::endl;
@@ -300,7 +245,7 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   //SIMTRACKS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: simtracks" << std::endl;
   if (doSimTracks)
-    simtracks->analyze(iEvent, iSetup);
+    simtracks->analyze(iEvent, iSetup);  
 
   //LEVEL 1 TRIGGER
   if(debug_level > 2) std::cout << "GlobeAnalyzer: level1" << std::endl;
@@ -360,11 +305,10 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if(debug_level > 2) std::cout << "GlobeAnalyzer: vertex_std" << std::endl;
   if (doVertices_std) 
     vertex_std->analyze(iEvent, iSetup);
-    
+
   if(debug_level > 2) std::cout << "GlobeAnalyzer: vertex_nobs" << std::endl;
   if (doVertices_nobs) 
     vertex_nobs->analyze(iEvent, iSetup);
-
 
   //MET
   if(debug_level > 2) std::cout << "GlobeAnalyzer: met" << std::endl;
@@ -439,7 +383,7 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       std::cout << "GlobeAnalyzer: reducedgenparticles" << std::endl;
     reducedgen->fillRedGenList(genP, leptons);
   }
-  
+
   // PF CANDIDATES
   if (doPFCandidates)
     pfCandidates->analyze(iEvent, iSetup, tracks, muons, photons);
@@ -455,7 +399,7 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   if (doPileup)
     pileup->analyze(iEvent, iSetup);
-  
+
   if (doPdfWeight)
     pdfweights->analyze(iEvent, iSetup);
 
@@ -485,7 +429,6 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 void GlobeAnalyzer::beginJob() { 
 
-  // define root file and root tree
   file = new TFile(fileName.c_str(), "recreate");
   tree = new TTree("event", "Event data");
   tree2 = new TTree("global_variables", "Global Parameters"); // need a different tree to fill once per job
@@ -502,10 +445,13 @@ void GlobeAnalyzer::beginJob() {
 
   if (doEcalRecHits)
     ecalrechits->defineBranch(tree);
+
   if (doEcal)
     ecalclusters->defineBranch(tree);
+
   if (doCaloTower)
     calotowers->defineBranch(tree);
+
   if (doHcal)
     hcalhits->defineBranch(tree);
 
@@ -517,39 +463,40 @@ void GlobeAnalyzer::beginJob() {
 
   if (doVertices_std)
     vertex_std->defineBranch(tree);
+
   if (doVertices_nobs)
     vertex_nobs->defineBranch(tree);
 
   if (doMet)
     met->defineBranch(tree);
+
   if(dotcMet)
     tcmet->defineBranch(tree);
+
   if(doPFMet)
     pfmet->defineBranch(tree);
 
   if (doSimHits)
     simhits->defineBranch(tree);
+
   if (doSimTracks)
     simtracks->defineBranch(tree);
 
   if (doTracks)
     tracks->defineBranch(tree);
+
   if (doGsfTracks)
     gsfTracks->defineBranch(tree);
 
   if (doTrackingParticles)
     trackingParticles->defineBranch(tree);
  
-  // define object specific branches
-  // ELECTRONS
   if (doElectronStd)
     std_electrons->defineBranch(tree);
  
-  // MUONS
   if (doMuon)
     muons->defineBranch(tree);
 
-  // JETS
   if (doJetAlgo1)
     algo1_jets->defineBranch(tree);
   if (doJetAlgo2)
@@ -563,7 +510,6 @@ void GlobeAnalyzer::beginJob() {
   if (doJetAlgoPF3)
     algoPF3_jets->defineBranch(tree);
 
-  // GEN
   if (doGenerator)
     gen->defineBranch(tree);
 
@@ -573,8 +519,6 @@ void GlobeAnalyzer::beginJob() {
   if (doGenVertices)
     genV->defineBranch(tree);
 
-  
-  // GEN JETS
   if (doGenJetAlgo1)
     algo1_genJets->defineBranch(tree);
   if (doGenJetAlgo2)
@@ -585,19 +529,11 @@ void GlobeAnalyzer::beginJob() {
   if (doLeptons)
     leptons->defineBranch(tree);
   
-  //if (doHt)
-  //  ht->defineBranch(tree);
-  
-  // REDUCED GEN LIST
   if (doReducedGen) 
     reducedgen->defineBranch(tree);
 
   if (doPFCandidates)
      pfCandidates->defineBranch(tree);
-  
-  //if (doPAT)
-  //  pat->defineBranch(tree);
-
 
   if (doRho)
      rho->defineBranch(tree);

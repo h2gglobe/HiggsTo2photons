@@ -303,12 +303,12 @@ void GlobePhotons::defineBranch(TTree* tree) {
 
 bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
-  
   if (debug_level > 9) 
     std::cout << "GlobePhotons: Start analyze" << std::endl;
 
   //PhotonFix::initialiseGeometry(iSetup);
   checkSetup(iSetup);
+
   hcalHelper->readEvent(const_cast<edm::Event &>(iEvent));
   hcalHelperPflow->readEvent(const_cast<edm::Event &>(iEvent));
 
@@ -423,7 +423,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       std::cout << "GlobePhotons: WARNING TOO MANY PHOTONS: " << phoH->size() << " (allowed " << MAX_PHOTONS << ")" << std::endl;
       break;
     }
-    
+
     reco::PhotonRef localPho(phoH, iPho);
     
     if(gCUT->cut(*localPho)) 
@@ -444,7 +444,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     reco::SuperClusterRef theClus=localPho->superCluster();
     pho_scind[pho_n] = -1;
-
+      
     // PHOTON ID
     for (unsigned int iv=0; iv<hVertex->size(); iv++) {
       pho_id_4cat[pho_n][iv] = cicPhotonId->photonCutLevel4cat(localPho, iv);
@@ -454,7 +454,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     // FRIXIONE ISO
     //pfFrixIso->float pfFrixioneIso::mvaID(const reco::PFCandidateCollection* pfParticlesColl,const reco::Photon *recoPhoton, edm::Handle< reco::VertexCollection > recoVtx)
-    pho_must[pho_n]    = 0;
     
     // Residual corrections
     //PhotonFix ResidCorrector(*localPho);
@@ -517,7 +516,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     bool isBarrel=(id.subdetId() == EcalBarrel);
     pho_barrel[pho_n]=(Int_t)isBarrel;
-
 
     // Correction Schemes,
     for (int corr_iter=1;corr_iter<=5;corr_iter++) 
@@ -734,10 +732,8 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     //other variables
     pho_haspixseed[pho_n] = localPho->hasPixelSeed();
-
     pho_hasconvtks[pho_n] = localPho->hasConversionTracks();
     pho_nconv[pho_n] = localPho->conversions().size();
-
     pho_conv_ntracks[pho_n]=0;
     pho_conv_pairinvmass[pho_n]=-999.;
     pho_conv_paircotthetasep[pho_n]=-999.;
