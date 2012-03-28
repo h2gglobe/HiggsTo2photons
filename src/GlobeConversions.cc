@@ -460,11 +460,10 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             conv_tk1_dzerr[conv_n]=tracks[0]->dzError();
             conv_tk1_nh[conv_n]=tracks[0]->numberOfValidHits();
             conv_ch1ch2[conv_n]=tracks[0]->charge();
-            ((TVector3 *) conv_singleleg_momentum->At(conv_n))->SetXYZ(tracks[0]->innerMomentum().X(), tracks[0]->innerMomentum().Y(), tracks[0]->innerMomentum().Z());
+            ((TVector3 *) conv_singleleg_momentum->At(conv_n))->SetXYZ(tracks[0]->px(), tracks[0]->py(), tracks[0]->pz());
           }
         }
 
-    
         conv_pairinvmass[conv_n]=localConv.pairInvariantMass();
         conv_paircotthetasep[conv_n]=localConv.pairCotThetaSeparation();
         // will work in 420 conv_eoverp[conv_n]=localConv.EoverPrefittedTracks();
@@ -480,7 +479,6 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         conv_lz[conv_n]=localConv.lz();
 
         conv_type[conv_n]=1;
-    
         std::vector<unsigned short> tmp;
         for (unsigned int i=0; i<localConv.nHitsBeforeVtx().size(); ++i) {
           tmp.push_back(static_cast<unsigned short>(localConv.nHitsBeforeVtx()[i]));
@@ -488,14 +486,12 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
         conv_nHitsBeforeVtx->push_back(tmp);
         conv_nSharedHits[conv_n] = localConv.nSharedHits();
-
         std::vector<int> conv_quality_tmp;
         if (localConv.quality(reco::Conversion::arbitratedMerged)) conv_quality_tmp.push_back(1);
         if (localConv.quality(reco::Conversion::generalTracksOnly)) conv_quality_tmp.push_back(2);
         if (localConv.quality(reco::Conversion::arbitratedEcalSeeded)) conv_quality_tmp.push_back(3);
         conv_quality->push_back(conv_quality_tmp);
-        //std::cout << "Conversion Quality Size: " << conv_quality->size() << "Conversion Quality Temp Size: " << conv_quality_tmp.size() << " Number of Conversions: " << conv_n << std::endl;
-
+        if (debug_level>9) std::cout << "Conversion Quality Size: " << conv_quality->size() << "Conversion Quality Temp Size: " << conv_quality_tmp.size() << " Number of Conversions: " << conv_n << std::endl;
         if(localConv.tracks().size() > 0) {
           conv_tk1_d0[conv_n]=localConv.tracksSigned_d0()[0];
           conv_tk1_pout[conv_n]=sqrt(localConv.tracksPout()[0].Mag2());
