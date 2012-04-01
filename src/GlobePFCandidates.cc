@@ -39,7 +39,7 @@ void GlobePFCandidates::defineBranch(TTree* tree) {
 
   tree->Branch("pfcand_n", &pfcand_n, "pfcand_n/I");
   tree->Branch("pfcand_pdgid",&pfcand_pdgid,"pfcand_pdgid[pfcand_n]/I");
-  tree->Branch("pfcand_tkind", &pfcand_tkind, "pfcand_tkind[pfcand_n]/I");
+  //tree->Branch("pfcand_tkind", &pfcand_tkind, "pfcand_tkind[pfcand_n]/I");
   //tree->Branch("pfcand_gsfind", &pfcand_gsfind, "pfcand_gsfind[pfcand_n]/I");
   //tree->Branch("pfcand_muind", &pfcand_muind, "pfcand_muind[pfcand_n]/I");
   tree->Branch("pfcand_ecalenergy", &pfcand_ecalEnergy, "pfcand_ecalenergy[pfcand_n]/F");
@@ -179,6 +179,7 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	pfcand_vz[pfcand_n] = it->trackRef()->vz();
       }
       
+      /*
       pfcand_tkind[pfcand_n] = -1;  
       if (tks != 0 && it->trackRef().isNonnull()) {
 	TVector3 vTk = TVector3(it->trackRef()->px(), 
@@ -196,6 +197,7 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	}
       }
 
+      
       pfcand_muind[pfcand_n] = -1;
       if (mus != 0 && it->muonRef().isNonnull()) {
 	TVector3 vMu = TVector3(it->muonRef()->px(), 
@@ -212,6 +214,7 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  }
 	}
       }
+      */
 
       pfcand_ispu[pfcand_n] = 0;
       if (isCandFromPU)
