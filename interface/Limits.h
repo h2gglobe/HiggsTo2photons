@@ -25,7 +25,7 @@
 
 #define MAX_ECALRECHITS 10000
 
-#define MAX_JETS 150
+#define MAX_JETS 200
 #define MAX_JET_TOWERS 100
 #define MAX_JET_TRACKS 100 
 
@@ -39,9 +39,9 @@
 #define MAX_HCALHITS 3500 
 
 #define MAX_L1 8 
-#define MAX_HLT 200
+#define MAX_HLT 400
 
-#define MAX_TRACKS 1500
+#define MAX_TRACKS 2000
 #define MAX_TKRECHITS 10000
 
 #define MAX_TRACKINGPARTICLES 5000
