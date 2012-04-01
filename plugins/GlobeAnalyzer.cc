@@ -83,12 +83,6 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if (doEcal)
     ecalclusters = new GlobeEcalClusters(iConfig);
 
-  if (doEcalRecHits)
-    ecalrechits = new GlobeEcalHits(iConfig);
-
-  if (doHcal)
-    hcalhits = new GlobeHcal(iConfig);
-
   if (doCaloTower)
     calotowers = new GlobeCaloTowers(iConfig);
 
@@ -150,9 +144,6 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
 
   selector = new GlobeSelector(iConfig);
 
-  if (doLeptons)
-    leptons = new GlobeLeptons();
-
   if (doReducedGen)
     reducedgen = new GlobeReducedGen(iConfig);
 
@@ -168,144 +159,159 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if (doPdfWeight)
     pdfweights = new GlobePdfWeights(iConfig);
 
+  if (doLeptons)
+    leptons = new GlobeLeptons();
+  if (!doMuon or !doElectronStd or !doPhoton) {
+    std::cout << "WARNING: doLeptons needs doMuons, doElectronStd and doPhoton true" << std::endl;
+    doLeptons = false;
+  }
+  
+  if (doEcalRecHits)
+    ecalrechits = new GlobeEcalHits(iConfig); 
+  if (!doElectronStd or !doMuon or !doPhoton or !doLeptons) {
+    std::cout << "WARNING: EcalRecHits needs Electrons, Muons, Leptons and Photons." << std::endl;
+    doEcalRecHits = false;
+  }
+  
+  if (doHcal)
+    hcalhits = new GlobeHcal(iConfig);
+  if (!doElectronStd or !doMuon or !doPhoton or !doLeptons) {
+    std::cout << "WARNING: HcalRecHits needs Electrons, Muons, Leptons and Photons." << std::endl;
+    doHcal = false;
+  }
+
+  if (!doLeptons) {
+    std::cout << "WARNING: doReducedGen needs doLeptons true" << std::endl;
+    doReducedGen = false;
+  }
+  
   readConfiguration(iConfig);
 }
 
 GlobeAnalyzer::~GlobeAnalyzer() {}
 
 void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
+  
   if(debug_level > 9) std::cout << "GlobeAnalyzer: Begin" << std::endl;
-
+  
   tot_events++;
   
   common->analyze(iEvent, iSetup);
-
+  
   //PHOTONS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: photons" << std::endl;  
   if (doPhoton)
     photons->analyze(iEvent, iSetup);
-
+  
   //ALL CONVERSIONS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: conversions" << std::endl;
   if (doAllConversions)
     allConversions->analyze(iEvent, iSetup);
-
+  
   //ELECTRONS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: std_electrons" << std::endl;
   if (doElectronStd)
     std_electrons->analyze(iEvent, iSetup);
-
+  
   //MUONS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: muons" << std::endl;
   if (doMuon)
     muons->analyze(iEvent, iSetup);
-
+  
   //Leptons
   if (doLeptons)
     leptons->Zero();
-
+  
   if(debug_level > 2) 
     std::cout << "GlobeAnalyzer: leptons->addmuons" << std::endl;
   if(doMuon && doLeptons)
     leptons->addMuons(muons);
-
+  
   if(debug_level > 2) 
     std::cout << "GlobeAnalyzer: leptons->addelectrons" << std::endl;
   if(doElectronStd && doLeptons)
     leptons->addElectrons(std_electrons);
-
+  
   if(debug_level > 2) std::cout << "GlobeAnalyzer: leptons->addphotons" << std::endl;
   if(doPhoton && doLeptons)
     leptons->addPhotons(photons);  
-
+  
   //GENERATOR
   if(debug_level > 2) std::cout << "GlobeAnalyzer: gen" << std::endl;
-  if (doGenerator){
+  if (doGenerator)
     gen->analyze(iEvent, iSetup);
-  }
-
+  
   //GENPARTICLES
   if(debug_level > 2) std::cout << "GlobeAnalyzer: genP" << std::endl;
-  if (doGenParticles){
+  if (doGenParticles)
     genP->analyze(iEvent, iSetup);
-  }
 
   //GENVERTICES 
   if(debug_level > 2) std::cout << "GlobeAnalyzer: genV" << std::endl;
-  if (doGenVertices){
+  if (doGenVertices)
     genV->analyze(iEvent, iSetup);
-  }
 
   //SIMHITS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: simhits" << std::endl;
   if (doSimHits)
     simhits->analyze(iEvent, iSetup);
-
+  
   //SIMTRACKS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: simtracks" << std::endl;
   if (doSimTracks)
     simtracks->analyze(iEvent, iSetup);  
-
+  
   //LEVEL 1 TRIGGER
   if(debug_level > 2) std::cout << "GlobeAnalyzer: level1" << std::endl;
   if (doL1)
     level1->analyze(iEvent, iSetup);
-
+  
   //HLTRIGGER
   if(debug_level > 2) std::cout << "GlobeAnalyzer: hlt" << std::endl;
   if (doHLT)
     hlt->analyze(iEvent, iSetup);
-
+  
   //TRACKS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: tracks" << std::endl;
   if (doTracks)
     tracks->analyze(iEvent, iSetup);
-
+  
   if(debug_level > 2) std::cout << "GlobeAnalyzer: gsftracks" << std::endl;
   if (doGsfTracks)
     gsfTracks->analyze(iEvent, iSetup);
-
+  
   //TRACKING PARTICLES
   if(debug_level > 2) std::cout << "GlobeAnalyzer: trackingparticles" << std::endl;
   if (doTrackingParticles) {
     trackingParticles->analyze(iEvent, iSetup,tracks);
     tracks->GetAssociatedTrackingParticleIndex(iEvent,iSetup,trackingParticles);
   }
-
+  
   //ECAL REC HITS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: ecalrechits" << std::endl;
-  if (doEcalRecHits) {
-    if (doElectronStd && doMuon && doPhoton && doLeptons)
-      ecalrechits->analyze(iEvent, iSetup, leptons, std_electrons, muons, photons);
-    else
-      std::cout << "EcalRecHits needs Electrons, Muons, Leptons and Photons." << std::endl;
-  }
-
+  if (doEcalRecHits)
+    ecalrechits->analyze(iEvent, iSetup, leptons, std_electrons, muons, photons);
+  
   //ECAL CLUSTERS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: ecalclusters" << std::endl;
   if (doEcal)
     ecalclusters->analyze(iEvent, iSetup);
-
+  
   //HCAL HITS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: hcalhits" << std::endl;
-  if (doHcal) {
-    if (doElectronStd && doMuon && doPhoton && doTracks && doLeptons) 
-      hcalhits->analyze(iEvent, iSetup, leptons, std_electrons, muons, photons, tracks);
-    else
-      std::cout << "HcalRecHits needs Electrons, Muons, Photons, Leptons and Tracks." << std::endl;
-  }
-
+  if (doHcal)
+    hcalhits->analyze(iEvent, iSetup, leptons, std_electrons, muons, photons, tracks);
+  
   //CALO TOWERS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: calotowers" << std::endl;
   if (doCaloTower)
     calotowers->analyze(iEvent, iSetup);
-
+  
   //VERTEX
   if(debug_level > 2) std::cout << "GlobeAnalyzer: vertex_std" << std::endl;
   if (doVertices_std) 
     vertex_std->analyze(iEvent, iSetup);
-
+  
   if(debug_level > 2) std::cout << "GlobeAnalyzer: vertex_nobs" << std::endl;
   if (doVertices_nobs) 
     vertex_nobs->analyze(iEvent, iSetup);
