@@ -572,7 +572,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
     float phi = egsf.superCluster()->phi();
     float theta = (2*atan(exp(-egsf.superCluster()->eta())));
-    float en = egsf.superCluster()->energy();
+    float en = egsf.ecalEnergy();
     float px = en*sin(theta)*cos(phi);
     float py = en*sin(theta)*sin(phi);
     float pz = en*cos(theta);
