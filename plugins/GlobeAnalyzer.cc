@@ -103,15 +103,21 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
 
   if (doPhoton)
     photons = new GlobePhotons(iConfig);
+  else
+    photons = 0;
 
   if (doAllConversions)
     allConversions = new GlobeConversions(iConfig);
 
   if (doElectronStd)
     std_electrons = new GlobeElectrons(iConfig, "std");
+  else
+    std_electrons = 0;
 
   if (doMuon)
     muons = new GlobeMuons(iConfig);
+  else
+    muons = 0;
 
   if (doMet)
     met = new GlobeMET(iConfig, "met"); 
@@ -168,15 +174,15 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   
   if (doEcalRecHits)
     ecalrechits = new GlobeEcalHits(iConfig); 
-  if (!doElectronStd or !doMuon or !doPhoton or !doLeptons) {
-    std::cout << "WARNING: EcalRecHits needs Electrons, Muons, Leptons and Photons." << std::endl;
+  if (!doElectronStd and !doMuon and !doPhoton) {
+    std::cout << "WARNING: EcalRecHits needs Electrons, Muons or Photons." << std::endl;
     doEcalRecHits = false;
   }
   
   if (doHcal)
     hcalhits = new GlobeHcal(iConfig);
-  if (!doElectronStd or !doMuon or !doPhoton or !doLeptons) {
-    std::cout << "WARNING: HcalRecHits needs Electrons, Muons, Leptons and Photons." << std::endl;
+  if (!doElectronStd and !doMuon and !doPhoton) {
+    std::cout << "WARNING: HcalRecHits needs Electrons, Muons and Photons." << std::endl;
     doHcal = false;
   }
 
@@ -290,7 +296,7 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   //ECAL REC HITS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: ecalrechits" << std::endl;
   if (doEcalRecHits)
-    ecalrechits->analyze(iEvent, iSetup, leptons, std_electrons, muons, photons);
+    ecalrechits->analyze(iEvent, iSetup, std_electrons, muons, photons);
   
   //ECAL CLUSTERS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: ecalclusters" << std::endl;
@@ -300,7 +306,7 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   //HCAL HITS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: hcalhits" << std::endl;
   if (doHcal)
-    hcalhits->analyze(iEvent, iSetup, leptons, std_electrons, muons, photons, tracks);
+    hcalhits->analyze(iEvent, iSetup, std_electrons, muons, photons);
   
   //CALO TOWERS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: calotowers" << std::endl;
