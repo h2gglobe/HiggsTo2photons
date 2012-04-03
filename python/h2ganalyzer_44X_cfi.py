@@ -246,7 +246,7 @@ h2ganalyzer = cms.EDAnalyzer(
     
     # RUNNING MODULES
     doGenerator = cms.bool(False),
-    doReducedGen = cms.bool(True),
+    doReducedGen = cms.bool(False),
     doGenParticles = cms.bool(True),
     doGenVertices = cms.bool(True),
     

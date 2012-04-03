@@ -50,6 +50,8 @@ GlobeCuts::GlobeCuts(const edm::ParameterSet& iConfig) {
 
   ecalHitBarrelECut_        = psetEcalHit.getParameter<double>("BarrelEnergyCut");
   ecalHitEndcapECut_        = psetEcalHit.getParameter<double>("EndcapEnergyCut");
+  ecalHitBarrelEtCut_       = psetEcalHit.getParameter<double>("BarrelEtCut");
+  ecalHitEndcapEtCut_       = psetEcalHit.getParameter<double>("EndcapEtCut");
   ecalHitPreECut_           = psetEcalHit.getParameter<double>("PreEnergyCut");
   ecalKeepOutsideCone_      = psetEcalHit.getParameter<bool>("KeepOutsideCone");
   ecalMaxDR_                = psetEcalHit.getParameter<double>("EcalMaxDR");
@@ -187,16 +189,21 @@ bool GlobeCuts::cut(const reco::GenJet &genjet) {
 //Cut to determine if RecHit falls within the lepton cone
 //const EcalRecHit here is just used as a function identifier
 bool GlobeCuts::cut(const EcalRecHit &ecalhit, int type, double dR) { 
-   if (type == 2)  // preshower
+
+  if (type == 2)  // preshower
     return (ecalhit.energy() < ecalHitPreECut_); 
-   if( dR < ecalMaxDR_ ) return false; //keep if inside cone
-  if (!ecalKeepOutsideCone_) return true; //dont keep if user doesnt want
-                                      //stuff outside cone
-   if (type == 0)  // barrel
+   
+  if( dR < ecalMaxDR_ ) 
+    return false; //keep if inside cone
+  
+  if (!ecalKeepOutsideCone_) 
+    return true; //dont keep if user doesnt want stuff outside cone
+
+  if (type == 0)  // barrel
     return (fabs(ecalhit.energy()) < ecalHitBarrelECut_); 
-   if (type == 1)  // endcap
+  if (type == 1)  // endcap
     return (fabs(ecalhit.energy()) < ecalHitEndcapECut_); 
-   return false;
+  return false;
 }
 
 bool GlobeCuts::isocut(const reco::Track &tk, const reco::Track &lep, const reco::Vertex &vtx) {
