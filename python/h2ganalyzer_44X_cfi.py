@@ -166,7 +166,7 @@ h2ganalyzer = cms.EDAnalyzer(
     # CUTS
     hggPhotonIDConfiguration = cms.PSet(hggPhotonIDCuts),
     
-    GeneratorCuts = cms.PSet(EtCut = cms.double(10.0)),
+    GeneratorCuts = cms.PSet(EtCut = cms.double(5.0)),
     GenJetCuts = cms.PSet(EtCut = cms.double(-1.0)),
     
     SimHitCuts = cms.PSet(EnergyCut = cms.double(0.0)),
@@ -177,6 +177,7 @@ h2ganalyzer = cms.EDAnalyzer(
                            PreEnergyCut = cms.double(-999.0),
                            EcalMaxDR = cms.double(0.5),
                            KeepOutsideCone = cms.bool(True)),
+    
     HcalHitsCuts = cms.PSet(HBHEEnergyCut = cms.double(0.35),
                             HFEnergyCut = cms.double(1.0),
                             HOEnergyCut = cms.double(0.7),
@@ -188,6 +189,7 @@ h2ganalyzer = cms.EDAnalyzer(
     CaloTowerCuts = cms.PSet(EtCut = cms.double(1.0)),
     
     TrackCuts = cms.PSet(PtCut = cms.double(-1.0)),
+    
     TPCuts = cms.PSet(tpLvpCut = cms.double(99999.0),
                       tpEtaCut = cms.double(2.5),
                       tpTvpCut = cms.double(99999.0),
@@ -200,7 +202,11 @@ h2ganalyzer = cms.EDAnalyzer(
     MuonCuts = cms.PSet(PtCut = cms.double(-1.0)),
     PhotonCuts = cms.PSet(EtCut = cms.double(0.0)),
     ConvertedPhotonCuts = cms.PSet(EtCut = cms.double(0.0)),
-    JetCuts = cms.PSet(EnergyCut = cms.double(0.0)),
+    JetCuts = cms.PSet(EnergyCut = cms.double(5.0)),
+
+    GenParticleCuts = cms.PSet(EtCut = cms.double(0.0),
+                               PdgId = cms.vint32(),
+                               Keep = cms.bool(True)),
 
     # DEBUG
     Debug_Level = cms.int32(0),

@@ -48,7 +48,8 @@ class GlobeHcal {
   virtual ~GlobeHcal() {};
 
   void defineBranch(TTree* tree);
-  bool analyze(const edm::Event&, const edm::EventSetup&,GlobeLeptons*,GlobeElectrons*,GlobeMuons*,GlobePhotons*,GlobeTracks*);
+  //bool analyze(const edm::Event&, const edm::EventSetup&,GlobeLeptons*,GlobeElectrons*,GlobeMuons*,GlobePhotons*,GlobeTracks*);
+  bool analyze(const edm::Event&, const edm::EventSetup&, GlobeElectrons*, GlobeMuons*, GlobePhotons*);
 
   // variables
 
