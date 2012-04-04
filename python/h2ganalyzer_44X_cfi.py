@@ -182,7 +182,7 @@ h2ganalyzer = cms.EDAnalyzer(
                             HFEnergyCut = cms.double(1.0),
                             HOEnergyCut = cms.double(0.7),
                             HcalMaxDR = cms.double(0.6),
-                            KeepOutsideCone = cms.bool(True)),
+                            KeepOutsideCone = cms.bool(False)),
     
     BasicClusterCuts = cms.PSet(EnergyCut = cms.double(-1.0)),
     SuperClusterCuts = cms.PSet(EnergyCut = cms.double(-1.0)),
