@@ -121,7 +121,7 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	  if (keys[j] == iCand)
 	    temp.push_back((unsigned short)i);
 	}
-      }
+      } 
 
       if (labels.size() > 2) {
 	edm::InputTag label(labels[labels.size()-2], "", hltTag_.process());
@@ -134,9 +134,11 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	      temp2.push_back((unsigned short)i);
 	  }
 	}
-      } else {
+      } 
+      
+      if (temp.size() > temp2.size())
 	temp2.push_back(999);
-      }
+ 
     }
     
     if (temp.size() > 0) {
