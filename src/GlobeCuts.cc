@@ -50,8 +50,6 @@ GlobeCuts::GlobeCuts(const edm::ParameterSet& iConfig) {
 
   ecalHitBarrelECut_        = psetEcalHit.getParameter<double>("BarrelEnergyCut");
   ecalHitEndcapECut_        = psetEcalHit.getParameter<double>("EndcapEnergyCut");
-  ecalHitBarrelEtCut_       = psetEcalHit.getParameter<double>("BarrelEtCut");
-  ecalHitEndcapEtCut_       = psetEcalHit.getParameter<double>("EndcapEtCut");
   ecalHitPreECut_           = psetEcalHit.getParameter<double>("PreEnergyCut");
   ecalKeepOutsideCone_      = psetEcalHit.getParameter<bool>("KeepOutsideCone");
   ecalMaxDR_                = psetEcalHit.getParameter<double>("EcalMaxDR");
