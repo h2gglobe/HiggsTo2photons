@@ -436,8 +436,8 @@ int  GlobeReducedGen::GlobeMatchWithGen(GlobeGenerator * gen, TLorentzVector* p4
   //gencoll 1 full, 2 reduced leptons, 3 reduced list of leptons (FOR NOW USE 2 or 3)
   
   deltaR=10.;
-  float deltaPhi=10.;
-  float deltaEta=10.;
+  //float deltaPhi=10.;
+  //float deltaEta=10.;
   int imatch=-1;
   
   int n_n=gen->gen_n;
@@ -447,16 +447,16 @@ int  GlobeReducedGen::GlobeMatchWithGen(GlobeGenerator * gen, TLorentzVector* p4
   
   for (int i=0; i<n_n; i++) {
     //attention to the right photon matching!!!
-    int j=-10000000;
+    //int j=-10000000;
     //std::cout<<"here"<<i<<" "<<lptgen_status[i]<<" "<<lptgen_pdgid[i]<<std::endl;
     
     if(gencoll==1) {
       if(gen->gen_status[i]!=1) continue;
       if(gen->gen_pdgid[i]!=pdgid && gen->gen_pdgid[i]!=-pdgid) continue;
       
-      if(gen->gen_mother[i]>=0) {
-        j=gen->gen_pdgid[gen->gen_mother[i]];
-      }
+      //if(gen->gen_mother[i]>=0) {
+      //  j=gen->gen_pdgid[gen->gen_mother[i]];
+      //}
       //ignore those with wrong mother NOT IMPLEMENTED YET
       //if(j!=21 && j!=22 && (j<-20 || j>20)) continue;
     }
@@ -479,14 +479,12 @@ int  GlobeReducedGen::GlobeMatchWithGen(GlobeGenerator * gen, TLorentzVector* p4
       tempp4= (TLorentzVector *) lptgen_p4->At(i);
     }
     double dr=p4->DeltaR(*tempp4);
-    double dphi=p4->DeltaPhi(*tempp4);
-    
-      
-    float deta=fabs((float) p4->Eta()- tempp4->Eta());
+    //double dphi=p4->DeltaPhi(*tempp4);
+    //float deta=fabs((float) p4->Eta()- tempp4->Eta());
     if(dr<deltaR) {
       deltaR=dr;
-      deltaPhi=dphi;
-      deltaEta=deta;
+      //deltaPhi=dphi;
+      //deltaEta=deta;
       imatch=i;
     }
   }
@@ -507,6 +505,8 @@ int  GlobeReducedGen::GlobeMatchWithGen(GlobeGenerator * gen, TLorentzVector* p4
   
   }
 */
+
+
 
 void GlobeReducedGen::fillRedGenList(GlobeGenParticles* gp, GlobeLeptons * lep){
   
@@ -530,27 +530,21 @@ void GlobeReducedGen::fillRedGenList(GlobeGenParticles* gp, GlobeLeptons * lep){
   }
   
   for (int i=0; i<gp->gp_n; i++) {
-    if(gp->gp_status[i]==1) {
-      if(gp->gp_pdgid[i]==11
-         ||gp->gp_pdgid[i]==-11
-         ||gp->gp_pdgid[i]==13
-         ||gp->gp_pdgid[i]==-13
-         //||gp->gp_pdgid[i]==15 
-         //||gp->gp_pdgid[i]==-15
-         ||gp->gp_pdgid[i]==22
-         ) {
+
+    if(gp->gp_status[i] == 1) {
+
+      if(gp->gp_pdgid[i] == 11 or gp->gp_pdgid[i] == -11 or
+         gp->gp_pdgid[i] == 13 or gp->gp_pdgid[i] == -13 or
+         gp->gp_pdgid[i] == 22) {
         
         int history[10];
         int nhistory;
         //TLorentzVector * pp4= (TLorentzVector *) gp->gp_p4->At(i);
         int rad_photons[10];
         int nrad_photons;
-        int iselected = LeptonsGenInfo(gp, i, gp_keep, nhistory, history, nrad_photons, rad_photons);
+        if (LeptonsGenInfo(gp, i, gp_keep, nhistory, history, nrad_photons, rad_photons)) {
+	  gp_keep[i] = 1;
 
-        if(iselected)
-          { gp_keep[i]=1; } // std::cout<<"I was selected"<<std::endl;}
-        
-        if(iselected) {
           //std::cout<<"nhistory "<<nhistory<<std::endl;
           for (int j=0; j<nhistory; j++) {
             //std::cout<<"history "<<j<<" "<<history[j]<<std::endl;
@@ -581,15 +575,22 @@ void GlobeReducedGen::fillRedGenList(GlobeGenParticles* gp, GlobeLeptons * lep){
             if( fabs(history[j]) == 25 && gp_historycode[i] == 1524) gp_historycode[i] = 2524;
             
           }
-          //std::cout<<"nrad_photons "<<nrad_photons<<std::endl;
-          //for (int j=0; j<nrad_photons; j++) {
-          //std::cout<<"rad_photons "<<j<<" "<<rad_photons[j]<<std::endl;
-          //}
         }
       }
     }
   }
   
+
+
+
+
+
+
+
+
+
+
+
   
   //FILL REDUCED INFO
   
@@ -597,6 +598,8 @@ void GlobeReducedGen::fillRedGenList(GlobeGenParticles* gp, GlobeLeptons * lep){
   
   //#define MAX_LPT_GENINFO 100
   //lptgeninfo_n=0;
+  std::cout << lptgeninfo_n << " " << gp->gp_n << std::endl;
+
   for (int i=0; i<gp->gp_n; i++) {
     if(lptgeninfo_n<MAX_LPT_GENINFO) {
       lptgeninfo_mother[lptgeninfo_n]=-1;
@@ -797,42 +800,31 @@ void GlobeReducedGen::fillRedGenList(GlobeGenParticles* gp, GlobeLeptons * lep){
 }
 
 int GlobeReducedGen::LeptonsGenInfo(GlobeGenParticles* gp, int j, int * gp_keep, int & nhistory, int * history, int & nrad_photons, int * rad_photons) {
-  //, int & imothpdg, int & iquarkmoth, int & idquarkmoth, int & iwzmoth, int & idwzmoth, int & ihiggsmoth, int & idhiggsmoth) {
+
   nhistory=0;
   nrad_photons=0;
-  //int history[10];
-  
   int pdgidMother=-1;
   
-  //int j=i;
   int motherId=-1;
   int pdgidPrevious=-1;
-
   int printit=0;
-
   int nloop=0;
 
+  while(j != -1) {//attention to j!=0 
+    pdgidPrevious = gp->gp_pdgid[j];
+    if (pdgidPrevious < 0) 
+      pdgidPrevious = -pdgidPrevious;
 
-  //MARCO TRIED TO FIX IT, I AM NOT SURE
-  //while(j!=-1&&j!=0) {//attention to j!=0 
-  while(j!=-1) {//attention to j!=0 
+    motherId = gp->gp_mother[j];
 
-    //std::cout<<"here 1 "<<j<<std::endl;
-
-    pdgidPrevious=gp->gp_pdgid[j];
-    if(pdgidPrevious<0) pdgidPrevious=-pdgidPrevious;
-
-    motherId=gp->gp_mother[j];
-
-    //std::cout<<"here motherId "<<motherId<<std::endl;
-
-    if(motherId>=0) {
-
-      pdgidMother=0;
-      int pdgid=gp->gp_pdgid[motherId];
-      if(pdgid<0) pdgid=-pdgid;
-      int pdgidfull=pdgid;
-      if(pdgid>10000) pdgid=pdgid%10000;
+    if (motherId >= 0) {
+      pdgidMother = 0;
+      int pdgid= gp->gp_pdgid[motherId];
+      if(pdgid < 0) 
+	pdgid=-pdgid;
+      int pdgidfull = pdgid;
+      if(pdgid > 10000) 
+	pdgid=pdgid%10000;
 
       if(pdgidPrevious==22 && (pdgid==21 || (pdgid>-26 && pdgid<26))) {
         pdgidMother=pdgid;
@@ -933,8 +925,8 @@ int  GlobeReducedGen::GlobeMatchWithGen(GlobeGenParticles* gp, TLorentzVector* p
   //gencoll 1 full, 2 reduced leptons, 3 reduced list of leptons (FOR NOW USE 2 or 3)
   
   deltaR=10.;
-  float deltaPhi=10.;
-  float deltaEta=10.;
+  //float deltaPhi=10.;
+  //float deltaEta=10.;
   int imatch=-1;
   
   int n_n=gp->gp_n;
@@ -944,16 +936,16 @@ int  GlobeReducedGen::GlobeMatchWithGen(GlobeGenParticles* gp, TLorentzVector* p
   
   for (int i=0; i<n_n; i++) {
     //attention to the right photon matching!!!
-    int j=-10000000;
+    //int j=-10000000;
     //std::cout<<"here"<<i<<" "<<lptgen_status[i]<<" "<<lptgen_pdgid[i]<<std::endl;
     
     if(gencoll==1) {
       if(gp->gp_status[i]!=1) continue;
       if(gp->gp_pdgid[i]!=pdgid && gp->gp_pdgid[i]!=-pdgid) continue;
       
-      if(gp->gp_mother[i]>=0) {
-        j=gp->gp_pdgid[gp->gp_mother[i]];
-      }
+      //if(gp->gp_mother[i]>=0) {
+      //  j=gp->gp_pdgid[gp->gp_mother[i]];
+      //}
       //ignore those with wrong mother NOT IMPLEMENTED YET
       //if(j!=21 && j!=22 && (j<-20 || j>20)) continue;
     }
@@ -976,14 +968,12 @@ int  GlobeReducedGen::GlobeMatchWithGen(GlobeGenParticles* gp, TLorentzVector* p
       tempp4= (TLorentzVector *) lptgen_p4->At(i);
     }
     double dr=p4->DeltaR(*tempp4);
-    double dphi=p4->DeltaPhi(*tempp4);
-    
-      
-    float deta=fabs((float) p4->Eta()- tempp4->Eta());
+    //double dphi=p4->DeltaPhi(*tempp4);
+    //float deta=fabs((float) p4->Eta()- tempp4->Eta());
     if(dr<deltaR) {
       deltaR=dr;
-      deltaPhi=dphi;
-      deltaEta=deta;
+      //deltaPhi=dphi;
+      //deltaEta=deta;
       imatch=i;
     }
   }

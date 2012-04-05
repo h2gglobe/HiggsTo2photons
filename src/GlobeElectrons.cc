@@ -648,17 +648,17 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     m.MustacheID(*(egsf.superCluster()), el_mustnc[el_n], el_must[el_n]);
 
     // Regression Correction
-    if (!ecorr_.IsInitialized()) {  
-      char filename[200];
-      char* descr = getenv("CMSSW_BASE");
-      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ele.root", descr); 
-      //std::string filename("http://home.cern.ch/sani/gbrv2ele.root");
-      ecorr_.Initialize(iSetup, filename);
-    }
+    //if (!ecorr_.IsInitialized()) {  
+    //  char filename[200];
+    //  char* descr = getenv("CMSSW_BASE");
+    //  sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ele.root", descr); 
+    //  //std::string filename("http://home.cern.ch/sani/gbrv2ele.root");
+    //  ecorr_.Initialize(iSetup, "wgbrele", true);
+    //}
 
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(egsf, *(vtxH.product()), *ecalLazyTool, iSetup);
-    el_regr_energy[el_n]    = cor.first;
-    el_regr_energyerr[el_n] = cor.second;
+    //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(egsf, *(vtxH.product()), *ecalLazyTool, iSetup);
+    el_regr_energy[el_n]    = 0;//cor.first;
+    el_regr_energyerr[el_n] = 0;//cor.second;
 
     // ES variables
     el_eseffsixix[el_n] = 0.;

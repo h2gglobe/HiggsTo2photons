@@ -130,7 +130,7 @@ void GlobeLeptons::addElectrons(GlobeElectrons * theElectrons) {
 
   // loop for non-best duplicate electrons
   for(int idup=1;idup!=1+duplicate_n;++idup) {
-    TLorentzVector * keeperp4;
+    //TLorentzVector * keeperp4;
     Int_t keeperind=-1;
     float besteoverp=1000.;
     // first find the best (again)
@@ -144,7 +144,7 @@ void GlobeLeptons::addElectrons(GlobeElectrons * theElectrons) {
         float thiseoverp = theElectrons->el_eopin[i];
         if(fabs(1.-thiseoverp) < fabs(1.-besteoverp)) {
           besteoverp=thiseoverp;
-          keeperp4= pp4;
+          //keeperp4= pp4;
           keeperind=i;
         }
       }

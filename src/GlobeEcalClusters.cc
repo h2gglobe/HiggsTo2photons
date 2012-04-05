@@ -493,7 +493,7 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
     //float e3x3=   EcalClusterTools::e3x3(  *(bc), &(*endcapRecHits), &(*topology)); 
     //float r9 =e3x3/(aClus->rawEnergy()+aClus->preshowerEnergy());
     //float e5x5= EcalClusterTools::e5x5( *(aClus->seed()), &(*hits), &(*topology)); 
-    std::pair<DetId, float> mypair=EcalClusterTools::getMaximum( *(bc), &(*endcapRecHits)); 
+    //std::pair<DetId, float> mypair=EcalClusterTools::getMaximum( *(bc), &(*endcapRecHits)); 
     
     bc_s1[bc_n] = EcalClusterTools::eMax(*(bc), &(*endcapRecHits)); 
     bc_s4[bc_n] = EcalClusterTools::e2x2(*(bc), &(*endcapRecHits), &(*topology)); 
@@ -560,7 +560,7 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
        //float e3x3=   EcalClusterTools::e3x3(  *(bc), &(*endcapRecHits), &(*topology)); 
        //float r9 =e3x3/(aClus->rawEnergy()+aClus->preshowerEnergy());
        //float e5x5= EcalClusterTools::e5x5( *(aClus->seed()), &(*hits), &(*topology)); 
-       std::pair<DetId, float> mypair=EcalClusterTools::getMaximum( *(bc), &(*barrelRecHits)); 
+       //std::pair<DetId, float> mypair=EcalClusterTools::getMaximum( *(bc), &(*barrelRecHits)); 
        
        bc_seed[bc_n] = -1;
        for(EBRecHitCollection::const_iterator it=barrelRecHits->begin(); it!=barrelRecHits->end(); it++) {
@@ -644,7 +644,7 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
         bc_seed[bc_n] = (it - barrelRecHits->begin()); 
     }
     
-    std::pair<DetId, float> mypair=EcalClusterTools::getMaximum( *(bc), &(*barrelRecHits)); 
+    //std::pair<DetId, float> mypair=EcalClusterTools::getMaximum( *(bc), &(*barrelRecHits)); 
     bc_s1[bc_n] = EcalClusterTools::eMax(  *(bc), &(*barrelRecHits));
     bc_s4[bc_n] = EcalClusterTools::e2x2(  *(bc), &(*barrelRecHits), &(*topology));
     bc_s9[bc_n] = EcalClusterTools::e3x3(  *(bc), &(*barrelRecHits), &(*topology));
