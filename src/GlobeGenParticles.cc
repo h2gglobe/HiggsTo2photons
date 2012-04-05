@@ -49,7 +49,7 @@ bool GlobeGenParticles::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     const reco::GenParticleRef gp(gpH, i);
 
-    if(gCUT->cut(*gp))
+    if(!gCUT->cut(*gp))
       continue;
 
     gp_pdgid[gp_n] = gp->pdgId();
