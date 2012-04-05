@@ -176,7 +176,7 @@ if (not (flagRECO ^ flagAOD)):
 for run in runselection:
     job_name = name
         
-    file = open("template_44X_cfg.py")
+    file = open("template_52X_cfg.py")
     lines = file.readlines()
     file.close()
     if (not os.path.exists("../test")):

@@ -325,7 +325,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   const reco::PhotonCollection R_photons = *(R_PhotonHandle.product());  
   
   //// Get the Out In CKF tracks from conversions 
-  bool validTrackInputs=true;
+  //bool validTrackInputs=true;
   edm::Handle<reco::TrackCollection> outInTrkHandle;
 
   if (!doFastSim) {
@@ -333,7 +333,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     
     if (!outInTrkHandle.isValid()) {
       std::cout << "Error! Can't get the conversionOITrack " << "\n";
-      validTrackInputs=false;
+      //validTrackInputs=false;
       if (debug_level > 9)
 	std::cout  << "ConvertedPhotonProducer  outInTrack collection size " << (*outInTrkHandle).size() << "\n";
     }
@@ -346,7 +346,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByLabel("ckfOutInTracksFromConversions" , "outInTrackSCAssociationCollection", outInTrkSCAssocHandle);
     if (!outInTrkSCAssocHandle.isValid()) {
       //  std::cout << "Error! Can't get the product " <<  outInTrackSCAssociationCollection_.c_str() <<"\n";
-      validTrackInputs=false;
+      //validTrackInputs=false;
     }
   }
 
@@ -466,11 +466,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       char* descr = getenv("CMSSW_BASE");
       sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ph.root", descr);
       //sprintf(filename, "http://sani.cern.ch/gbrv2ph.root");
-      ecorr_.Initialize(iSetup, filename);
+      ecorr_.Initialize(iSetup, "wgbrph", true);
     }
 
     EcalClusterLazyTools lazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);   
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(*localPho, *(hVertex.product()), lazyTool, iSetup);
+    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*localPho, *(hVertex.product()), lazyTool, iSetup);
     pho_regr_energy[pho_n]    = cor.first;
     pho_regr_energyerr[pho_n] = cor.second;
 

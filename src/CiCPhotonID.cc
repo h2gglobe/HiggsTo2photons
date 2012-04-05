@@ -113,10 +113,10 @@ bool CiCPhotonID::PhotonIDPF(int nCategories, reco::PhotonRef photon, Int_t ivtx
   std::vector<float> vtxIsolations04 = pfTkIsoWithVertex(photon, 0.4, 0.02, temp);
   float val_pfiso_charged03 = vtxIsolations03[ivtx];
   float val_pfiso_charged_badvtx_04 = -99;
-  int badind = -1;
+  //int badind = -1;
   for(unsigned int iv=0; iv<vtxHandle->size(); iv++) {
     if(vtxIsolations04[iv] > val_pfiso_charged_badvtx_04) {
-      badind = iv;
+      //badind = iv;
       val_pfiso_charged_badvtx_04 = vtxIsolations04[iv];
     }
   }
@@ -268,13 +268,13 @@ Float_t CiCPhotonID::SumTrackPtInConeHgg(reco::PhotonRef photon, Int_t iVtx, Flo
 
 Float_t CiCPhotonID::WorstSumTrackPtInConeHgg(reco::PhotonRef photon, Float_t PtMin, Float_t OuterConeRadius, Float_t InnerConeRadius, Float_t EtaStripHalfWidth, Float_t dzmax, Float_t dxymax) {
 
-  Int_t worstvtxind = -1;
+  //Int_t worstvtxind = -1;
   Float_t maxisosum = -100;
   for(unsigned int ivtx=0; ivtx<vtxHandle->size(); ++ivtx) {
     Float_t thisvtxisosum = SumTrackPtInConeHgg(photon, ivtx, PtMin, OuterConeRadius, InnerConeRadius, EtaStripHalfWidth, dzmax, dxymax);
     if(thisvtxisosum > maxisosum) {
       maxisosum = thisvtxisosum;
-      worstvtxind = ivtx;
+      //worstvtxind = ivtx;
     }
   }
 
