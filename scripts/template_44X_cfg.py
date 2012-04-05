@@ -255,7 +255,6 @@ if (flagMC is 'ON' and flagFastSim is 'ON'):
   process.h2ganalyzer.doGenJet_algo3 = False
   process.h2ganalyzer.doGenParticles = False
   process.h2ganalyzer.doGenMet = False
-  process.h2ganalyzer.doReducedGen = False
   process.h2ganalyzer.doGenVertices = False
 elif (  flagMC is 'ON' and flagFastSim is 'OFF'):
   process.h2ganalyzer.doGenJet_algo1 = True
@@ -263,7 +262,6 @@ elif (  flagMC is 'ON' and flagFastSim is 'OFF'):
   process.h2ganalyzer.doGenJet_algo3 = True
   process.h2ganalyzer.doGenParticles = True
   process.h2ganalyzer.doGenMet = True
-  process.h2ganalyzer.doReducedGen = True
   process.h2ganalyzer.doGenVertices = True
 elif flagData is 'ON':
   process.h2ganalyzer.doPileup = False
@@ -273,7 +271,6 @@ elif flagData is 'ON':
   process.h2ganalyzer.doGenParticles = False
   process.h2ganalyzer.doGenVertices = False
   process.h2ganalyzer.doGenMet = False
-  process.h2ganalyzer.doReducedGen = False
 
 if flagMC is 'ON' and flagAOD is 'OFF':
   process.h2ganalyzer.doSimTracks = True
