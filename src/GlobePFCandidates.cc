@@ -118,7 +118,7 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
     }
 
-    for (uint iele = 0; iele < theEGamma.size(); iele++) {
+    for (unsigned int iele = 0; iele < theEGamma.size(); iele++) {
       reco::GsfElectronRef electronRef(theEGammaCollection, iele);
       // do not consider the same gsf-pf electron in the iso cone. 
       if(it->particleId() == 2) {
