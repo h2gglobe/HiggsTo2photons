@@ -1,4 +1,14 @@
 cvs co -r regression_Dec3d RecoEgamma/EgammaTools
+cvs co -r HEAD RecoEgamma/EgammaTools/src/Mustache.cc
+cvs co -r HEAD RecoEgamma/EgammaTools/src/ggPFClusters.cc
+cvs co -r HEAD RecoEgamma/EgammaTools/ggPFESClusters.cc
+cvs co -r HEAD RecoEgamma/EgammaTools/src/ggPFPhotons.cc
+cvs co -r HEAD RecoEgamma/EgammaTools/src/ggPFTracks.cc
+cvs co -r HEAD RecoEgamma/EgammaTools/interface/Mustache.h
+cvs co -r HEAD RecoEgamma/EgammaToolserface/ggPFClusters.h
+cvs co -r HEAD RecoEgamma/EgammaTools/interface/ggPFESClusters.h
+cvs co -r HEAD RecoEgamma/EgammaTools/interface/ggPFPhotons.h
+cvs co -r HEAD RecoEgamma/EgammaTools/interface/ggPFTracks.h
 cvs co -r V00-02-04 CondFormats/EgammaObjects
 cvs co -r regression44x_Dec3 CondFormats/DataRecord
 checkdeps -a
