@@ -11,36 +11,72 @@ counter=1
 NUMPARA=60
 flag=0
 
+myHadoop="/hadoop/cms/store/user/capalmer/h2g_V11_04_05_reloadred"
+
+#transferList=["PhotonRun2011B_Clean_49.root"]
+
 
 for dir in dirs:
     dir=dir.split("\n")[0]
-    if dir.find("WZH135") is -1:
-      continue
-    #if dir.find("2011B_newHLT") is not -1:
+    #if dir.find("_49") is -1:
     #    continue
-    #print dir,dir.find("WZH135")
-    #if dir.find("WZH135") is 0 and flag is 0:
-    #    flag=1
-    #if flag is 1:
     files = os.popen("/usr/bin/nsls " + sys.argv[1] + "/" + dir).readlines()
-    MaxThreads=3*int(os.popen("cat /proc/cpuinfo | grep processor | awk '{print $3}' | tail -1 | xargs -i echo '{}+1' | bc").readlines()[0])
+    filesinfo = os.popen("/usr/bin/nsls -l " + sys.argv[1] + "/" + dir).readlines()
+    for fileinfo in filesinfo:
+        fileinfo = fileinfo.split()
+    
+
+    MaxThreads=4*int(os.popen("cat /proc/cpuinfo | grep processor | awk '{print $3}' | tail -1 | xargs -i echo '{}+1' | bc").readlines()[0])
+    sleepcount=0
     print MaxThreads, len(files)
-    while len(files) > 0:
+    while len(filesinfo) > 0:
         threads = int(os.popen("ps | grep lcg-cp | wc | awk '{print $1}'").readlines()[0])
         if threads < MaxThreads:
-            file = files.pop()
-            file=file.split("\n")[0]
+            sleepcount=0
+            fileinfo = filesinfo.pop().split()
+            file = fileinfo[8]
+            filesize = fileinfo[4]
             print file, threads, len(files)
+
+            if file.find("_49") is -1:
+                continue
+            # check files existence and size
+            line = """
+lcg-ls -l -V cms -D srmv2 \"srm://bsrm-1.t2.ucsd.edu:8443/srm/v2/server?SFN=%s/%s/%s\"
+""" % (myHadoop, os.path.basename(sys.argv[1])+"/"+dir, file)
+            input,checkOutput = os.popen2(line)
+            hadoop_file_info = checkOutput.readlines()
+            toCopy = False
+            hadoop_file_size = 0 
+            if (len(hadoop_file_info) == 0):
+                toCopy = True
+                print "Didn't find the file"
+            else:
+                hadoop_file_size = hadoop_file_info[0].split()[4]
+                if hadoop_file_size != filesize:
+                    print "hadoop_file_size, filesize  "+str(hadoop_file_size)+"  "+str(filesize)
+                    toCopy = True
+                    print "File is not the right size"
+             
+            
+            if toCopy == False:
+                continue
             if ("duplicate" in file):
                 continue
             if ("empty" in file):
                 continue
             line="""
-lcg-cp -v -V cms -U srmv2 -T srmv2 -n 6 \"srm://srm-cms.cern.ch/srm/managerv2?SFN=%s/%s\" \"srm://bsrm-1.t2.ucsd.edu:8443/srm/v2/server?SFN=/hadoop/cms/store/user/capalmer/h2g_V11_04_01/h2gred_nov18/%s/%s\" &
-""" % (sys.argv[1]+"/"+dir, file, os.path.basename(sys.argv[1])+"/"+dir, file)
+lcg-cp -v -V cms -U srmv2 -T srmv2 -n 6 \"srm://srm-cms.cern.ch/srm/managerv2?SFN=%s/%s\" \"srm://bsrm-1.t2.ucsd.edu:8443/srm/v2/server?SFN=%s/%s/%s\" &
+""" % (sys.argv[1]+"/"+dir, file, myHadoop, os.path.basename(sys.argv[1])+"/"+dir, file)
+            print line
             os.system(line)
         else:
-            print "MAX THREADS - Sleeping for 30 sec"
+            sleepcount=sleepcount+1
+            #if sleepcount>20:
+            #  print "flush lcg-cp's... I'm tired of sleeping - "+str(sleepcount)
+            #  os.system("ps | grep lcg-cp | awk '{print 'kill -9 '$1}' | sh")
+            #else:
+            print "MAX THREADS - Sleeping for 30 sec - "+str(sleepcount)
             time.sleep(30)
 
     #print files
