@@ -55,7 +55,7 @@ process.load('HiggsAnalysis.HiggsTo2photons.photonReRecoForMMG_cfi')
 
 if flagSkimDiphoton == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-  process.DiPhotonHltFilter = copy.deepcopy(hltHighLevel)
+  process.DiPhotonHltFilter = copy.deepcopy(process.hltHighLevel)
   process.DiPhotonHltFilter.throw = cms.bool(False)
   process.DiPhotonHltFilter.HLTPaths = ["HLT_Photon*_CaloId*_Iso*_Photon*_CaloId*_Iso*_*","HLT_Photon*_R9Id*_Photon*_R9Id*_*","HLT_Photon*_R9Id*_Photon*_CaloId*_Iso*_*","HLT_Photon*_CaloId*_Iso*_Photon*_R9Id*_*"]
   #process.load('Configuration.Skimming.PDWG_DiPhoton_SD_cff')
