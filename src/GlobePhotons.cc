@@ -15,6 +15,8 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/Mustache.h"
 
+#include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
+
 #include "DataFormats/Math/interface/deltaR.h"
 #include <cstdlib>
 
@@ -53,6 +55,7 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 
   // PHOTONS 
   photonCollStd =  iConfig.getParameter<edm::InputTag>("PhotonCollStd");
+  photonCollPf =  iConfig.getParameter<edm::InputTag>("PhotonCollPf");
 
   // SUPER CLUSTERS
   hybridSuperClusterColl = iConfig.getParameter<edm::InputTag>("HybridSuperClusterColl");
@@ -99,8 +102,12 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   gCUT = new GlobeCuts(iConfig);
   gES  = new GlobeEcalClusters(iConfig);
 
+  pho_pfiso_mycharged01 = new std::vector<std::vector<float> >();
+  pho_pfiso_mycharged02 = new std::vector<std::vector<float> >();
   pho_pfiso_mycharged03 = new std::vector<std::vector<float> >();
   pho_pfiso_mycharged04 = new std::vector<std::vector<float> >();
+  pho_pfiso_mycharged05 = new std::vector<std::vector<float> >();
+  pho_pfiso_mycharged06 = new std::vector<std::vector<float> >();
 
   pho_frixiso = new std::vector<std::vector<float> >();
 
@@ -132,6 +139,10 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_feta",&pho_feta,"pho_feta[pho_n][5]/F");
   tree->Branch("pho_crackcorr",&pho_crackcorr,"pho_crackcorr[pho_n]/F");
   tree->Branch("pho_localcorr",&pho_localcorr,"pho_localcorr[pho_n]/F");
+
+  //pf
+  tree->Branch("pho_isPFPhoton", &pho_isPFPhoton,"pho_isPFPhoton[pho_n]/I");
+  tree->Branch("pho_isPFElectron", &pho_isPFElectron,"pho_isPFElectron[pho_n]/I");
 
   //fiducial flags
   tree->Branch("pho_isEB",&pho_isEB,"pho_isEB[pho_n]/I");
@@ -183,16 +194,50 @@ void GlobePhotons::defineBranch(TTree* tree) {
   ////////
 
   //isolation variables
+
+  tree->Branch("pho_pfiso_myneutral01", &pho_pfiso_myneutral01, "pho_pfiso_myneutral01[pho_n]/F");
+  tree->Branch("pho_pfiso_myphoton01", &pho_pfiso_myphoton01, "pho_pfiso_myphoton01[pho_n]/F");  
+  tree->Branch("pho_pfiso_mycharged01", "std::vector<std::vector<float> >", &pho_pfiso_mycharged01);
+
+  tree->Branch("pho_pfiso_myneutral02", &pho_pfiso_myneutral02, "pho_pfiso_myneutral02[pho_n]/F");
+  tree->Branch("pho_pfiso_myphoton02", &pho_pfiso_myphoton02, "pho_pfiso_myphoton02[pho_n]/F");  
+  tree->Branch("pho_pfiso_mycharged02", "std::vector<std::vector<float> >", &pho_pfiso_mycharged02);
+
   tree->Branch("pho_pfiso_myneutral03", &pho_pfiso_myneutral03, "pho_pfiso_myneutral03[pho_n]/F");
   tree->Branch("pho_pfiso_myphoton03", &pho_pfiso_myphoton03, "pho_pfiso_myphoton03[pho_n]/F");  
+  tree->Branch("pho_pfiso_mycharged03", "std::vector<std::vector<float> >", &pho_pfiso_mycharged03);
+
   tree->Branch("pho_pfiso_myneutral04", &pho_pfiso_myneutral04, "pho_pfiso_myneutral04[pho_n]/F");
   tree->Branch("pho_pfiso_myphoton04", &pho_pfiso_myphoton04, "pho_pfiso_myphoton04[pho_n]/F");
-  tree->Branch("pho_pfiso_mycharged03", "std::vector<std::vector<float> >", &pho_pfiso_mycharged03);
   tree->Branch("pho_pfiso_mycharged04", "std::vector<std::vector<float> >", &pho_pfiso_mycharged04);
 
+  tree->Branch("pho_pfiso_myneutral05", &pho_pfiso_myneutral05, "pho_pfiso_myneutral05[pho_n]/F");
+  tree->Branch("pho_pfiso_myphoton05", &pho_pfiso_myphoton05, "pho_pfiso_myphoton05[pho_n]/F");
+  tree->Branch("pho_pfiso_mycharged05", "std::vector<std::vector<float> >", &pho_pfiso_mycharged05);
+
+  tree->Branch("pho_pfiso_myneutral06", &pho_pfiso_myneutral06, "pho_pfiso_myneutral06[pho_n]/F");
+  tree->Branch("pho_pfiso_myphoton06", &pho_pfiso_myphoton06, "pho_pfiso_myphoton06[pho_n]/F");
+  tree->Branch("pho_pfiso_mycharged06", "std::vector<std::vector<float> >", &pho_pfiso_mycharged06);
+
+
   tree->Branch("pho_frixiso", "std::vector<std::vector<float> >", &pho_frixiso);  
+
+  tree->Branch("pho_pfconvVtxZ", &pho_pfconvVtxZ, "pho_pfconvVtxZ[pho_n]/F");
+  tree->Branch("pho_pfconvVtxZErr", &pho_pfconvVtxZErr, "pho_pfconvVtxZErr[pho_n]/F");
+  tree->Branch("pho_hasConvPf", &pho_hasConvPf, "pho_hasConvPf[pho_n]/I");
+  tree->Branch("pho_hasSLConvPf", &pho_hasSLConvPf, "pho_hasSLConvPf[pho_n]/I");
+
   tree->Branch("pho_must", &pho_must, "pho_must[pho_n]/F");
   tree->Branch("pho_mustnc", &pho_mustnc, "pho_mustnc[pho_n]/I");
+  tree->Branch("pho_pfpresh1", &pho_pfpresh1, "pho_pfpresh1[pho_n]/F");
+  tree->Branch("pho_pfpresh2", &pho_pfpresh2, "pho_pfpresh2[pho_n]/F");
+  tree->Branch("pho_mustenergy", &pho_mustenergy, "pho_mustenergy[pho_n]/F");
+  tree->Branch("pho_mustenergyout", &pho_mustenergyout, "pho_mustenergyout[pho_n]/F");
+  tree->Branch("pho_pflowE", &pho_pflowE, "pho_pflowE[pho_n]/F");
+  tree->Branch("pho_pfdeta", &pho_pfdeta, "pho_pfdeta[pho_n]/F");
+  tree->Branch("pho_pfdphi", &pho_pfdphi, "pho_pfdphi[pho_n]/F");
+  tree->Branch("pho_pfclusrms", &pho_pfclusrms, "pho_pfclusrms[pho_n]/F");
+  tree->Branch("pho_pfclusrmsmust", &pho_pfclusrmsmust, "pho_pfclusrmsmust[pho_n]/F");
 
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
@@ -316,6 +361,10 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<reco::PhotonCollection> phoH;
   iEvent.getByLabel(photonCollStd, phoH);
 
+  edm::Handle<reco::PhotonCollection> phoHpf;
+  iEvent.getByLabel(photonCollPf, phoHpf);
+
+
   // take the pi0 rejection info from RECO
   edm::Handle<reco::PhotonPi0DiscriminatorAssociationMap>  map;
   reco::PhotonPi0DiscriminatorAssociationMap::const_iterator mapIter;
@@ -371,6 +420,9 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   const CaloGeometry& geometry = *geoHandle;
+  const CaloSubdetectorGeometry* geomBar_=geoHandle->getSubdetectorGeometry(DetId::Ecal,1);
+  const CaloSubdetectorGeometry* geomEnd_=geoHandle->getSubdetectorGeometry(DetId::Ecal,2);
+
 
   const CaloSubdetectorGeometry *geometryES = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   CaloSubdetectorTopology *topology_p = 0;
@@ -411,8 +463,12 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   pho_conv_pair_momentum->Clear();
   pho_conv_refitted_momentum->Clear();
   pho_conv_vertexcorrected_p4->Clear();
+  pho_pfiso_mycharged01->clear();
+  pho_pfiso_mycharged02->clear();
   pho_pfiso_mycharged03->clear();
   pho_pfiso_mycharged04->clear();
+  pho_pfiso_mycharged05->clear();
+  pho_pfiso_mycharged06->clear();
 
   pho_n = 0;
 
@@ -445,6 +501,46 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     reco::SuperClusterRef theClus=localPho->superCluster();
     pho_scind[pho_n] = -1;
       
+
+
+    //PF info
+    pho_isPFPhoton[pho_n] = 0;
+    pho_isPFElectron[pho_n] = 0;
+    //Find PFPhoton
+    unsigned int iphot=9999;
+    for(unsigned int i=0; i<pfCollection->size(); ++i ) {
+      if ((*pfCollection)[i].particleId()==reco::PFCandidate::gamma){
+        if ((*pfCollection)[i].mva_nothing_gamma()>0){
+          if( (*pfCollection)[i].superClusterRef()==localPho->superCluster())  iphot = i;
+        }
+      }
+    }
+    if (iphot!=9999) pho_isPFPhoton[pho_n] = 1;
+    //Find PFElectron
+    bool foundEgSC = false;
+    unsigned int iel = 9999;
+    reco::GsfElectronCollection::const_iterator elIterSl;
+    for (reco::GsfElectronCollection::const_iterator elIter = hElectrons->begin(); elIter != hElectrons->end(); ++elIter){
+       if (localPho->superCluster()==elIter->superCluster()) {
+         elIterSl = elIter;
+         foundEgSC = true;
+       }
+       if (foundEgSC){
+         int iid = 0;
+         //double MVACut_ = -0.1; //42X
+         double MVACut_ = -1.; //44X
+         for(unsigned int i=0; i<pfCollection->size(); ++i ) {
+           if ((*pfCollection)[i].particleId()==reco::PFCandidate::e && (*pfCollection)[i].gsfTrackRef().isNull()==false && (*pfCollection)[i].mva_e_pi()>MVACut_ && (*pfCollection)[i].gsfTrackRef()==elIterSl->gsfTrack()){
+             iel = i;
+             iid++;
+           }
+         }
+       }
+    }
+    if (iel!=9999) pho_isPFElectron[pho_n]=1;
+
+    
+
     // PHOTON ID
     for (unsigned int iv=0; iv<hVertex->size(); iv++) {
       pho_id_4cat[pho_n][iv] = cicPhotonId->photonCutLevel4cat(localPho, iv);
@@ -584,11 +680,68 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_r1x5[pho_n] = localPho->r1x5();
     pho_r2x5[pho_n] = localPho->r2x5();
     pho_r9[pho_n] = localPho->r9();
-
+    
+    //PF cluster variables
     pho_must[pho_n] = -9999.;
     pho_mustnc[pho_n] = -1;
-    reco::Mustache m;
-    m.MustacheID(*(localPho->superCluster()), pho_mustnc[pho_n], pho_must[pho_n]);
+    //reco::Mustache m;
+    //m.MustacheID(*(localPho->superCluster()), pho_mustnc[pho_n], pho_must[pho_n]);
+    
+    edm::Handle<EcalRecHitCollection> EBReducedRecHits;
+    edm::Handle<EcalRecHitCollection> EEReducedRecHits;
+    iEvent.getByLabel(ecalHitEBColl, EBReducedRecHits);
+    iEvent.getByLabel(ecalHitEEColl, EEReducedRecHits);
+    
+    ggPFPhotons ggPFPhoton(*localPho, phoHpf,hElectrons,
+			   EBReducedRecHits,
+			   EEReducedRecHits,
+			   ESRecHits,
+			   geomBar_,
+			   geomEnd_,
+			   bsHandle
+			   );
+    
+    pho_pfconvVtxZ[pho_n] = -9999.;
+    pho_pfconvVtxZErr[pho_n] = -9999.;
+    pho_hasConvPf[pho_n] = -9999.;
+    pho_hasSLConvPf[pho_n] = -9999.;
+    pho_pfpresh1[pho_n] = -9999.;
+    pho_pfpresh2[pho_n] = -9999.;
+    pho_mustenergy[pho_n] = -9999.;
+    pho_mustenergyout[pho_n] = -9999.;
+    pho_pflowE[pho_n] = -9999.;
+    pho_pfdeta[pho_n] = -9999.;
+    pho_pfdphi[pho_n] = -9999.;
+    pho_pfclusrms[pho_n] = -9999.;
+    pho_pfclusrmsmust[pho_n] = -9999.;
+
+    if(ggPFPhoton.MatchPFReco()){
+      std::pair<float, float>VertexZ=ggPFPhoton.SLPoint();
+      pho_pfconvVtxZ[pho_n] = VertexZ.first;
+      pho_pfconvVtxZErr[pho_n] = VertexZ.second;
+      
+      if(ggPFPhoton.isConv()){
+	pho_hasConvPf[pho_n] = 1;
+      }
+      else pho_hasConvPf[pho_n] = 0;
+      
+      if(ggPFPhoton.hasSLConv()){
+	pho_hasSLConvPf[pho_n] = 1;
+      }
+      else pho_hasSLConvPf[pho_n] = 0;
+      
+      ggPFPhoton.fillPFClusters();
+      pho_pfpresh1[pho_n] = ggPFPhoton.PFPS1();
+      pho_pfpresh2[pho_n] = ggPFPhoton.PFPS2();
+      pho_must[pho_n] = ggPFPhoton.MustEtOut();
+      pho_mustenergy[pho_n] = ggPFPhoton.MustE();
+      pho_mustenergyout[pho_n] = ggPFPhoton.MustEOut();
+      pho_pflowE[pho_n] = ggPFPhoton.PFLowE();
+      pho_pfdeta[pho_n] = ggPFPhoton.PFdEta();
+      pho_pfdphi[pho_n] = ggPFPhoton.PFdPhi();
+      pho_pfclusrms[pho_n] = ggPFPhoton.PFClusRMSTot();
+      pho_pfclusrmsmust[pho_n] = ggPFPhoton.PFClusRMSMust();
+    }
 
     // more cluster shapes from Lazy Tools
     std::vector<float> viCov;
@@ -680,19 +833,32 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     // isolation variables
     std::vector<reco::PFCandidate::ParticleType> temp;
     temp.push_back(reco::PFCandidate::gamma);
+    pho_pfiso_myphoton01[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.1, 0.045, 0.015, 0.0, 0.08, 0.1, temp);
+    pho_pfiso_myphoton02[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.2, 0.045, 0.015, 0.0, 0.08, 0.1, temp);
     pho_pfiso_myphoton03[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.3, 0.045, 0.015, 0.0, 0.08, 0.1, temp);
     pho_pfiso_myphoton04[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.4, 0.045, 0.015, 0.0, 0.08, 0.1, temp);
+    pho_pfiso_myphoton05[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.5, 0.045, 0.015, 0.0, 0.08, 0.1, temp);
+    pho_pfiso_myphoton06[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.6, 0.045, 0.015, 0.0, 0.08, 0.1, temp);
 
     temp.clear();
     temp.push_back(reco::PFCandidate::h0);
+    pho_pfiso_myneutral01[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.1, 0.00, temp);
+    pho_pfiso_myneutral02[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.2, 0.00, temp);
     pho_pfiso_myneutral03[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.3, 0.00, temp);
     pho_pfiso_myneutral04[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.4, 0.00, temp);
+    pho_pfiso_myneutral05[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.5, 0.00, temp);
+    pho_pfiso_myneutral06[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.6, 0.00, temp);
 
     temp.clear();
     temp.push_back(reco::PFCandidate::h);
+    pho_pfiso_mycharged01->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.1, 0.02, temp)); 
+    pho_pfiso_mycharged02->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.2, 0.02, temp)); 
     pho_pfiso_mycharged03->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.3, 0.02, temp)); 
     pho_pfiso_mycharged04->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.4, 0.02, temp)); 
-        
+    pho_pfiso_mycharged05->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.5, 0.02, temp)); 
+    pho_pfiso_mycharged06->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.6, 0.02, temp)); 
+
+
     pho_ecalsumetconedr04[pho_n] = localPho->ecalRecHitSumEtConeDR04();
     pho_hcalsumetconedr04[pho_n] = localPho->hcalTowerSumEtConeDR04();
     pho_hcal1sumetconedr04[pho_n] = localPho->hcalDepth1TowerSumEtConeDR04();
