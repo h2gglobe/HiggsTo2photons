@@ -74,6 +74,9 @@ class GlobePhotons {
   Float_t pho_crackcorr[MAX_PHOTONS];
   Float_t pho_localcorr[MAX_PHOTONS];
 
+  Int_t pho_isPFPhoton[MAX_PHOTONS];
+  Int_t pho_isPFElectron[MAX_PHOTONS];
+
   //fiducial flags
   Int_t pho_isEB[MAX_PHOTONS];
   Int_t pho_isEE[MAX_PHOTONS];
@@ -141,6 +144,22 @@ class GlobePhotons {
   Float_t pho_etop[MAX_PHOTONS];
   Float_t pho_ebottom[MAX_PHOTONS];
 
+
+  Float_t pho_pfconvVtxZ[MAX_PHOTONS];
+  Float_t pho_pfconvVtxZErr[MAX_PHOTONS];
+  Int_t pho_hasConvPf[MAX_PHOTONS];
+  Int_t pho_hasSLConvPf[MAX_PHOTONS];
+  Float_t pho_pfpresh1[MAX_PHOTONS];
+  Float_t pho_pfpresh2[MAX_PHOTONS];
+  Float_t pho_mustenergy[MAX_PHOTONS];
+  Float_t pho_mustenergyout[MAX_PHOTONS];
+  Float_t pho_pflowE[MAX_PHOTONS];
+  Float_t pho_pfdeta[MAX_PHOTONS];
+  Float_t pho_pfdphi[MAX_PHOTONS];
+  Float_t pho_pfclusrms[MAX_PHOTONS];
+  Float_t pho_pfclusrmsmust[MAX_PHOTONS];
+ 
+
   Float_t pho_e2overe9[MAX_PHOTONS];
   Float_t pho_seed_time[MAX_PHOTONS];
   Float_t pho_seed_outoftimechi2[MAX_PHOTONS];
@@ -149,12 +168,26 @@ class GlobePhotons {
   Float_t pho_seed_severity[MAX_PHOTONS];
 
   //isolation variables
+  Float_t pho_pfiso_myneutral01[MAX_PHOTONS];
+  Float_t pho_pfiso_myneutral02[MAX_PHOTONS];
   Float_t pho_pfiso_myneutral03[MAX_PHOTONS];
-  Float_t pho_pfiso_myphoton03[MAX_PHOTONS];  
   Float_t pho_pfiso_myneutral04[MAX_PHOTONS];
+  Float_t pho_pfiso_myneutral05[MAX_PHOTONS];
+  Float_t pho_pfiso_myneutral06[MAX_PHOTONS];
+
+  Float_t pho_pfiso_myphoton01[MAX_PHOTONS]; 
+  Float_t pho_pfiso_myphoton02[MAX_PHOTONS]; 
+  Float_t pho_pfiso_myphoton03[MAX_PHOTONS];  
   Float_t pho_pfiso_myphoton04[MAX_PHOTONS];
+  Float_t pho_pfiso_myphoton05[MAX_PHOTONS]; 
+  Float_t pho_pfiso_myphoton06[MAX_PHOTONS]; 
+
+  std::vector<std::vector<float> >* pho_pfiso_mycharged01;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged02;
   std::vector<std::vector<float> >* pho_pfiso_mycharged03;
   std::vector<std::vector<float> >* pho_pfiso_mycharged04;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged05;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged06;
 
   Float_t pho_pfiso_neutral03[MAX_PHOTONS];
   Float_t pho_pfiso_charged03[MAX_PHOTONS];
@@ -162,6 +195,7 @@ class GlobePhotons {
   Float_t pho_pfiso_neutral04[MAX_PHOTONS];
   Float_t pho_pfiso_charged04[MAX_PHOTONS];
   Float_t pho_pfiso_photon04[MAX_PHOTONS];  
+
 
   Float_t pho_ecalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcalsumetconedr04[MAX_PHOTONS];
@@ -237,6 +271,7 @@ class GlobePhotons {
   GlobeCuts *gCUT;
   GlobeEcalClusters *gES;
   edm::InputTag photonCollStd;
+  edm::InputTag photonCollPf;
 
   CiCPhotonID* cicPhotonId;
 
