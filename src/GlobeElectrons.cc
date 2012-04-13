@@ -919,7 +919,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_dcot[el_n] = (egsf.convDcot() == -9999.? 9999:egsf.convDcot());
     
     el_n++;
-  }
+  } // end of loop over electrons (reco::GsfElectronCollection)
 
   return true;
 }
