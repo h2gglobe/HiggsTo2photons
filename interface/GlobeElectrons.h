@@ -168,6 +168,22 @@ class GlobeElectrons {
   Int_t el_psnstriply2[MAX_ELECTRONS];
   
 
+  /** corresponds to the el_XXX_catbased variable in the output tree.
+
+      - first index is the electron index
+      - second index corresponds to the eID label (type of electron id)
+        as specified in the eIDLabels parameter of GlobeAnalyzer
+        (e.g. eidLoose, eidTight)
+      - the value is a bit pattern, typically 
+
+           0 - no cut passed
+           1 - eID cuts passed
+           2 - iso cuts passed
+           4 - conversion rejection
+           8 - ip cut 
+       
+      See also https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCategoryBasedElectronID#How_to_use_it_in_CMSSW
+  */ 
   std::vector<std::vector<int> >* el_catbased;
 
   TClonesArray *el_sc;
