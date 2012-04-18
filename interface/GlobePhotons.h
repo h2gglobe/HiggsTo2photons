@@ -158,7 +158,7 @@ class GlobePhotons {
   Float_t pho_pfdphi[MAX_PHOTONS];
   Float_t pho_pfclusrms[MAX_PHOTONS];
   Float_t pho_pfclusrmsmust[MAX_PHOTONS];
- 
+  Float_t pho_pfClusECorr[MAX_PHOTONS];
 
   Float_t pho_e2overe9[MAX_PHOTONS];
   Float_t pho_seed_time[MAX_PHOTONS];
