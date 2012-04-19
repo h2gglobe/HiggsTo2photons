@@ -1,0 +1,20 @@
+cvs co -r regression_Dec3d RecoEgamma/EgammaTools
+
+cvs co -r 1.1 RecoEgamma/EgammaTools/src/Mustache.cc
+cvs co -r 1.2 RecoEgamma/EgammaTools/src/ggPFClusters.cc
+cvs co -r 1.1 RecoEgamma/EgammaTools/src/ggPFESClusters.cc
+cvs co -r 1.5 RecoEgamma/EgammaTools/src/ggPFPhotons.cc
+cvs co -r 1.3 RecoEgamma/EgammaTools/src/ggPFTracks.cc
+
+cvs co -r 1.1 RecoEgamma/EgammaTools/interface/Mustache.h
+cvs co -r 1.2 RecoEgamma/EgammaTools/interface/ggPFClusters.h
+cvs co -r 1.1 RecoEgamma/EgammaTools/interface/ggPFESClusters.h
+cvs co -r 1.4 RecoEgamma/EgammaTools/interface/ggPFPhotons.h
+cvs co -r 1.3 RecoEgamma/EgammaTools/interface/ggPFTracks.h
+
+cvs co -r V00-02-04 CondFormats/EgammaObjects
+cvs co -r regression44x_Dec3 CondFormats/DataRecord
+checkdeps -a
+cvs co -r V00-03-35 RecoEgamma/ElectronIdentification
+cd RecoEgamma/ElectronIdentification/data
+cat download.url | xargs wget 
