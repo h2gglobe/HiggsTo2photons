@@ -18,6 +18,8 @@
 <use name="SimTracker/TrackAssociation"/>
 <use name="SimTracker/Records"/>
 <use name="SimTracker/TrackerHitAssociation"/>
+<use name="JetMETCorrections/Objects"/>
+<use name="CMGTools/External"/>
 <use name="heppdt"/>
 <use name="root"/>
 <use name="boost"/>

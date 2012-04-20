@@ -11,6 +11,7 @@ import FWCore.ParameterSet.Config as cms
 # OTHER
 
 from HiggsAnalysis.HiggsTo2photons.hggPhotonIDCuts_cfi import *
+from CMGTools.External.puJetIDAlgo_cff import PhilV1
 #from HiggsAnalysis.HiggsToGammaGamma.PhotonFixParams4_2_cfi import *
 
 h2ganalyzer = cms.EDAnalyzer(
@@ -79,7 +80,8 @@ h2ganalyzer = cms.EDAnalyzer(
     CaloTowerColl = cms.InputTag("towerMaker"),
     
     BarrelBasicClusterColl = cms.InputTag("",""),
-    EndcapBasicClusterColl = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters"),    
+    #EndcapBasicClusterColl = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters"),    
+    EndcapBasicClusterColl = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),    
     BarrelBasicClusterShapeColl = cms.InputTag("",""),
     BarrelHybridClusterShapeColl = cms.InputTag("hybridSuperClusters","hybridShapeAssoc"),
     EndcapBasicClusterShapeColl = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapShapeAssoc"),
@@ -104,7 +106,7 @@ h2ganalyzer = cms.EDAnalyzer(
     PhotonCollPf = cms.InputTag("pfPhotonTranslator:pfphot"),
     ConvertedPhotonColl = cms.InputTag("allConversions"),
     MuonColl = cms.InputTag("muons"),
-   
+  
     JetCorrectionMC   = cms.string("ak5PFL1FastL2L3"),
     JetCorrectionData = cms.string("ak5PFL1FastL2L3Residual"),
 
@@ -114,6 +116,10 @@ h2ganalyzer = cms.EDAnalyzer(
     JetColl_algoPF1 = cms.InputTag("ak5PFJets"),
     JetColl_algoPF2 = cms.InputTag("ak7PFJets"),
     JetColl_algoPF3 = cms.InputTag("kt4PFJets"),
+    
+    puJetIDAlgo = PhilV1,
+    
+    
     #bcBColl = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     #bcEColl = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     tkColl = cms.InputTag("generalTracks"),                                                 
@@ -202,6 +208,10 @@ h2ganalyzer = cms.EDAnalyzer(
     PhotonCuts = cms.PSet(EtCut = cms.double(0.0)),
     ConvertedPhotonCuts = cms.PSet(EtCut = cms.double(0.0)),
     JetCuts = cms.PSet(EnergyCut = cms.double(0.0)),
+
+    GenParticleCuts = cms.PSet( EtCut = cms.double(0.0),   
+                                PdgId = cms.vint32(),   
+                                Keep = cms.bool(True)),
 
     # DEBUG
     Debug_Level = cms.int32(0),
