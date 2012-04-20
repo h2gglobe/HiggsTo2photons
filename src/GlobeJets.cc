@@ -26,6 +26,8 @@ GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "algo1"):
   trackColl =  iConfig.getParameter<edm::InputTag>("TrackColl");
   pfak5corrdata =  iConfig.getParameter<std::string>("JetCorrectionData");
   pfak5corrmc   =  iConfig.getParameter<std::string>("JetCorrectionMC");
+  vertexColl = iConfig.getParameter<edm::InputTag>("VertexColl_std");
+  jetMVAps = iConfig.getParameter<edm::ParameterSet>("puJetIDAlgo");
   std::string strnome = nome;
 
   if (strnome.find("PF",0) == std::string::npos){
@@ -70,6 +72,58 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a2, "jet_%s_erescale[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_erescale, a2);
 
+  sprintf(a1, "jet_%s_dRMean", nome);
+  sprintf(a2, "jet_%s_dRMean[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_dRMean, a2);
+
+  sprintf(a1, "jet_%s_frac01", nome);
+  sprintf(a2, "jet_%s_frac01[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_frac01, a2);
+
+  sprintf(a1, "jet_%s_frac02", nome);
+  sprintf(a2, "jet_%s_frac02[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_frac02, a2);
+
+  sprintf(a1, "jet_%s_frac03", nome);
+  sprintf(a2, "jet_%s_frac03[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_frac03, a2);
+
+  sprintf(a1, "jet_%s_frac04", nome);
+  sprintf(a2, "jet_%s_frac04[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_frac04, a2);
+
+  sprintf(a1, "jet_%s_frac05", nome);
+  sprintf(a2, "jet_%s_frac05[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_frac05, a2);
+
+  sprintf(a1, "jet_%s_nNeutrals", nome);
+  sprintf(a2, "jet_%s_nNeutrals[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_nNeutrals, a2);
+
+  sprintf(a1, "jet_%s_beta", nome);
+  sprintf(a2, "jet_%s_beta[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_beta, a2);
+
+  sprintf(a1, "jet_%s_betaStar", nome);
+  sprintf(a2, "jet_%s_betaStar[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_betaStar, a2);
+
+  sprintf(a1, "jet_%s_dZ", nome);
+  sprintf(a2, "jet_%s_dZ[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_dZ, a2);
+
+  sprintf(a1, "jet_%s_nCharged", nome);
+  sprintf(a2, "jet_%s_nCharged[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_nCharged, a2);
+
+  sprintf(a1, "jet_%s_dR2Mean", nome);
+  sprintf(a2, "jet_%s_dR2Mean[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_dR2Mean, a2);
+
+  sprintf(a1, "jet_%s_betaStarClassic", nome);
+  sprintf(a2, "jet_%s_betaStarClassic[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_betaStarClassic, a2);
+
   sprintf(a1, "jet_%s_pull_dy", nome);
   sprintf(a2, "jet_%s_pull_dy[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_pull_dy, a2);
@@ -100,6 +154,9 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     edm::Handle<reco::TrackCollection> tkH;
     iEvent.getByLabel(trackColl, tkH);
+    
+    edm::Handle<reco::VertexCollection> vtxH;
+    iEvent.getByLabel(vertexColl, vtxH);
     
     jet_p4->Clear();
     jet_tkind->clear();
@@ -189,6 +246,9 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<reco::TrackCollection> tkH;
     iEvent.getByLabel(trackColl, tkH);
     
+    edm::Handle<reco::VertexCollection> vtxH;
+    iEvent.getByLabel(vertexColl, vtxH);
+    
     jet_p4->Clear();
     jet_tkind->clear();
     jet_calotwind->clear();
@@ -197,12 +257,16 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     if (debug_level > 9)
       std::cout << "GlobeJets: Jet collection size: "<< pfjetH->size() << std::endl;
-    
+   
     if(iEvent.isRealData()){
       pfak5corr = pfak5corrdata;
     } else {
       pfak5corr = pfak5corrmc;
     }
+
+
+    PileupJetIdAlgo jetMVACalculator(jetMVAps);
+    
 
 
     // check if collection is present
@@ -211,7 +275,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         std::cout << "GlobeJets: WARNING TOO MANY JETS: " << pfjetH->size() << " (allowed " << MAX_JETS << ")" << std::endl;
         break;
       }
-      
+     
       reco::PFJetRef j(pfjetH, i);
       
       // apply the cuts
@@ -225,12 +289,38 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       
       if (jetColl.encode() == "ak5PFJets") {
-	//const JetCorrector* corrector = JetCorrector::getJetCorrector(pfak5corr, iSetup);
-        //edm::RefToBase<reco::Jet> jetRef(edm::Ref<std::vector<reco::PFJet> >(pfjetH, i));
-        jet_erescale[jet_n] = 0; //corrector->correction(*j, jetRef, iEvent, iSetup);
+	      const JetCorrector* corrector = JetCorrector::getJetCorrector(pfak5corr, iSetup);
+        edm::RefToBase<reco::Jet> jetRef(edm::Ref<reco::PFJetCollection>(pfjetH, i));
+        jet_erescale[jet_n] = corrector->correction(*j, iEvent, iSetup);
       } else {
         jet_erescale[jet_n] = 1;
       }
+
+
+    if (debug_level > 9 && jet_n<20) std::cout<<"jet energy JECenergy "<<jet_n<<" "<<j->energy()<<" "<<jet_erescale[jet_n]<<std::endl;
+      
+      //compute id variables
+      float jec4setup = 1.0;
+      const reco::VertexCollection vertexCollection = *(vtxH.product()); 
+      const reco::Vertex* selectedVtx  = &(*vertexCollection.begin());;
+      const reco::Jet* thisjet = &(*j);
+
+      PileupJetIdentifier jetMVAinputs = jetMVACalculator.computeIdVariables( thisjet, jec4setup, selectedVtx, vertexCollection);
+
+  
+      jet_dRMean[jet_n]=jetMVAinputs.dRMean();
+      jet_frac01[jet_n]=jetMVAinputs.frac01();
+      jet_frac02[jet_n]=jetMVAinputs.frac02();
+      jet_frac03[jet_n]=jetMVAinputs.frac03();
+      jet_frac04[jet_n]=jetMVAinputs.frac04();
+      jet_frac05[jet_n]=jetMVAinputs.frac05();
+      jet_nNeutrals[jet_n]=jetMVAinputs.nNeutrals();
+      jet_beta[jet_n]=jetMVAinputs.beta();
+      jet_betaStar[jet_n]=jetMVAinputs.betaStar();
+      jet_dZ[jet_n]=jetMVAinputs.dZ();
+      jet_nCharged[jet_n]=jetMVAinputs.nCharged();
+      jet_dR2Mean[jet_n]=jetMVAinputs.dR2Mean();
+      jet_betaStarClassic[jet_n]=jetMVAinputs.betaStarClassic();
 
       float dy = 0;
       float dphi = 0;
