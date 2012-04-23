@@ -107,7 +107,7 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
     photons = 0;
 
   if (doAllConversions)
-    allConversions = new GlobeConversions(iConfig);
+    allConversions = new GlobeConversions(iConfig, "std");
 
   if (doElectronStd)
     std_electrons = new GlobeElectrons(iConfig, "std");
