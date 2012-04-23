@@ -107,6 +107,11 @@ class GlobeConversions {
   Int_t conv_validvtx[MAX_CONVERTEDPHOTONS];
   Float_t conv_MVALikelihood[MAX_CONVERTEDPHOTONS];
 
+  Float_t conv_vtxProb[MAX_CONVERTEDPHOTONS];
+  Int_t conv_nHitsMax[MAX_CONVERTEDPHOTONS];
+  Int_t conv_eleind[MAX_CONVERTEDPHOTONS];
+  Float_t conv_lxy_bs[MAX_CONVERTEDPHOTONS];
+
  private:
   const char* nome;
   GlobeCuts *gCUT;
@@ -130,6 +135,9 @@ class GlobeConversions {
   edm::InputTag hcalHoColl; 
 // Particle Flow
   edm::InputTag pfColl;
+
+  edm::InputTag beamSpotColl;
+  edm::InputTag eleColl;
 
   int debug_level;
   bool doAodSim;

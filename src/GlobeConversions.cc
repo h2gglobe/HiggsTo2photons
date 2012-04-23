@@ -1,8 +1,12 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeConversions.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 GlobeConversions::GlobeConversions(const edm::ParameterSet& iConfig, const char* n): nome(n) {
+
+  char a[100];
+  sprintf(a, "ElectronColl_%s", nome);
 
   debug_level = iConfig.getParameter<int>("Debug_Level");
   doAodSim = iConfig.getParameter<bool>("doAodSim");
@@ -19,7 +23,10 @@ GlobeConversions::GlobeConversions(const edm::ParameterSet& iConfig, const char*
   
   // Particle Flow
   pfColl = iConfig.getParameter<edm::InputTag>("PFCandidateColl");
-  
+
+  beamSpotColl = iConfig.getParameter<edm::InputTag>("BeamSpot");
+  eleColl = iConfig.getParameter<edm::InputTag>(a);
+
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
 
@@ -76,6 +83,11 @@ void GlobeConversions::defineBranch(TTree* tree) {
   tree->Branch("conv_tk2_pout",&conv_tk2_pout,"conv_tk2_pout[conv_n]/F");
   tree->Branch("conv_tk2_pin",&conv_tk2_pin,"conv_tk2_pin[conv_n]/F");
 
+  tree->Branch("conv_vtxProb", &conv_vtxProb,"conv_vtxProb[conv_n]/F");
+  tree->Branch("conv_lxy", &conv_lxy,"conv_lxy[conv_n]/F");
+  tree->Branch("conv_nHitsMax", &conv_nHitsMax,"conv_nHitsMax[conv_n]/I");
+  tree->Branch("conv_eleind", &conv_eleind,"conv_eleind[conv_n]/I");
+
   conv_vtx = new TClonesArray("TVector3", MAX_CONVERTEDPHOTONS);
   tree->Branch("conv_vtx", "TClonesArray", &conv_vtx, 32000, 0);
   conv_pair_momentum = new TClonesArray("TVector3", MAX_CONVERTEDPHOTONS);
@@ -103,6 +115,13 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<reco::PFCandidateCollection> pfHandle;
   iEvent.getByLabel(pfColl, pfHandle);
   
+  edm::Handle<reco::GsfElectronCollection> elH;
+  iEvent.getByLabel(eleColl, elH);
+  
+  edm::Handle<reco::BeamSpot> bsHandle;
+  iEvent.getByLabel(beamSpotColl, bsHandle);
+  const reco::BeamSpot &beamspot = *bsHandle.product();
+
   if (debug_level > 9) {
     std::cout << "GlobeConversions: Start analyze" << std::endl;
   }
@@ -247,7 +266,7 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     conv_validvtx[conv_n]=localConv.conversionVertex().isValid();
     if ( !localConv.conversionVertex().isValid() ) continue;
-    reco::Vertex vtx=localConv.conversionVertex();
+    reco::Vertex vtx = localConv.conversionVertex();
     
     
     ((TVector3 *) conv_vtx->At(conv_n))->SetXYZ(vtx.x(), vtx.y(), vtx.z());
@@ -324,6 +343,36 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       conv_tk2_d0[conv_n]=localConv.tracksSigned_d0()[1];
       conv_tk2_pout[conv_n]=sqrt(localConv.tracksPout()[1].Mag2());
       conv_tk2_pin[conv_n]=sqrt(localConv.tracksPin()[1].Mag2());
+    }
+    
+
+    // To check for duplicated variables
+    conv_vtxProb[conv_n] = 0.;
+    conv_lxy_bs[conv_n]=0.;
+    conv_nHitsMax[conv_n] = 99;
+    conv_eleind[conv_n] = -1;
+
+    if (vtx.isValid()) {
+      int iel=-1;
+      for(reco::GsfElectronCollection::const_iterator gsfEle = elH->begin(); gsfEle!=elH->end(); ++gsfEle) {
+	if(gCUT->cut(*gsfEle))
+	  continue;
+	iel++;
+        
+	if (ConversionTools::matchesConversion(*gsfEle, localConv)) {
+          conv_eleind[conv_n] = iel;
+          conv_vtxProb[conv_n] = TMath::Prob(vtx.chi2(), vtx.ndof());
+          math::XYZVector mom(localConv.refittedPairMomentum());
+          double dbsx = vtx.x() - beamspot.position().x();   
+          double dbsy = vtx.y() - beamspot.position().y();
+          conv_lxy_bs[conv_n] = (mom.x()*dbsx + mom.y()*dbsy)/mom.rho();
+          conv_nHitsMax[conv_n]=0;
+          for (std::vector<uint8_t>::const_iterator it = localConv.nHitsBeforeVtx().begin(); it!=localConv.nHitsBeforeVtx().end(); ++it) {
+            if ((*it)>conv_nHitsMax[conv_n]) conv_nHitsMax[conv_n] = (*it);
+          }
+          break;
+        }
+      }
     }
     
     conv_n++;
