@@ -499,6 +499,10 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_ip3d_sig", nome);
   sprintf(a2, "el_%s_ip3d_sig[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_ip3d_sig, a2);
+
+  sprintf(a1, "el_%s_sc_time", nome);
+  sprintf(a2, "el_%s_sc_time[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_sc_time, a2);
 }
 
 
@@ -681,8 +685,10 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_e2x5[el_n] = egsf.e2x5Max();
     el_e1x5[el_n] = egsf.e1x5();
     el_sieie[el_n] = egsf.sigmaIetaIeta();
-    el_1oe_1op[el_n] = 1./egsf.ecalEnergy() - 1./egsf.p();
+    el_1oe_1op[el_n] = 1./egsf.ecalEnergy() - 1./egsf.trackMomentumAtVtx().R();
     el_r9[el_n] = ecalLazyTool->e3x3(*(egsf.superCluster()->seed())) / egsf.superCluster()->rawEnergy();
+
+    el_sc_time[el_n] = ecalLazyTool->SuperClusterTime(*(egsf.superCluster()), iEvent);
 
     el_must[el_n] = -9999.;
     el_mustnc[el_n] = -1;

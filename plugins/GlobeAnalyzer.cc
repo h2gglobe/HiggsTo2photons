@@ -156,8 +156,11 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   if (doPFCandidates)
     pfCandidates = new GlobePFCandidates(iConfig);
 
-  if (doRho)
-    rho = new GlobeRho(iConfig);
+  if (doRho) {
+    rho1 = new GlobeRho(iConfig, "algo1");
+    rho2 = new GlobeRho(iConfig, "algo2");
+    rho3 = new GlobeRho(iConfig, "algo3");
+  }
 
   if (doPileup)
     pileup = new GlobePileup(iConfig);
@@ -406,8 +409,11 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   //  pat->analyze(iEvent, iSetup, std_electrons, photons, algo1_jets);
   //}
 
-  if (doRho)
-    rho->analyze(iEvent, iSetup);
+  if (doRho) {
+    rho1->analyze(iEvent, iSetup);
+    rho2->analyze(iEvent, iSetup);
+    rho3->analyze(iEvent, iSetup);
+  }
 
   if (doPileup)
     pileup->analyze(iEvent, iSetup);
@@ -547,8 +553,11 @@ void GlobeAnalyzer::beginJob() {
   if (doPFCandidates)
      pfCandidates->defineBranch(tree);
 
-  if (doRho)
-     rho->defineBranch(tree);
+  if (doRho) {
+    rho1->defineBranch(tree);
+    rho2->defineBranch(tree);
+    rho3->defineBranch(tree);
+  }
 
   if (doPileup)
      pileup->defineBranch(tree);

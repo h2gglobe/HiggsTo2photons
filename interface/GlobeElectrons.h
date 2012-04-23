@@ -148,6 +148,7 @@ class GlobeElectrons {
   Float_t el_ip3d_err[MAX_ELECTRONS];
   Float_t el_ip3d[MAX_ELECTRONS];
   Float_t el_ip3d_sig[MAX_ELECTRONS];
+  Float_t el_sc_time[MAX_ELECTRONS];
 
   Float_t el_mva[MAX_ELECTRONS];  
   Float_t el_mva_noiso[MAX_ELECTRONS];
