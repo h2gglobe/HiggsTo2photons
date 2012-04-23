@@ -70,7 +70,7 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   beamSpotColl =  iConfig.getParameter<edm::InputTag>("BeamSpot");
   electronColl =  iConfig.getParameter<edm::InputTag>("ElectronColl_std");
 
-  rhoCollection = iConfig.getParameter<edm::InputTag>("rhoCorrection");
+  rhoCollection = iConfig.getParameter<edm::InputTag>("rhoCollection_algo1");
   vtxCollection = iConfig.getParameter<edm::InputTag>("VertexColl_std");
   tkCollection  = iConfig.getParameter<edm::InputTag>("tkColl");
 

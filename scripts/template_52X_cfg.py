@@ -25,7 +25,7 @@ if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON'
 
 process = cms.Process("Globe") 
 process.load("Configuration.StandardSequences.GeometryDB_cff") 
-process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_44X_cfi")
+process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_52X_cfi")
 #pi0 disc
 process.load("RecoEcal.EgammaClusterProducers.preshowerClusterShape_cfi")
 process.load("EgammaAnalysis.PhotonIDProducers.piZeroDiscriminators_cfi")
