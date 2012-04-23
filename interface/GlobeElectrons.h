@@ -39,7 +39,8 @@ class ElectronMVAEstimator;
 
 class GlobeElectrons {
  public:
-  
+  typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
+
   GlobeElectrons(const edm::ParameterSet&, const char* n = "std");
   virtual ~GlobeElectrons();
 
@@ -222,6 +223,7 @@ class GlobeElectrons {
   edm::InputTag ecalHitESColl;
   edm::InputTag hcalHitColl;
   edm::FileInPath mvaWeightFile;  
+  std::vector<edm::InputTag> inputTagIsoValElectronsPFId_;
 
   EcalClusterLazyTools* ecalLazyTool;
   EGEnergyCorrector ecorr_;

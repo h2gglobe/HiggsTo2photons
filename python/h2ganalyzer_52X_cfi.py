@@ -99,6 +99,10 @@ h2ganalyzer = cms.EDAnalyzer(
     eIDLabels        = cms.VInputTag(cms.InputTag("eidLoose"),
                                      cms.InputTag("eidTight")),
     electronMVAWeightFileName =  cms.FileInPath("RecoEgamma/ElectronIdentification/data/TMVA_BDTSimpleCat_17Feb2011.weights.xml"),
+    IsoValElectronPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIdPFIso'),
+                                     cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
+                                     cms.InputTag('elPFIsoValueNeutral03PFIdPFIso')),
+ 
                                 
     PhotonCollStd = cms.InputTag("photons"),
     ConvertedPhotonColl = cms.InputTag("allConversions"),
