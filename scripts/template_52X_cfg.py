@@ -184,6 +184,10 @@ elif flagSkim1El == 'ON':
 process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
 process.h2ganalyzer.Debug_Level = 0
 
+##-------------------- PFIsolation for Electrons ---------------------
+from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFPhotonIso
+process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
+#process.phoIsoSequence = setupPFPhotonIso(process, 'photons')
 ##-------------------- PFNoPU for PF Isolation Electrons -------------
 process.load("CommonTools.ParticleFlow.pfPileUp_cfi")
 process.pfPileUp.PFCandidates = cms.InputTag("particleFlow")
@@ -220,10 +224,8 @@ process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 #################################################
 # Define path, first for AOD case then for RECO #
 #################################################
-#process.pfBasedPhotonIsoSequence
-#process.pfSelectedPhotons
 
-process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfPileUp)
+process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfPileUp * process.pfParticleSelectionSequence * process.eleIsoSequence)
 
 if (flagFastSim == 'OFF' or flagAOD == 'OFF'):
   process.p11 *= process.piZeroDiscriminators

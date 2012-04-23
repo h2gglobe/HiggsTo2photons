@@ -23,7 +23,7 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-#include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
+//#include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 
 #include "HiggsAnalysis/HiggsTo2photons/interface/Mustache.h"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
@@ -50,7 +50,7 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
   trackColl = iConfig.getParameter<edm::InputTag>("TrackColl");
   trackColl2 = iConfig.getParameter<edm::InputTag>("TrackColl3");
   vertexColl = iConfig.getParameter<edm::InputTag>("VertexColl_std");
-  pfColl = iConfig.getParameter<edm::InputTag>("PFCandidateColl");
+  //pfColl = iConfig.getParameter<edm::InputTag>("PFCandidateColl");
 
   hybridSuperClusterColl = iConfig.getParameter<edm::InputTag>("HybridSuperClusterColl");
   endcapSuperClusterColl = iConfig.getParameter<edm::InputTag>("EndcapSuperClusterColl");
@@ -62,6 +62,8 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
   eIDLabels = iConfig.getParameter<std::vector<edm::InputTag> >("eIDLabels");
   mvaWeightFile = iConfig.getParameter<edm::FileInPath>("electronMVAWeightFileName");
   mvaEstimator = new ElectronMVAEstimator(mvaWeightFile.fullPath());
+  
+  inputTagIsoValElectronsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectronPF");   
 
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
@@ -288,6 +290,7 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a2, "el_%s_tkind[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_tkind, a2); 
 
+  /*
   sprintf(a1, "el_%s_pfiso_myneutral03", nome);
   sprintf(a2, "el_%s_pfiso_myneutral03[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_pfiso_myneutral03, a2);
@@ -311,6 +314,7 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_pfiso_myphoton04", nome);
   sprintf(a2, "el_%s_pfiso_myphoton04[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_pfiso_myphoton04, a2);
+  */
 
   sprintf(a1, "el_%s_pfiso_neutral", nome);
   sprintf(a2, "el_%s_pfiso_neutral[el_%s_n]/F", nome, nome);
@@ -529,15 +533,23 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<reco::VertexCollection> vtxH;
   iEvent.getByLabel(vertexColl, vtxH);
 
+  /*
   edm::Handle<reco::PFCandidateCollection> pfHandle;
   iEvent.getByLabel(pfColl, pfHandle);
 
   edm::Handle<reco::PFCandidateCollection> pfHandlePu;
   iEvent.getByLabel("pfPileUp", pfHandlePu);
+  */
 
   edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", hTransientTrackBuilder);
   transientTrackBuilder = hTransientTrackBuilder.product();
+
+  //typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
+  IsoDepositVals electronIsoVals(3);
+  for (size_t j = 0; j<inputTagIsoValElectronsPFId_.size(); ++j) {
+    iEvent.getByLabel(inputTagIsoValElectronsPFId_[j], electronIsoVals[j]);
+  }
 
   edm::ESHandle<CaloTopology> theCaloTopo;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopo);
@@ -895,9 +907,10 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_ecaldrv[el_n] = egsf.ecalDrivenSeed();
     el_tkdrv[el_n] = egsf.trackerDrivenSeed();
     
-    el_pfiso_charged[el_n] = egsf.pfIsolationVariables().chargedHadronIso;
-    el_pfiso_photon[el_n] = egsf.pfIsolationVariables().photonIso;
-    el_pfiso_neutral[el_n] = egsf.pfIsolationVariables().neutralHadronIso;
+    reco::GsfElectronRef myElectronRef(elH, std::distance(elH->begin(), igsf));
+    el_pfiso_charged[el_n] =  (*(electronIsoVals[0].product()))[myElectronRef]; //egsf.pfIsolationVariables().chargedHadronIso;
+    el_pfiso_photon[el_n] = (*(electronIsoVals[1].product()))[myElectronRef]; //egsf.pfIsolationVariables().photonIso;
+    el_pfiso_neutral[el_n] = (*(electronIsoVals[2].product()))[myElectronRef]; //egsf.pfIsolationVariables().neutralHadronIso;
 
     el_tkiso04[el_n] = egsf.dr04TkSumPt();
     el_ecaliso04[el_n] = egsf.dr04EcalRecHitSumEt();
@@ -916,7 +929,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_hcalbciso03[el_n] = egsf.dr03HcalTowerSumEtBc();
     el_hcalbciso04[el_n] = egsf.dr04HcalTowerSumEtBc();
 
-
+    /*
     if (egsf.isEB()) {
       std::vector<reco::PFCandidate::ParticleType> temp;
       temp.push_back(reco::PFCandidate::h);
@@ -938,7 +951,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       el_pfiso_mycharged03[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.3, 0.015, temp);
       el_pfiso_mycharged04[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.4, 0.015, temp);
       
-      temp.clear();
+      temp.clear();c
       temp.push_back(reco::PFCandidate::h0);
       el_pfiso_myneutral03[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.3, 0, temp);
       el_pfiso_myneutral04[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.4, 0, temp);
@@ -948,6 +961,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       el_pfiso_myphoton03[el_n] = pfEcalIso(egsf, pfHandle.product(), 0.3, 0.08, temp);
       el_pfiso_myphoton04[el_n] = pfEcalIso(egsf, pfHandle.product(), 0.4, 0.08, temp);
     }
+    */
 
     // Fill out electron identification
     std::vector<edm::Handle<edm::ValueMap<float> > > eIDVM(9); 
