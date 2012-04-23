@@ -29,6 +29,10 @@
 #include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include "TrackingTools/IPTools/interface/IPTools.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
+#include "TrackingTools/Records/interface/TransientTrackRecord.h"
+
 #include <cstdlib>
 #include <iostream>
 
@@ -471,6 +475,26 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_mustnc", nome);
   sprintf(a2, "el_%s_mustnc[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_mustnc, a2);
+
+  sprintf(a1, "el_%s_r9", nome);
+  sprintf(a2, "el_%s_r9[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_r9, a2);
+
+  sprintf(a1, "el_%s_gsfchi2", nome);
+  sprintf(a2, "el_%s_gsfchi2[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_gsfchi2, a2);
+  
+  sprintf(a1, "el_%s_ip3d", nome);
+  sprintf(a2, "el_%s_ip3d[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_ip3d, a2);
+
+  sprintf(a1, "el_%s_ip3d_err", nome);
+  sprintf(a2, "el_%s_ip3d_err[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_ip3d_err, a2);
+
+  sprintf(a1, "el_%s_ip3d_sig", nome);
+  sprintf(a2, "el_%s_ip3d_sig[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_ip3d_sig, a2);
 }
 
 
@@ -510,6 +534,10 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   edm::Handle<reco::PFCandidateCollection> pfHandlePu;
   iEvent.getByLabel("pfPileUp", pfHandlePu);
+
+  edm::ESHandle<TransientTrackBuilder> hTransientTrackBuilder;
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", hTransientTrackBuilder);
+  transientTrackBuilder = hTransientTrackBuilder.product();
 
   edm::ESHandle<CaloTopology> theCaloTopo;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopo);
@@ -641,6 +669,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_e2x5[el_n] = egsf.e2x5Max();
     el_e1x5[el_n] = egsf.e1x5();
     el_sieie[el_n] = egsf.sigmaIetaIeta();
+    el_1oe_1op[el_n] = 1./egsf.ecalEnergy() - 1./egsf.p();
+    el_r9[el_n] = ecalLazyTool->e3x3(*(egsf.superCluster()->seed())) / egsf.superCluster()->rawEnergy();
 
     el_must[el_n] = -9999.;
     el_mustnc[el_n] = -1;
@@ -691,7 +721,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       vtxPoint = math::XYZPoint(vtx->x(),vtx->y(),vtx->z());
     }
 
-    el_ip_gsf[el_n] = egsf.gsfTrack()->dxy(vtxPoint);
+    el_ip_gsf[el_n] = (-1.)*egsf.gsfTrack()->dxy(vtxPoint);
 
     if (!doAodSim && (trackColl2.encode() != "electronGsfTracks")) {
       for(unsigned int j=0; j<tkH2->size(); j++) { 
@@ -730,11 +760,24 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       el_crack[el_n] = 5;
 
     //int cmsTkind = -1;
-
-    el_tkind[el_n] = -1;
     el_scind[el_n] = -1;
-  
+    
+    el_gsfchi2[el_n] = egsf.gsfTrack()->normalizedChi2();
+
     if(egsf.closestCtfTrackRef().isNonnull()) {
+      const double gsfsign = ((-egsf.gsfTrack()->dxy(vtxPoint)) >=0 ) ? 1. : -1.;
+      const reco::TransientTrack& tt = transientTrackBuilder->build(egsf.gsfTrack()); 
+      reco::VertexRef vtx(vtxH, 0);
+      const std::pair<bool, Measurement1D> &ip3dpv =  IPTools::absoluteImpactParameter3D(tt, *vtx);
+
+      if (ip3dpv.first) {
+	double ip3d = gsfsign*ip3dpv.second.value();
+	el_ip3d_err[el_n] = ip3dpv.second.error();  
+	el_ip3d[el_n] = ip3d; 
+	el_ip3d_sig[el_n] = ip3d/el_ip3d_err[el_n];
+      }
+      
+      
       el_kfhits[el_n] = egsf.closestCtfTrackRef()->hitPattern().trackerLayersWithMeasurement();
       el_kfchi2[el_n] = egsf.closestCtfTrackRef()->normalizedChi2();
       for(unsigned int j=0; j<tkH->size(); ++j) {
@@ -743,14 +786,17 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           continue; 
         if (tk == egsf.closestCtfTrackRef()) {
           el_tkind[el_n] = j;
-          el_ip_ctf[el_n] = egsf.closestCtfTrackRef()->dxy(vtxPoint);
+          el_ip_ctf[el_n] = (-1.)*egsf.closestCtfTrackRef()->dxy(vtxPoint);
         }
       }
     } else {
       el_kfhits[el_n] = -1;
-      el_kfchi2[el_n] = -999;
+      el_kfchi2[el_n] = 0.;
       el_tkind[el_n] = -1;
-      el_ip_ctf[el_n] = 0;
+      el_ip_ctf[el_n] = -9999.;
+      el_ip3d[el_n] = -999.;
+      el_ip3d_err[el_n] = -999.;
+      el_ip3d_sig[el_n] = 0.0;
     }
     
     int index = 0;
@@ -770,7 +816,9 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	    el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(cluster), &(*barrelRecHits), &(*topology))[0]);
 	    std::vector<float> vCov = ecalLazyTool->localCovariances(*(cluster->seed()));
 	    //std::vector<float> vCov = EcalClusterTools::localCovariances( *(cluster->seed()), &(*barrelRecHits), &(*topology));
-            el_sipip[el_n] = sqrt(vCov[2]);
+	    if (!isnan(vCov[2]))
+	      el_sipip[el_n] = sqrt(vCov[2]);
+	    el_sieip[el_n] = vCov[1];
             break;
           }
           index++;
@@ -789,7 +837,9 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
             el_scind[el_n] = index;
             el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(cluster), &(*endcapRecHits), &(*topology))[0]);
 	    std::vector<float> vCov = ecalLazyTool->localCovariances(*(cluster->seed()));
-	    el_sipip[el_n] = sqrt(vCov[2]);
+	    if (!isnan(vCov[2]))
+	      el_sipip[el_n] = sqrt(vCov[2]);
+	    el_sieip[el_n] = vCov[1];
             break;
           }
           index++;
