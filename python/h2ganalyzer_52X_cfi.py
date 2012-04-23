@@ -125,7 +125,9 @@ h2ganalyzer = cms.EDAnalyzer(
     JetTrackAssociationColl_algo2 = cms.InputTag("ak7JetTracksAssociatorAtVertex"),
     JetTrackAssociationColl_algo3 = cms.InputTag(""),
     
-    rhoCorrection = cms.InputTag("kt6PFJetsForRhoCorrection","rho"),
+    rhoCorrection_algo1 = cms.InputTag("kt6PFJets","rho"),
+    rhoCorrection_algo2 = cms.InputTag("kt6CaloJets","rho"),
+    rhoCorrection_algo3 = cms.InputTag("kt6CaloJetsCentral","rho"),
 
     PFCandidateColl = cms.InputTag("particleFlow"),
     isolationValues03 = cms.PSet(pfChargedHadrons = cms.InputTag('isoValPhotonWithCharged03'),

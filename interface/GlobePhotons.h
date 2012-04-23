@@ -123,6 +123,8 @@ class GlobePhotons {
   Float_t pho_hcalbc1sumetconedr04[MAX_PHOTONS];
   Float_t pho_hcalbc2sumetconedr04[MAX_PHOTONS];
 
+  Float_t pho_sc_time[MAX_PHOTONS];
+
 // pi0 disc variable
   Float_t pho_pi0disc[MAX_PHOTONS];
 

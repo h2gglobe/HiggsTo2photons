@@ -194,11 +194,11 @@ process.pfPileUp.PFCandidates = cms.InputTag("particleFlow")
 ##-------------------- Import the JEC services -----------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 ##-------------------- Import the Jet RECO modules -----------------------
-process.load('RecoJets.Configuration.RecoPFJets_cff')
-process.kt6PFJets = process.kt6PFJets.clone(rParam = 0.6, doRhoFastjet = True)
-process.ak5PFJets.doAreaFastjet = True
-process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(rParam = 0.6, doRhoFastjet = True)
-process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
+#process.load('RecoJets.Configuration.RecoPFJets_cff')
+#process.kt6PFJets = process.kt6PFJets.clone(rParam = 0.6, doRhoFastjet = True)
+#process.ak5PFJets.doAreaFastjet = True
+#process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(rParam = 0.6, doRhoFastjet = True)
+#process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 
 ##-------------------- Filter to skip bugged events with non conserved energy -------
 process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
@@ -230,7 +230,8 @@ process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfPile
 if (flagFastSim == 'OFF' or flagAOD == 'OFF'):
   process.p11 *= process.piZeroDiscriminators
     
-process.p11 *= (process.kt6PFJets* process.ak5PFJets* process.kt6PFJetsForRhoCorrection* process.h2ganalyzerPath)
+#process.p11 *= (process.kt6PFJets* process.ak5PFJets* process.kt6PFJetsForRhoCorrection* process.h2ganalyzerPath)
+process.p11 *= (process.h2ganalyzerPath)
 
 process.p12 = copy.deepcopy(process.p11)
 process.p12.replace(process.eventFilter1, process.eventFilter2)

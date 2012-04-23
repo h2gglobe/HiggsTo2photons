@@ -13,7 +13,7 @@
 class GlobeRho {
  public:
   
-  GlobeRho(const edm::ParameterSet&);
+  GlobeRho(const edm::ParameterSet&, const char*);
   virtual ~GlobeRho() {};
 
   void defineBranch(TTree* tree);
@@ -22,6 +22,7 @@ class GlobeRho {
   float rho; 
 
  private:
+  const char* nome;
   edm::InputTag rhoCollection;
   int debug_level;
 };

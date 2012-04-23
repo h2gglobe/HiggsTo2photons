@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Matteosan SANI
 //         Created:  Thu Feb  7 10:14:43 CET 2008
-// $Id: GlobeAnalyzer.h,v 1.12 2011/10/12 22:37:14 pioppi Exp $
+// $Id: GlobeAnalyzer.h,v 1.1 2012/03/20 20:54:57 sani Exp $
 //
 //
 
@@ -109,7 +109,7 @@ public:
   GlobeHT* ht;
   //GlobePAT* pat;
   GlobeReducedGen* reducedgen;
-  GlobeRho* rho;
+  GlobeRho* rho1, *rho2, *rho3;
   GlobePileup* pileup;
   GlobePdfWeights* pdfweights;
 

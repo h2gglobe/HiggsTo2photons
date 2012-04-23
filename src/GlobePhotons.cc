@@ -442,7 +442,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     ((TLorentzVector *)pho_p4->At(pho_n))->SetXYZT(localPho->px(), localPho->py(), localPho->pz(), localPho->energy());
     ((TVector3 *)pho_calopos->At(pho_n))->SetXYZ(localPho->caloPosition().x(), localPho->caloPosition().y(), localPho->caloPosition().z());
 
-    reco::SuperClusterRef theClus=localPho->superCluster();
+    reco::SuperClusterRef theClus = localPho->superCluster();
     pho_scind[pho_n] = -1;
       
     // PHOTON ID
@@ -474,6 +474,8 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_regr_energy[pho_n]    = cor.first;
     pho_regr_energyerr[pho_n] = cor.second;
 
+    pho_sc_time[pho_n] = lazyTool.SuperClusterTime(*theClus, iEvent);
+	
     int index = 0;
     for(int isuperClusterType=0; isuperClusterType<3; ++isuperClusterType) {
       if (isuperClusterType == 0) {
