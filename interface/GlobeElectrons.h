@@ -23,6 +23,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
@@ -90,6 +91,7 @@ class GlobeElectrons {
   Float_t el_e5x5[MAX_ELECTRONS];
   Float_t el_sipip[MAX_ELECTRONS];
   Float_t el_sieie[MAX_ELECTRONS];
+  Float_t el_sieip[MAX_ELECTRONS];
   Float_t el_sieiesc[MAX_ELECTRONS];
   Float_t el_eseffsixix[MAX_ELECTRONS];
   Float_t el_eseffsiyiy[MAX_ELECTRONS];
@@ -111,6 +113,7 @@ class GlobeElectrons {
   Int_t el_hp_expout[MAX_ELECTRONS];
   Float_t el_must[MAX_ELECTRONS];
   Int_t el_mustnc[MAX_ELECTRONS];
+  Float_t el_1oe_1op[MAX_ELECTRONS];
 
   Int_t el_scind[MAX_ELECTRONS];
   Int_t el_crack[MAX_ELECTRONS];
@@ -138,6 +141,12 @@ class GlobeElectrons {
   Float_t el_hcalsolidiso04[MAX_ELECTRONS];
   Float_t el_hcalbciso03[MAX_ELECTRONS];
   Float_t el_hcalbciso04[MAX_ELECTRONS];
+
+  Float_t el_r9[MAX_ELECTRONS];
+  Float_t el_gsfchi2[MAX_ELECTRONS];
+  Float_t el_ip3d_err[MAX_ELECTRONS];
+  Float_t el_ip3d[MAX_ELECTRONS];
+  Float_t el_ip3d_sig[MAX_ELECTRONS];
 
   Float_t el_mva[MAX_ELECTRONS];  
   Float_t el_mva_noiso[MAX_ELECTRONS];
@@ -217,6 +226,8 @@ class GlobeElectrons {
   EcalClusterLazyTools* ecalLazyTool;
   EGEnergyCorrector ecorr_;
   ElectronMVAEstimator*  mvaEstimator;
+
+  const TransientTrackBuilder* transientTrackBuilder;
 };
 
 #endif
