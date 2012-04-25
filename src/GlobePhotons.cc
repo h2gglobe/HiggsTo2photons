@@ -446,11 +446,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_scind[pho_n] = -1;
       
     // PHOTON ID
-    for (unsigned int iv=0; iv<hVertex->size(); iv++) {
-      pho_id_4cat[pho_n][iv] = cicPhotonId->photonCutLevel4cat(localPho, iv);
-      pho_id_6cat[pho_n][iv] = cicPhotonId->photonCutLevel6cat(localPho, iv);
-      pho_id_6catpf[pho_n][iv] = cicPhotonId->photonCutLevel6catPF(localPho, iv);
-    }
+    //for (unsigned int iv=0; iv<hVertex->size(); iv++) {
+    //  pho_id_4cat[pho_n][iv] = cicPhotonId->photonCutLevel4cat(localPho, iv);
+    //  pho_id_6cat[pho_n][iv] = cicPhotonId->photonCutLevel6cat(localPho, iv);
+    //  pho_id_6catpf[pho_n][iv] = cicPhotonId->photonCutLevel6catPF(localPho, iv);
+    //}
 
     // FRIXIONE ISO
     //pfFrixIso->float pfFrixioneIso::mvaID(const reco::PFCandidateCollection* pfParticlesColl,const reco::Photon *recoPhoton, edm::Handle< reco::VertexCollection > recoVtx)
