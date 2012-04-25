@@ -11,6 +11,7 @@ import FWCore.ParameterSet.Config as cms
 # OTHER
 
 from HiggsAnalysis.HiggsTo2photons.hggPhotonIDCuts_cfi import *
+from CMGTools.External.pujetidsequence_cff   import puJetMva
 #from HiggsAnalysis.HiggsToGammaGamma.PhotonFixParams4_2_cfi import *
 
 h2ganalyzer = cms.EDAnalyzer(
@@ -80,6 +81,7 @@ h2ganalyzer = cms.EDAnalyzer(
     
     BarrelBasicClusterColl = cms.InputTag("",""),
     EndcapBasicClusterColl = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapBasicClusters"),    
+    #EndcapBasicClusterColl = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),    
     BarrelBasicClusterShapeColl = cms.InputTag("",""),
     BarrelHybridClusterShapeColl = cms.InputTag("hybridSuperClusters","hybridShapeAssoc"),
     EndcapBasicClusterShapeColl = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapShapeAssoc"),
@@ -118,6 +120,10 @@ h2ganalyzer = cms.EDAnalyzer(
     JetColl_algoPF1 = cms.InputTag("ak5PFJets"),
     JetColl_algoPF2 = cms.InputTag("ak7PFJets"),
     JetColl_algoPF3 = cms.InputTag("kt4PFJets"),
+    
+    puJetIDAlgos = puJetMva.algos,
+    
+    
     #bcBColl = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     #bcEColl = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     tkColl = cms.InputTag("generalTracks"),                                                 
