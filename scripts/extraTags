@@ -1,3 +1,4 @@
 cvs co -r V00-03-35 RecoEgamma/ElectronIdentification
 addpkg CommonTools/ParticleFlow  Florian_20Apr2012
 addpkg RecoParticleFlow/PFProducer  Florian_23Apr2012-2
+addpkg RecoEcal/EgammaCoreTools V05-08-18
