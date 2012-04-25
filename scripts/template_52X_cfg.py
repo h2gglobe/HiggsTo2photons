@@ -9,6 +9,7 @@ flagFastSim = 'OFF'
 #SKIM TYPE
 flagSkimDiphoton = 'OFF'
 flagVLPreSelection = 'OFF'
+flagMyPreSelection = 'OFF'
 flagNoSkim = 'OFF'
 flagMMgSkim = 'OFF'
 flagSkimworz = 'OFF'
@@ -19,7 +20,7 @@ flagAddPdfWeight = 'OFF'
 flagAOD = 'ON'
 jobMaker = 'jobmaker unknown'
 
-if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON') ^ (flagVLPreSelection is 'ON') ^ (flagSkim1El is 'ON') ^ (flagSkimworz is 'ON'))):
+if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON') ^ (flagVLPreSelection is 'ON') ^ (flagSkim1El is 'ON') ^ (flagSkimworz is 'ON') ^ (flagMyPreSelection is 'ON'))):
   print "You must skim or not skim... these are your options"
   exit(-1)
 
@@ -52,6 +53,7 @@ process.load('Configuration.StandardSequences.L1Reco_cff')
 process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('HiggsAnalysis.HiggsTo2photons.ZMuSkim_cff')
 process.load('HiggsAnalysis.HiggsTo2photons.photonReRecoForMMG_cfi')
+process.load('HiggsAnalysis.HiggsTo2photons.cicFilter_cfi')
 
 if flagSkimDiphoton == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
@@ -161,6 +163,9 @@ process.diMuonSelSeq.remove(process.ZMuHLTFilter)
 if flagVLPreSelection == 'ON':
   process.eventFilter1 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut) # for bkg
   process.eventFilter2 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut) # for bkg
+elif flagMyPreSelection == 'ON':
+  process.eventFilter1 = cms.Sequence(process.cicFilterSequence) 
+  process.eventFilter2 = cms.Sequence(process.cicFilterSequence)
 elif flagSkimDiphoton == 'ON':
   process.eventFilter1 = cms.Sequence(process.DiPhotonHltFilter) # for some data
   process.eventFilter2 = cms.Sequence(process.DiPhotonHltFilter)      # for some data

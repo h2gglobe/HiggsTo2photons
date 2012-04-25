@@ -53,6 +53,7 @@ job_maker [options]
 # default selection
 flagData = False
 flagMC = False
+flagMyPreSelection = False
 flagSkimDiphoton = False
 flagSkimworz = False
 flagSkim1El = False
@@ -85,7 +86,7 @@ useServer = False
 toEnable = []
 toDisable = []
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable='])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -109,6 +110,8 @@ for opt,argm in opts:
         flagSkimDiphoton = True
     elif (opt == "--vlpresel"):
         flagVLPreSelection = True
+    elif (opt == "--mypresel"):
+        flagMyPreSelection = True
     elif (opt == "--skimmmg"):
         flagMMgSkim = True
     elif (opt == "--skimworz"):
@@ -162,7 +165,7 @@ for opt,argm in opts:
 if (globaltag == ""):
     print "WARNING: you are using default GLOBAL-TAG, it may not be correct."
 
-if (not(flagNoSkim ^ flagSkimDiphoton ^ flagMMgSkim ^ flagVLPreSelection ^ flagSkim1El ^ flagSkimworz)):
+if (not(flagNoSkim ^ flagSkimDiphoton ^ flagMMgSkim ^ flagVLPreSelection ^ flagSkim1El ^ flagSkimworz ^ flagMyPreSelection)):
     print "You must have one and only one of the skims."
     print "Try again when you have chosen one:  --skim2pho or --noskim or --skimmmg or --skimworz."
     sys.exit(1)
@@ -213,6 +216,8 @@ for run in runselection:
             file_out.write("flagSkimDiphoton = \'ON\'\n")
         elif ("flagVLPreSelection = 'OFF'" in line and flagVLPreSelection):
             file_out.write("flagVLPreSelection = \'ON\'\n")
+        elif ("flagMyPreSelection = 'OFF'" in line and flagMyPreSelection):
+            file_out.write("flagMyPreSelection = \'ON\'\n")            
         elif ("flagMMgSkim = 'OFF'" in line and flagMMgSkim):
             file_out.write("flagMMgSkim = \'ON\'\n")
         elif ("hltLabel = \"HLT\"" in line and hlttag != ""):
