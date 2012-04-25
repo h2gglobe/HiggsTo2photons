@@ -55,6 +55,9 @@ class GlobeJets {
   Int_t jet_ncalotw[MAX_JETS];
   std::vector<std::vector<unsigned short> >* jet_calotwind;
   std::vector<std::vector<unsigned short> >* jet_tkind;
+  std::vector<float * > mvas_;
+  std::vector<int * > wp_levels_;
+  std::vector<PileupJetIdAlgo* > algos_;
   
   TClonesArray *jet_p4;
 
@@ -62,7 +65,7 @@ class GlobeJets {
   const char* nome;
   GlobeCuts *gCUT;
   edm::InputTag jetColl, calotowerColl, trackColl, jetTkAssColl, vertexColl;
-  edm::ParameterSet jetMVAps;
+  std::vector<edm::ParameterSet > jetMVAAlgos;
   std::string pfak5corrdata, pfak5corrmc, pfak5corr;
   edm::InputTag bcBColl, bcEColl, tkColl, pfJetColl;
   int debug_level;

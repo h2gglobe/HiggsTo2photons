@@ -11,7 +11,7 @@ import FWCore.ParameterSet.Config as cms
 # OTHER
 
 from HiggsAnalysis.HiggsTo2photons.hggPhotonIDCuts_cfi import *
-from CMGTools.External.puJetIDAlgo_cff import PhilV1
+from CMGTools.External.pujetidsequence_cff   import puJetMva
 #from HiggsAnalysis.HiggsToGammaGamma.PhotonFixParams4_2_cfi import *
 
 h2ganalyzer = cms.EDAnalyzer(
@@ -117,7 +117,7 @@ h2ganalyzer = cms.EDAnalyzer(
     JetColl_algoPF2 = cms.InputTag("ak7PFJets"),
     JetColl_algoPF3 = cms.InputTag("kt4PFJets"),
     
-    puJetIDAlgo = PhilV1,
+    puJetIDAlgos = puJetMva.algos,
     
     
     #bcBColl = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),

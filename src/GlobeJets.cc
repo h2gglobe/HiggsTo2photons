@@ -27,8 +27,17 @@ GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "algo1"):
   pfak5corrdata =  iConfig.getParameter<std::string>("JetCorrectionData");
   pfak5corrmc   =  iConfig.getParameter<std::string>("JetCorrectionMC");
   vertexColl = iConfig.getParameter<edm::InputTag>("VertexColl_std");
-  jetMVAps = iConfig.getParameter<edm::ParameterSet>("puJetIDAlgo");
+  jetMVAAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("puJetIDAlgos");
   std::string strnome = nome;
+  
+  mvas_.resize(jetMVAAlgos.size());
+  wp_levels_.resize(jetMVAAlgos.size());
+  algos_.resize(jetMVAAlgos.size());
+
+  for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
+      algos_[imva] = new PileupJetIdAlgo((jetMVAAlgos.at(imva)));
+  }
+
 
   if (strnome.find("PF",0) == std::string::npos){
     sprintf (a,"JetTrackAssociationColl_%s", nome);
@@ -123,6 +132,29 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a1, "jet_%s_betaStarClassic", nome);
   sprintf(a2, "jet_%s_betaStarClassic[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_betaStarClassic, a2);
+
+  
+ 
+  if (jetColl.encode() == "ak5PFJets") {
+      for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
+        
+          std::string mvalabel = (jetMVAAlgos.at(imva)).getParameter<std::string>("label");
+
+          mvas_[imva] = new float[MAX_JETS];
+          wp_levels_[imva] = new int[MAX_JETS];
+
+          sprintf(a1, "jet_%s_%s_mva", nome, mvalabel.c_str());
+          sprintf(a2, "jet_%s_%s_mva[jet_%s_n]/F", nome, mvalabel.c_str(), nome);
+          std::cout<<"a1 a2 "<<a1<<" "<<a2<<std::endl;
+          tree->Branch(a1, &mvas_[imva][0], a2);
+
+          sprintf(a1, "jet_%s_%s_wp_level", nome, mvalabel.c_str());
+          sprintf(a2, "jet_%s_%s_wp_level[jet_%s_n]/I", nome, mvalabel.c_str(), nome);
+          std::cout<<"a1 a2 "<<a1<<" "<<a2<<std::endl;
+          tree->Branch(a1, &wp_levels_[imva][0], a2);
+      }
+  }
+
 
   sprintf(a1, "jet_%s_pull_dy", nome);
   sprintf(a2, "jet_%s_pull_dy[jet_%s_n]/F", nome, nome);
@@ -265,9 +297,8 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
 
-    PileupJetIdAlgo jetMVACalculator(jetMVAps);
+    PileupJetIdAlgo jetMVACalculator(*(jetMVAAlgos.begin()));
     
-
 
     // check if collection is present
     for(unsigned int i=0; i<pfjetH->size(); i++) {
@@ -277,16 +308,12 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
      
       reco::PFJetRef j(pfjetH, i);
+      reco::PFJet* correctedJet = (reco::PFJet*) j->clone();
       
       // apply the cuts
       if (gCUT->cut(*j)) continue;
       // passed cuts
       
-      new ((*jet_p4)[jet_n]) TLorentzVector();
-      ((TLorentzVector *)jet_p4->At(jet_n))->SetXYZT(j->px(), j->py(), j->pz(), j->energy()); 
-      jet_emfrac[jet_n] = j->chargedEmEnergyFraction() + j->neutralEmEnergyFraction() + j->chargedMuEnergyFraction();
-      jet_hadfrac[jet_n] = j->chargedHadronEnergyFraction() + j->neutralHadronEnergyFraction();
-
       
       if (jetColl.encode() == "ak5PFJets") {
 	      const JetCorrector* corrector = JetCorrector::getJetCorrector(pfak5corr, iSetup);
@@ -296,31 +323,59 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         jet_erescale[jet_n] = 1;
       }
 
-
-    if (debug_level > 9 && jet_n<20) std::cout<<"jet energy JECenergy "<<jet_n<<" "<<j->energy()<<" "<<jet_erescale[jet_n]<<std::endl;
       
-      //compute id variables
-      float jec4setup = 1.0;
-      const reco::VertexCollection vertexCollection = *(vtxH.product()); 
-      const reco::Vertex* selectedVtx  = &(*vertexCollection.begin());;
-      const reco::Jet* thisjet = &(*j);
+      
+      if (debug_level > 9 && jet_n<20) std::cout<<"pre "<<correctedJet->energy()<<std::endl;
 
-      PileupJetIdentifier jetMVAinputs = jetMVACalculator.computeIdVariables( thisjet, jec4setup, selectedVtx, vertexCollection);
+      correctedJet->scaleEnergy(jet_erescale[jet_n]);
+
+      //  scale the jets ref here
+
+      new ((*jet_p4)[jet_n]) TLorentzVector();
+      ((TLorentzVector *)jet_p4->At(jet_n))->SetXYZT(correctedJet->px(), correctedJet->py(), correctedJet->pz(), correctedJet->energy()); 
+      jet_emfrac[jet_n] = correctedJet->chargedEmEnergyFraction() + correctedJet->neutralEmEnergyFraction() + correctedJet->chargedMuEnergyFraction();
+      jet_hadfrac[jet_n] = correctedJet->chargedHadronEnergyFraction() + correctedJet->neutralHadronEnergyFraction();
+
+      if (debug_level > 9 && jet_n<20) std::cout<<"post "<<correctedJet->energy()<<std::endl;
+
+      if (debug_level > 9 && jet_n<20) std::cout<<"jet energy JECenergy "<<jet_n<<" "<<correctedJet->energy()<<" "<<jet_erescale[jet_n]<<std::endl;
+      
+      
+      if (jetColl.encode() == "ak5PFJets") {
+        //compute id variables
+        float jec4setup = 1.0;
+        const reco::VertexCollection vertexCollection = *(vtxH.product()); 
+        const reco::Vertex* selectedVtx  = &(*vertexCollection.begin());;
+        const reco::Jet* thisjet = correctedJet;
+     
+        
+        PileupJetIdentifier jetIdentifer_vars = jetMVACalculator.computeIdVariables( thisjet, jec4setup, selectedVtx, vertexCollection);
 
   
-      jet_dRMean[jet_n]=jetMVAinputs.dRMean();
-      jet_frac01[jet_n]=jetMVAinputs.frac01();
-      jet_frac02[jet_n]=jetMVAinputs.frac02();
-      jet_frac03[jet_n]=jetMVAinputs.frac03();
-      jet_frac04[jet_n]=jetMVAinputs.frac04();
-      jet_frac05[jet_n]=jetMVAinputs.frac05();
-      jet_nNeutrals[jet_n]=jetMVAinputs.nNeutrals();
-      jet_beta[jet_n]=jetMVAinputs.beta();
-      jet_betaStar[jet_n]=jetMVAinputs.betaStar();
-      jet_dZ[jet_n]=jetMVAinputs.dZ();
-      jet_nCharged[jet_n]=jetMVAinputs.nCharged();
-      jet_dR2Mean[jet_n]=jetMVAinputs.dR2Mean();
-      jet_betaStarClassic[jet_n]=jetMVAinputs.betaStarClassic();
+        jet_dRMean[jet_n]=jetIdentifer_vars.dRMean();
+        jet_frac01[jet_n]=jetIdentifer_vars.frac01();
+        jet_frac02[jet_n]=jetIdentifer_vars.frac02();
+        jet_frac03[jet_n]=jetIdentifer_vars.frac03();
+        jet_frac04[jet_n]=jetIdentifer_vars.frac04();
+        jet_frac05[jet_n]=jetIdentifer_vars.frac05();
+        jet_nNeutrals[jet_n]=jetIdentifer_vars.nNeutrals();
+        jet_beta[jet_n]=jetIdentifer_vars.beta();
+        jet_betaStar[jet_n]=jetIdentifer_vars.betaStar();
+        jet_dZ[jet_n]=jetIdentifer_vars.dZ();
+        jet_nCharged[jet_n]=jetIdentifer_vars.nCharged();
+        jet_dR2Mean[jet_n]=jetIdentifer_vars.dR2Mean();
+        jet_betaStarClassic[jet_n]=jetIdentifer_vars.betaStarClassic();
+  
+    
+
+        for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
+          PileupJetIdAlgo* ialgo = (algos_[imva]);
+          ialgo->set(jetIdentifer_vars);
+          PileupJetIdentifier id = ialgo->computeMva();
+          mvas_[imva][jet_n] = id.mva() ;
+          wp_levels_[imva][jet_n] = id.idFlag() ;
+        }
+      }
 
       float dy = 0;
       float dphi = 0;
