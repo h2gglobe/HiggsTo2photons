@@ -685,7 +685,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_e2x5[el_n] = egsf.e2x5Max();
     el_e1x5[el_n] = egsf.e1x5();
     el_sieie[el_n] = egsf.sigmaIetaIeta();
-    el_1oe_1op[el_n] = 1./egsf.ecalEnergy() - 1./egsf.trackMomentumAtVtx().R();
+    //el_1oe_1op[el_n] = 1./egsf.ecalEnergy() - 1./egsf.trackMomentumAtVtx().R();
+    el_1oe_1op[el_n] = 1./egsf.ecalEnergy() - 1./egsf.p();
     el_r9[el_n] = ecalLazyTool->e3x3(*(egsf.superCluster()->seed())) / egsf.superCluster()->rawEnergy();
 
     el_sc_time[el_n] = ecalLazyTool->SuperClusterTime(*(egsf.superCluster()), iEvent);

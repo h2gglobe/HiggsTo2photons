@@ -179,17 +179,17 @@ h2ganalyzer = cms.EDAnalyzer(
     SimHitCuts = cms.PSet(EnergyCut = cms.double(0.0)),
     SimTrackCuts = cms.PSet(EnergyCut = cms.double(0.0)),
     
-    EcalHitCuts = cms.PSet(BarrelEnergyCut = cms.double(0.08),
-                           EndcapEnergyCut = cms.double(0.24),
+    EcalHitCuts = cms.PSet(BarrelEnergyCut = cms.double(0.0),
+                           EndcapEnergyCut = cms.double(0.0),
                            PreEnergyCut = cms.double(-999.0),
                            EcalMaxDR = cms.double(0.5),
-                           KeepOutsideCone = cms.bool(True)),
+                           KeepOutsideCone = cms.bool(False)),
     
     HcalHitsCuts = cms.PSet(HBHEEnergyCut = cms.double(0.35),
                             HFEnergyCut = cms.double(1.0),
                             HOEnergyCut = cms.double(0.7),
                             HcalMaxDR = cms.double(0.6),
-                            KeepOutsideCone = cms.bool(True)),
+                            KeepOutsideCone = cms.bool(False)),
     
     BasicClusterCuts = cms.PSet(EnergyCut = cms.double(-1.0)),
     SuperClusterCuts = cms.PSet(EnergyCut = cms.double(-1.0)),

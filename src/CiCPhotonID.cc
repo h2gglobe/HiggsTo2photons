@@ -404,7 +404,7 @@ void CiCPhotonID::setPhotonIDThresholds(const edm::ParameterSet& iConfig) {
   const edm::ParameterSet gammaIDCuts = iConfig.getParameter<edm::ParameterSet>("hggPhotonIDConfiguration") ;
   char a[100];
   
-  for (int lev = 0; lev < 11; ++lev) {
+  for (int lev = 0; lev < 12; ++lev) {
     sprintf(a, "cutsubleadisosumoet6c%d", lev);
     phoIDcuts6cat[lev][0]     = gammaIDCuts.getParameter<std::vector<double> >(a);
     sprintf(a, "cutsubleadisosumoetbad6c%d", lev);
