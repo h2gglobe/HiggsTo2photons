@@ -108,6 +108,7 @@ h2ganalyzer = cms.EDAnalyzer(
  
                                 
     PhotonCollStd = cms.InputTag("photons"),
+    PhotonCollPf = cms.InputTag("pfPhotonTranslator:pfphot"),
     ConvertedPhotonColl = cms.InputTag("allConversions"),
     MuonColl = cms.InputTag("muons"),
    
