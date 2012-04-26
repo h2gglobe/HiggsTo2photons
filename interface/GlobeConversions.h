@@ -97,6 +97,16 @@ class GlobeConversions {
   Float_t conv_tk2_dzerr[MAX_CONVERTEDPHOTONS];
   Short_t conv_tk2_nh[MAX_CONVERTEDPHOTONS];
   Int_t conv_ch1ch2[MAX_CONVERTEDPHOTONS];
+  Float_t conv_tk1_pterr[MAX_CONVERTEDPHOTONS];
+  Float_t conv_tk2_pterr[MAX_CONVERTEDPHOTONS];
+  Float_t conv_tk1_etaerr[MAX_CONVERTEDPHOTONS];
+  Float_t conv_tk2_etaerr[MAX_CONVERTEDPHOTONS];
+  Float_t conv_tk1_thetaerr[MAX_CONVERTEDPHOTONS];
+  Float_t conv_tk2_thetaerr[MAX_CONVERTEDPHOTONS];
+  Float_t conv_tk1_phierr[MAX_CONVERTEDPHOTONS];
+  Float_t conv_tk2_phierr[MAX_CONVERTEDPHOTONS];
+  Float_t conv_tk1_lambdaerr[MAX_CONVERTEDPHOTONS];
+  Float_t conv_tk2_lambdaerr[MAX_CONVERTEDPHOTONS];
 
   /// vertex quanities
   Float_t conv_vtx_xErr[MAX_CONVERTEDPHOTONS];
@@ -134,7 +144,8 @@ class GlobeConversions {
   edm::InputTag hcalFColl;
   edm::InputTag hcalHoColl; 
 // Particle Flow
-  edm::InputTag pfColl;
+  //edm::InputTag pfColl;
+  edm::InputTag pfPhotonsColl;
 
   edm::InputTag beamSpotColl;
   edm::InputTag eleColl;
