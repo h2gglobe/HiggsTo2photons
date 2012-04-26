@@ -143,6 +143,23 @@ class GlobePhotons {
   Float_t pho_etop[MAX_PHOTONS];
   Float_t pho_ebottom[MAX_PHOTONS];
 
+  Float_t pho_pfconvVtxZ[MAX_PHOTONS];
+  Float_t pho_pfconvVtxZErr[MAX_PHOTONS];
+  Int_t pho_pfMatch[MAX_PHOTONS];
+  Int_t pho_hasConvPf[MAX_PHOTONS];
+  Int_t pho_hasSLConvPf[MAX_PHOTONS];
+  Float_t pho_pfpresh1[MAX_PHOTONS];
+  Float_t pho_pfpresh2[MAX_PHOTONS];
+  Float_t pho_mustenergy[MAX_PHOTONS];
+  Float_t pho_mustenergyout[MAX_PHOTONS];
+  Float_t pho_mustEtout[MAX_PHOTONS];
+  Float_t pho_pflowE[MAX_PHOTONS];
+  Float_t pho_pfdeta[MAX_PHOTONS];
+  Float_t pho_pfdphi[MAX_PHOTONS];
+  Float_t pho_pfclusrms[MAX_PHOTONS];
+  Float_t pho_pfclusrmsmust[MAX_PHOTONS];
+  Float_t pho_pfClusECorr[MAX_PHOTONS];
+
   Float_t pho_e2overe9[MAX_PHOTONS];
   Float_t pho_seed_time[MAX_PHOTONS];
   Float_t pho_seed_outoftimechi2[MAX_PHOTONS];
@@ -239,7 +256,7 @@ class GlobePhotons {
   GlobeCuts *gCUT;
   GlobeEcalClusters *gES;
   edm::InputTag photonCollStd;
-
+  edm::InputTag photonCollPf;
   CiCPhotonID* cicPhotonId;
 
   // SUPER CLUSTERS
