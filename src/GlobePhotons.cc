@@ -14,10 +14,10 @@
 //#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/Mustache.h"
-
+#include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include <cstdlib>
-
+#include "TFile.h"
 void GlobePhotons::checkSetup(const edm::EventSetup& iSetup) {
 
   // Initialise the Correction Scheme
@@ -31,7 +31,7 @@ void GlobePhotons::checkSetup(const edm::EventSetup& iSetup) {
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle);
   geometry = *geoHandle;
-
+    
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   iSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
   sevLevel = sevlv.product(); 
@@ -53,7 +53,7 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 
   // PHOTONS 
   photonCollStd =  iConfig.getParameter<edm::InputTag>("PhotonCollStd");
-
+  photonCollPf =  iConfig.getParameter<edm::InputTag>("PhotonCollPf");
   // SUPER CLUSTERS
   hybridSuperClusterColl = iConfig.getParameter<edm::InputTag>("HybridSuperClusterColl");
   endcapSuperClusterColl = iConfig.getParameter<edm::InputTag>("EndcapSuperClusterColl");
@@ -193,6 +193,20 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_frixiso", "std::vector<std::vector<float> >", &pho_frixiso);  
   tree->Branch("pho_must", &pho_must, "pho_must[pho_n]/F");
   tree->Branch("pho_mustnc", &pho_mustnc, "pho_mustnc[pho_n]/I");
+  tree->Branch("pho_pfpresh1", &pho_pfpresh1, "pho_pfpresh1[pho_n]/F");
+  tree->Branch("pho_pfpresh2", &pho_pfpresh2, "pho_pfpresh2[pho_n]/F");
+  tree->Branch("pho_mustenergy", &pho_mustenergy, "pho_mustenergy[pho_n]/F");
+  tree->Branch("pho_mustenergyout", &pho_mustenergyout, "pho_mustenergyout[pho_n]/F");
+  
+  tree->Branch("pho_mustEtout", &pho_mustEtout, "pho_mustEtout[pho_n]/F");
+  tree->Branch("pho_pflowE", &pho_pflowE, "pho_pflowE[pho_n]/F");
+  tree->Branch("pho_pfdeta", &pho_pfdeta, "pho_pfdeta[pho_n]/F");
+  tree->Branch("pho_pfdphi", &pho_pfdphi, "pho_pfdphi[pho_n]/F");
+  tree->Branch("pho_pfclusrms", &pho_pfclusrms, "pho_pfclusrms[pho_n]/F");
+  tree->Branch("pho_pfclusrmsmust", &pho_pfclusrmsmust, "pho_pfclusrmsmust[pho_n]/F");
+  tree->Branch("pho_pfClusECorr", &pho_pfClusECorr, "pho_pfClusECorr[pho_n]/F");  tree->Branch("pho_pfMatch", &pho_pfMatch, "pho_pfMatch[pho_n]/I");
+  
+  
 
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
@@ -316,6 +330,9 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<reco::PhotonCollection> phoH;
   iEvent.getByLabel(photonCollStd, phoH);
 
+  edm::Handle<reco::PhotonCollection> phoHpf;
+  iEvent.getByLabel(photonCollPf, phoHpf);
+
   // take the pi0 rejection info from RECO
   edm::Handle<reco::PhotonPi0DiscriminatorAssociationMap>  map;
   reco::PhotonPi0DiscriminatorAssociationMap::const_iterator mapIter;
@@ -375,7 +392,9 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   const CaloSubdetectorGeometry *geometryES = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   CaloSubdetectorTopology *topology_p = 0;
   if (geometryES) topology_p = new EcalPreshowerTopology(geoHandle);
-
+  const CaloSubdetectorGeometry* geomBar_=geoHandle->getSubdetectorGeometry(DetId::Ecal,1);
+  const CaloSubdetectorGeometry* geomEnd_=geoHandle->getSubdetectorGeometry(DetId::Ecal,2);
+  
   // FOR PF ISOLATION
   edm::Handle<reco::PFCandidateCollection> pfCollection;
   iEvent.getByLabel(pfColl, pfCollection);
@@ -468,6 +487,17 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       //sprintf(filename, "http://sani.cern.ch/gbrv2ph.root");
       ecorr_.Initialize(iSetup, "wgbrph", true);
     }
+    
+    //do the same for PFEcal Cluster corrections:
+    char filename1[200];
+    char filename2[200];
+    char* descr = getenv("CMSSW_BASE");
+    sprintf(filename1, "%s/src/HiggsAnalysis/HiggsTo2photons/data/TMVARegressionBarrelLC.root", descr);
+    sprintf(filename2, "%s/src/HiggsAnalysis/HiggsTo2photons/data/TMVARegressionEndCapLC.root", descr);
+    TFile *fgbr1 = new TFile(filename1,"READ");
+    TFile *fgbr2 = new TFile(filename2,"READ");
+    const GBRForest* PFLCBarrel=(const GBRForest*)fgbr1->Get("PFLCorrEB");
+    const GBRForest* PFLCEndcap=(const GBRForest*)fgbr2->Get("PFLCorrEE");
 
     EcalClusterLazyTools lazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);   
     std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*localPho, *(hVertex.product()), lazyTool, iSetup);
@@ -589,9 +619,71 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     pho_must[pho_n] = -9999.;
     pho_mustnc[pho_n] = -1;
-    reco::Mustache m;
-    m.MustacheID(*(localPho->superCluster()), pho_mustnc[pho_n], pho_must[pho_n]);
+    //reco::Mustache m;
+    //m.MustacheID(*(localPho->superCluster()), pho_mustnc[pho_n], pho_must[pho_n]);
+    
+    edm::Handle<EcalRecHitCollection> EBReducedRecHits;
+    edm::Handle<EcalRecHitCollection> EEReducedRecHits;
+    iEvent.getByLabel(ecalHitEBColl, EBReducedRecHits);
+    iEvent.getByLabel(ecalHitEEColl, EEReducedRecHits);
+    
+    ggPFPhotons ggPFPhoton(*localPho, phoHpf,hElectrons,
+			   EBReducedRecHits,
+			   EEReducedRecHits,
+			   ESRecHits,
+			   geomBar_,
+			   geomEnd_,
+			   bsHandle
+			   );
+    
+    pho_pfconvVtxZ[pho_n] = -9999.;
+    pho_pfconvVtxZErr[pho_n] = -9999.;
+    pho_hasConvPf[pho_n] = -9999.;
+    pho_hasSLConvPf[pho_n] = -9999.;
+    pho_pfpresh1[pho_n] = -9999.;
+    pho_pfpresh2[pho_n] = -9999.;
+    pho_mustenergy[pho_n] = -9999.;
+    pho_mustenergyout[pho_n] = -9999.;
+    pho_pflowE[pho_n] = -9999.;
+    pho_pfdeta[pho_n] = -9999.;
+    pho_pfdphi[pho_n] = -9999.;
+    pho_pfclusrms[pho_n] = -9999.;
+    pho_pfclusrmsmust[pho_n] = -9999.;
 
+    if(ggPFPhoton.MatchPFReco()){
+      std::pair<float, float>VertexZ=ggPFPhoton.SLPoint();
+      pho_pfconvVtxZ[pho_n] = VertexZ.first;
+      pho_pfconvVtxZErr[pho_n] = VertexZ.second;
+      pho_pfMatch[pho_n]=1;
+      if(ggPFPhoton.isConv()){
+	pho_hasConvPf[pho_n] = 1;
+      }
+      else pho_hasConvPf[pho_n] = 0;
+      
+      if(ggPFPhoton.hasSLConv()){
+	pho_hasSLConvPf[pho_n] = 1;
+      }
+      else pho_hasSLConvPf[pho_n] = 0;
+      
+      ggPFPhoton.fillPFClusters();
+      pho_pfpresh1[pho_n] = ggPFPhoton.PFPS1();
+      pho_pfpresh2[pho_n] = ggPFPhoton.PFPS2();
+      pho_must[pho_n] = ggPFPhoton.MustEtOut();
+      pho_mustenergy[pho_n] = ggPFPhoton.MustE();
+      pho_mustenergyout[pho_n] = ggPFPhoton.MustEOut();
+      pho_mustEtout[pho_n]=ggPFPhoton.MustEtOut();
+      pho_pflowE[pho_n] = ggPFPhoton.PFLowE();
+      pho_pfdeta[pho_n] = ggPFPhoton.PFdEta();
+      pho_pfdphi[pho_n] = ggPFPhoton.PFdPhi();
+      pho_pfclusrms[pho_n] = ggPFPhoton.PFClusRMSTot();
+      pho_pfclusrmsmust[pho_n] = ggPFPhoton.PFClusRMSMust();
+      std::vector<reco::CaloCluster>PFC=ggPFPhoton.PFClusters();
+      pho_pfClusECorr[pho_n]=ggPFPhoton.getPFPhoECorr(PFC, PFLCBarrel, PFLCEndcap);
+    }
+    else{
+
+      pho_pfMatch[pho_n]=0;
+    }
     // more cluster shapes from Lazy Tools
     std::vector<float> viCov;
     viCov = lazyTool.localCovariances(*seed_clu);
