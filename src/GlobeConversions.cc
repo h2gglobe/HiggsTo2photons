@@ -22,8 +22,9 @@ GlobeConversions::GlobeConversions(const edm::ParameterSet& iConfig, const char*
   photonCollStd =  iConfig.getParameter<edm::InputTag>("PhotonCollStd");
   
   // Particle Flow
-  pfColl = iConfig.getParameter<edm::InputTag>("PFCandidateColl");
-
+  //pfColl = iConfig.getParameter<edm::InputTag>("PFCandidateColl");
+  pfPhotonsColl = iConfig.getParameter<edm::InputTag>("PhotonCollPf");
+  
   beamSpotColl = iConfig.getParameter<edm::InputTag>("BeamSpot");
   eleColl = iConfig.getParameter<edm::InputTag>(a);
 
@@ -88,6 +89,18 @@ void GlobeConversions::defineBranch(TTree* tree) {
   tree->Branch("conv_nHitsMax", &conv_nHitsMax,"conv_nHitsMax[conv_n]/I");
   tree->Branch("conv_eleind", &conv_eleind,"conv_eleind[conv_n]/I");
 
+  tree->Branch("conv_tk1_pterr", &conv_tk1_pterr,"conv_tk1_pterr[conv_n]/F");
+  tree->Branch("conv_tk2_pterr", &conv_tk1_pterr,"conv_tk2_pterr[conv_n]/F");
+  tree->Branch("conv_tk1_etaerr", &conv_tk1_etaerr,"conv_tk1_etaerr[conv_n]/F");
+  tree->Branch("conv_tk2_etaerr", &conv_tk1_etaerr,"conv_tk2_etaerr[conv_n]/F");
+  tree->Branch("conv_tk1_thetaerr", &conv_tk1_thetaerr,"conv_tk1_thetaerr[conv_n]/F");
+  tree->Branch("conv_tk2_thetaerr", &conv_tk1_thetaerr,"conv_tk2_thetaerr[conv_n]/F");
+  tree->Branch("conv_tk1_phierr", &conv_tk1_phierr,"conv_tk1_phierr[conv_n]/F");
+  tree->Branch("conv_tk2_phierr", &conv_tk1_phierr,"conv_tk2_phierr[conv_n]/F");
+  tree->Branch("conv_tk1_lambdaerr", &conv_tk1_lambdaerr,"conv_tk1_lambdaerr[conv_n]/F");
+  tree->Branch("conv_tk2_lambdaerr", &conv_tk1_lambdaerr,"conv_tk2_lambdaerr[conv_n]/F");
+
+  
   conv_vtx = new TClonesArray("TVector3", MAX_CONVERTEDPHOTONS);
   tree->Branch("conv_vtx", "TClonesArray", &conv_vtx, 32000, 0);
   conv_pair_momentum = new TClonesArray("TVector3", MAX_CONVERTEDPHOTONS);
@@ -112,9 +125,12 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<reco::PhotonCollection> PhoH;
   iEvent.getByLabel(photonCollStd, PhoH);
   
-  edm::Handle<reco::PFCandidateCollection> pfHandle;
-  iEvent.getByLabel(pfColl, pfHandle);
-  
+  //edm::Handle<reco::PFCandidateCollection> pfHandle;
+  //iEvent.getByLabel(pfColl, pfHandle);
+
+  edm::Handle<reco::PhotonCollection> pfPhotonsH;
+  iEvent.getByLabel(pfPhotonsColl, pfPhotonsH);
+
   edm::Handle<reco::GsfElectronCollection> elH;
   iEvent.getByLabel(eleColl, elH);
   
@@ -255,6 +271,16 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     conv_vtx_xErr[conv_n]=-999.;
     conv_vtx_yErr[conv_n]=-999.;
     conv_vtx_zErr[conv_n]=-999.;
+    conv_tk1_pterr[conv_n]=-999.;
+    conv_tk2_pterr[conv_n]=-999.;
+    conv_tk1_etaerr[conv_n]=-999.;
+    conv_tk2_etaerr[conv_n]=-999.;
+    conv_tk1_thetaerr[conv_n]=-999.;
+    conv_tk2_thetaerr[conv_n]=-999.;
+    conv_tk1_phierr[conv_n]=-999.;
+    conv_tk2_phierr[conv_n]=-999.;
+    conv_tk1_lambdaerr[conv_n]=-999.;
+    conv_tk2_lambdaerr[conv_n]=-999.;
 
     ((TVector3 *)conv_vtx->At(conv_n))->SetXYZ(-999, -999, -999);
     ((TVector3 *)conv_pair_momentum->At(conv_n))->SetXYZ(-999, -999, -999);
@@ -291,12 +317,22 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
           conv_tk1_dzerr[conv_n]=tracks[i]->dzError();
           conv_tk1_nh[conv_n]=tracks[i]->numberOfValidHits();
           conv_ch1ch2[conv_n]=tracks[i]->charge();
+          conv_tk1_pterr[conv_n]=tracks[i]->ptError();
+          conv_tk1_etaerr[conv_n]=tracks[i]->etaError();
+          conv_tk1_thetaerr[conv_n]=tracks[i]->thetaError();
+          conv_tk1_phierr[conv_n]=tracks[i]->phiError();
+          conv_tk1_lambdaerr[conv_n]=tracks[i]->lambdaError();
         }
         else if(i==1) {
           conv_tk2_dz[conv_n]=tracks[i]->dz();
           conv_tk2_dzerr[conv_n]=tracks[i]->dzError();
           conv_tk2_nh[conv_n]=tracks[i]->numberOfValidHits();
           conv_ch1ch2[conv_n]*=tracks[i]->charge();
+          conv_tk2_pterr[conv_n]=tracks[i]->ptError();
+          conv_tk2_etaerr[conv_n]=tracks[i]->etaError();
+          conv_tk2_thetaerr[conv_n]=tracks[i]->thetaError();
+          conv_tk2_phierr[conv_n]=tracks[i]->phiError();
+          conv_tk2_lambdaerr[conv_n]=tracks[i]->lambdaError();
         }
       }
     }
@@ -380,12 +416,12 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   // Get Particle Flow Conversions
   for (reco::PhotonCollection::const_iterator localPho=PhoH->begin(); localPho!=PhoH->end(); localPho++) {
-    for (reco::PFCandidateCollection::const_iterator iPfCand=pfHandle->begin(); iPfCand!=pfHandle->end(); iPfCand++) {
-      if (iPfCand->particleId()!=reco::PFCandidate::gamma) continue;
-      if (iPfCand->mva_nothing_gamma()<=0) continue;
-      reco::PhotonRef phoRef = iPfCand->photonRef();
-      if (localPho->superCluster()!=phoRef->superCluster()) continue;
-      reco::ConversionRefVector convsingleleg = phoRef->conversionsOneLeg();
+    for (reco::PhotonCollection::const_iterator iPfCand=pfPhotonsH->begin(); iPfCand!=pfPhotonsH->end(); iPfCand++) {
+//       if (iPfCand->particleId()!=reco::PFCandidate::gamma) continue;
+//       if (iPfCand->mva_nothing_gamma()<=0) continue;
+//       reco::PhotonRef phoRef = iPfCand->photonRef();
+      if (localPho->superCluster()!=iPfCand->superCluster()) continue;
+      reco::ConversionRefVector convsingleleg = iPfCand->conversionsOneLeg();
       for (unsigned int iconvoneleg=0; iconvoneleg<convsingleleg.size(); iconvoneleg++){
 
         if (conv_n >= MAX_CONVERTEDPHOTONS) {
@@ -476,6 +512,16 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         conv_vtx_xErr[conv_n]=-999.;
         conv_vtx_yErr[conv_n]=-999.;
         conv_vtx_zErr[conv_n]=-999.;
+        conv_tk1_pterr[conv_n]=-999.;
+        conv_tk2_pterr[conv_n]=-999.;
+        conv_tk1_etaerr[conv_n]=-999.;
+        conv_tk2_etaerr[conv_n]=-999.;
+        conv_tk1_thetaerr[conv_n]=-999.;
+        conv_tk2_thetaerr[conv_n]=-999.;
+        conv_tk1_phierr[conv_n]=-999.;
+        conv_tk2_phierr[conv_n]=-999.;
+        conv_tk1_lambdaerr[conv_n]=-999.;
+        conv_tk2_lambdaerr[conv_n]=-999.;
 
         ((TVector3 *)conv_vtx->At(conv_n))->SetXYZ(-999, -999, -999);
         ((TVector3 *)conv_pair_momentum->At(conv_n))->SetXYZ(-999, -999, -999);
@@ -509,6 +555,11 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             conv_tk1_dzerr[conv_n]=tracks[0]->dzError();
             conv_tk1_nh[conv_n]=tracks[0]->numberOfValidHits();
             conv_ch1ch2[conv_n]=tracks[0]->charge();
+            conv_tk1_pterr[conv_n]=tracks[0]->ptError();
+            conv_tk1_etaerr[conv_n]=tracks[0]->etaError();
+            conv_tk1_thetaerr[conv_n]=tracks[0]->thetaError();
+            conv_tk1_phierr[conv_n]=tracks[0]->phiError();
+            conv_tk1_lambdaerr[conv_n]=tracks[0]->lambdaError();
             ((TVector3 *) conv_singleleg_momentum->At(conv_n))->SetXYZ(tracks[0]->px(), tracks[0]->py(), tracks[0]->pz());
           }
         }
