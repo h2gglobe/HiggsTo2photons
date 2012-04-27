@@ -145,12 +145,10 @@ void GlobeJets::defineBranch(TTree* tree) {
 
           sprintf(a1, "jet_%s_%s_mva", nome, mvalabel.c_str());
           sprintf(a2, "jet_%s_%s_mva[jet_%s_n]/F", nome, mvalabel.c_str(), nome);
-          std::cout<<"a1 a2 "<<a1<<" "<<a2<<std::endl;
           tree->Branch(a1, &mvas_[imva][0], a2);
 
           sprintf(a1, "jet_%s_%s_wp_level", nome, mvalabel.c_str());
           sprintf(a2, "jet_%s_%s_wp_level[jet_%s_n]/I", nome, mvalabel.c_str(), nome);
-          std::cout<<"a1 a2 "<<a1<<" "<<a2<<std::endl;
           tree->Branch(a1, &wp_levels_[imva][0], a2);
       }
   }
