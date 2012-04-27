@@ -59,6 +59,7 @@ class GlobePFCandidates {
   GlobeCuts *gCUT;
   edm::InputTag pfColl;
   edm::InputTag photonCollStd;
+  edm::InputTag electronCollStd;
   double PFIsoOuterConeSize;
   int debug_level;
 };

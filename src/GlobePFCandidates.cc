@@ -19,6 +19,7 @@
 GlobePFCandidates::GlobePFCandidates(const edm::ParameterSet& iConfig) {
   
   pfColl = iConfig.getParameter<edm::InputTag>("PFCandidateColl");
+  electronCollStd = iConfig.getParameter<edm::InputTag>("ElectronColl_std");
   photonCollStd =  iConfig.getParameter<edm::InputTag>("PhotonCollStd");
   PFIsoOuterConeSize = iConfig.getParameter<double>("PFIsoOuterCone");
   debug_level = iConfig.getParameter<int>("Debug_Level");
@@ -71,8 +72,7 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // All PF Candidate
   edm::Handle<reco::PFCandidateCollection> pfCandidatesH;
-  edm::InputTag label("particleFlow");
-  iEvent.getByLabel(label, pfCandidatesH);
+  iEvent.getByLabel(pfColl, pfCandidatesH);
   std::vector<reco::PFCandidate> candidates = (*pfCandidatesH.product());
 
   //PF Candidates from PileUp
@@ -86,11 +86,11 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
   std::vector<reco::PFCandidate> pucandidates = (*pfCandidatesPileUpH.product());
 
-  // GsfElectron Collection
-  edm::InputTag egammaLabel("gsfElectrons");
   edm::Handle < reco::GsfElectronCollection > theEGammaCollection;
-  iEvent.getByLabel(egammaLabel, theEGammaCollection);
-  const reco::GsfElectronCollection theEGamma = *(theEGammaCollection.product());
+  iEvent.getByLabel(electronCollStd, theEGammaCollection);
+
+  edm::Handle<reco::PhotonCollection> phoH;
+  iEvent.getByLabel(photonCollStd, phoH);
 
   std::vector<reco::PFCandidate>::iterator it;
   unsigned int nit = 0;
@@ -118,11 +118,11 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
       }
     }
 
-    for (unsigned int iele = 0; iele < theEGamma.size(); iele++) {
+    for (unsigned int iele = 0; iele < theEGammaCollection->size(); iele++) {
       reco::GsfElectronRef electronRef(theEGammaCollection, iele);
       // do not consider the same gsf-pf electron in the iso cone. 
       if(it->particleId() == 2) {
-	reco::GsfTrackRef egGsfTrackRef = (theEGamma[iele]).gsfTrack();
+	reco::GsfTrackRef egGsfTrackRef = electronRef->gsfTrack();
 	reco::GsfTrackRef pfGsfTrackRef = (*it).gsfTrackRef();
 	if (egGsfTrackRef == pfGsfTrackRef)
 	  continue;
@@ -130,6 +130,34 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
       double dphi = deltaPhi( it->phi(), electronRef->phi() );
       double deta = it->eta() - electronRef->eta();
+      double dR = sqrt(deta * deta + dphi * dphi);
+      if (dR < 0.6) {
+	if (it->particleId() == 1 ||//charged hadrons
+	    it->particleId() == 2 ||// electrons do you want them?
+	    it->particleId() == 3 ||// muons do you want them ?
+	    it->particleId() == 4 ||// photons
+	    it->particleId() == 5) {// netrual hadrons
+
+	  save = true;
+	} else {
+	  save = false;
+	}
+      }
+    }
+
+
+    for (unsigned int ipho = 0; ipho < phoH->size(); ipho++) {
+      reco::PhotonRef photonRef(phoH, ipho);
+
+      // do not consider the same gsf-pf electron in the iso cone. 
+      if(it->particleId() == 4) {
+	reco::PhotonRef pfPhotonRef = (*it).photonRef();
+	if (photonRef == pfPhotonRef)
+	  continue;
+      }
+
+      double dphi = deltaPhi( it->phi(), photonRef->phi() );
+      double deta = it->eta() - photonRef->eta();
       double dR = sqrt(deta * deta + dphi * dphi);
       if (dR < 0.6) {
 	if (it->particleId() == 1 ||//charged hadrons
@@ -178,43 +206,6 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
       if(it->particleId() == 1 ) {
 	pfcand_vz[pfcand_n] = it->trackRef()->vz();
       }
-      
-      /*
-      pfcand_tkind[pfcand_n] = -1;  
-      if (tks != 0 && it->trackRef().isNonnull()) {
-	TVector3 vTk = TVector3(it->trackRef()->px(), 
-				it->trackRef()->py(), 
-				it->trackRef()->pz());
-	
-	float drmin = 0.2;
-	for (Int_t i=0; i<tks->tk_n; i++) {
-	  TVector3 temp = ((TLorentzVector*)tks->tk_p4->At(i))->Vect();
-	  float dr = temp.DeltaR(vTk);
-	  if (dr < drmin) {
-	    drmin = dr;
-	    pfcand_tkind[pfcand_n] = i;
-	  }
-	}
-      }
-
-      
-      pfcand_muind[pfcand_n] = -1;
-      if (mus != 0 && it->muonRef().isNonnull()) {
-	TVector3 vMu = TVector3(it->muonRef()->px(), 
-				it->muonRef()->py(), 
-				it->muonRef()->pz());
-
-	float drmin = 0.2;
-	for (Int_t i=0; i<mus->mu_n; i++) {
-	  TLorentzVector* temp = (TLorentzVector*)mus->mu_p4->At(i);
-	  float dr = temp->Vect().DeltaR(vMu);
-	  if (dr < drmin) {
-	    drmin = dr;
-	    pfcand_muind[pfcand_n] = i;
-	  }
-	}
-      }
-      */
 
       pfcand_ispu[pfcand_n] = 0;
       if (isCandFromPU)
@@ -229,8 +220,6 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<reco::PFCandidateCollection> pfH;
   iEvent.getByLabel(pfColl, pfH);
 
-  edm::Handle<reco::PhotonCollection> phoH;
-  iEvent.getByLabel(photonCollStd, phoH);
   */
 
   return true;
