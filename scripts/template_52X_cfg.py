@@ -59,7 +59,7 @@ if flagSkimDiphoton == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
   process.DiPhotonHltFilter = copy.deepcopy(process.hltHighLevel)
   process.DiPhotonHltFilter.throw = cms.bool(False)
-  process.DiPhotonHltFilter.HLTPaths = ["HLT_Photon*_CaloId*_Iso*_Photon*_CaloId*_Iso*_*","HLT_Photon*_R9Id*_Photon*_R9Id*_*","HLT_Photon*_R9Id*_Photon*_CaloId*_Iso*_*","HLT_Photon*_CaloId*_Iso*_Photon*_R9Id*_*"]
+  process.DiPhotonHltFilter.HLTPaths = ["HLT_Photon*_CaloId*_Iso*_Photon*_CaloId*_Iso*_*","HLT_Photon*_CaloId*_Iso*_Photon*_R9Id*_*","HLT_Photon*_R9Id*_Photon*_CaloId*_Iso*_*","HLT_Photon*_R9Id*_Photon*_R9Id*_*","HLT_Photon*_R9Id*_OR_CaloId*_Iso*_Photon*_R9Id*_OR_CaloId*_Iso*_*","HLT_Photon*_R9Id*_OR_CaloId*_Iso*_Photon*_*"]
   #process.load('Configuration.Skimming.PDWG_DiPhoton_SD_cff')
 
 
@@ -75,7 +75,7 @@ process.options = cms.untracked.PSet(
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
-
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.superClusterMerger =  cms.EDProducer("EgammaSuperClusterMerger",
                                              src = cms.VInputTag(cms.InputTag('correctedHybridSuperClusters'),
