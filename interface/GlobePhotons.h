@@ -76,6 +76,9 @@ class GlobePhotons {
   Float_t pho_crackcorr[MAX_PHOTONS];
   Float_t pho_localcorr[MAX_PHOTONS];
 
+  Int_t pho_isPFPhoton[MAX_PHOTONS];
+  Int_t pho_isPFElectron[MAX_PHOTONS];
+
   //fiducial flags
   Int_t pho_isEB[MAX_PHOTONS];
   Int_t pho_isEE[MAX_PHOTONS];
@@ -170,12 +173,26 @@ class GlobePhotons {
   Float_t pho_seed_severity[MAX_PHOTONS];
 
   //isolation variables
+  Float_t pho_pfiso_myneutral01[MAX_PHOTONS];
+  Float_t pho_pfiso_myneutral02[MAX_PHOTONS];
   Float_t pho_pfiso_myneutral03[MAX_PHOTONS];
-  Float_t pho_pfiso_myphoton03[MAX_PHOTONS];  
   Float_t pho_pfiso_myneutral04[MAX_PHOTONS];
+  Float_t pho_pfiso_myneutral05[MAX_PHOTONS];
+  Float_t pho_pfiso_myneutral06[MAX_PHOTONS];
+
+  Float_t pho_pfiso_myphoton01[MAX_PHOTONS]; 
+  Float_t pho_pfiso_myphoton02[MAX_PHOTONS]; 
+  Float_t pho_pfiso_myphoton03[MAX_PHOTONS];  
   Float_t pho_pfiso_myphoton04[MAX_PHOTONS];
+  Float_t pho_pfiso_myphoton05[MAX_PHOTONS]; 
+  Float_t pho_pfiso_myphoton06[MAX_PHOTONS]; 
+
+  std::vector<std::vector<float> >* pho_pfiso_mycharged01;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged02;
   std::vector<std::vector<float> >* pho_pfiso_mycharged03;
   std::vector<std::vector<float> >* pho_pfiso_mycharged04;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged05;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged06;
 
   Float_t pho_pfiso_neutral03[MAX_PHOTONS];
   Float_t pho_pfiso_charged03[MAX_PHOTONS];
