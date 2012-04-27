@@ -226,7 +226,7 @@ class GlobeElectrons {
   edm::FileInPath mvaWeightFile;  
   std::vector<edm::InputTag> inputTagIsoValElectronsPFId_;
 
-  EcalClusterLazyTools* ecalLazyTool;
+  //EcalClusterLazyTools* ecalLazyTool;
   EGEnergyCorrector ecorr_;
   ElectronMVAEstimator*  mvaEstimator;
 
