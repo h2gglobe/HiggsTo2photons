@@ -50,12 +50,15 @@ void GlobeMET::defineBranch(TTree* tree) {
 
   if(strcmp(nome, "tcmet") == 0) {
     tree->Branch("met_tcmet", &met_tcmet, "met_tcmet/F");
-    tree->Branch("met_phi_tcmet", &met_phi_tcmet, "met_phi_tcmet");
+    tree->Branch("met_phi_tcmet", &met_phi_tcmet, "met_phi_tcmet/F");
   }
 
   if(strcmp(nome, "pfmet") == 0) {
     tree->Branch("met_pfmet", &met_pfmet, "met_pfmet/F");
-    tree->Branch("met_phi_pfmet", &met_phi_pfmet, "met_phi_pfmet");
+    tree->Branch("met_phi_pfmet", &met_phi_pfmet, "met_phi_pfmet/F");
+    tree->Branch("met_sumet_pfmet", &met_sumet_pfmet, "met_sumet_pfmet/F");
+    tree->Branch("met_mEtSig_pfmet", &met_mEtSig_pfmet, "met_mEtSig_pfmet/F");
+    tree->Branch("met_significance_pfmet", &met_significance_pfmet, "met_significance_pfmet/F");
   }
 }
 
@@ -70,7 +73,7 @@ bool GlobeMET::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     met_met = metH->begin()->et();
     met_phi = metH->begin()->phi();
     
-    met_met = met_met;
+    met_met_nocalo = met_met;    
     met_phi_nocalo = met_phi;
     correctMETmuons(iEvent, met_met_nocalo, met_phi_nocalo, NoCaloCorrection);
     
@@ -115,8 +118,11 @@ bool GlobeMET::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     edm::Handle<reco::PFMETCollection> pfmet_h;
     iEvent.getByLabel(pfMETColl, pfmet_h);
     
-    met_pfmet = pfmet_h->begin()->et();
-    met_phi_pfmet = pfmet_h->begin()->phi();
+    met_pfmet              = pfmet_h->begin()->et();
+    met_phi_pfmet          = pfmet_h->begin()->phi();
+    met_sumet_pfmet        = pfmet_h->begin()->sumEt();
+    met_mEtSig_pfmet       = pfmet_h->begin()->mEtSig();
+    met_significance_pfmet = pfmet_h->begin()->significance();
 
     return true;
   }
