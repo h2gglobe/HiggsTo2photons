@@ -573,7 +573,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   CaloSubdetectorTopology *topology_p = 0;
   if (geometryES) topology_p = new EcalPreshowerTopology(geoHandle);
 
-  ecalLazyTool = new EcalClusterLazyTools(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);
+  EcalClusterLazyTools ecalLazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);
+  // = new EcalClusterLazyTools(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);
 
   edm::Handle<EcalRecHitCollection> ESRecHits;
   iEvent.getByLabel(ecalHitESColl , ESRecHits);
@@ -687,9 +688,9 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_sieie[el_n] = egsf.sigmaIetaIeta();
     //el_1oe_1op[el_n] = 1./egsf.ecalEnergy() - 1./egsf.trackMomentumAtVtx().R();
     el_1oe_1op[el_n] = 1./egsf.ecalEnergy() - 1./egsf.p();
-    el_r9[el_n] = ecalLazyTool->e3x3(*(egsf.superCluster()->seed())) / egsf.superCluster()->rawEnergy();
+    el_r9[el_n] = ecalLazyTool.e3x3(*(egsf.superCluster()->seed())) / egsf.superCluster()->rawEnergy();
 
-    el_sc_time[el_n] = ecalLazyTool->SuperClusterTime(*(egsf.superCluster()), iEvent);
+    el_sc_time[el_n] = ecalLazyTool.SuperClusterTime(*(egsf.superCluster()), iEvent);
 
     el_must[el_n] = -9999.;
     el_mustnc[el_n] = -1;
@@ -833,7 +834,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           if (&(*egsf.superCluster()) == &(*cluster)) {
             el_scind[el_n] = index; 
 	    el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(cluster), &(*barrelRecHits), &(*topology))[0]);
-	    std::vector<float> vCov = ecalLazyTool->localCovariances(*(cluster->seed()));
+	    std::vector<float> vCov = ecalLazyTool.localCovariances(*(cluster->seed()));
 	    //std::vector<float> vCov = EcalClusterTools::localCovariances( *(cluster->seed()), &(*barrelRecHits), &(*topology));
 	    if (!isnan(vCov[2]))
 	      el_sipip[el_n] = sqrt(vCov[2]);
@@ -855,7 +856,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
           if (&(*(egsf.superCluster())) == &(*cluster)) {
             el_scind[el_n] = index;
             el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(cluster), &(*endcapRecHits), &(*topology))[0]);
-	    std::vector<float> vCov = ecalLazyTool->localCovariances(*(cluster->seed()));
+	    std::vector<float> vCov = ecalLazyTool.localCovariances(*(cluster->seed()));
 	    if (!isnan(vCov[2]))
 	      el_sipip[el_n] = sqrt(vCov[2]);
 	    el_sieip[el_n] = vCov[1];
