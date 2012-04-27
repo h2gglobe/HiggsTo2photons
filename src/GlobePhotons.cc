@@ -47,6 +47,8 @@ GlobePhotons::~GlobePhotons() {
 
 GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
 
+  isInitialized = false;
+
   debug_level = iConfig.getParameter<int>("Debug_Level");
   doFastSim = iConfig.getParameter<bool>("doFastSim");
   doAodSim = iConfig.getParameter<bool>("doAodSim");
@@ -204,10 +206,9 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_pfdphi", &pho_pfdphi, "pho_pfdphi[pho_n]/F");
   tree->Branch("pho_pfclusrms", &pho_pfclusrms, "pho_pfclusrms[pho_n]/F");
   tree->Branch("pho_pfclusrmsmust", &pho_pfclusrmsmust, "pho_pfclusrmsmust[pho_n]/F");
-  tree->Branch("pho_pfClusECorr", &pho_pfClusECorr, "pho_pfClusECorr[pho_n]/F");  tree->Branch("pho_pfMatch", &pho_pfMatch, "pho_pfMatch[pho_n]/I");
+  tree->Branch("pho_pfClusECorr", &pho_pfClusECorr, "pho_pfClusECorr[pho_n]/F");  
+  tree->Branch("pho_pfMatch", &pho_pfMatch, "pho_pfMatch[pho_n]/I");
   
-  
-
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcal1sumetconedr04",&pho_hcal1sumetconedr04,"pho_hcal1sumetconedr04[pho_n]/F");
@@ -487,17 +488,26 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       //sprintf(filename, "http://sani.cern.ch/gbrv2ph.root");
       ecorr_.Initialize(iSetup, "wgbrph", true);
     }
-    
-    //do the same for PFEcal Cluster corrections:
-    char filename1[200];
-    char filename2[200];
-    char* descr = getenv("CMSSW_BASE");
-    sprintf(filename1, "%s/src/HiggsAnalysis/HiggsTo2photons/data/TMVARegressionBarrelLC.root", descr);
-    sprintf(filename2, "%s/src/HiggsAnalysis/HiggsTo2photons/data/TMVARegressionEndCapLC.root", descr);
-    TFile *fgbr1 = new TFile(filename1,"READ");
-    TFile *fgbr2 = new TFile(filename2,"READ");
-    const GBRForest* PFLCBarrel=(const GBRForest*)fgbr1->Get("PFLCorrEB");
-    const GBRForest* PFLCEndcap=(const GBRForest*)fgbr2->Get("PFLCorrEE");
+
+    if (!isInitialized) {
+      isInitialized = true;
+      //do the same for PFEcal Cluster corrections:
+      char filename1[200];
+      char filename2[200];
+      char* descr = getenv("CMSSW_BASE");
+      //sprintf(filename1, "%s/src/HiggsAnalysis/HiggsTo2photons/data/TMVARegressionBarrelLC.root", descr);
+      //sprintf(filename2, "%s/src/HiggsAnalysis/HiggsTo2photons/data/TMVARegressionEndCapLC.root", descr);
+      sprintf(filename1, "http://home.cern.ch/sani/TMVARegressionBarrelLC.root");
+      sprintf(filename2, "http://home.cern.ch/sani/TMVARegressionEndCapLC.root");
+      //TFile *fgbr1 = new TFile(filename1,"READ");
+      //TFile *fgbr2 = new TFile(filename2,"READ");
+      TFile *fgbr1 = TFile::Open(filename1);
+      TFile *fgbr2 = TFile::Open(filename2);
+      //const GBRForest* PFLCBarrel=(const GBRForest*)fgbr1->Get("PFLCorrEB");
+      //const GBRForest* PFLCEndcap=(const GBRForest*)fgbr2->Get("PFLCorrEE");
+      PFLCBarrel = (GBRForest*)fgbr1->Get("PFLCorrEB");
+      PFLCEndcap = (GBRForest*)fgbr2->Get("PFLCorrEE");
+    }
 
     EcalClusterLazyTools lazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);   
     std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*localPho, *(hVertex.product()), lazyTool, iSetup);

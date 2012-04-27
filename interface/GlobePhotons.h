@@ -31,6 +31,8 @@
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 
+#include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
+
 #include "TTree.h"
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
@@ -252,6 +254,9 @@ class GlobePhotons {
   TClonesArray *pho_conv_vertexcorrected_p4;
 
  private:
+  GBRForest* PFLCBarrel;
+  GBRForest* PFLCEndcap; 
+  bool isInitialized;
   const char* nome;
   GlobeCuts *gCUT;
   GlobeEcalClusters *gES;
