@@ -715,7 +715,7 @@ std::vector<float> GlobeEcalClusters::getESHits(double X, double Y, double Z, st
   } else {
 
     it = rechits_map.find(strip1);
-    if (it->second.energy() > 1.0e-10) esHits.push_back(it->second.energy());
+    if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
     else esHits.push_back(0);
     //cout<<"center : "<<strip1<<" "<<it->second.energy()<<endl;      
 
@@ -724,7 +724,7 @@ std::vector<float> GlobeEcalClusters::getESHits(double X, double Y, double Z, st
       next = theESNav1.east();
       if (next != ESDetId(0)) {
         it = rechits_map.find(next);
-        if (it->second.energy() > 1.0e-10) esHits.push_back(it->second.energy());
+        if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
         else esHits.push_back(0);
         //cout<<"east "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
       } else {
@@ -741,7 +741,7 @@ std::vector<float> GlobeEcalClusters::getESHits(double X, double Y, double Z, st
       next = theESNav1.west();
       if (next != ESDetId(0)) {
         it = rechits_map.find(next);
-        if (it->second.energy() > 1.0e-10) esHits.push_back(it->second.energy());
+        if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
         else esHits.push_back(0);
         //cout<<"west "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
       } else {
@@ -757,7 +757,7 @@ std::vector<float> GlobeEcalClusters::getESHits(double X, double Y, double Z, st
   } else {
 
     it = rechits_map.find(strip2);
-    if (it->second.energy() > 1.0e-10) esHits.push_back(it->second.energy());
+    if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
     else esHits.push_back(0);
     //cout<<"center : "<<strip2<<" "<<it->second.energy()<<endl;      
 
@@ -766,7 +766,7 @@ std::vector<float> GlobeEcalClusters::getESHits(double X, double Y, double Z, st
       next = theESNav2.north();
       if (next != ESDetId(0)) {
         it = rechits_map.find(next);
-        if (it->second.energy() > 1.0e-10) esHits.push_back(it->second.energy());
+        if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
         else esHits.push_back(0);
         //cout<<"north "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;  
       } else {
@@ -783,7 +783,7 @@ std::vector<float> GlobeEcalClusters::getESHits(double X, double Y, double Z, st
       next = theESNav2.south();
       if (next != ESDetId(0)) {
         it = rechits_map.find(next);
-        if (it->second.energy() > 1.0e-10) esHits.push_back(it->second.energy());
+        if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
         else esHits.push_back(0);
         //cout<<"south "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
       } else {
