@@ -107,11 +107,9 @@ class GlobeElectrons {
   Float_t el_tkiso03[MAX_ELECTRONS];
   Float_t el_ecaliso03[MAX_ELECTRONS];
   Float_t el_hcaliso03[MAX_ELECTRONS];
-  Float_t el_hcalsolidiso03[MAX_ELECTRONS];
   Float_t el_tkiso04[MAX_ELECTRONS];
   Float_t el_ecaliso04[MAX_ELECTRONS];
   Float_t el_hcaliso04[MAX_ELECTRONS];
-  Float_t el_hcalsolidiso04[MAX_ELECTRONS];
 
   Float_t el_mva[MAX_ELECTRONS];
   Bool_t el_ecaldrv[MAX_ELECTRONS];
@@ -140,6 +138,8 @@ class GlobeElectrons {
   Int_t el_psnstriply1[MAX_ELECTRONS];
   Int_t el_psnstriply2[MAX_ELECTRONS];
   
+  Float_t el_D0Vtx[MAX_ELECTRONS][100];
+  Float_t el_DZVtx[MAX_ELECTRONS][100];
 
   std::vector<std::vector<int> >* el_catbased;
 
@@ -164,7 +164,6 @@ class GlobeElectrons {
   // SUPER CLUSTERS
   edm::InputTag hybridSuperClusterColl;
   edm::InputTag endcapSuperClusterColl;  
-  edm::InputTag caloTowerColl;
   edm::InputTag ecalHitEBColl;
   edm::InputTag ecalHitEEColl;
   edm::InputTag ecalHitESColl;

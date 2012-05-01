@@ -7,10 +7,6 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-#include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-
-#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
 #include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 
@@ -26,7 +22,6 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
 
   conversionColl = iConfig.getParameter<edm::InputTag>("ConvertedPhotonColl");
   beamSpotColl = iConfig.getParameter<edm::InputTag>("BeamSpot");
-  caloTowerColl = iConfig.getParameter<edm::InputTag>("CaloTowerColl");
   trackColl = iConfig.getParameter<edm::InputTag>("TrackColl");
   trackColl2 = iConfig.getParameter<edm::InputTag>("TrackColl3");
   vertexColl = iConfig.getParameter<edm::InputTag>("VertexColl_std");
@@ -288,10 +283,6 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a2, "el_%s_hcaliso03[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_hcaliso03, a2);
 
-  sprintf(a1, "el_%s_hcalsolidiso03", nome);
-  sprintf(a2, "el_%s_hcalsolidiso03[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hcalsolidiso03, a2);
-
   sprintf(a1, "el_%s_ecaliso03", nome);
   sprintf(a2, "el_%s_ecaliso03[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_ecaliso03, a2);
@@ -303,10 +294,6 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_hcaliso04", nome);
   sprintf(a2, "el_%s_hcaliso04[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_hcaliso04, a2);
-
-  sprintf(a1, "el_%s_hcalsolidiso04", nome);
-  sprintf(a2, "el_%s_hcalsolidiso04[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hcalsolidiso04, a2);
 
   sprintf(a1, "el_%s_ecaliso04", nome);
   sprintf(a2, "el_%s_ecaliso04[el_%s_n]/F", nome, nome);
@@ -419,6 +406,14 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_psnstriply2", nome);
   sprintf(a2, "el_%s_psnstriply2[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_psnstriply2, a2);
+
+  sprintf(a1, "el_%s_D0Vtx", nome);
+  sprintf(a2, "el_%s_D0Vtx[el_%s_n][100]/F", nome, nome);
+  tree->Branch(a1, &el_D0Vtx, a2);
+
+  sprintf(a1, "el_%s_DZVtx", nome);
+  sprintf(a2, "el_%s_DZVtx[el_%s_n][100]/F", nome, nome);
+  tree->Branch(a1, &el_DZVtx, a2);
 }
 
 
@@ -434,9 +429,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<reco::BeamSpot> bsHandle;
   iEvent.getByLabel(beamSpotColl, bsHandle);
   const reco::BeamSpot &thebs = *bsHandle.product();
-
-  edm::Handle<edm::SortedCollection<CaloTower> > ctH;
-  iEvent.getByLabel(caloTowerColl, ctH);
 
   edm::Handle<reco::TrackCollection> tkH;
   iEvent.getByLabel(trackColl, tkH);
@@ -601,10 +593,10 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     // Regression Correction
     if (!ecorr_.IsInitialized()) {   
-      char filename[200];
+      //char filename[200];
       char* descr = getenv("CMSSW_BASE");
-      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ele.root", descr);
-      //std::string filename("http://home.cern.ch/sani/gbrele.root");
+      //sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ele.root", descr);
+      std::string filename("http://home.cern.ch/sani/gbrele.root");
       ecorr_.Initialize(iSetup, filename);
     }
 
@@ -806,12 +798,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_ecaliso03[el_n] = egsf.dr03EcalRecHitSumEt();
     el_hcaliso03[el_n] = egsf.dr03HcalTowerSumEt();
 
-    EgammaTowerIsolation hcaliso03(0.3, 0., 0, -1, ctH.product());
-    EgammaTowerIsolation hcaliso04(0.4, 0., 0, -1, ctH.product());
-
-    el_hcalsolidiso03[el_n] = hcaliso03.getTowerEtSum(&(*(egsf.superCluster())) );
-    el_hcalsolidiso04[el_n] = hcaliso04.getTowerEtSum(&(*(egsf.superCluster())) );
-
     if (egsf.isEB()) {
       std::vector<reco::PFCandidate::ParticleType> temp;
       temp.push_back(reco::PFCandidate::h);
@@ -862,7 +848,24 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     el_dist[el_n] = (egsf.convDist() == -9999.? 9999:egsf.convDist());
     el_dcot[el_n] = (egsf.convDcot() == -9999.? 9999:egsf.convDcot());
-    
+  
+    // loop through vertices for d0 and dZ w.r.t. each vertex
+    // need number of vertices and vertices' positions
+    std::cout<<"now I want d0 dZ:  eln "<<el_n<<std::endl;
+    int maxV = std::max(100, (int)vtxH->size());
+    std::cout<<"maxV (int)vtxH->size() "<<maxV<<"  "<<(int)vtxH->size()<<std::endl;
+    for(int iv=0; iv<maxV; iv++){
+      std::cout<<"gettting vertexref:  iv "<<iv<<std::endl;
+      reco::VertexRef v(vtxH, iv);
+      math::XYZPoint vtxPoint = math::XYZPoint(v->x(), v->y(), v->z());
+      std::cout<<"got vertexref and vtxPoint:  iv "<<iv<<std::endl;
+      
+      el_D0Vtx[el_n][iv] = egsf.gsfTrack()->dxy(vtxPoint);
+      std::cout<<"el_D0Vtx["<<el_n<<"]["<<iv<<"]  "<<el_D0Vtx[el_n][iv]<<std::endl;
+      el_DZVtx[el_n][iv] = egsf.gsfTrack()->dz(vtxPoint);
+      std::cout<<"el_DZVtx["<<el_n<<"]["<<iv<<"]  "<<el_DZVtx[el_n][iv]<<std::endl;
+    }
+
     el_n++;
   }
   
