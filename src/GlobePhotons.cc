@@ -764,11 +764,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_pfdphi[pho_n] = ggPFPhoton.PFdPhi();
       pho_pfclusrms[pho_n] = ggPFPhoton.PFClusRMSTot();
       pho_pfclusrmsmust[pho_n] = ggPFPhoton.PFClusRMSMust();
-      std::vector<reco::CaloCluster>PFC=ggPFPhoton.PFClusters();
-      pho_pfClusECorr[pho_n]=ggPFPhoton.getPFPhoECorr(PFC, PFLCBarrel, PFLCEndcap);
+      //std::vector<reco::CaloCluster>PFC=ggPFPhoton.PFClusters();
+      //pho_pfClusECorr[pho_n]=ggPFPhoton.getPFPhoECorr(PFC, PFLCBarrel, PFLCEndcap);
     }
     else{
-
+    
       pho_pfMatch[pho_n]=0;
     }
     // more cluster shapes from Lazy Tools
