@@ -73,6 +73,9 @@ void GlobeMuons::defineBranch(TTree* tree) {
   tree->Branch("mu_glo_d0err", &mu_d0err, "mu_glo_d0err[mu_glo_n]/F");
   tree->Branch("mu_glo_charge", &mu_charge, "mu_glo_charge[mu_glo_n]/I");
   tree->Branch("mu_glo_type", &mu_type, "mu_glo_type[mu_glo_n]/I"); 
+
+  tree->Branch("mu_glo_D0Vtx", &mu_D0Vtx, "mu_glo_D0Vtx[mu_glo_n][100]/F");
+  tree->Branch("mu_glo_DZVtx", &mu_DZVtx, "mu_glo_DZVtx[mu_glo_n][100]/F");
 }
 
 bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -201,6 +204,18 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       mu_pixelhits[mu_n]=m->innerTrack()->hitPattern().numberOfValidPixelHits();
       mu_validChmbhits[mu_n]=m->globalTrack()->hitPattern().numberOfValidMuonHits();
       mu_tkpterr[mu_n]=m->track()->ptError();
+      
+      // loop through vertices for d0 and dZ w.r.t. each vertex
+      // need number of vertices and vertices' positions
+      int maxV = std::max(100, (int)vtxH->size());
+      for(int iv=0; iv<maxV; iv++){
+        reco::VertexRef v(vtxH, iv);
+        math::XYZPoint vtxPoint = math::XYZPoint(v->x(), v->y(), v->z());
+
+        mu_D0Vtx[mu_n][iv] = m->globalTrack()->dxy(vtxPoint);
+        mu_DZVtx[mu_n][iv] = m->globalTrack()->dz(vtxPoint);
+      }
+
     } else {
       mu_d0[mu_n] = -1;
       mu_dz[mu_n] = -1;
