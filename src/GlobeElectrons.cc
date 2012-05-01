@@ -945,40 +945,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_hcalbciso03[el_n] = egsf.dr03HcalTowerSumEtBc();
     el_hcalbciso04[el_n] = egsf.dr04HcalTowerSumEtBc();
 
-    /*
-    if (egsf.isEB()) {
-      std::vector<reco::PFCandidate::ParticleType> temp;
-      temp.push_back(reco::PFCandidate::h);
-      el_pfiso_mycharged03[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.3, 0, temp);
-      el_pfiso_mycharged04[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.4, 0, temp);
-      
-      temp.clear();
-      temp.push_back(reco::PFCandidate::h0);
-      el_pfiso_myneutral03[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.3, 0, temp);
-      el_pfiso_myneutral04[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.4, 0, temp);
-
-      temp.clear();
-      temp.push_back(reco::PFCandidate::gamma);
-      el_pfiso_myphoton03[el_n] = pfEcalIso(egsf, pfHandle.product(), 0.3, 0, temp);
-      el_pfiso_myphoton04[el_n] = pfEcalIso(egsf, pfHandle.product(), 0.4, 0, temp);
-    } else {
-      std::vector<reco::PFCandidate::ParticleType> temp;
-      temp.push_back(reco::PFCandidate::h);
-      el_pfiso_mycharged03[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.3, 0.015, temp);
-      el_pfiso_mycharged04[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.4, 0.015, temp);
-      
-      temp.clear();c
-      temp.push_back(reco::PFCandidate::h0);
-      el_pfiso_myneutral03[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.3, 0, temp);
-      el_pfiso_myneutral04[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.4, 0, temp);
-
-      temp.clear();
-      temp.push_back(reco::PFCandidate::gamma);
-      el_pfiso_myphoton03[el_n] = pfEcalIso(egsf, pfHandle.product(), 0.3, 0.08, temp);
-      el_pfiso_myphoton04[el_n] = pfEcalIso(egsf, pfHandle.product(), 0.4, 0.08, temp);
-    }
-    */
-
     // Fill out electron identification
     std::vector<edm::Handle<edm::ValueMap<float> > > eIDVM(9); 
     std::vector<int> results;
