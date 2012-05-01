@@ -48,6 +48,9 @@ class GlobeMuons {
   Float_t mu_ecaliso03[MAX_MUONS];
   Float_t mu_hcaliso03[MAX_MUONS];
   Float_t mu_tkiso03[MAX_MUONS];
+  Float_t mu_D0Vtx[MAX_MUONS][100];
+  Float_t mu_DZVtx[MAX_MUONS][100];
+
 
   Int_t mu_charge[MAX_MUONS];
   Int_t mu_losthits[MAX_MUONS];
