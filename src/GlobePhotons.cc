@@ -193,7 +193,6 @@ void GlobePhotons::defineBranch(TTree* tree) {
   ////////
 
   //isolation variables
-
   tree->Branch("pho_pfiso_myneutral01", &pho_pfiso_myneutral01, "pho_pfiso_myneutral01[pho_n]/F");
   tree->Branch("pho_pfiso_myphoton01", &pho_pfiso_myphoton01, "pho_pfiso_myphoton01[pho_n]/F");  
   tree->Branch("pho_pfiso_mycharged01", "std::vector<std::vector<float> >", &pho_pfiso_mycharged01);
@@ -540,8 +539,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
     if (iel!=9999) pho_isPFElectron[pho_n]=1;
 
-    
-
     // PHOTON ID
     //for (unsigned int iv=0; iv<hVertex->size(); iv++) {
     //  pho_id_4cat[pho_n][iv] = cicPhotonId->photonCutLevel4cat(localPho, iv);
@@ -549,9 +546,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     //  pho_id_6catpf[pho_n][iv] = cicPhotonId->photonCutLevel6catPF(localPho, iv);
     //}
 
-    // FRIXIONE ISO
-    //pfFrixIso->float pfFrixioneIso::mvaID(const reco::PFCandidateCollection* pfParticlesColl,const reco::Photon *recoPhoton, edm::Handle< reco::VertexCollection > recoVtx)
-    
     // Residual corrections
     //PhotonFix ResidCorrector(*localPho);
     pho_residCorrEnergy[pho_n] = 0;//ResidCorrector.fixedEnergy();
@@ -771,6 +765,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     
       pho_pfMatch[pho_n]=0;
     }
+
     // more cluster shapes from Lazy Tools
     std::vector<float> viCov;
     viCov = lazyTool.localCovariances(*seed_clu);
