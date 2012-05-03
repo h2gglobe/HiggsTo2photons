@@ -90,15 +90,15 @@ void GlobeConversions::defineBranch(TTree* tree) {
   tree->Branch("conv_eleind", &conv_eleind,"conv_eleind[conv_n]/I");
 
   tree->Branch("conv_tk1_pterr", &conv_tk1_pterr,"conv_tk1_pterr[conv_n]/F");
-  tree->Branch("conv_tk2_pterr", &conv_tk1_pterr,"conv_tk2_pterr[conv_n]/F");
+  tree->Branch("conv_tk2_pterr", &conv_tk2_pterr,"conv_tk2_pterr[conv_n]/F");
   tree->Branch("conv_tk1_etaerr", &conv_tk1_etaerr,"conv_tk1_etaerr[conv_n]/F");
-  tree->Branch("conv_tk2_etaerr", &conv_tk1_etaerr,"conv_tk2_etaerr[conv_n]/F");
+  tree->Branch("conv_tk2_etaerr", &conv_tk2_etaerr,"conv_tk2_etaerr[conv_n]/F");
   tree->Branch("conv_tk1_thetaerr", &conv_tk1_thetaerr,"conv_tk1_thetaerr[conv_n]/F");
-  tree->Branch("conv_tk2_thetaerr", &conv_tk1_thetaerr,"conv_tk2_thetaerr[conv_n]/F");
+  tree->Branch("conv_tk2_thetaerr", &conv_tk2_thetaerr,"conv_tk2_thetaerr[conv_n]/F");
   tree->Branch("conv_tk1_phierr", &conv_tk1_phierr,"conv_tk1_phierr[conv_n]/F");
-  tree->Branch("conv_tk2_phierr", &conv_tk1_phierr,"conv_tk2_phierr[conv_n]/F");
+  tree->Branch("conv_tk2_phierr", &conv_tk2_phierr,"conv_tk2_phierr[conv_n]/F");
   tree->Branch("conv_tk1_lambdaerr", &conv_tk1_lambdaerr,"conv_tk1_lambdaerr[conv_n]/F");
-  tree->Branch("conv_tk2_lambdaerr", &conv_tk1_lambdaerr,"conv_tk2_lambdaerr[conv_n]/F");
+  tree->Branch("conv_tk2_lambdaerr", &conv_tk2_lambdaerr,"conv_tk2_lambdaerr[conv_n]/F");
 
   
   conv_vtx = new TClonesArray("TVector3", MAX_CONVERTEDPHOTONS);
@@ -308,7 +308,6 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     conv_ntracks[conv_n]=localConv.nTracks();
     conv_MVALikelihood[conv_n]=localConv.MVAout();
 
-
     if( localConv.nTracks()) {
       const std::vector<edm::RefToBase<reco::Track> > tracks = localConv.tracks();
       for (unsigned int i=0; i<tracks.size(); i++) {
@@ -336,7 +335,6 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         }
       }
     }
-
     
     conv_pairinvmass[conv_n]=localConv.pairInvariantMass();
     conv_paircotthetasep[conv_n]=localConv.pairCotThetaSeparation();
@@ -546,7 +544,6 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         conv_ntracks[conv_n]=localConv.nTracks();
         if (localConv.oneLegMVA().size()>1) std::cout << "Warning: More then one MVA value for single leg conversion MVA." << std::endl;
         conv_MVALikelihood[conv_n]=localConv.oneLegMVA()[0];
-
 
         if( localConv.nTracks()) {
           const std::vector<edm::RefToBase<reco::Track> > tracks = localConv.tracks();
