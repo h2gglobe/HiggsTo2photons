@@ -193,6 +193,7 @@ void GlobePhotons::defineBranch(TTree* tree) {
   ////////
 
   //isolation variables
+
   tree->Branch("pho_pfiso_myneutral01", &pho_pfiso_myneutral01, "pho_pfiso_myneutral01[pho_n]/F");
   tree->Branch("pho_pfiso_myphoton01", &pho_pfiso_myphoton01, "pho_pfiso_myphoton01[pho_n]/F");  
   tree->Branch("pho_pfiso_mycharged01", "std::vector<std::vector<float> >", &pho_pfiso_mycharged01);
@@ -539,6 +540,8 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
     if (iel!=9999) pho_isPFElectron[pho_n]=1;
 
+    
+
     // PHOTON ID
     //for (unsigned int iv=0; iv<hVertex->size(); iv++) {
     //  pho_id_4cat[pho_n][iv] = cicPhotonId->photonCutLevel4cat(localPho, iv);
@@ -546,6 +549,9 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     //  pho_id_6catpf[pho_n][iv] = cicPhotonId->photonCutLevel6catPF(localPho, iv);
     //}
 
+    // FRIXIONE ISO
+    //pfFrixIso->float pfFrixioneIso::mvaID(const reco::PFCandidateCollection* pfParticlesColl,const reco::Photon *recoPhoton, edm::Handle< reco::VertexCollection > recoVtx)
+    
     // Residual corrections
     //PhotonFix ResidCorrector(*localPho);
     pho_residCorrEnergy[pho_n] = 0;//ResidCorrector.fixedEnergy();
@@ -709,6 +715,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     iEvent.getByLabel(ecalHitEEColl, EEReducedRecHits);
     
     ggPFPhotons ggPFPhoton(*localPho, phoHpf,hElectrons,
+			   pfCollection,
 			   EBReducedRecHits,
 			   EEReducedRecHits,
 			   ESRecHits,
@@ -758,14 +765,24 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_pfdphi[pho_n] = ggPFPhoton.PFdPhi();
       pho_pfclusrms[pho_n] = ggPFPhoton.PFClusRMSTot();
       pho_pfclusrmsmust[pho_n] = ggPFPhoton.PFClusRMSMust();
-      //std::vector<reco::CaloCluster>PFC=ggPFPhoton.PFClusters();
-      //pho_pfClusECorr[pho_n]=ggPFPhoton.getPFPhoECorr(PFC, PFLCBarrel, PFLCEndcap);
+      std::vector<reco::CaloCluster>PFC=ggPFPhoton.PFClusters();
+      pho_pfClusECorr[pho_n]=ggPFPhoton.getPFPhoECorr(PFC, PFLCBarrel, PFLCEndcap);
     }
     else{
-    
+      ggPFPhoton.recoPhotonClusterLink(*localPho, pfCollection);
       pho_pfMatch[pho_n]=0;
+      pho_pfpresh1[pho_n] = ggPFPhoton.PFPS1();
+      pho_pfpresh2[pho_n] = ggPFPhoton.PFPS2();
+      pho_must[pho_n] = ggPFPhoton.MustEtOut();
+      pho_mustenergy[pho_n] = ggPFPhoton.MustE();
+      pho_mustenergyout[pho_n] = ggPFPhoton.MustEOut();
+      pho_mustEtout[pho_n]=ggPFPhoton.MustEtOut();
+      pho_pflowE[pho_n] = ggPFPhoton.PFLowE();
+      pho_pfdeta[pho_n] = ggPFPhoton.PFdEta();
+      pho_pfdphi[pho_n] = ggPFPhoton.PFdPhi();
+      pho_pfclusrms[pho_n] = ggPFPhoton.PFClusRMSTot();
+      pho_pfclusrmsmust[pho_n] = ggPFPhoton.PFClusRMSMust();
     }
-
     // more cluster shapes from Lazy Tools
     std::vector<float> viCov;
     viCov = lazyTool.localCovariances(*seed_clu);
