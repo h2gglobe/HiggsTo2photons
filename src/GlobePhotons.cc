@@ -241,7 +241,7 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_pfclusrmsmust", &pho_pfclusrmsmust, "pho_pfclusrmsmust[pho_n]/F");
   tree->Branch("pho_pfClusECorr", &pho_pfClusECorr, "pho_pfClusECorr[pho_n]/F");  
   tree->Branch("pho_pfMatch", &pho_pfMatch, "pho_pfMatch[pho_n]/I");
-  
+  tree->Branch("pho_PfEleVeto", &pho_PfEleVeto, "pho_PfEleVeto[pho_n]/I");
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcal1sumetconedr04",&pho_hcal1sumetconedr04,"pho_hcal1sumetconedr04[pho_n]/F");
@@ -743,6 +743,9 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_pfconvVtxZ[pho_n] = VertexZ.first;
       pho_pfconvVtxZErr[pho_n] = VertexZ.second;
       pho_pfMatch[pho_n]=1;
+      //check Ele Veto (Conv Safe):
+      if(ggPFPhoton.PFElectronVeto(hConversions, hElectrons))pho_PfEleVeto[pho_n]=1;
+      else pho_PfEleVeto[pho_n]=0;
       if(ggPFPhoton.isConv()){
 	pho_hasConvPf[pho_n] = 1;
       }
