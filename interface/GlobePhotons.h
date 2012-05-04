@@ -153,6 +153,7 @@ class GlobePhotons {
   Int_t pho_pfMatch[MAX_PHOTONS];
   Int_t pho_hasConvPf[MAX_PHOTONS];
   Int_t pho_hasSLConvPf[MAX_PHOTONS];
+  Int_t pho_PfEleVeto[MAX_PHOTONS];    
   Float_t pho_pfpresh1[MAX_PHOTONS];
   Float_t pho_pfpresh2[MAX_PHOTONS];
   Float_t pho_mustenergy[MAX_PHOTONS];
