@@ -966,19 +966,13 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
     // loop through vertices for d0 and dZ w.r.t. each vertex
     // need number of vertices and vertices' positions
-    std::cout<<"now I want d0 dZ:  eln "<<el_n<<std::endl;
     int maxV = std::max(100, (int)vtxH->size());
-    std::cout<<"maxV (int)vtxH->size() "<<maxV<<"  "<<(int)vtxH->size()<<std::endl;
     for(int iv=0; iv<maxV; iv++){
-      std::cout<<"gettting vertexref:  iv "<<iv<<std::endl;
       reco::VertexRef v(vtxH, iv);
       math::XYZPoint vtxPoint = math::XYZPoint(v->x(), v->y(), v->z());
-      std::cout<<"got vertexref and vtxPoint:  iv "<<iv<<std::endl;
       
       el_D0Vtx[el_n][iv] = egsf.gsfTrack()->dxy(vtxPoint);
-      std::cout<<"el_D0Vtx["<<el_n<<"]["<<iv<<"]  "<<el_D0Vtx[el_n][iv]<<std::endl;
       el_DZVtx[el_n][iv] = egsf.gsfTrack()->dz(vtxPoint);
-      std::cout<<"el_DZVtx["<<el_n<<"]["<<iv<<"]  "<<el_DZVtx[el_n][iv]<<std::endl;
     }
     
     el_n++;

@@ -11,7 +11,8 @@ import FWCore.ParameterSet.Config as cms
 # OTHER
 
 from HiggsAnalysis.HiggsTo2photons.hggPhotonIDCuts_cfi import *
-from CMGTools.External.pujetidsequence_cff   import puJetMva
+#from CMGTools.External.pujetidsequence_cff   import puJetMva
+from CMGTools.External.pujetidproducer_cfi import stdalgos, chsalgos
 #from HiggsAnalysis.HiggsToGammaGamma.PhotonFixParams4_2_cfi import *
 
 h2ganalyzer = cms.EDAnalyzer(
@@ -112,17 +113,27 @@ h2ganalyzer = cms.EDAnalyzer(
     ConvertedPhotonColl = cms.InputTag("allConversions"),
     MuonColl = cms.InputTag("muons"),
    
-    JetCorrectionMC   = cms.string("ak5PFL1FastL2L3"),
-    JetCorrectionData = cms.string("ak5PFL1FastL2L3Residual"),
+    JetCorrectionMC_algoPF1   = cms.untracked.string("ak5PFL1FastL2L3"),
+    JetCorrectionData_algoPF1 = cms.untracked.string("ak5PFL1FastL2L3Residual"),
 
+    JetCorrectionMC_algoPF2   = cms.untracked.string("ak7PFL1FastL2L3"),
+    JetCorrectionData_algoPF2 = cms.untracked.string("ak7PFL1FastL2L3Residual"),
+
+    JetCorrectionMC_algoPF3   = cms.untracked.string("ak5PFchsL1FastL2L3"),
+    JetCorrectionData_algoPF3 = cms.untracked.string("ak5PFchsL1FastL2L3Residual"),
+
+
+    #std::vector<JetCorrectorParameters> params;
     JetColl_algo1 = cms.InputTag("ak5CaloJets"),
     JetColl_algo2 = cms.InputTag("ak7CaloJets"),
     JetColl_algo3 = cms.InputTag("kt4CaloJets"),
     JetColl_algoPF1 = cms.InputTag("ak5PFJets"),
     JetColl_algoPF2 = cms.InputTag("ak7PFJets"),
-    JetColl_algoPF3 = cms.InputTag("kt4PFJets"),
+    JetColl_algoPF3 = cms.InputTag("ak5PFchsJets"),
     
-    puJetIDAlgos = puJetMva.algos,
+    puJetIDAlgos_algoPF1 = cms.untracked.VPSet(stdalgos),
+    puJetIDAlgos_algoPF2 = cms.untracked.VPSet(stdalgos),
+    puJetIDAlgos_algoPF3 = cms.untracked.VPSet(chsalgos),
     
     
     #bcBColl = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
@@ -301,9 +312,9 @@ h2ganalyzer = cms.EDAnalyzer(
     doAllConversions = cms.bool(True),
     doLeptons = cms.bool(True),
     
-    doJet_algo1 = cms.bool(True),
-    doJet_algo2 = cms.bool(True),
-    doJet_algo3 = cms.bool(True),
+    doJet_algo1 = cms.bool(False),
+    doJet_algo2 = cms.bool(False),
+    doJet_algo3 = cms.bool(False),
     doJet_algoPF1 = cms.bool(True),
     doJet_algoPF2 = cms.bool(True),
     doJet_algoPF3 = cms.bool(True),
