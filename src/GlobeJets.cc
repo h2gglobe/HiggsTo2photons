@@ -24,11 +24,12 @@ GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "algo1"):
   jetColl =  iConfig.getParameter<edm::InputTag>(a);
   calotowerColl =  iConfig.getParameter<edm::InputTag>("CaloTowerColl");
   trackColl =  iConfig.getParameter<edm::InputTag>("TrackColl");
-  pfak5corrdata =  iConfig.getParameter<std::string>("JetCorrectionData");
-  pfak5corrmc   =  iConfig.getParameter<std::string>("JetCorrectionMC");
+  pfak5corrdata =  iConfig.getUntrackedParameter<std::string>("JetCorrectionData_"+std::string(n), "");
+  pfak5corrmc   =  iConfig.getUntrackedParameter<std::string>("JetCorrectionMC_"+std::string(n), "");
   vertexColl = iConfig.getParameter<edm::InputTag>("VertexColl_std");
-  jetMVAAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("puJetIDAlgos");
+  jetMVAAlgos = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("puJetIDAlgos_"+std::string(n), std::vector<edm::ParameterSet>(0));
   std::string strnome = nome;
+    
   
   mvas_.resize(jetMVAAlgos.size());
   wp_levels_.resize(jetMVAAlgos.size());
@@ -133,24 +134,21 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a2, "jet_%s_betaStarClassic[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_betaStarClassic, a2);
 
-  
  
-  if (jetColl.encode() == "ak5PFJets") {
-      for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
-        
-          std::string mvalabel = (jetMVAAlgos.at(imva)).getParameter<std::string>("label");
+  for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
+    
+      std::string mvalabel = (jetMVAAlgos.at(imva)).getParameter<std::string>("label");
 
-          mvas_[imva] = new float[MAX_JETS];
-          wp_levels_[imva] = new int[MAX_JETS];
+      mvas_[imva] = new float[MAX_JETS];
+      wp_levels_[imva] = new int[MAX_JETS];
 
-          sprintf(a1, "jet_%s_%s_mva", nome, mvalabel.c_str());
-          sprintf(a2, "jet_%s_%s_mva[jet_%s_n]/F", nome, mvalabel.c_str(), nome);
-          tree->Branch(a1, &mvas_[imva][0], a2);
+      sprintf(a1, "jet_%s_%s_mva", nome, mvalabel.c_str());
+      sprintf(a2, "jet_%s_%s_mva[jet_%s_n]/F", nome, mvalabel.c_str(), nome);
+      tree->Branch(a1, &mvas_[imva][0], a2);
 
-          sprintf(a1, "jet_%s_%s_wp_level", nome, mvalabel.c_str());
-          sprintf(a2, "jet_%s_%s_wp_level[jet_%s_n]/I", nome, mvalabel.c_str(), nome);
-          tree->Branch(a1, &wp_levels_[imva][0], a2);
-      }
+      sprintf(a1, "jet_%s_%s_wp_level", nome, mvalabel.c_str());
+      sprintf(a2, "jet_%s_%s_wp_level[jet_%s_n]/I", nome, mvalabel.c_str(), nome);
+      tree->Branch(a1, &wp_levels_[imva][0], a2);
   }
 
 
@@ -295,7 +293,9 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
 
-    PileupJetIdAlgo jetMVACalculator(*(jetMVAAlgos.begin()));
+    //PileupJetIdAlgo jetMVACalculator(*(jetMVAAlgos.begin()));
+    PileupJetIdAlgo* jetMVACalculator = 0;
+    if(algos_.size()>0) jetMVACalculator = algos_[0];
     // check if collection is present
     for(unsigned int i=0; i<pfjetH->size(); i++) {
       if (jet_n >= MAX_JETS) {
@@ -311,7 +311,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       reco::PFJet* correctedJet = (reco::PFJet*) j->clone();
       
-      if (jetColl.encode() == "ak5PFJets") {
+      if (pfak5corr!="") {
 	      const JetCorrector* corrector = JetCorrector::getJetCorrector(pfak5corr, iSetup);
         edm::RefToBase<reco::Jet> jetRef(edm::Ref<reco::PFJetCollection>(pfjetH, i));
         jet_erescale[jet_n] = corrector->correction(*j, iEvent, iSetup);
@@ -325,6 +325,8 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       correctedJet->scaleEnergy(jet_erescale[jet_n]);
 
+      if(correctedJet->pt() < 1) continue;
+
       //  scale the jets ref here
 
       new ((*jet_p4)[jet_n]) TLorentzVector();
@@ -337,15 +339,14 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if (debug_level > 9 && jet_n<20) std::cout<<"jet energy JECenergy "<<jet_n<<" "<<correctedJet->energy()<<" "<<jet_erescale[jet_n]<<std::endl;
       
       
-      if (jetColl.encode() == "ak5PFJets") {
+      if (algos_.size()>0) {
         //compute id variables
-        float jec4setup = 1.0;
         const reco::VertexCollection vertexCollection = *(vtxH.product()); 
         const reco::Vertex* selectedVtx  = &(*vertexCollection.begin());;
         const reco::Jet* thisjet = correctedJet;
      
         
-        PileupJetIdentifier jetIdentifer_vars = jetMVACalculator.computeIdVariables( thisjet, jec4setup, selectedVtx, vertexCollection);
+        PileupJetIdentifier jetIdentifer_vars = jetMVACalculator->computeIdVariables( thisjet, jet_erescale[jet_n], selectedVtx, vertexCollection);
 
   
         jet_dRMean[jet_n]=jetIdentifer_vars.dRMean();

@@ -1,14 +1,15 @@
 
 import FWCore.ParameterSet.Config as cms
 
-maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 source = cms.Source ("PoolSource",fileNames = readFiles)
 readFiles.extend( (
+    '/store/mc/Summer12/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S7_START52_V5-v1/0000/DA10D9B6-BD75-E111-BB07-003048673F12.root',
     # GLUGLU
-    'file:/tmp/sani/dy_52X.root',
+    #'file:/tmp/sani/dy_52X.root',
     # SinglePhoton
     #'file:/tmp/sani/5A123876-B5BB-E011-AF3C-002618943982.root',
     # Data

@@ -227,10 +227,58 @@ process.h2ganalyzer.globalCounters.extend(['processedEvents'])
 process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 
 #################################################
+#       Charged Hadron Subtraction Jets         #
+#################################################
+
+from RecoJets.JetProducers.ak5PFJets_cfi import *
+process.ak5PFchsJets = ak5PFJets.clone()
+process.ak5PFchsJets.src = 'pfNoPileUp'
+
+#And the sequence below re-runs the pfNoPu on the fly
+process.load("CommonTools.ParticleFlow.pfNoPileUp_cff")
+process.load("CommonTools.ParticleFlow.pfParticleSelection_cff")
+
+
+# note pfPileUp modified according to JetMET's recommendations
+process.pfPileUp.checkClosestZVertex = False
+process.pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
+
+process.load("CommonTools.ParticleFlow.goodOfflinePrimaryVertices_cfi")
+process.pfNoPileUpSequence.insert(0, process.goodOfflinePrimaryVertices)
+
+process.ak5PFchsL1Fastjet = cms.ESProducer(
+    'L1FastjetCorrectionESProducer',
+    level       = cms.string('L1FastJet'),
+    algorithm   = cms.string('AK5PFchs'),
+    srcRho      = cms.InputTag('kt6PFJets','rho')
+)
+
+process.ak5PFchsL2Relative = process.ak5CaloL2Relative.clone( algorithm = 'AK5PFchs' )
+process.ak5PFchsL3Absolute     = process.ak5CaloL3Absolute.clone( algorithm = 'AK5PFchs' )
+process.ak5PFchsResidual  = process.ak5CaloResidual.clone( algorithm = 'AK5PFchs' )
+
+process.ak5PFchsL1FastL2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
+    correctors =
+        cms.vstring('ak5PFchsL1Fastjet','ak5PFchsL2Relative',
+                    'ak5PFchsL3Absolute')
+)
+
+process.ak5PFchsL1FastL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
+    correctors =
+        cms.vstring('ak5PFchsL1Fastjet','ak5PFchsL2Relative',
+                    'ak5PFchsL3Absolute','ak5PFchsResidual')
+)
+
+
+
+
+#################################################
 # Define path, first for AOD case then for RECO #
 #################################################
 
-process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfPileUp * process.pfParticleSelectionSequence * process.eleIsoSequence)
+process.p11 = cms.Path(process.eventCounters*process.eventFilter1* process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets )
 
 if (flagFastSim == 'OFF' or flagAOD == 'OFF'):
   process.p11 *= process.piZeroDiscriminators
@@ -309,7 +357,7 @@ else:
 process.h2ganalyzer.doL1 = True
 process.h2ganalyzer.doHLT = True
 
-process.GlobalTag.globaltag = "START39_v8::All"
+process.GlobalTag.globaltag = "START52_V9::All"
 process.h2ganalyzer.HLTParameters.PrimaryTriggerResultsTag = cms.InputTag("TriggerResults","", hltLabel)
 process.h2ganalyzer.HLTParameters.useSecondaryTrigger = cms.bool(False)
 process.h2ganalyzer.HLTParameters.TriggerResultsTag = cms.InputTag("hltTriggerSummaryAOD","", hltLabel)
