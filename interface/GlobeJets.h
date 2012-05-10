@@ -43,6 +43,8 @@ class GlobeJets {
   Float_t jet_frac03[MAX_JETS];
   Float_t jet_frac04[MAX_JETS];
   Float_t jet_frac05[MAX_JETS];
+  Float_t jet_frac06[MAX_JETS];
+  Float_t jet_frac07[MAX_JETS];
   Float_t jet_nNeutrals[MAX_JETS];
   Float_t jet_beta[MAX_JETS];
   Float_t jet_betaStar[MAX_JETS];
