@@ -22,6 +22,7 @@ class GlobePileup {
   void defineBranch(TTree* tree);
   bool analyze(const edm::Event&, const edm::EventSetup&);
   TH1D* getHisto() { return h1; };
+  TH1D* getHistoTrue() { return h2; };
 
   int pu_n;
   int pu_bunchcrossing;
@@ -35,7 +36,7 @@ class GlobePileup {
  private:
    edm::InputTag pileupCollection;
    int debug_level;
-   TH1D* h1;
+   TH1D* h1, *h2;
 };
 
 #endif

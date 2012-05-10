@@ -11,6 +11,7 @@
 
 #include "DataFormats/JetReco/interface/JetTracksAssociation.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -28,7 +29,7 @@ GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "algo1"):
   pfak5corrmc   =  iConfig.getUntrackedParameter<std::string>("JetCorrectionMC_"+std::string(n), "");
   vertexColl = iConfig.getParameter<edm::InputTag>("VertexColl_std");
   jetMVAAlgos = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("puJetIDAlgos_"+std::string(n), std::vector<edm::ParameterSet>(0));
-  pfLooseId  = iConfig.getParameter<edm::ParameterSet>("pfLooseId");
+  pfLooseId  = new PFJetIDSelectionFunctor( iConfig.getParameter<edm::ParameterSet>("pfLooseId") );
   std::string strnome = nome;
     
   mvas_.resize(jetMVAAlgos.size());
@@ -338,8 +339,8 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       if(correctedJet->pt() < 1) continue;
       
-      pat::strbitset ret = pfLooseId.getBitTemplate();
-      jet_pfloose[jet_n] = pfLooseId(*correctedJet, ret);
+      pat::strbitset ret = (*pfLooseId).getBitTemplate();
+      jet_pfloose[jet_n] = (*pfLooseId)(*correctedJet, ret);
       
       //  scale the jets ref here
 
