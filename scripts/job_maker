@@ -280,10 +280,14 @@ for run in runselection:
             file_out.write("storage_element = srm-eoscms.cern.ch\n")
         elif ("storage_path" in line and storage == "eos"):
             file_out.write("storage_path=/srm/v2/server?SFN=/eos/cms/store\n")
-        elif ("total_number_of_events" in line and json == ""):
+        elif ("total_number_of_events" in line and flagData == False):
             file_out.write("total_number_of_events = "+str(total_number)+"\n")
-        elif ("events_per_job" in line and json == ""):
+        elif ("total_number_of_events" in line and flagData == True):
+            file_out.write("#total_number_of_events = "+str(total_number)+"\n")
+        elif ("events_per_job" in line and flagData == False):
             file_out.write("events_per_job = "+str(events_job)+"\n")
+        elif ("events_per_job" in line and flagData == True):
+            file_out.write("#events_per_job = "+str(events_job)+"\n")
         elif ("lumi_mask" in line and json != ""):
             if json.startswith('/'):
                 # absolute path specified
@@ -291,9 +295,9 @@ for run in runselection:
             else:
                 # relative path specified
                 file_out.write("lumi_mask = ../../../scripts/"+str(json)+"\n")
-        elif ("lumis_per_job" in line and json != ""):
+        elif ("lumis_per_job" in line and flagData == True):
             file_out.write("lumis_per_job = "+str(lumis_per_job)+"\n")
-        elif ("total_number_of_lumis" in line and json != ""):
+        elif ("total_number_of_lumis" in line and flagData == True):
             file_out.write("total_number_of_lumis = "+str(lumis)+"\n")
         elif ("se_white_list" in line and whiteList != ""):
             file_out.write("se_white_list = "+str(whiteList)+"\n")
