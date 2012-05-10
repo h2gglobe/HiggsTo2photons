@@ -25,6 +25,7 @@ class GlobePileup {
 
   int pu_n;
   int pu_bunchcrossing;
+  float pu_n_true;
   std::vector<float>* pu_zpos;
   std::vector<float>* pu_sumpt_lowpt;
   std::vector<float>* pu_sumpt_highpt;
