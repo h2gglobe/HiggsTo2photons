@@ -166,6 +166,17 @@ class GlobePhotons {
   Float_t pho_pfclusrmsmust[MAX_PHOTONS];
   Float_t pho_pfClusECorr[MAX_PHOTONS];
 
+  Float_t pho_pfRawEnergy[MAX_PHOTONS];
+  Float_t pho_pfe2x2[MAX_PHOTONS];
+  Float_t pho_pfe3x3[MAX_PHOTONS];
+  Float_t pho_pfe5x5[MAX_PHOTONS];
+  Float_t pho_pfsieie[MAX_PHOTONS];
+  Float_t pho_pfsieip[MAX_PHOTONS];
+  Float_t pho_pfsipip[MAX_PHOTONS];
+  Float_t pho_pfemaxxtal[MAX_PHOTONS];
+  Float_t pho_pfe2nd[MAX_PHOTONS];
+
+
   Float_t pho_e2overe9[MAX_PHOTONS];
   Float_t pho_seed_time[MAX_PHOTONS];
   Float_t pho_seed_outoftimechi2[MAX_PHOTONS];

@@ -9,7 +9,7 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 #include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-
+#include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 //#include "HiggsAnalysis/HiggsTo2photons/interface/pfFrixioneIso.h"
 //#include "HiggsAnalysis/HiggsToGammaGamma/interface/PhotonFix.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
@@ -283,6 +283,18 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_pfClusECorr", &pho_pfClusECorr, "pho_pfClusECorr[pho_n]/F");  
   tree->Branch("pho_pfMatch", &pho_pfMatch, "pho_pfMatch[pho_n]/I");
   tree->Branch("pho_PfEleVeto", &pho_PfEleVeto, "pho_PfEleVeto[pho_n]/I");
+
+  tree->Branch("pho_pfRawEnergy", &pho_pfRawEnergy, "pho_pfRawEnergy[pho_n]/F");
+  tree->Branch("pho_pfe2x2", &pho_pfe2x2, "pho_pfe2x2[pho_n]/F");
+  tree->Branch("pho_pfe3x3", &pho_pfe3x3, "pho_pfe3x3[pho_n]/F");
+  tree->Branch("pho_pfe5x5", &pho_pfe5x5, "pho_pfe5x5[pho_n]/F");
+  tree->Branch("pho_pfsieie", &pho_pfsieie, "pho_pfsieie[pho_n]/F");
+  tree->Branch("pho_pfsieip", &pho_pfsieip, "pho_pfsieip[pho_n]/F");
+  tree->Branch("pho_pfsipip", &pho_pfsipip, "pho_pfsipip[pho_n]/F");
+  tree->Branch("pho_pfemaxxtal", &pho_pfemaxxtal, "pho_pfemaxxtal[pho_n]/F");
+  tree->Branch("pho_pfe2nd", &pho_pfe2nd, "pho_pfe2nd[pho_n]/F");
+
+
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcal1sumetconedr04",&pho_hcal1sumetconedr04,"pho_hcal1sumetconedr04[pho_n]/F");
@@ -792,6 +804,20 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_pfclusrms[pho_n] = -9999.;
     pho_pfclusrmsmust[pho_n] = -9999.;
 
+    pho_pfsieie[pho_n] = -9999.;
+    pho_pfsieip[pho_n] = -9999.;
+    pho_pfsipip[pho_n] = -9999.;
+    pho_pfe2x2[pho_n] = -9999.;
+    pho_pfe3x3[pho_n] = -9999.;
+    pho_pfe5x5[pho_n] =-9999.;
+    pho_pfemaxxtal[pho_n] = -9999.;
+    pho_pfe2nd[pho_n] = -9999.;
+    
+    pho_pfRawEnergy[pho_n] = 0;
+    
+    EcalClusterLazyTools pflazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);
+    
+
     if(ggPFPhoton.MatchPFReco()){
       std::pair<float, float>VertexZ=ggPFPhoton.SLPoint();
       pho_pfconvVtxZ[pho_n] = VertexZ.first;
@@ -824,6 +850,28 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_pfclusrmsmust[pho_n] = ggPFPhoton.PFClusRMSMust();
       std::vector<reco::CaloCluster>PFC=ggPFPhoton.PFClusters();
       pho_pfClusECorr[pho_n]=ggPFPhoton.getPFPhoECorr(PFC, PFLCBarrel, PFLCEndcap);
+
+      double PFCseedE = 0;
+      int ipfseed = -1;
+      for (unsigned int i=0; i<PFC.size(); i++){
+	pho_pfRawEnergy[pho_n] += PFC[i].energy();
+	if (PFC[i].energy()>PFCseedE){
+	  PFCseedE = PFC[i].energy();
+	  ipfseed = i;
+	}
+      }
+      if (ipfseed!=-1){
+	std::vector<float> pfviCov = pflazyTool.localCovariances(PFC[ipfseed]);
+	pho_pfsieie[pho_n] = pfviCov[0];
+	pho_pfsieip[pho_n] = pfviCov[1];
+	pho_pfsipip[pho_n] = pfviCov[2];
+	pho_pfe2x2[pho_n] = pflazyTool.e2x2(PFC[ipfseed]);
+	pho_pfe3x3[pho_n] = pflazyTool.e3x3(PFC[ipfseed]);
+	pho_pfe5x5[pho_n] = pflazyTool.e5x5(PFC[ipfseed]);
+	pho_pfemaxxtal[pho_n] = pflazyTool.eMax(PFC[ipfseed]);
+	pho_pfe2nd[pho_n] = pflazyTool.e2nd(PFC[ipfseed]);
+	
+      } 
     }
     else{
       ggPFPhoton.recoPhotonClusterLink(*localPho, pfCollection);
@@ -839,7 +887,32 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       pho_pfdphi[pho_n] = ggPFPhoton.PFdPhi();
       pho_pfclusrms[pho_n] = ggPFPhoton.PFClusRMSTot();
       pho_pfclusrmsmust[pho_n] = ggPFPhoton.PFClusRMSMust();
+
+      ggPFClusters ClusterColl(EBReducedRecHits, EEReducedRecHits, geomBar_, geomEnd_);
+      std::vector<reco::CaloCluster>PFC=ClusterColl.getPFClusters(*localPho->superCluster());
+      double PFCseedE = 0;
+      int ipfseed = -1;
+      for (unsigned int i=0; i<PFC.size(); i++){
+	pho_pfRawEnergy[pho_n] += PFC[i].energy();
+	if (PFC[i].energy()>PFCseedE){
+	  PFCseedE = PFC[i].energy();
+	  ipfseed = i;
+	}
+      }
+      if (ipfseed!=-1){
+	std::vector<float> pfviCov = pflazyTool.localCovariances(PFC[ipfseed]);
+	pho_pfsieie[pho_n] = pfviCov[0];
+	pho_pfsieip[pho_n] = pfviCov[1];
+	pho_pfsipip[pho_n] = pfviCov[2];
+	pho_pfe2x2[pho_n] = pflazyTool.e2x2(PFC[ipfseed]);
+	pho_pfe3x3[pho_n] = pflazyTool.e3x3(PFC[ipfseed]);
+	pho_pfe5x5[pho_n] = pflazyTool.e5x5(PFC[ipfseed]);
+	pho_pfemaxxtal[pho_n] = pflazyTool.eMax(PFC[ipfseed]);
+	pho_pfe2nd[pho_n] = pflazyTool.e2nd(PFC[ipfseed]);	
+      } 
     }
+
+    
     // more cluster shapes from Lazy Tools
     std::vector<float> viCov;
     viCov = lazyTool.localCovariances(*seed_clu);
@@ -869,6 +942,9 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_brem[pho_n]           = localPho->superCluster()->phiWidth()/localPho->superCluster()->etaWidth();
     Cluster2ndMoments moments = EcalClusterTools::cluster2ndMoments(*seed_clu, *(prechits.product()), 0.8, 4.7, true);
     pho_smaj[pho_n]           = moments.sMaj; 
+
+
+
 
     // Added by Aris - Begin
 
