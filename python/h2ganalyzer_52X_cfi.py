@@ -14,6 +14,7 @@ from HiggsAnalysis.HiggsTo2photons.hggPhotonIDCuts_cfi import *
 #from CMGTools.External.pujetidsequence_cff   import puJetMva
 from CMGTools.External.pujetidproducer_cfi import stdalgos, chsalgos
 #from HiggsAnalysis.HiggsToGammaGamma.PhotonFixParams4_2_cfi import *
+from PhysicsTools.SelectorUtils.pfJetIDSelector_cfi import pfJetIDSelector
 
 h2ganalyzer = cms.EDAnalyzer(
     "GlobeAnalyzer",
@@ -134,7 +135,8 @@ h2ganalyzer = cms.EDAnalyzer(
     puJetIDAlgos_algoPF1 = cms.untracked.VPSet(stdalgos),
     puJetIDAlgos_algoPF2 = cms.untracked.VPSet(stdalgos),
     puJetIDAlgos_algoPF3 = cms.untracked.VPSet(chsalgos),
-    
+
+    pfLooseId = pfJetIDSelector.clone(),
     
     #bcBColl = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     #bcEColl = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
