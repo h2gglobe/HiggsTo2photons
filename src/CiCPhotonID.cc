@@ -106,8 +106,8 @@ bool CiCPhotonID::PhotonIDPF(int nCategories, reco::PhotonRef photon, Int_t ivtx
 
   temp.clear();
   temp.push_back(reco::PFCandidate::h);  
-  std::vector<float> vtxIsolations03 = pfTkIsoWithVertex(photon, 0.3, 0.02, 1.0, 0.2, 0.1, temp);
-  std::vector<float> vtxIsolations04 = pfTkIsoWithVertex(photon, 0.4, 0.02, 1.0, 0.2, 0.1, temp);
+  std::vector<float> vtxIsolations03 = pfTkIsoWithVertex(photon, 0.3, 0.02, 0.02, 1.0, 0.2, 0.1, temp);
+  std::vector<float> vtxIsolations04 = pfTkIsoWithVertex(photon, 0.4, 0.02, 0.02, 1.0, 0.2, 0.1, temp);
   float val_pfiso_charged03 = vtxIsolations03[ivtx];
   float val_pfiso_charged_badvtx_04 = -99;
   //int badind = -1;
@@ -278,10 +278,16 @@ Float_t CiCPhotonID::WorstSumTrackPtInConeHgg(reco::PhotonRef photon, Float_t Pt
   return maxisosum;
 }
 
-std::vector<float> CiCPhotonID::pfTkIsoWithVertex(reco::PhotonRef localPho, float dRmax, float dRveto, 
+std::vector<float> CiCPhotonID::pfTkIsoWithVertex(reco::PhotonRef localPho, float dRmax, float dRvetoBarrel, float dRvetoEndcap, 
 						  float ptMin, float dzMax, float dxyMax,
 						  std::vector<reco::PFCandidate::ParticleType> pVetoes) {
   
+  float dRveto;
+  if (localPho->isEB())
+    dRveto = dRvetoBarrel;
+  else
+    dRveto = dRvetoEndcap;
+
   std::vector<float> result;
   const reco::PFCandidateCollection* forIsolation = pfHandle.product();
 
