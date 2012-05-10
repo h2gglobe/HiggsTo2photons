@@ -336,6 +336,7 @@ h2ganalyzer = cms.EDAnalyzer(
 
     doFastSim = cms.bool(False),
     doAodSim  = cms.bool(True),
+    doParticleGun = cms.bool(False),
     
     storeGsfTracksOnlyIfElectrons = cms.bool(True),
 

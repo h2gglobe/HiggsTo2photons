@@ -19,7 +19,7 @@ def printHeader(file_out):
 usage = """
 job_maker [options]
 
---data/MC                          select data or MC
+--data/MC/particleGun              select data, MC or particleGun
 --fastsim                          works with fastsim eventcontent (actually not the standard one ;-))
 --AOD/RECO                         AOD should be standard
 --caf                              send jobs using CAF (hadoop is std in SD)
@@ -63,6 +63,7 @@ flagNoSkim = False
 flagMMgSkim = False
 flagAOD = False
 flagRECO = False
+flagPG = False
 flagFastSim = False
 flagT1 = False
 
@@ -87,7 +88,7 @@ useServer = False
 toEnable = []
 toDisable = []
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -101,6 +102,8 @@ for opt,argm in opts:
         flagFastSim = True
     elif (opt == "--AOD"):
         flagAOD = True
+    elif (opt == "--particleGun"):
+        flagPG = True
     elif (opt == "--RECO"):
         flagRECO = True
     elif (opt == "--server"):
@@ -177,6 +180,10 @@ if (not (flagRECO ^ flagAOD)):
     print "Try again when you have chosen one:  --RECO or --AOD."
     sys.exit(1)
 
+if (not (flagData ^ flagMC ^ flagPG)):
+    print "Try again when you have chosen one:  --Data, --MC or --particleGun."
+    sys.exit(1)
+
 for run in runselection:
     job_name = name
         
@@ -207,6 +214,8 @@ for run in runselection:
             file_out.write("flagFastSim = \'ON\'\n")
         elif ("flagAOD = 'ON'" in line and not flagAOD):
             file_out.write("flagAOD = \'OFF\'\n")
+        elif ("flagPG = 'OFF'" in line and flagPG):
+            file_out.write("flagPG = \'ON\'\n")
         elif ("flagNoSkim = 'OFF'" in line and flagNoSkim):
             file_out.write("flagNoSkim = \'ON\'\n")
         elif ("flagSkimworz = 'OFF'" in line and flagSkimworz):
@@ -280,14 +289,10 @@ for run in runselection:
             file_out.write("storage_element = srm-eoscms.cern.ch\n")
         elif ("storage_path" in line and storage == "eos"):
             file_out.write("storage_path=/srm/v2/server?SFN=/eos/cms/store\n")
-        elif ("total_number_of_events" in line and flagData == False):
+        elif ("total_number_of_events" in line and json == ""):
             file_out.write("total_number_of_events = "+str(total_number)+"\n")
-        elif ("total_number_of_events" in line and flagData == True):
-            file_out.write("#total_number_of_events = "+str(total_number)+"\n")
-        elif ("events_per_job" in line and flagData == False):
+        elif ("events_per_job" in line and json == ""):
             file_out.write("events_per_job = "+str(events_job)+"\n")
-        elif ("events_per_job" in line and flagData == True):
-            file_out.write("#events_per_job = "+str(events_job)+"\n")
         elif ("lumi_mask" in line and json != ""):
             if json.startswith('/'):
                 # absolute path specified
@@ -295,9 +300,9 @@ for run in runselection:
             else:
                 # relative path specified
                 file_out.write("lumi_mask = ../../../scripts/"+str(json)+"\n")
-        elif ("lumis_per_job" in line and flagData == True):
+        elif ("lumis_per_job" in line and json != ""):
             file_out.write("lumis_per_job = "+str(lumis_per_job)+"\n")
-        elif ("total_number_of_lumis" in line and flagData == True):
+        elif ("total_number_of_lumis" in line and json != ""):
             file_out.write("total_number_of_lumis = "+str(lumis)+"\n")
         elif ("se_white_list" in line and whiteList != ""):
             file_out.write("se_white_list = "+str(whiteList)+"\n")
