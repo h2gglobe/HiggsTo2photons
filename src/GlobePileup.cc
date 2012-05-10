@@ -12,6 +12,7 @@ GlobePileup::GlobePileup(const edm::ParameterSet& iConfig) {
   pu_ntrks_highpt = new std::vector<int>; pu_ntrks_highpt->clear();
   
   h1 = new TH1D("pileup", "pileup", 100, 0, 100);
+  h2 = new TH1D("pileup_true", "pileup_true", 100, 0, 100);
 }
 
 void GlobePileup::defineBranch(TTree* tree) {
@@ -38,7 +39,8 @@ bool GlobePileup::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     if(pu_bunchcrossing == 0) {
       pu_n = PVI->getPU_NumInteractions();
       pu_n_true = PVI->getTrueNumInteractions();
-      h1->Fill(pu_n_true);
+      h1->Fill(pu_n);
+      h2->Fill(pu_n_true);
       *pu_zpos = PVI->getPU_zpositions();
       *pu_sumpt_lowpt = PVI->getPU_sumpT_lowpT();
       *pu_sumpt_highpt = PVI->getPU_sumpT_highpT();

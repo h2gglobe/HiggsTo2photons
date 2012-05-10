@@ -12,11 +12,12 @@
 
 #include "CMGTools/External/interface/PileupJetIdAlgo.h"
 #include "CMGTools/External/interface/PileupJetIdentifier.h"
-#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
+
+class PFJetIDSelectionFunctor;
 
 class GlobeJets {
  public:
@@ -71,7 +72,7 @@ class GlobeJets {
   GlobeCuts *gCUT;
   edm::InputTag jetColl, calotowerColl, trackColl, jetTkAssColl, vertexColl;
   std::vector<edm::ParameterSet > jetMVAAlgos;
-  PFJetIDSelectionFunctor pfLooseId;
+  PFJetIDSelectionFunctor * pfLooseId;
   std::string pfak5corrdata, pfak5corrmc, pfak5corr;
   edm::InputTag bcBColl, bcEColl, tkColl, pfJetColl;
   int debug_level;

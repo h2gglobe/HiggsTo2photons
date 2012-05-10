@@ -580,6 +580,11 @@ void GlobeAnalyzer::endJob() {
     Int_t last_bin = h->GetNbinsX();
     h->SetBinContent(last_bin-1, h->GetBinContent(last_bin)+h->GetBinContent(last_bin-1));
     h->Write();  
+    
+    h = pileup->getHistoTrue(); 
+    last_bin = h->GetNbinsX();
+    h->SetBinContent(last_bin-1, h->GetBinContent(last_bin)+h->GetBinContent(last_bin-1));
+    h->Write();  
   }
 
   tree->Write();
