@@ -106,6 +106,14 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a2, "jet_%s_frac05[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_frac05, a2);
 
+  sprintf(a1, "jet_%s_frac06", nome);
+  sprintf(a2, "jet_%s_frac06[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_frac06, a2);
+
+  sprintf(a1, "jet_%s_frac07", nome);
+  sprintf(a2, "jet_%s_frac07[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_frac07, a2);
+
   sprintf(a1, "jet_%s_nNeutrals", nome);
   sprintf(a2, "jet_%s_nNeutrals[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_nNeutrals, a2);
@@ -344,10 +352,8 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         const reco::VertexCollection vertexCollection = *(vtxH.product()); 
         const reco::Vertex* selectedVtx  = &(*vertexCollection.begin());;
         const reco::Jet* thisjet = correctedJet;
-     
         
         PileupJetIdentifier jetIdentifer_vars = jetMVACalculator->computeIdVariables( thisjet, jet_erescale[jet_n], selectedVtx, vertexCollection);
-
   
         jet_dRMean[jet_n]=jetIdentifer_vars.dRMean();
         jet_frac01[jet_n]=jetIdentifer_vars.frac01();
@@ -355,6 +361,8 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         jet_frac03[jet_n]=jetIdentifer_vars.frac03();
         jet_frac04[jet_n]=jetIdentifer_vars.frac04();
         jet_frac05[jet_n]=jetIdentifer_vars.frac05();
+        jet_frac06[jet_n]=jetIdentifer_vars.frac06();
+        jet_frac07[jet_n]=jetIdentifer_vars.frac07();
         jet_nNeutrals[jet_n]=jetIdentifer_vars.nNeutrals();
         jet_beta[jet_n]=jetIdentifer_vars.beta();
         jet_betaStar[jet_n]=jetIdentifer_vars.betaStar();
@@ -363,8 +371,6 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         jet_dR2Mean[jet_n]=jetIdentifer_vars.dR2Mean();
         jet_betaStarClassic[jet_n]=jetIdentifer_vars.betaStarClassic();
   
-    
-
         for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
           PileupJetIdAlgo* ialgo = (algos_[imva]);
           ialgo->set(jetIdentifer_vars);
