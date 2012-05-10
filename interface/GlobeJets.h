@@ -12,6 +12,7 @@
 
 #include "CMGTools/External/interface/PileupJetIdAlgo.h"
 #include "CMGTools/External/interface/PileupJetIdentifier.h"
+#include "PhysicsTools/SelectorUtils/interface/PFJetIDSelectionFunctor.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -53,6 +54,8 @@ class GlobeJets {
   Float_t jet_dR2Mean[MAX_JETS];
   Float_t jet_betaStarClassic[MAX_JETS];
 
+  Bool_t jet_pfloose[MAX_JETS];
+
   Int_t jet_ntk[MAX_JETS];
   Int_t jet_ncalotw[MAX_JETS];
   std::vector<std::vector<unsigned short> >* jet_calotwind;
@@ -60,7 +63,7 @@ class GlobeJets {
   std::vector<float * > mvas_;
   std::vector<int * > wp_levels_;
   std::vector<PileupJetIdAlgo* > algos_;
-  
+    
   TClonesArray *jet_p4;
 
  private:
@@ -68,6 +71,7 @@ class GlobeJets {
   GlobeCuts *gCUT;
   edm::InputTag jetColl, calotowerColl, trackColl, jetTkAssColl, vertexColl;
   std::vector<edm::ParameterSet > jetMVAAlgos;
+  PFJetIDSelectionFunctor pfLooseId;
   std::string pfak5corrdata, pfak5corrmc, pfak5corr;
   edm::InputTag bcBColl, bcEColl, tkColl, pfJetColl;
   int debug_level;
