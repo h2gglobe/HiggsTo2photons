@@ -27,6 +27,8 @@ private:
   virtual void beginJob() ;
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
+  float SumPt2(reco::VertexRef vtx);
+  int ChooseVertex(edm::Handle<reco::VertexCollection> vtxHandle);
     
   int selection_;
   bool useOR_;
@@ -90,12 +92,17 @@ bool cicFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::auto_ptr<reco::PhotonCollection> phoCollection(new reco::PhotonCollection);
 
   int nSelectedPho = 0;
+  
+  int chosenVertex = ChooseVertex(vtxHandle);
+
+  if (chosenVertex == -1) 
+    return false;
 
   for (unsigned int i=0; i<phoH->size(); i++) {
 
     reco::PhotonRef phoRef(phoH, i);
-    bool pho_id_4cat   = photonID->PhotonID(4, phoRef, 0, CiCPhotonID::CiCPhotonIDLevel(cutLevel_));
-    bool pho_id_6catpf = photonID->PhotonIDPF(6, phoRef, 0, CiCPhotonID::CiCPhotonIDLevel(cutLevel_));
+    bool pho_id_4cat   = photonID->PhotonID(4, phoRef, chosenVertex, CiCPhotonID::CiCPhotonIDLevel(cutLevel_));
+    bool pho_id_6catpf = photonID->PhotonIDPF(6, phoRef, chosenVertex, CiCPhotonID::CiCPhotonIDLevel(cutLevel_));
 
     if (useOR_ and (pho_id_4cat or pho_id_6catpf)) {
       nSelectedPho++;
@@ -122,6 +129,36 @@ void cicFilter::beginJob()
 
 void cicFilter::endJob() 
 {}
+
+
+float cicFilter::SumPt2(reco::VertexRef vtx) {
+    
+  float ptsum = 0;
+
+  for(std::vector<reco::TrackBaseRef>::const_iterator trkItr = vtx->tracks_begin();trkItr != vtx->tracks_end(); ++trkItr) {
+    ptsum += (*trkItr)->pt();
+  }
+
+  return ptsum;
+}
+
+int cicFilter::ChooseVertex(edm::Handle<reco::VertexCollection> vtxHandle) {
+
+  int goodIndex = -1;
+
+  float maxPt = 0;
+
+  for(unsigned int i=0; i<vtxHandle->size(); i++) {
+    float temp = SumPt2(reco::VertexRef(vtxHandle, i));
+    if (temp > maxPt) {
+      maxPt = temp;
+      goodIndex = i;
+    }
+  }
+  
+  return goodIndex;
+}
+
 
 //define this as a plug-in
 DEFINE_FWK_MODULE(cicFilter);
