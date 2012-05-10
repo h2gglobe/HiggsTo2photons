@@ -28,7 +28,8 @@ job_maker [options]
 --vlpresel                         Very Loose Preselection on 2 photons
 --noskim                           no skim performed (typically only for signal)
 --skimmmg                          skim for mumugamma 
---storage=\"castor\" or \"hadoop\" use castor/hadoop as storage element
+--storage=\"eos\" or \"castor\" or \"hadoop\" 
+                                   use eos/castor/hadoop as storage element
 --name=                            name of the job, directory, files
 --scheduler=                       glite or glidein
 --datasetpath=                     datasetpath
@@ -267,7 +268,7 @@ for run in runselection:
             file_out.write("storage_element = T2_CH_CAF\n")
         elif ("storage_path" in line and storage == "castor"):
             file_out.write("storage_path = /srm/managerv2?SFN=/castor/cern.ch/user/\n")
-        elif ("user_remote_dir" in line and storage == "castor"):
+        elif ("user_remote_dir" in line and not useCAF):
             file_out.write("user_remote_dir=/"+user_remote_dir+"/"+job_name +"\n")
         elif ("user_remote_dir" in line and useCAF):
             file_out.write("user_remote_dir=/"+job_name +"\n")
@@ -275,8 +276,10 @@ for run in runselection:
             file_out.write("storage_element = bsrm-1.t2.ucsd.edu\n")
         elif ("storage_path" in line and storage == "hadoop"):
             file_out.write("storage_path=/srm/v2/server?SFN=/hadoop/cms/store/user/\n")
-        elif ("user_remote_dir" in line and storage == "hadoop"):
-            file_out.write("user_remote_dir=/"+user_remote_dir+"/"+job_name+"\n")
+        elif ("storage_element" in line and storage == "eos"):
+            file_out.write("storage_element = srm-eoscms.cern.ch\n")
+        elif ("storage_path" in line and storage == "eos"):
+            file_out.write("storage_path=/srm/v2/server?SFN=/eos/cms/store\n")
         elif ("total_number_of_events" in line and json == ""):
             file_out.write("total_number_of_events = "+str(total_number)+"\n")
         elif ("events_per_job" in line and json == ""):
