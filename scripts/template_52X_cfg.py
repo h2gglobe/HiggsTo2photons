@@ -5,6 +5,7 @@ import copy
 flagData = 'OFF'
 flagMC = 'OFF'
 flagFastSim = 'OFF'
+flagPG = 'OFF'
 
 #SKIM TYPE
 flagSkimDiphoton = 'OFF'
@@ -213,7 +214,7 @@ process.processedEvents = cms.EDProducer("EventCountProducer")
 
 process.eventCounters = cms.Sequence(process.processedEvents)
 
-if (flagFastSim == 'OFF' and flagMC == 'ON'):
+if (flagFastSim == 'OFF' and flagMC == 'ON' and flagPG == 'OFF'):
   process.eventCounters = cms.Sequence(process.totalKinematicsFilter * process.processedEvents)
 
 if (flagAddPdfWeight == 'ON' and flagMC == 'ON'):
@@ -258,18 +259,18 @@ process.ak5PFchsL3Absolute     = process.ak5CaloL3Absolute.clone( algorithm = 'A
 process.ak5PFchsResidual  = process.ak5CaloResidual.clone( algorithm = 'AK5PFchs' )
 
 process.ak5PFchsL1FastL2L3 = cms.ESProducer(
-    'JetCorrectionESChain',
-    correctors =
-        cms.vstring('ak5PFchsL1Fastjet','ak5PFchsL2Relative',
-                    'ak5PFchsL3Absolute')
+  'JetCorrectionESChain',
+  correctors =
+  cms.vstring('ak5PFchsL1Fastjet','ak5PFchsL2Relative',
+              'ak5PFchsL3Absolute')
 )
 
 process.ak5PFchsL1FastL2L3Residual = cms.ESProducer(
-    'JetCorrectionESChain',
-    correctors =
-        cms.vstring('ak5PFchsL1Fastjet','ak5PFchsL2Relative',
-                    'ak5PFchsL3Absolute','ak5PFchsResidual')
-)
+  'JetCorrectionESChain',
+  correctors =
+  cms.vstring('ak5PFchsL1Fastjet','ak5PFchsL2Relative',
+              'ak5PFchsL3Absolute','ak5PFchsResidual')
+  )
 
 
 
@@ -313,7 +314,7 @@ if (flagMC is 'ON' and flagFastSim is 'ON'):
   process.h2ganalyzer.doGenParticles = False
   process.h2ganalyzer.doGenMet = False
   process.h2ganalyzer.doGenVertices = False
-elif (  flagMC is 'ON' and flagFastSim is 'OFF'):
+elif ((flagMC is 'ON' and flagFastSim is 'OFF') or flagPG is 'ON'):
   process.h2ganalyzer.doGenJet_algo1 = True
   process.h2ganalyzer.doGenJet_algo2 = True
   process.h2ganalyzer.doGenJet_algo3 = True
@@ -329,7 +330,7 @@ elif flagData is 'ON':
   process.h2ganalyzer.doGenVertices = False
   process.h2ganalyzer.doGenMet = False
 
-if flagMC is 'ON' and flagAOD is 'OFF':
+if ((flagMC is 'ON' or flagPG is 'ON') and flagAOD is 'OFF'):
   process.h2ganalyzer.doSimTracks = True
   process.h2ganalyzer.doSimTrackPlusSimVertex = False
 
@@ -353,10 +354,15 @@ else:
   process.h2ganalyzer.BarrelBasicClusterShapeColl = cms.InputTag("multi5x5BasicClusters","multi5x5BarrelShapeAssoc")
   process.h2ganalyzer.JetTrackAssociationColl_algo3 = cms.InputTag("kt4JetTracksAssociatorAtVertex")
 
-
-process.h2ganalyzer.doL1 = True
-process.h2ganalyzer.doHLT = True
-
+if (flagPG is 'OFF'):
+  process.h2ganalyzer.doL1 = True
+  process.h2ganalyzer.doHLT = True
+else:
+  process.h2ganalyzer.doL1 = False
+  process.h2ganalyzer.doHLT = False
+  process.h2ganalyzer.doJet_algoPF3 = False
+  process.h2ganalyzer.doParticleGun = True
+  
 process.GlobalTag.globaltag = "START52_V9::All"
 process.h2ganalyzer.HLTParameters.PrimaryTriggerResultsTag = cms.InputTag("TriggerResults","", hltLabel)
 process.h2ganalyzer.HLTParameters.useSecondaryTrigger = cms.bool(False)
