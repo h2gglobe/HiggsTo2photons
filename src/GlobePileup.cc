@@ -12,7 +12,7 @@ GlobePileup::GlobePileup(const edm::ParameterSet& iConfig) {
   pu_ntrks_highpt = new std::vector<int>; pu_ntrks_highpt->clear();
   
   h1 = new TH1D("pileup", "pileup", 100, 0, 100);
-  h2 = new TH1D("pileup_true", "pileup_true", 100, 0, 100);
+  h2 = new TH1D("pileup_true", "pileup_true", 1000, 0, 100);
 }
 
 void GlobePileup::defineBranch(TTree* tree) {
