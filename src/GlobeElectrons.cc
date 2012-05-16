@@ -35,6 +35,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include "TFile.h"
 
 GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
   
@@ -65,6 +66,8 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
   
   inputTagIsoValElectronsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectronPF");   
 
+  energyCorrectionsFromDB = iConfig.getParameter<bool> ("energyCorrectionsFromDB"); 
+  energyRegFilename       = iConfig.getParameter<std::string> ("energyCorrectionsFileNameEle"); 
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
   gES  = new GlobeEcalClusters(iConfig);
@@ -582,8 +585,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (geometryES) topology_p = new EcalPreshowerTopology(geoHandle);
 
   EcalClusterLazyTools ecalLazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);
-  // = new EcalClusterLazyTools(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);
-
   edm::Handle<EcalRecHitCollection> ESRecHits;
   iEvent.getByLabel(ecalHitESColl , ESRecHits);
 
@@ -706,17 +707,29 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     m.MustacheID(*(egsf.superCluster()), el_mustnc[el_n], el_must[el_n]);
 
     // Regression Correction
-    //if (!ecorr_.IsInitialized()) {  
-    //  char filename[200];
-    //  char* descr = getenv("CMSSW_BASE");
-    //  sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ele.root", descr); 
-    //  //std::string filename("http://home.cern.ch/sani/gbrv2ele.root");
-    //  ecorr_.Initialize(iSetup, "wgbrele", true);
-    //}
+    if (!ecorr_.IsInitialized()) {
+      if (!energyCorrectionsFromDB) {
+	char filename[500];
+	char* descr = getenv("CMSSW_BASE");
+	sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/%s", descr, energyRegFilename.c_str());
+	std::cout << "PIPPI" << std::endl;
+	TFile* temp = new TFile(filename);
+	if (temp->IsZombie()) {
+	  sprintf(filename, "http://home.cern.ch/sani/%s", energyRegFilename.c_str());
+	  temp->Close();
+	  ecorr_.Initialize(iSetup, filename);
+	} else {
+	  temp->Close();
+	  ecorr_.Initialize(iSetup, filename);
+	} 
+      } else {
+	ecorr_.Initialize(iSetup, "wgbrph", true); // FIXME no wgbrele in the DB !!!
+      }
+    }
 
-    //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(egsf, *(vtxH.product()), *ecalLazyTool, iSetup);
-    el_regr_energy[el_n]    = 0;//cor.first;
-    el_regr_energyerr[el_n] = 0;//cor.second;
+    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(egsf, *(vtxH.product()), ecalLazyTool, iSetup);
+    el_regr_energy[el_n]    = cor.first;
+    el_regr_energyerr[el_n] = cor.second;
 
     // ES variables
     el_eseffsixix[el_n] = 0.;

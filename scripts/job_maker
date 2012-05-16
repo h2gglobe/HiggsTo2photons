@@ -23,13 +23,16 @@ job_maker [options]
 --fastsim                          works with fastsim eventcontent (actually not the standard one ;-))
 --AOD/RECO                         AOD should be standard
 --caf                              send jobs using CAF (hadoop is std in SD)
+--server                           use server to submit crab jobs
+--AddPdfWeight                     add pdf weight information into the ntuple (warning: very very slow)
+--energyCorrFromROOT               read energy corrections from ROOT files (default is read from DB)
 --skimworz                         skim for T&P
 --diphoskim                        DiPhoton HLT Skim
 --vlpresel                         Very Loose Preselection on 2 photons
 --noskim                           no skim performed (typically only for signal)
---skimmmg                          skim for mumugamma 
---storage=\"eos\" or \"castor\" or \"hadoop\" 
-                                   use eos/castor/hadoop as storage element
+--skimmmg                          skim for mumugamma
+--skim1el                          skim to select only one electron
+--storage=eos/castor/hadoop        use eos/castor/hadoop as storage element
 --name=                            name of the job, directory, files
 --scheduler=                       glite or glidein
 --datasetpath=                     datasetpath
@@ -66,6 +69,7 @@ flagRECO = False
 flagPG = False
 flagFastSim = False
 flagT1 = False
+flagROOT = False
 
 name = "NoNameGiven"
 datasetpath=""
@@ -88,7 +92,7 @@ useServer = False
 toEnable = []
 toDisable = []
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromROOT'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -126,6 +130,8 @@ for opt,argm in opts:
         flagNoSkim = True
     elif (opt == "--storage"):
         storage = argm
+    elif (opt == "--energyCorrFromROOT"):
+        flagROOT = True
     elif (opt == "--name"):
         name = argm
     elif (opt == "--datasetpath"):
@@ -242,7 +248,8 @@ for run in runselection:
     file_out.write("\n")
     for t in toDisable:
         file_out.write("process.h2ganalyzer." + t + " = False\n")
-
+    if (flagROOT):
+        file_out.write("process.h2ganalyzer.energyCorrectionsFromDB = False\n")
     file_out.close()
 
     

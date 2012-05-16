@@ -18,6 +18,15 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include <cstdlib>
 #include "TFile.h"
+#include <sys/stat.h>
+
+int fexist(char *filename) {
+  struct stat buffer ;
+  if (stat( filename, &buffer )) 
+    return 1;
+  return 0;
+}
+
 void GlobePhotons::checkSetup(const edm::EventSetup& iSetup) {
 
   // Initialise the Correction Scheme
@@ -88,6 +97,9 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   inputTagIsoVals04_.push_back(isoVals04.getParameter<edm::InputTag>("pfChargedHadrons"));
   inputTagIsoVals04_.push_back(isoVals04.getParameter<edm::InputTag>("pfPhotons"));
   inputTagIsoVals04_.push_back(isoVals04.getParameter<edm::InputTag>("pfNeutralHadrons"));
+
+  energyCorrectionsFromDB = iConfig.getParameter<bool> ("energyCorrectionsFromDB"); 
+  energyRegFilename       = iConfig.getParameter<std::string> ("energyCorrectionsFileNamePho"); 
   
   // get the Correction Functions
   fEtaCorr  = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection",iConfig);
@@ -615,9 +627,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     //  pho_id_6catpf[pho_n][iv] = cicPhotonId->photonCutLevel6catPF(localPho, iv);
     //}
 
-    // FRIXIONE ISO
-    //pfFrixIso->float pfFrixioneIso::mvaID(const reco::PFCandidateCollection* pfParticlesColl,const reco::Photon *recoPhoton, edm::Handle< reco::VertexCollection > recoVtx)
-    
     // Residual corrections
     //PhotonFix ResidCorrector(*localPho);
     pho_residCorrEnergy[pho_n] = 0;//ResidCorrector.fixedEnergy();
@@ -625,11 +634,19 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     // Regression Correction
     if (!ecorr_.IsInitialized()) {
-      char filename[200];
-      char* descr = getenv("CMSSW_BASE");
-      sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ph.root", descr);
-      //sprintf(filename, "http://sani.cern.ch/gbrv2ph.root");
-      ecorr_.Initialize(iSetup, "wgbrph", true);
+      if (!energyCorrectionsFromDB) {
+	char filename[500];
+	char* descr = getenv("CMSSW_BASE");
+	sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/%s", descr, energyRegFilename.c_str());
+	if (fexist(filename)) {
+	  sprintf(filename, "http://home.cern.ch/sani/%s", energyRegFilename.c_str());
+	  ecorr_.Initialize(iSetup, filename);
+	} else {
+	  ecorr_.Initialize(iSetup, filename);
+	} 
+      } else {
+	ecorr_.Initialize(iSetup, "wgbrph", true);
+      }
     }
 
     if (!isInitialized) {
@@ -637,17 +654,10 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       //do the same for PFEcal Cluster corrections:
       char filename1[200];
       char filename2[200];
-      char* descr = getenv("CMSSW_BASE");
-      //sprintf(filename1, "%s/src/HiggsAnalysis/HiggsTo2photons/data/TMVARegressionBarrelLC.root", descr);
-      //sprintf(filename2, "%s/src/HiggsAnalysis/HiggsTo2photons/data/TMVARegressionEndCapLC.root", descr);
       sprintf(filename1, "http://home.cern.ch/sani/TMVARegressionBarrelLC.root");
       sprintf(filename2, "http://home.cern.ch/sani/TMVARegressionEndCapLC.root");
-      //TFile *fgbr1 = new TFile(filename1,"READ");
-      //TFile *fgbr2 = new TFile(filename2,"READ");
       TFile *fgbr1 = TFile::Open(filename1);
       TFile *fgbr2 = TFile::Open(filename2);
-      //const GBRForest* PFLCBarrel=(const GBRForest*)fgbr1->Get("PFLCorrEB");
-      //const GBRForest* PFLCEndcap=(const GBRForest*)fgbr2->Get("PFLCorrEE");
       PFLCBarrel = (GBRForest*)fgbr1->Get("PFLCorrEB");
       PFLCEndcap = (GBRForest*)fgbr2->Get("PFLCorrEE");
     }
