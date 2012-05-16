@@ -1,4 +1,6 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeElectrons.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/Tools.h"
+
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -35,14 +37,7 @@
 
 #include <cstdlib>
 #include <iostream>
-#include <sys/stat.h>
 
-int fexist(char *filename) {
-  struct stat buffer ;
-  if (stat( filename, &buffer )) 
-    return 1;
-  return 0;
-}
 
 GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
   

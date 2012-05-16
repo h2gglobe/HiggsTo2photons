@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePhotons.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/Tools.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
@@ -16,16 +17,8 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/Mustache.h"
 #include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
 #include "DataFormats/Math/interface/deltaR.h"
-#include <cstdlib>
 #include "TFile.h"
-#include <sys/stat.h>
-
-int fexist(char *filename) {
-  struct stat buffer ;
-  if (stat( filename, &buffer )) 
-    return 1;
-  return 0;
-}
+#include <cstdlib>
 
 void GlobePhotons::checkSetup(const edm::EventSetup& iSetup) {
 
