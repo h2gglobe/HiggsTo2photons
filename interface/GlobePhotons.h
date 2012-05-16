@@ -392,6 +392,9 @@ class GlobePhotons {
   ElectronHcalHelper::Configuration hcalCfg, hcalCfgPflow;
 
   EGEnergyCorrector ecorr_;
+  
+  bool energyCorrectionsFromDB;
+  std::string energyRegFilename;
 };
 
 #endif

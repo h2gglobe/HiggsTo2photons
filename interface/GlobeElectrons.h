@@ -228,8 +228,10 @@ class GlobeElectrons {
   edm::FileInPath mvaWeightFile;  
   std::vector<edm::InputTag> inputTagIsoValElectronsPFId_;
 
-  //EcalClusterLazyTools* ecalLazyTool;
   EGEnergyCorrector ecorr_;
+  bool energyCorrectionsFromDB;
+  std::string energyRegFilename;
+  
   ElectronMVAEstimator*  mvaEstimator;
 
   const TransientTrackBuilder* transientTrackBuilder;
