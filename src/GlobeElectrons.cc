@@ -35,7 +35,14 @@
 
 #include <cstdlib>
 #include <iostream>
-#include "TFile.h"
+#include <sys/stat.h>
+
+int fexist(char *filename) {
+  struct stat buffer ;
+  if (stat( filename, &buffer )) 
+    return 1;
+  return 0;
+}
 
 GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n): nome(n) {
   
@@ -712,18 +719,14 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	char filename[500];
 	char* descr = getenv("CMSSW_BASE");
 	sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/%s", descr, energyRegFilename.c_str());
-	std::cout << "PIPPI" << std::endl;
-	TFile* temp = new TFile(filename);
-	if (temp->IsZombie()) {
+	if (fexist(filename)) {
 	  sprintf(filename, "http://home.cern.ch/sani/%s", energyRegFilename.c_str());
-	  temp->Close();
 	  ecorr_.Initialize(iSetup, filename);
 	} else {
-	  temp->Close();
 	  ecorr_.Initialize(iSetup, filename);
 	} 
       } else {
-	ecorr_.Initialize(iSetup, "wgbrph", true); // FIXME no wgbrele in the DB !!!
+	ecorr_.Initialize(iSetup, "wgbrph", true); //FIXME no wgbrele in DB
       }
     }
 
