@@ -759,7 +759,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       reco::VertexRef vtx(vtxH, 0);
       vtxPoint = math::XYZPoint(vtx->x(),vtx->y(),vtx->z());
     }
-
     el_ip_gsf[el_n] = (-1.)*egsf.gsfTrack()->dxy(vtxPoint);
 
     if (!doAodSim && (trackColl2.encode() != "electronGsfTracks")) {
@@ -977,9 +976,13 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
     // loop through vertices for d0 and dZ w.r.t. each vertex
     // need number of vertices and vertices' positions
-    int maxV = std::max(100, (int)vtxH->size());
+    int maxV = std::min(100, (int)vtxH->size());
+    //std::cout << maxV << std::endl;
     for(int iv=0; iv<maxV; iv++){
       reco::VertexRef v(vtxH, iv);
+      //std::cout << v->x() << std::endl;
+      //std::cout << v->y() << std::endl;
+      //std::cout << v->z() << std::endl;
       math::XYZPoint vtxPoint = math::XYZPoint(v->x(), v->y(), v->z());
       
       el_D0Vtx[el_n][iv] = egsf.gsfTrack()->dxy(vtxPoint);
