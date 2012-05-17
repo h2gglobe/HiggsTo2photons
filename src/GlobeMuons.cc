@@ -207,7 +207,7 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       
       // loop through vertices for d0 and dZ w.r.t. each vertex
       // need number of vertices and vertices' positions
-      int maxV = std::max(100, (int)vtxH->size());
+      int maxV = std::min(100, (int)vtxH->size());
       for(int iv=0; iv<maxV; iv++){
         reco::VertexRef v(vtxH, iv);
         math::XYZPoint vtxPoint = math::XYZPoint(v->x(), v->y(), v->z());
