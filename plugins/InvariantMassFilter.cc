@@ -18,9 +18,6 @@
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
-//#include "DataFormats/Math/interface/deltaR.h"
-//#include "DataFormats/Math/interface/deltaPhi.h"
-
 class InvariantMassFilter : public edm::EDFilter {
 public:
   explicit InvariantMassFilter(const edm::ParameterSet&);
@@ -33,7 +30,7 @@ private:
   
   edm::InputTag elColl_;
   edm::InputTag scColl_;
-  
+  bool invMass_ ;
   Float_t minMassCut_;
   Float_t maxMassCut_;
 };
@@ -43,6 +40,7 @@ InvariantMassFilter::InvariantMassFilter(const edm::ParameterSet& iConfig) {
   
   elColl_  = iConfig.getParameter<edm::InputTag>("electronCollection");
   scColl_  = iConfig.getParameter<edm::InputTag>("superClusterCollection");
+  invMass_ = iConfig.getParameter<bool> ("ElectronElectronInvMass");
   
   minMassCut_ =  iConfig.getParameter<double>("minMassCut");
   maxMassCut_ =  iConfig.getParameter<double>("maxMassCut");
@@ -52,30 +50,39 @@ InvariantMassFilter::~InvariantMassFilter()
 {}
 
 bool InvariantMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-
-  //bool sel = false;
   
   edm::Handle<reco::SuperClusterCollection> scH;
-  iEvent.getByLabel(scColl_, scH);
+  if (!invMass_)
+    iEvent.getByLabel(scColl_, scH);
 
   edm::Handle<reco::GsfElectronCollection> elH;
   iEvent.getByLabel(elColl_, elH);
 
-
-
-
-  for(reco::GsfElectronCollection::const_iterator igsf = elH->begin(); igsf != elH->end(); igsf++) {
-    math::XYZTLorentzVector l1 = igsf->p4();
-    for(reco::SuperClusterCollection::const_iterator sc = scH->begin(); sc != scH->end(); sc++) {
-      math::PtEtaPhiMLorentzVector l2(sin(sc->position().theta())*sc->energy(),
-                                      sc->position().eta(),
-                                      sc->position().phi(),
-                                      0);
-      if (((l1+l2).M() < maxMassCut_) && ((l1+l2).M() > minMassCut_))
-        return true;
+  if (!invMass_) {
+    for(reco::GsfElectronCollection::const_iterator igsf = elH->begin(); igsf != elH->end(); igsf++) {
+      math::XYZTLorentzVector l1 = igsf->p4();
+      for(reco::SuperClusterCollection::const_iterator sc = scH->begin(); sc != scH->end(); sc++) {
+	math::PtEtaPhiMLorentzVector l2(sin(sc->position().theta())*sc->energy(),
+					sc->position().eta(),
+					sc->position().phi(),
+					0);
+	if (((l1+l2).M() < maxMassCut_) && ((l1+l2).M() > minMassCut_))
+	  return true;
+      }
+    }
+  } else {
+    for(reco::GsfElectronCollection::const_iterator igsf1 = elH->begin(); igsf1 != elH->end(); igsf1++) {
+      math::XYZTLorentzVector l1 = igsf1->p4();
+      for(reco::GsfElectronCollection::const_iterator igsf2 = elH->begin(); igsf2 != elH->end(); igsf2++) {
+	if (igsf1 == igsf2)
+	  continue;
+	math::XYZTLorentzVector l2 = igsf2->p4();
+	if (((l1+l2).M() < maxMassCut_) && ((l1+l2).M() > minMassCut_))
+	  return true;
+      }
     }
   }
-
+  
   return false;
 }
 
