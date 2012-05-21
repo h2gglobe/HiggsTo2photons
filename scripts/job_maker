@@ -25,7 +25,7 @@ job_maker [options]
 --caf                              send jobs using CAF (hadoop is std in SD)
 --server                           use server to submit crab jobs
 --AddPdfWeight                     add pdf weight information into the ntuple (warning: very very slow)
---energyCorrFromROOT               read energy corrections from ROOT files (default is read from DB)
+--energyCorrFromDB                 read energy corrections from DB (default is read from ROOT file)
 --skimworz                         skim for T&P
 --diphoskim                        DiPhoton HLT Skim
 --vlpresel                         Very Loose Preselection on 2 photons
@@ -69,7 +69,7 @@ flagRECO = False
 flagPG = False
 flagFastSim = False
 flagT1 = False
-flagROOT = False
+flagDB = False
 
 name = "NoNameGiven"
 datasetpath=""
@@ -92,7 +92,7 @@ useServer = False
 toEnable = []
 toDisable = []
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromROOT'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -130,8 +130,8 @@ for opt,argm in opts:
         flagNoSkim = True
     elif (opt == "--storage"):
         storage = argm
-    elif (opt == "--energyCorrFromROOT"):
-        flagROOT = True
+    elif (opt == "--energyCorrFromDB"):
+        flagDB = True
     elif (opt == "--name"):
         name = argm
     elif (opt == "--datasetpath"):
@@ -248,8 +248,8 @@ for run in runselection:
     file_out.write("\n")
     for t in toDisable:
         file_out.write("process.h2ganalyzer." + t + " = False\n")
-    if (flagROOT):
-        file_out.write("process.h2ganalyzer.energyCorrectionsFromDB = False\n")
+    if (flagDB:
+        file_out.write("process.h2ganalyzer.energyCorrectionsFromDB = True\n")
     file_out.close()
 
     

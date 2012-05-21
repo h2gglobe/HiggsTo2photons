@@ -219,7 +219,8 @@ class GlobeElectrons {
 
   // SUPER CLUSTERS
   edm::InputTag hybridSuperClusterColl;
-  edm::InputTag endcapSuperClusterColl;  
+  edm::InputTag endcapSuperClusterColl;
+  edm::InputTag rhoCollection;  
   edm::InputTag caloTowerColl;
   edm::InputTag ecalHitEBColl;
   edm::InputTag ecalHitEEColl;
@@ -231,7 +232,7 @@ class GlobeElectrons {
   EGEnergyCorrector ecorr_;
   bool energyCorrectionsFromDB;
   std::string energyRegFilename;
-  
+  std::string regressionVersion;
   ElectronMVAEstimator*  mvaEstimator;
 
   const TransientTrackBuilder* transientTrackBuilder;

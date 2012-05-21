@@ -54,6 +54,7 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
   trackColl2 = iConfig.getParameter<edm::InputTag>("TrackColl3");
   vertexColl = iConfig.getParameter<edm::InputTag>("VertexColl_std");
   //pfColl = iConfig.getParameter<edm::InputTag>("PFCandidateColl");
+  rhoCollection = iConfig.getParameter<edm::InputTag>("rhoCollection_algo1");
 
   hybridSuperClusterColl = iConfig.getParameter<edm::InputTag>("HybridSuperClusterColl");
   endcapSuperClusterColl = iConfig.getParameter<edm::InputTag>("EndcapSuperClusterColl");
@@ -69,7 +70,9 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
   inputTagIsoValElectronsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectronPF");   
 
   energyCorrectionsFromDB = iConfig.getParameter<bool> ("energyCorrectionsFromDB"); 
-  energyRegFilename       = iConfig.getParameter<std::string> ("energyCorrectionsFileNameEle"); 
+  energyRegFilename       = iConfig.getParameter<std::string> ("energyCorrectionsFileNameEle");  
+  regressionVersion       = iConfig.getParameter<std::string> ("energyCorrectionsVersion");
+
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
   gES  = new GlobeEcalClusters(iConfig);
@@ -550,6 +553,11 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<reco::VertexCollection> vtxH;
   iEvent.getByLabel(vertexColl, vtxH);
 
+  edm::Handle<double> rhoHandle;
+  iEvent.getByLabel(rhoCollection, rhoHandle);
+  double rho = *(rhoHandle.product());
+  
+
   /*
   edm::Handle<reco::PFCandidateCollection> pfHandle;
   iEvent.getByLabel(pfColl, pfHandle);
@@ -710,6 +718,11 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     // Regression Correction
     if (!ecorr_.IsInitialized()) {
+      if (energyCorrectionsFromDB and regressionVersion == "V3") {
+	std::cout << "DB version available only for V2" << std::endl;
+	energyCorrectionsFromDB = false;
+      }
+      
       if (!energyCorrectionsFromDB) {
 	char filename[500];
 	char* descr = getenv("CMSSW_BASE");
@@ -725,9 +738,15 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
 
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(egsf, *(vtxH.product()), ecalLazyTool, iSetup);
-    el_regr_energy[el_n]    = cor.first;
-    el_regr_energyerr[el_n] = cor.second;
+    if (regressionVersion == "V3") {
+      std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV3(egsf, *vtxH, rho, ecalLazyTool, iSetup);
+      el_regr_energy[el_n]    = cor.first;
+      el_regr_energyerr[el_n] = cor.second;
+    } else {
+      std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(egsf, *vtxH, ecalLazyTool, iSetup);
+      el_regr_energy[el_n]    = cor.first;
+      el_regr_energyerr[el_n] = cor.second;
+    }
 
     // ES variables
     el_eseffsixix[el_n] = 0.;
