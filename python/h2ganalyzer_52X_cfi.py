@@ -20,9 +20,10 @@ h2ganalyzer = cms.EDAnalyzer(
     "GlobeAnalyzer",
     RootFileName = cms.string('prova.root'),
     JobMaker = cms.string('jobmaker unknown'),
-    energyCorrectionsFromDB = cms.bool(True),
-    energyCorrectionsFileNamePho = cms.string("gbrv2ph.root"),
-    energyCorrectionsFileNameEle = cms.string("gbrv2ele.root"),
+    energyCorrectionsFromDB = cms.bool(False),
+    energyCorrectionsFileNamePho = cms.string("gbrv3ph_52x.root"),
+    energyCorrectionsFileNameEle = cms.string("gbrv3ele_52x.root"),
+    energyCorrectionsVersion = cms.string("V3"),
     globalCounters = cms.vstring(),
 
     #PhotonFIX parameters

@@ -93,7 +93,8 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 
   energyCorrectionsFromDB = iConfig.getParameter<bool> ("energyCorrectionsFromDB"); 
   energyRegFilename       = iConfig.getParameter<std::string> ("energyCorrectionsFileNamePho"); 
-  
+  regressionVersion       = iConfig.getParameter<std::string> ("energyCorrectionsVersion");
+
   // get the Correction Functions
   fEtaCorr  = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection",iConfig);
   CrackCorr = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection",iConfig);
@@ -611,8 +612,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
     if (iel!=9999) pho_isPFElectron[pho_n]=1;
 
-    
-
     // PHOTON ID
     //for (unsigned int iv=0; iv<hVertex->size(); iv++) {
     //  pho_id_4cat[pho_n][iv] = cicPhotonId->photonCutLevel4cat(localPho, iv);
@@ -627,6 +626,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     // Regression Correction
     if (!ecorr_.IsInitialized()) {
+      if (energyCorrectionsFromDB and regressionVersion == "V3") {
+	std::cout << "DB version available only for V2" << std::endl;
+	energyCorrectionsFromDB = false;
+      }
+      
       if (!energyCorrectionsFromDB) {
 	char filename[500];
 	char* descr = getenv("CMSSW_BASE");
@@ -656,9 +660,15 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     }
 
     EcalClusterLazyTools lazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);   
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*localPho, *(hVertex.product()), lazyTool, iSetup);
-    pho_regr_energy[pho_n]    = cor.first;
-    pho_regr_energyerr[pho_n] = cor.second;
+    if (regressionVersion == "V3") {
+      std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV3(*localPho, *hVertex, rho, lazyTool, iSetup);
+      pho_regr_energy[pho_n]    = cor.first;
+      pho_regr_energyerr[pho_n] = cor.second;
+    } else {
+      std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(*localPho, *hVertex, lazyTool, iSetup);
+      pho_regr_energy[pho_n]    = cor.first;
+      pho_regr_energyerr[pho_n] = cor.second;
+    }
 
     pho_sc_time[pho_n] = lazyTool.SuperClusterTime(*theClus, iEvent);
 	
@@ -733,7 +743,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     const reco::CaloClusterPtr  seed_clu = localPho->superCluster()->seed();
     EcalRecHitCollection::const_iterator seedcry_rh = prechits->find(id);
-    
+
     //fiducial flags
     pho_isEB[pho_n] = localPho->isEB();
     pho_isEE[pho_n] = localPho->isEE();
@@ -782,7 +792,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     edm::Handle<EcalRecHitCollection> EEReducedRecHits;
     iEvent.getByLabel(ecalHitEBColl, EBReducedRecHits);
     iEvent.getByLabel(ecalHitEEColl, EEReducedRecHits);
-    
+
     ggPFPhotons ggPFPhoton(*localPho, phoHpf,hElectrons,
 			   pfCollection,
 			   EBReducedRecHits,

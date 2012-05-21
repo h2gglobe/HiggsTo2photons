@@ -395,6 +395,7 @@ class GlobePhotons {
   
   bool energyCorrectionsFromDB;
   std::string energyRegFilename;
+  std::string regressionVersion;
 };
 
 #endif
