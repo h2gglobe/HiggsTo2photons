@@ -54,7 +54,10 @@ class GlobeJets {
   Float_t jet_nCharged[MAX_JETS];
   Float_t jet_dR2Mean[MAX_JETS];
   Float_t jet_betaStarClassic[MAX_JETS];
-
+  std::vector<std::vector<float> > jet_beta_ext;
+  std::vector<std::vector<float> > jet_betaStar_ext;
+  std::vector<std::vector<float> > jet_betaStarClassic_ext;
+  
   Bool_t jet_pfloose[MAX_JETS];
 
   Int_t jet_ntk[MAX_JETS];
@@ -63,6 +66,8 @@ class GlobeJets {
   std::vector<std::vector<unsigned short> >* jet_tkind;
   std::vector<float * > mvas_;
   std::vector<int * > wp_levels_;
+  std::vector<std::vector<std::vector<float> > * > mvas_ext_;
+  std::vector<std::vector<std::vector<int> > * > wp_levels_ext_;
   std::vector<PileupJetIdAlgo* > algos_;
     
   TClonesArray *jet_p4;

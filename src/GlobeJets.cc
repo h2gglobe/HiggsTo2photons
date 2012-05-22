@@ -34,8 +34,9 @@ GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "algo1"):
     
   mvas_.resize(jetMVAAlgos.size());
   wp_levels_.resize(jetMVAAlgos.size());
+  mvas_ext_.resize(jetMVAAlgos.size());
+  wp_levels_ext_.resize(jetMVAAlgos.size());
   algos_.resize(jetMVAAlgos.size());
-
   for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
       algos_[imva] = new PileupJetIdAlgo((jetMVAAlgos.at(imva)));
   }
@@ -143,6 +144,14 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a2, "jet_%s_betaStarClassic[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_betaStarClassic, a2);
 
+  sprintf(a1, "jet_%s_beta_ext", nome);
+  tree->Branch(a1, "std::vector<std::vector<float> >", &jet_beta_ext);
+  sprintf(a1, "jet_%s_betaStar_ext", nome);
+  tree->Branch(a1, "std::vector<std::vector<float> >", &jet_beta_ext);
+  sprintf(a1, "jet_%s_betaStarClassic_ext", nome);
+  tree->Branch(a1, "std::vector<std::vector<float> >", &jet_beta_ext);
+
+
   sprintf(a1, "jet_%s_pfloose", nome);
   sprintf(a2, "jet_%s_pfloose[jet_%s_n]/O", nome, nome);
   tree->Branch(a1, &jet_pfloose, a2);
@@ -161,6 +170,15 @@ void GlobeJets::defineBranch(TTree* tree) {
       sprintf(a1, "jet_%s_%s_wp_level", nome, mvalabel.c_str());
       sprintf(a2, "jet_%s_%s_wp_level[jet_%s_n]/I", nome, mvalabel.c_str(), nome);
       tree->Branch(a1, &wp_levels_[imva][0], a2);
+
+      mvas_ext_[imva] = new std::vector<std::vector<float> >();
+      wp_levels_ext_[imva] = new std::vector<std::vector<int> >();
+
+      sprintf(a1, "jet_%s_%s_mva_ext", nome, mvalabel.c_str());
+      tree->Branch(a1, "std::vector<std::vector<float> >", &mvas_ext_[imva]);
+
+      sprintf(a1, "jet_%s_%s_wp_level_ext", nome, mvalabel.c_str());
+      tree->Branch(a1, "std::vector<std::vector<int> >", &wp_levels_ext_[imva]);
   }
 
 
@@ -305,14 +323,29 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
 
-    //PileupJetIdAlgo jetMVACalculator(*(jetMVAAlgos.begin()));
     PileupJetIdAlgo* jetMVACalculator = 0;
     if(algos_.size()>0) jetMVACalculator = algos_[0];
+    size_t n_jets = std::min(pfjetH->size(),(size_t)MAX_JETS);
+    size_t n_vtx = vtxH->size();
+    for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
+      mvas_ext_[imva]->clear();
+      mvas_ext_[imva]->resize(n_jets, std::vector<float>(n_vtx,-999.));
+      wp_levels_ext_[imva]->clear();
+      wp_levels_ext_[imva]->resize(n_jets, std::vector<int>(n_vtx,-999.));
+      jet_beta_ext.clear();
+      jet_beta_ext.resize(n_jets,std::vector<float>(n_vtx,-999.));
+      jet_betaStar_ext.clear();
+      jet_betaStar_ext.resize(n_jets,std::vector<float>(n_vtx,-999.));
+      jet_betaStarClassic_ext.clear();
+      jet_betaStarClassic_ext.resize(n_jets,std::vector<float>(n_vtx,-999.));
+      
+    }
+
     // check if collection is present
     for(unsigned int i=0; i<pfjetH->size(); i++) {
       if (jet_n >= MAX_JETS) {
-        std::cout << "GlobeJets: WARNING TOO MANY JETS: " << pfjetH->size() << " (allowed " << MAX_JETS << ")" << std::endl;
-        break;
+	std::cout << "GlobeJets: WARNING TOO MANY JETS: " << pfjetH->size() << " (allowed " << MAX_JETS << ")" << std::endl;
+	break;
       }
       
       reco::PFJetRef j(pfjetH, i);
@@ -330,8 +363,6 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       } else {
         jet_erescale[jet_n] = 1;
       }
-
-      
       
       if (debug_level > 9 && jet_n<20) std::cout<<"pre "<<correctedJet->energy()<<std::endl;
 
@@ -340,7 +371,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       if(correctedJet->pt() < 1) continue;
       
       pat::strbitset ret = (*pfLooseId).getBitTemplate();
-      jet_pfloose[jet_n] = (*pfLooseId)(*correctedJet, ret);
+      jet_pfloose[jet_n] = (*pfLooseId)(*j, ret);
       
       //  scale the jets ref here
 
@@ -377,7 +408,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         jet_nCharged[jet_n]=jetIdentifer_vars.nCharged();
         jet_dR2Mean[jet_n]=jetIdentifer_vars.dR2Mean();
         jet_betaStarClassic[jet_n]=jetIdentifer_vars.betaStarClassic();
-  
+
         for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
           PileupJetIdAlgo* ialgo = (algos_[imva]);
           ialgo->set(jetIdentifer_vars);
@@ -385,6 +416,22 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           mvas_[imva][jet_n] = id.mva() ;
           wp_levels_[imva][jet_n] = id.idFlag() ;
         }
+	
+	for(size_t vtx=0; vtx<vertexCollection.size(); ++vtx) {
+	  PileupJetIdentifier ext_vars = jetMVACalculator->computeIdVariables( thisjet, jet_erescale[jet_n], &vertexCollection[vtx], vertexCollection);
+	  jet_beta_ext[jet_n][vtx]=ext_vars.beta();
+	  jet_betaStar_ext[jet_n][vtx]=ext_vars.betaStar();
+	  jet_betaStarClassic_ext[jet_n][vtx]=ext_vars.betaStarClassic();
+	  
+	  for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
+	    PileupJetIdAlgo* ialgo = (algos_[imva]);
+	    ialgo->set(ext_vars);
+	    PileupJetIdentifier id = ialgo->computeMva();
+	    (*mvas_ext_[imva])[jet_n][vtx] = id.mva() ;
+	    (*wp_levels_ext_[imva])[jet_n][vtx] = id.idFlag();
+	  }
+	}
+	
       }
 
       float dy = 0;
