@@ -147,10 +147,9 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a1, "jet_%s_beta_ext", nome);
   tree->Branch(a1, "std::vector<std::vector<float> >", &jet_beta_ext);
   sprintf(a1, "jet_%s_betaStar_ext", nome);
-  tree->Branch(a1, "std::vector<std::vector<float> >", &jet_beta_ext);
+  tree->Branch(a1, "std::vector<std::vector<float> >", &jet_betaStar_ext);
   sprintf(a1, "jet_%s_betaStarClassic_ext", nome);
-  tree->Branch(a1, "std::vector<std::vector<float> >", &jet_beta_ext);
-
+  tree->Branch(a1, "std::vector<std::vector<float> >", &jet_betaStarClassic_ext);
 
   sprintf(a1, "jet_%s_pfloose", nome);
   sprintf(a2, "jet_%s_pfloose[jet_%s_n]/O", nome, nome);
