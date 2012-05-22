@@ -64,6 +64,7 @@ if flagSkimDiphoton == 'ON':
   #process.load('Configuration.Skimming.PDWG_DiPhoton_SD_cff')
 
 
+process.load("HiggsAnalysis.HiggsTo2photons.photonInvariantMassFilter_cfi")
 process.load("HiggsAnalysis.HiggsTo2photons.CMSSW_RelValDUMMY_cfi")
 #process.skipEvents = cms.untracked.PSet(input=cms.untracked.uint32(3500))
 #skipEvents = cms.untracked.uint32(3500)
@@ -162,8 +163,8 @@ process.pdfWeights = cms.EDProducer("PdfWeightProducer",
 process.diMuonSelSeq.remove(process.ZMuHLTFilter)
 
 if flagVLPreSelection == 'ON':
-  process.eventFilter1 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut) # for bkg
-  process.eventFilter2 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut) # for bkg
+  process.eventFilter1 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut+process.photonInvariantMassFilter) # for bkg
+  process.eventFilter2 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut+process.photonInvariantMassFilter) # for bkg
 elif flagMyPreSelection == 'ON':
   process.eventFilter1 = cms.Sequence(process.cicFilterSequence) 
   process.eventFilter2 = cms.Sequence(process.cicFilterSequence)
