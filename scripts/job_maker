@@ -248,7 +248,7 @@ for run in runselection:
     file_out.write("\n")
     for t in toDisable:
         file_out.write("process.h2ganalyzer." + t + " = False\n")
-    if (flagDB:
+    if flagDB:
         file_out.write("process.h2ganalyzer.energyCorrectionsFromDB = True\n")
     file_out.close()
 
