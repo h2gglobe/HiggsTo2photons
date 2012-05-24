@@ -68,6 +68,10 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a1, "jet_%s_p4", nome);
   tree->Branch(a1, "TClonesArray", &jet_p4, 32000, 0);
   
+  sprintf(a1, "jet_%s_area", nome);
+  sprintf(a2, "jet_%s_area[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_area, a2);
+
   sprintf(a1, "jet_%s_emfrac", nome);
   sprintf(a2, "jet_%s_emfrac[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_emfrac, a2);
@@ -239,6 +243,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       new ((*jet_p4)[jet_n]) TLorentzVector();
       ((TLorentzVector *)jet_p4->At(jet_n))->SetXYZT(j->px(), j->py(), j->pz(), j->energy()); 
+      jet_area[jet_n] = j->jetArea();
       jet_emfrac[jet_n] = j->emEnergyFraction();
       jet_hadfrac[jet_n] = j->energyFractionHadronic();
       

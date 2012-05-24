@@ -31,6 +31,7 @@ class GlobeJets {
   // variables
   Int_t jet_n;
 
+  Float_t jet_area[MAX_JETS];
   Float_t jet_emfrac[MAX_JETS];
   Float_t jet_hadfrac[MAX_JETS];
 
