@@ -91,8 +91,9 @@ whiteList=""
 useServer = False
 toEnable = []
 toDisable = []
+jecFromSqlite = False
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -168,6 +169,8 @@ for opt,argm in opts:
         toEnable = argm.split(",")
     elif (opt == "--disable"):
         toDisable = argm.split(",")
+    elif (opt == "--jecFromSqlite"):
+        jecFromSqlite = True
     else:
         print 'Wrong options: %s' % (opt)
         sys.exit(3)
@@ -250,8 +253,10 @@ for run in runselection:
         file_out.write("process.h2ganalyzer." + t + " = False\n")
     if flagDB:
         file_out.write("process.h2ganalyzer.energyCorrectionsFromDB = True\n")
+    if jecFromSqlite:
+        file_out.write("from CMGTools.External.jec_2012_cff import use2012JecPreview\n")
+        file_out.write("use2012JecPreview(process)\n")
     file_out.close()
-
     
     # setup crab cfg file
     file = open("crab_template.cfg")
