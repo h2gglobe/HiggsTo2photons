@@ -201,6 +201,9 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_cep", &pho_cep, "pho_cep[pho_n]/F");
   tree->Branch("pho_lambdaratio", &pho_lambdaratio, "pho_lambdaratio[pho_n]/F");
   tree->Branch("pho_lambdadivcov", &pho_lambdadivcov, "pho_lambdadivcov[pho_n]/F");
+  tree->Branch("pho_cep_global", &pho_cep_global, "pho_cep_global[pho_n]/F");
+  tree->Branch("pho_lambdaratio_global", &pho_lambdaratio_global, "pho_lambdaratio_global[pho_n]/F");
+  tree->Branch("pho_lambdadivcov_global", &pho_lambdadivcov_global, "pho_lambdadivcov_global[pho_n]/F");
   tree->Branch("pho_etawidth", &pho_etawidth, "pho_etawidth[pho_n]/F");
   tree->Branch("pho_brem", &pho_brem, "pho_brem[pho_n]/F");
   tree->Branch("pho_smaj", &pho_smaj, "pho_smaj[pho_n]/F");
@@ -929,6 +932,9 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     // more cluster shapes from Lazy Tools
     std::vector<float> viCov;
     viCov = lazyTool.localCovariances(*seed_clu);
+    std::vector<float> cov;
+    cov = lazyTool.covariances(*localPho->superCluster());
+    
     pho_sipip[pho_n] = viCov[2];
     pho_sieip[pho_n] = viCov[1];
     pho_zernike20[pho_n] = lazyTool.zernike20(*seed_clu);
@@ -955,6 +961,13 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_brem[pho_n]           = localPho->superCluster()->phiWidth()/localPho->superCluster()->etaWidth();
     Cluster2ndMoments moments = EcalClusterTools::cluster2ndMoments(*seed_clu, *(prechits.product()), 0.8, 4.7, true);
     pho_smaj[pho_n]           = moments.sMaj; 
+
+    // NN variables
+    pho_cep_global[pho_n]          = cov[1];
+    float lambdaMinus_glo          = (cov[0] + cov[2] - sqrt(pow(cov[0] - cov[2], 2) + 4*pow(cov[1], 2)));
+    float lambdaPlus_glo           = (cov[0] + cov[2] + sqrt(pow(cov[0] - cov[2], 2) + 4*pow(cov[1], 2)));
+    pho_lambdaratio_global[pho_n]  = lambdaMinus_glo/lambdaPlus_glo;
+    pho_lambdadivcov_global[pho_n] = lambdaMinus_glo/cov[0];
 
 
 

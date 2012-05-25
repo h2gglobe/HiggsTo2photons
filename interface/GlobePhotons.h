@@ -118,6 +118,9 @@ class GlobePhotons {
   Float_t pho_cep[MAX_PHOTONS];
   Float_t pho_lambdaratio[MAX_PHOTONS];
   Float_t pho_lambdadivcov[MAX_PHOTONS];
+  Float_t pho_cep_global[MAX_PHOTONS];
+  Float_t pho_lambdaratio_global[MAX_PHOTONS];
+  Float_t pho_lambdadivcov_global[MAX_PHOTONS];
   Float_t pho_etawidth[MAX_PHOTONS];
   Float_t pho_brem[MAX_PHOTONS];
   Float_t pho_smaj[MAX_PHOTONS];
