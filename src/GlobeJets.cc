@@ -475,35 +475,21 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       jet_pull_dy[jet_n]   = dy;
       jet_pull_dphi[jet_n] = dphi;
 
-
+      std::vector<unsigned short> temp;       
+      reco::TrackRefVector tracks = j->getTrackRefs();
+      jet_ntk[jet_n] = tracks.size();
           
-      if (jetTkAssColl.encode() != "") {
-        std::vector<unsigned short> temp;       
-      
-        edm::Handle<reco::JetTracksAssociationCollection> jetTracksAssociation;
-        iEvent.getByLabel(jetTkAssColl, jetTracksAssociation);
-        
-        for(reco::JetTracksAssociationCollection::const_iterator itass = jetTracksAssociation->begin(); itass != jetTracksAssociation->end(); ++itass) {
-          if (&(*(itass->first)) != &(*j)) 
-            continue;
-          
-          reco::TrackRefVector tracks = itass->second;
-          
-          jet_ntk[jet_n] = tracks.size();
-          
-          for (unsigned int ii = 0; ii < tracks.size(); ++ii) {
-      
-            for(unsigned int k = 0; k<tkH->size(); k++) {
-              reco::TrackRef t(tkH, k);
-              if (&(*(tracks[ii])) == &(*t) ) {
-                temp.push_back(k);
-                break;
-              }
-            }
+      for (unsigned int ii = 0; ii < tracks.size(); ++ii) {
+        for(unsigned int k = 0; k<tkH->size(); k++) {
+          reco::TrackRef t(tkH, k);
+          if(gCUT->cut(*t)) continue; 
+          if (&(*(tracks[ii])) == &(*t) ) {
+            temp.push_back(k);
+            break;
           }
         }
-        jet_tkind->push_back(temp);
       }
+      jet_tkind->push_back(temp);
       
       jet_n++;
       
