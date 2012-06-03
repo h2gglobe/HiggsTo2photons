@@ -2,7 +2,6 @@ from optparse import OptionParser
 import os
 from os import popen, path, environ, getpid
 import re
-from ROOT import *
 
 parser = OptionParser()
 parser.add_option("-c", "--clean", action="store_true", dest="clean", default=False, help="Remove Corrupted File")
@@ -14,6 +13,8 @@ parser.add_option("--castor", action="store_true", dest="castor", default=False,
 parser.add_option("--debug", action="store_true", dest="debug", default=False, help="Enable Debug Mode")
 parser.add_option("--dryrun", action="store_true", dest="dryrun", default=False, help="Dont Actually Move Files")
 (options, args) = parser.parse_args()
+
+from ROOT import *
 
 if not options.eos and not options.castor:
     if options.directory.find("/castor/cern.ch/user/")!=-1: options.castor=True
@@ -37,10 +38,7 @@ def cleanfiles(dir):
         if options.debug: print "Checking File: %s" %(dir+filename[i])
         if options.castor: testfile = TFile.Open("rfio:"+dir+filename[i])
         if options.eos: testfile = TFile.Open("root://eoscms/"+dir+filename[i])
-        if testfile==NULL:
-            print "Warning: File %s is a NULL pointer" %(dir+filename[i])
-            continue
-        if testfile.IsZombie():
+        if (testfile==None or testfile.IsZombie()):
             newfilename = filename[i].replace(".root",".resubmit")
             print "Moving corrupted file %s to %s" %(dir+filename[i], newfilename)
             if not options.dryrun:
