@@ -100,8 +100,8 @@ bool CiCPhotonID::PhotonIDPF(int nCategories, reco::PhotonRef photon, Int_t ivtx
   float val_pfiso_photon04 = pfEcalIso(photon, 0.4, 0.045, 0.070, 0.015, 0.08, 0.1, reco::PFCandidate::gamma); 
   float val_pfiso_photon03 = pfEcalIso(photon, 0.3, 0.045, 0.070, 0.015, 0.08, 0.1, reco::PFCandidate::gamma);
 
-  std::vector<float> vtxIsolations03 = pfTkIsoWithVertex(photon, 0.3, 0.02, 0.02, 1.0, 0.2, 0.1, reco::PFCandidate::h);
-  std::vector<float> vtxIsolations04 = pfTkIsoWithVertex(photon, 0.4, 0.02, 0.02, 1.0, 0.2, 0.1, reco::PFCandidate::h);
+  std::vector<float> vtxIsolations03 = pfTkIsoWithVertex(photon, 0.3, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h);
+  std::vector<float> vtxIsolations04 = pfTkIsoWithVertex(photon, 0.4, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h);
 
   float val_pfiso_charged03 = vtxIsolations03[ivtx];
   float val_pfiso_charged_badvtx_04 = -99;
@@ -286,35 +286,34 @@ std::vector<float> CiCPhotonID::pfTkIsoWithVertex(reco::PhotonRef localPho, floa
   std::vector<float> result;
   const reco::PFCandidateCollection* forIsolation = pfHandle.product();
 
+  //Calculate isolation sum separately for each vertex
   for(unsigned int ivtx=0; ivtx<vtxHandle->size(); ++ivtx) {
     
+    // Shift the photon according to the vertex
     reco::VertexRef vtx(vtxHandle, ivtx);
-    math::XYZVector vCand(localPho->superCluster()->x() - vtx->x(), 
-			  localPho->superCluster()->y() - vtx->y(), 
-			  localPho->superCluster()->z() - vtx->z());
+    math::XYZVector photon_directionWrtVtx(localPho->superCluster()->x() - vtx->x(),
+					   localPho->superCluster()->y() - vtx->y(),
+					   localPho->superCluster()->z() - vtx->z());
     
     float sum = 0;
+    // Loop over the PFCandidates
     for(unsigned i=0; i<forIsolation->size(); i++) {
       
       const reco::PFCandidate& pfc = (*forIsolation)[i];
-      
+
+      //require that PFCandidate is a charged hadron
       if (pfc.particleId() == pfToUse) {
 	if (pfc.pt() < ptMin)
 	  continue;
 	
-	float dz = fabs(pfc.vz() - vtx->z());
-	if (dz > dzMax)
-	  continue;
-	
-	double dxy = ( -(pfc.vx() - vtx->x())*pfc.py() + (pfc.vy() - vtx->y())*pfc.px()) / pfc.pt();
-	if(fabs(dxy) > dxyMax)
-	  continue;
-	
-	math::XYZVector pvi(pfc.momentum());
-	float dR = deltaR(vCand.Eta(), vCand.Phi(), pvi.Eta(), pvi.Phi());
-	
-	if(dR > dRmax || dR < dRveto)
-	  continue;
+	float dz = fabs(pfc.trackRef()->dz(vtx->position()));
+	if (dz > dzMax) continue;
+
+	float dxy = fabs(pfc.trackRef()->dxy(vtx->position()));
+	if(fabs(dxy) > dxyMax) continue;
+
+	float dR = deltaR(photon_directionWrtVtx.Eta(), photon_directionWrtVtx.Phi(), pfc.momentum().Eta(), pfc.momentum().Phi());
+	if(dR > dRmax || dR < dRVeto) continue;
 
 	sum += pfc.pt();
       }
@@ -329,6 +328,11 @@ std::vector<float> CiCPhotonID::pfTkIsoWithVertex(reco::PhotonRef localPho, floa
 float CiCPhotonID::pfEcalIso(reco::PhotonRef localPho, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStrip, float energyBarrel, float energyEndcap, reco::PFCandidate::ParticleType pfToUse) {
   
   float dRVeto;
+  if (localPho->isEB())
+    dRVeto = dRVetoBarrel;
+  else
+    dRVeto = dRVetoEndcap;
+      
   const reco::PFCandidateCollection* forIsolation = pfHandle.product();
 
   float sum = 0;
@@ -338,33 +342,28 @@ float CiCPhotonID::pfEcalIso(reco::PhotonRef localPho, float dRmax, float dRVeto
     
     if (pfc.particleId() ==  pfToUse) {
       
+      // Do not include the PFCandidate associated by SC Ref to the reco::Photon
       if(pfc.superClusterRef().isNonnull() && localPho->superCluster().isNonnull()) {
 	if (pfc.superClusterRef() == localPho->superCluster()) 
 	  continue;
       }
       
       if (localPho->isEB()) {
-	dRVeto = dRVetoBarrel;
 	if (fabs(pfc.pt()) < energyBarrel)
 	  continue;
       } else {
-	dRVeto = dRVetoEndcap;
 	if (fabs(pfc.energy()) < energyEndcap)
 	  continue;
       }
       
-      math::XYZVector vCand;
-      vCand = math::XYZVector(localPho->superCluster()->x(), localPho->superCluster()->y(), localPho->superCluster()->z());
-
-      float r = vCand.R();
-      math::XYZVector pfvtx(pfc.vx(), pfc.vy(), pfc.vz()); 
-      math::XYZVector pvm((pfc.momentum()*r/pfc.momentum().R()) + pfvtx);
-
-      float dR = deltaR(vCand.Eta(), vCand.Phi(), pvm.Eta(), pvm.Phi());
-      float dEta = fabs(vCand.Eta() - pvm.Eta());
-      double dPhi = fabs(vCand.Phi() - pvm.Phi());
-      if(dPhi > TMath::Pi())
-	dPhi = TMath::TwoPi() - dPhi;
+      // Shift the photon direction vector according to the PF vertex
+      math::XYZPoint pfvtx = pfc.vertex();
+      math::XYZVector photon_directionWrtVtx(localPho->superCluster()->x() - pfvtx.x(),
+					     localPho->superCluster()->y() - pfvtx.y(),
+					     localPho->superCluster()->z() - pfvtx.z());
+    
+      float dEta = fabs(photon_directionWrtVtx.Eta() - pfc.momentum().Eta());
+      float dR = deltaR(photon_directionWrtVtx.Eta(), photon_directionWrtVtx.Phi(), pfc.momentum().Eta(), pfc.momentum().Phi());
       
       if (dEta < etaStrip)
 	continue;
