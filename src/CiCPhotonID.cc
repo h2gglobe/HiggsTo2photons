@@ -313,7 +313,7 @@ std::vector<float> CiCPhotonID::pfTkIsoWithVertex(reco::PhotonRef localPho, floa
 	if(fabs(dxy) > dxyMax) continue;
 
 	float dR = deltaR(photon_directionWrtVtx.Eta(), photon_directionWrtVtx.Phi(), pfc.momentum().Eta(), pfc.momentum().Phi());
-	if(dR > dRmax || dR < dRVeto) continue;
+	if(dR > dRmax || dR < dRveto) continue;
 
 	sum += pfc.pt();
       }
