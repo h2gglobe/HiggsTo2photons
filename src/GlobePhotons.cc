@@ -1032,61 +1032,59 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     // isolation variables
     std::vector<reco::PFCandidate::ParticleType> temp;
     temp.push_back(reco::PFCandidate::gamma);
-    pho_pfiso_myphoton01[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.1, 0.045, 0.070, 0.015, 0.0, 0.08, 0.1, temp);
-    pho_pfiso_myphoton02[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.2, 0.045, 0.070, 0.015, 0.0, 0.08, 0.1, temp);
-    pho_pfiso_myphoton03[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.3, 0.045, 0.070, 0.015, 0.0, 0.08, 0.1, temp);
-    pho_pfiso_myphoton04[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.4, 0.045, 0.070, 0.015, 0.0, 0.08, 0.1, temp);
-    pho_pfiso_myphoton05[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.5, 0.045, 0.070, 0.015, 0.0, 0.08, 0.1, temp);
-    pho_pfiso_myphoton06[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.6, 0.045, 0.070, 0.015, 0.0, 0.08, 0.1, temp);
+    pho_pfiso_myphoton01[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.1, 0.0, 0.070, 0.015, 0.08, 0.1, reco::PFCandidate::gamma);
+    pho_pfiso_myphoton02[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.2, 0.0, 0.070, 0.015, 0.08, 0.1, reco::PFCandidate::gamma);
+    pho_pfiso_myphoton03[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.3, 0.0, 0.070, 0.015, 0.08, 0.1, reco::PFCandidate::gamma);
+    pho_pfiso_myphoton04[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.4, 0.0, 0.070, 0.015, 0.08, 0.1, reco::PFCandidate::gamma);
+    pho_pfiso_myphoton05[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.5, 0.0, 0.070, 0.015, 0.08, 0.1, reco::PFCandidate::gamma);
+    pho_pfiso_myphoton06[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.6, 0.0, 0.070, 0.015, 0.08, 0.1, reco::PFCandidate::gamma);
 
     // Egamma vetoes
-    pho_pfiso_egphoton01[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.1, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0, temp);
-    pho_pfiso_egphoton02[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.2, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0, temp);
-    pho_pfiso_egphoton03[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.3, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0, temp);
-    pho_pfiso_egphoton04[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.4, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0, temp);
-    pho_pfiso_egphoton05[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.5, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0, temp);
-    pho_pfiso_egphoton06[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.6, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0, temp);
+    pho_pfiso_egphoton01[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.1, 0.0, 0.05, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
+    pho_pfiso_egphoton02[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.2, 0.0, 0.05, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
+    pho_pfiso_egphoton03[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.3, 0.0, 0.05, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
+    pho_pfiso_egphoton04[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.4, 0.0, 0.05, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
+    pho_pfiso_egphoton05[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.5, 0.0, 0.05, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
+    pho_pfiso_egphoton06[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.6, 0.0, 0.05, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
 
     // No Veto 
-    pho_pfiso_barephoton01[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, temp);
-    pho_pfiso_barephoton02[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, temp);
-    pho_pfiso_barephoton03[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, temp);
-    pho_pfiso_barephoton04[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, temp);
-    pho_pfiso_barephoton05[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, temp);
-    pho_pfiso_barephoton06[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, temp);
+    pho_pfiso_barephoton01[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
+    pho_pfiso_barephoton02[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.2, 0.0, 0.0, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
+    pho_pfiso_barephoton03[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
+    pho_pfiso_barephoton04[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
+    pho_pfiso_barephoton05[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
+    pho_pfiso_barephoton06[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
     
-    temp.clear();
     temp.push_back(reco::PFCandidate::h0);
     // Custom Egamma and noveto are the same
-    pho_pfiso_myneutral01[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.1, 0.00, temp);
-    pho_pfiso_myneutral02[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.2, 0.00, temp);
-    pho_pfiso_myneutral03[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.3, 0.00, temp);
-    pho_pfiso_myneutral04[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.4, 0.00, temp);
-    pho_pfiso_myneutral05[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.5, 0.00, temp);
-    pho_pfiso_myneutral06[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.6, 0.00, temp);
+    pho_pfiso_myneutral01[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.1, 0.00, reco::PFCandidate::h0);
+    pho_pfiso_myneutral02[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.2, 0.00, reco::PFCandidate::h0);
+    pho_pfiso_myneutral03[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.3, 0.00, reco::PFCandidate::h0);
+    pho_pfiso_myneutral04[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.4, 0.00, reco::PFCandidate::h0);
+    pho_pfiso_myneutral05[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.5, 0.00, reco::PFCandidate::h0);
+    pho_pfiso_myneutral06[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.6, 0.00, reco::PFCandidate::h0);
 
-    temp.clear();
-    temp.push_back(reco::PFCandidate::h);
-    pho_pfiso_mycharged01->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.1, 0.02, 0.02, 1.0, 0.2, 0.1, temp)); 
-    pho_pfiso_mycharged02->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.2, 0.02, 0.02, 1.0, 0.2, 0.1, temp)); 
-    pho_pfiso_mycharged03->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.3, 0.02, 0.02, 1.0, 0.2, 0.1, temp)); 
-    pho_pfiso_mycharged04->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.4, 0.02, 0.02, 1.0, 0.2, 0.1, temp)); 
-    pho_pfiso_mycharged05->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.5, 0.02, 0.02, 1.0, 0.2, 0.1, temp)); 
-    pho_pfiso_mycharged06->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.6, 0.02, 0.02, 1.0, 0.2, 0.1, temp)); 
 
-    pho_pfiso_egcharged01->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.1, 0.1, 0.02, 0.0, 0.2, 0.1, temp)); 
-    pho_pfiso_egcharged02->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.2, 0.1, 0.02, 0.0, 0.2, 0.1, temp)); 
-    pho_pfiso_egcharged03->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.3, 0.1, 0.02, 0.0, 0.2, 0.1, temp)); 
-    pho_pfiso_egcharged04->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.4, 0.1, 0.02, 0.0, 0.2, 0.1, temp)); 
-    pho_pfiso_egcharged05->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.5, 0.1, 0.02, 0.0, 0.2, 0.1, temp)); 
-    pho_pfiso_egcharged06->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.6, 0.1, 0.02, 0.0, 0.2, 0.1, temp)); 
+    pho_pfiso_mycharged01->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.1, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_mycharged02->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.2, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_mycharged03->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.3, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_mycharged04->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.4, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_mycharged05->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.5, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_mycharged06->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.6, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
 
-    pho_pfiso_barecharged01->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.1, 0.0, 0.0, 0.0, 0.2, 0.1, temp)); 
-    pho_pfiso_barecharged02->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.2, 0.0, 0.0, 0.0, 0.2, 0.1, temp)); 
-    pho_pfiso_barecharged03->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.3, 0.0, 0.0, 0.0, 0.2, 0.1, temp)); 
-    pho_pfiso_barecharged04->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.4, 0.0, 0.0, 0.0, 0.2, 0.1, temp)); 
-    pho_pfiso_barecharged05->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.5, 0.0, 0.0, 0.0, 0.2, 0.1, temp)); 
-    pho_pfiso_barecharged06->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.6, 0.0, 0.0, 0.0, 0.2, 0.1, temp)); 
+    pho_pfiso_egcharged01->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.1, 0.1, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_egcharged02->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.2, 0.1, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_egcharged03->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.3, 0.1, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_egcharged04->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.4, 0.1, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_egcharged05->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.5, 0.1, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_egcharged06->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.6, 0.1, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+
+    pho_pfiso_barecharged01->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.1, 0.0, 0.0, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_barecharged02->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.2, 0.0, 0.0, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_barecharged03->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.3, 0.0, 0.0, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_barecharged04->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.4, 0.0, 0.0, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_barecharged05->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.5, 0.0, 0.0, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
+    pho_pfiso_barecharged06->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.6, 0.0, 0.0, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
         
 
     pho_ecalsumetconedr04[pho_n] = localPho->ecalRecHitSumEtConeDR04();

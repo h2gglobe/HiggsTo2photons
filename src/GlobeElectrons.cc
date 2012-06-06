@@ -519,6 +519,10 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_sc_time", nome);
   sprintf(a2, "el_%s_sc_time[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_sc_time, a2);
+
+  sprintf(a1, "el_%s_conv_vtxProb", nome);
+  sprintf(a2, "el_%s_conv_vtxProb[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_conv_vtxProb, a2);
 }
 
 
@@ -684,8 +688,18 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       el_1pxf[el_n] = 1;
 
     el_fbrem[el_n] = egsf.fbrem();
-
-    // FIXME
+          
+    el_conv_vtxProb[el_n] = 0;
+    for (reco::ConversionCollection::const_iterator conv = hConversions->begin(); conv!= hConversions->end(); ++conv) {
+      reco::Vertex vtx = conv->conversionVertex();
+      if (vtx.isValid()) {
+	if (ConversionTools::matchesConversion(egsf, *conv)) {
+	  el_conv_vtxProb[el_n] = TMath::Prob( vtx.chi2(), vtx.ndof() );
+	  break;
+	}
+      }
+    }
+    
     bool passconversionveto = !ConversionTools::hasMatchedConversion(egsf, hConversions, thebs.position());
     el_conv[el_n] = int(passconversionveto);
 
