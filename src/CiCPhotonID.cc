@@ -96,18 +96,13 @@ bool CiCPhotonID::PhotonIDPF(int nCategories, reco::PhotonRef photon, Int_t ivtx
   int thisCat = PhotonIDCategory(photon, nCategories);
   
   TLorentzVector phop4 = get_pho_p4(photon, ivtx);
-
-  //PFiso
-  std::vector<reco::PFCandidate::ParticleType> temp;
-  temp.push_back(reco::PFCandidate::gamma);
   
-  float val_pfiso_photon04 = pfEcalIso(photon, 0.4, 0.045, 0.070, 0.015, 0.0, 0.08, 0.1, temp); 
-  float val_pfiso_photon03 = pfEcalIso(photon, 0.3, 0.045, 0.070, 0.015, 0.0, 0.08, 0.1, temp);
+  float val_pfiso_photon04 = pfEcalIso(photon, 0.4, 0.045, 0.070, 0.015, 0.08, 0.1, reco::PFCandidate::gamma); 
+  float val_pfiso_photon03 = pfEcalIso(photon, 0.3, 0.045, 0.070, 0.015, 0.08, 0.1, reco::PFCandidate::gamma);
 
-  temp.clear();
-  temp.push_back(reco::PFCandidate::h);  
-  std::vector<float> vtxIsolations03 = pfTkIsoWithVertex(photon, 0.3, 0.02, 0.02, 1.0, 0.2, 0.1, temp);
-  std::vector<float> vtxIsolations04 = pfTkIsoWithVertex(photon, 0.4, 0.02, 0.02, 1.0, 0.2, 0.1, temp);
+  std::vector<float> vtxIsolations03 = pfTkIsoWithVertex(photon, 0.3, 0.02, 0.02, 1.0, 0.2, 0.1, reco::PFCandidate::h);
+  std::vector<float> vtxIsolations04 = pfTkIsoWithVertex(photon, 0.4, 0.02, 0.02, 1.0, 0.2, 0.1, reco::PFCandidate::h);
+
   float val_pfiso_charged03 = vtxIsolations03[ivtx];
   float val_pfiso_charged_badvtx_04 = -99;
   //int badind = -1;
@@ -280,7 +275,7 @@ Float_t CiCPhotonID::WorstSumTrackPtInConeHgg(reco::PhotonRef photon, Float_t Pt
 
 std::vector<float> CiCPhotonID::pfTkIsoWithVertex(reco::PhotonRef localPho, float dRmax, float dRvetoBarrel, float dRvetoEndcap, 
 						  float ptMin, float dzMax, float dxyMax,
-						  std::vector<reco::PFCandidate::ParticleType> pVetoes) {
+						  reco::PFCandidate::ParticleType pfToUse) {
   
   float dRveto;
   if (localPho->isEB())
@@ -300,19 +295,10 @@ std::vector<float> CiCPhotonID::pfTkIsoWithVertex(reco::PhotonRef localPho, floa
     
     float sum = 0;
     for(unsigned i=0; i<forIsolation->size(); i++) {
-    
+      
       const reco::PFCandidate& pfc = (*forIsolation)[i];
       
-      bool process = false;
-      for (std::vector<reco::PFCandidate::ParticleType>::const_iterator it = pVetoes.begin();
-	   it != pVetoes.end(); ++it) {
-	if (pfc.particleId() == *it) {
-	  process = true;
-	  break;
-	}
-      }
-      
-      if (process) {
+      if (pfc.particleId() == pfToUse) {
 	if (pfc.pt() < ptMin)
 	  continue;
 	
@@ -340,7 +326,7 @@ std::vector<float> CiCPhotonID::pfTkIsoWithVertex(reco::PhotonRef localPho, floa
   return result;
 }
 
-float CiCPhotonID::pfEcalIso(reco::PhotonRef localPho, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStrip, float phiStrip, float energyBarrel, float energyEndcap, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
+float CiCPhotonID::pfEcalIso(reco::PhotonRef localPho, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStrip, float energyBarrel, float energyEndcap, reco::PFCandidate::ParticleType pfToUse) {
   
   float dRVeto;
   const reco::PFCandidateCollection* forIsolation = pfHandle.product();
@@ -349,18 +335,15 @@ float CiCPhotonID::pfEcalIso(reco::PhotonRef localPho, float dRmax, float dRVeto
   for(unsigned i=0; i<forIsolation->size(); i++) {
     
     const reco::PFCandidate& pfc = (*forIsolation)[i];
-
-    bool process = false;
-    for (std::vector<reco::PFCandidate::ParticleType>::const_iterator it = pVetoes.begin();
-	 it != pVetoes.end(); ++it) {
-      if (pfc.particleId() == *it) {
-	process = true;
-	break;
-      }
-    }
     
-    if (process) {
-      if (fabs(pfc.momentum().Eta()) < 1.479) {
+    if (pfc.particleId() ==  pfToUse) {
+      
+      if(pfc.superClusterRef().isNonnull() && localPho->superCluster().isNonnull()) {
+	if (pfc.superClusterRef() == localPho->superCluster()) 
+	  continue;
+      }
+      
+      if (localPho->isEB()) {
 	dRVeto = dRVetoBarrel;
 	if (fabs(pfc.pt()) < energyBarrel)
 	  continue;
@@ -386,12 +369,9 @@ float CiCPhotonID::pfEcalIso(reco::PhotonRef localPho, float dRmax, float dRVeto
       if (dEta < etaStrip)
 	continue;
       
-      if (dPhi < phiStrip)
-	continue;
-      
       if(dR > dRmax || dR < dRVeto)
 	continue;
-
+      
       sum += pfc.pt();
     }
   }
@@ -399,9 +379,9 @@ float CiCPhotonID::pfEcalIso(reco::PhotonRef localPho, float dRmax, float dRVeto
   return sum;
 }
 
-float CiCPhotonID::pfHcalIso(reco::PhotonRef localPho, float dRmax, float dRveto, std::vector<reco::PFCandidate::ParticleType> pVetoes) {
+float CiCPhotonID::pfHcalIso(reco::PhotonRef localPho, float dRmax, float dRveto, reco::PFCandidate::ParticleType pfToUse) {
   
-  return pfEcalIso(localPho, dRmax, dRveto, dRveto, 0.0, 0.0, 0.0, 0.0, pVetoes);
+  return pfEcalIso(localPho, dRmax, dRveto, dRveto, 0.0, 0.0, 0.0, pfToUse);
 }
 
 void CiCPhotonID::setPhotonIDThresholds(const edm::ParameterSet& iConfig) {

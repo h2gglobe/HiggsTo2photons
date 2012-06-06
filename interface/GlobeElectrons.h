@@ -180,6 +180,7 @@ class GlobeElectrons {
   
   Float_t el_D0Vtx[MAX_ELECTRONS][100];
   Float_t el_DZVtx[MAX_ELECTRONS][100];
+  Float_t el_conv_vtxProb[MAX_ELECTRONS];
 
   /** corresponds to the el_XXX_catbased variable in the output tree.
 
