@@ -48,12 +48,20 @@ class GlobeMuons {
   Float_t mu_ecaliso03[MAX_MUONS];
   Float_t mu_hcaliso03[MAX_MUONS];
   Float_t mu_tkiso03[MAX_MUONS];
+
+  Float_t mu_chhadiso04[MAX_MUONS];
+  Float_t mu_nehadiso04[MAX_MUONS];
+  Float_t mu_photiso04[MAX_MUONS];
+  Float_t mu_dbCorr[MAX_MUONS];
+  Float_t mu_rhoCorr[MAX_MUONS];
+
   Float_t mu_D0Vtx[MAX_MUONS][100];
   Float_t mu_DZVtx[MAX_MUONS][100];
 
   Int_t mu_charge[MAX_MUONS];
   Int_t mu_losthits[MAX_MUONS];
   Int_t mu_validhits[MAX_MUONS];
+  Int_t mu_tkLayers[MAX_MUONS];
   Int_t mu_tkind[MAX_MUONS];
   Int_t mu_nmatches[MAX_MUONS];
   Int_t mu_staind[MAX_MUONS];
@@ -73,7 +81,7 @@ class GlobeMuons {
  private:
   const char* nome;
   GlobeCuts *gCUT;
-  edm::InputTag muonColl, trackColl, staMuonColl, vertexColl;
+  edm::InputTag muonColl, trackColl, staMuonColl, vertexColl, rhoColl;
   edm::ParameterSet psetTAP;
 
   TrackAssociatorParameters* theAssociatorParameters;
