@@ -1,2 +1,0 @@
-PhotonPromptReco2012A  0 
-DiPhotonPromptReco2012B  0 
