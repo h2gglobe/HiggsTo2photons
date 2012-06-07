@@ -21,6 +21,8 @@ GlobeMuons::GlobeMuons(const edm::ParameterSet& iConfig, const char* n): nome(n)
   theAssociatorParameters = new TrackAssociatorParameters(psetTAP);
   theAssociator = new TrackDetectorAssociator;
   theAssociator->useDefaultPropagator();
+  
+  rhoColl = iConfig.getParameter<edm::InputTag>("RhoCollectionForMuons");
 
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
@@ -51,6 +53,7 @@ void GlobeMuons::defineBranch(TTree* tree) {
   tree->Branch("mu_glo_innerhits", &mu_innerhits, "mu_glo_innerhits[mu_glo_n]/I");
   tree->Branch("mu_glo_pixelhits", &mu_pixelhits, "mu_glo_pixelhits[mu_glo_n]/I");
   tree->Branch("mu_glo_validChmbhits", &mu_validChmbhits, "mu_glo_validChmbhits[mu_glo_n]/I");
+  tree->Branch("mu_tkLayers",&mu_tkLayers,"mu_tkLayers[mu_glo_n]/I");
   tree->Branch("mu_glo_tkpterr", &mu_tkpterr, "mu_glo_tkpterr[mu_glo_n]/F");
   tree->Branch("mu_glo_ecaliso03", &mu_ecaliso03, "mu_glo_ecaliso03[mu_glo_n]/F");
   tree->Branch("mu_glo_hcaliso03", &mu_hcaliso03, "mu_glo_hcaliso03[mu_glo_n]/F");
@@ -76,6 +79,12 @@ void GlobeMuons::defineBranch(TTree* tree) {
 
   tree->Branch("mu_glo_D0Vtx", &mu_D0Vtx, "mu_glo_D0Vtx[mu_glo_n][100]/F");
   tree->Branch("mu_glo_DZVtx", &mu_DZVtx, "mu_glo_DZVtx[mu_glo_n][100]/F");
+  //PF Isolation variables added by MP
+  tree->Branch("mu_glo_chhadiso04", &mu_chhadiso04, "mu_glo_chhadiso04[mu_glo_n]/F");
+  tree->Branch("mu_glo_nehadiso04", &mu_nehadiso04, "mu_glo_nehadiso04[mu_glo_n]/F");
+  tree->Branch("mu_glo_photiso04", &mu_photiso04, "mu_glo_photiso04[mu_glo_n]/F");
+  tree->Branch("mu_dbCorr", &mu_dbCorr, "mu_dbCorr[mu_glo_n]/F");
+  tree->Branch("mu_rhoCorr", &mu_rhoCorr, "mu_rhoCorr[mu_glo_n]/F");
 }
 
 bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -95,6 +104,9 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle<reco::VertexCollection> vtxH;
   iEvent.getByLabel(vertexColl, vtxH);
   
+  edm::Handle<double> rhoH;
+  iEvent.getByLabel(rhoColl, rhoH);
+
   mu_p4->Clear(); 
   mu_momvtx->Clear();
   mu_posvtx->Clear();
@@ -148,7 +160,10 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     
     
     mu_type[mu_n] = 0;
-    
+
+    if (m->isPFMuon()) {
+      mu_type[mu_n] +=10000; //was 0 but wrong because no else if
+    }  
     if (m->isGlobalMuon()) {
       mu_type[mu_n] +=1000; //was 0 but wrong because no else if
     }
@@ -191,6 +206,7 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       std::cout << "GlobeMuons: Start 4"<< std::endl;
     
     if (m->isGlobalMuon()) { 
+
       mu_d0[mu_n] = m->combinedMuon()->d0();
       mu_dz[mu_n] = m->combinedMuon()->dz();
       mu_d0err[mu_n] = m->combinedMuon()->d0Error();
@@ -203,6 +219,8 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       mu_innerhits[mu_n]=m->innerTrack()->found();
       mu_pixelhits[mu_n]=m->innerTrack()->hitPattern().numberOfValidPixelHits();
       mu_validChmbhits[mu_n]=m->globalTrack()->hitPattern().numberOfValidMuonHits();
+      //added by mp for muon ID (tight baseline described in https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideMuonId#Basline_muon_selections_for_2012)
+      mu_tkLayers[mu_n]=m->track()->hitPattern().trackerLayersWithMeasurement();
       mu_tkpterr[mu_n]=m->track()->ptError();
       
       // loop through vertices for d0 and dZ w.r.t. each vertex
@@ -211,9 +229,9 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       for(int iv=0; iv<maxV; iv++){
         reco::VertexRef v(vtxH, iv);
         math::XYZPoint vtxPoint = math::XYZPoint(v->x(), v->y(), v->z());
-
-        mu_D0Vtx[mu_n][iv] = m->globalTrack()->dxy(vtxPoint);
-        mu_DZVtx[mu_n][iv] = m->globalTrack()->dz(vtxPoint);
+	//The Inner Track must be used to evaluate the vertex compatibility MUO-10-004
+        mu_D0Vtx[mu_n][iv] = m->innerTrack()->dxy(vtxPoint);
+        mu_DZVtx[mu_n][iv] = m->innerTrack()->dz(vtxPoint);
       }
 
     } else {
@@ -225,7 +243,7 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       mu_dof[mu_n] = -1;
       mu_validhits[mu_n] = -1;
       mu_losthits[mu_n] = -1;
-
+      mu_tkLayers[mu_n]= -1;
       mu_innerhits[mu_n]=-1;
       mu_pixelhits[mu_n]=-1;
       mu_validChmbhits[mu_n]=-1;
@@ -236,7 +254,27 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     mu_ecaliso03[mu_n]=muIso03.emEt;
     mu_hcaliso03[mu_n]=muIso03.hadEt;
     mu_tkiso03[mu_n]=muIso03.sumPt;
+    
+    reco::MuonPFIsolation muPFIso04=m->pfIsolationR03();
+    mu_chhadiso04[mu_n]=muPFIso04.sumChargedHadronPt;
+    mu_nehadiso04[mu_n]=muPFIso04.sumNeutralHadronEt;
+    mu_photiso04[mu_n]=muPFIso04.sumPhotonEt;
+    //Isolation (DbCorrected) I = [sumChargedHadronPt+ max(0.,sumNeutralHadronPt+sumPhotonPt-0.5sumPUPt]/pt
+    //Isolation (RhoCorrected) I= [sumChargedHadronPt+ max(0.,sumNeutralHadronPt+sumPhotonPt-EffArea*rho]/pt
+    //Effective Area for 0.4 isolation from http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/sixie/Muon/MuonAnalysisTools/interface/MuonEffectiveArea.h?view=markup
+    mu_dbCorr[mu_n]=0.5*muPFIso04.sumPUPt;
+    float EffArea=0;
+    float feta=fabs(m->eta());
+    if (feta >= 0.0 && feta < 1.0 )   EffArea = 0.674;
+    if (feta >= 1.0 && feta < 1.479 ) EffArea = 0.565;
+    if (feta >= 1.479 && feta < 2.0 ) EffArea = 0.442;
+    if (feta >= 2.0 && feta < 2.2 )   EffArea = 0.515;
+    if (feta >= 2.2 && feta < 2.3 )   EffArea = 0.821;
+    if (feta >= 2.3 )                 EffArea = 0.660;
 
+    mu_rhoCorr[mu_n]=(*rhoH)*EffArea;
+    
+    
     if (debug_level > 99)
       std::cout << "GlobeMuons: Start 5"<< std::endl;
     

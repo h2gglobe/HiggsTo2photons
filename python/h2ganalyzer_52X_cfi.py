@@ -117,7 +117,8 @@ h2ganalyzer = cms.EDAnalyzer(
     PhotonCollPf = cms.InputTag("pfPhotonTranslator:pfphot"),
     ConvertedPhotonColl = cms.InputTag("allConversions"),
     MuonColl = cms.InputTag("muons"),
-   
+    RhoCollectionForMuons = cms.InputTag("kt6PFJetsCentralNeutral","rho"),
+    
     JetCorrectionMC_algoPF1   = cms.untracked.string("ak5PFL1FastL2L3"),
     JetCorrectionData_algoPF1 = cms.untracked.string("ak5PFL1FastL2L3Residual"),
 
