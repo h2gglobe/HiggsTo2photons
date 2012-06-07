@@ -97,8 +97,8 @@ bool CiCPhotonID::PhotonIDPF(int nCategories, reco::PhotonRef photon, Int_t ivtx
   
   TLorentzVector phop4 = get_pho_p4(photon, ivtx);
   
-  float val_pfiso_photon04 = pfEcalIso(photon, 0.4, 0.045, 0.070, 0.015, 0.08, 0.1, reco::PFCandidate::gamma); 
-  float val_pfiso_photon03 = pfEcalIso(photon, 0.3, 0.045, 0.070, 0.015, 0.08, 0.1, reco::PFCandidate::gamma);
+  float val_pfiso_photon04 = pfEcalIso(photon, 0.4, 0.045, 0.070, 0.015, 0.0, 0.08, 0.1, reco::PFCandidate::gamma); 
+  float val_pfiso_photon03 = pfEcalIso(photon, 0.3, 0.045, 0.070, 0.015, 0.0, 0.08, 0.1, reco::PFCandidate::gamma);
 
   std::vector<float> vtxIsolations03 = pfTkIsoWithVertex(photon, 0.3, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h);
   std::vector<float> vtxIsolations04 = pfTkIsoWithVertex(photon, 0.4, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h);
@@ -325,13 +325,18 @@ std::vector<float> CiCPhotonID::pfTkIsoWithVertex(reco::PhotonRef localPho, floa
   return result;
 }
 
-float CiCPhotonID::pfEcalIso(reco::PhotonRef localPho, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStrip, float energyBarrel, float energyEndcap, reco::PFCandidate::ParticleType pfToUse) {
+float CiCPhotonID::pfEcalIso(reco::PhotonRef localPho, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, float etaStripEndcap, float energyBarrel, float energyEndcap, reco::PFCandidate::ParticleType pfToUse) {
   
   float dRVeto;
-  if (localPho->isEB())
+  float etaStrip;
+
+  if (localPho->isEB()) {
     dRVeto = dRVetoBarrel;
-  else
+    etaStrip = etaStripBarrel;
+  } else {
     dRVeto = dRVetoEndcap;
+    etaStrip = etaStripEndcap;
+  }
       
   const reco::PFCandidateCollection* forIsolation = pfHandle.product();
 
@@ -380,7 +385,7 @@ float CiCPhotonID::pfEcalIso(reco::PhotonRef localPho, float dRmax, float dRVeto
 
 float CiCPhotonID::pfHcalIso(reco::PhotonRef localPho, float dRmax, float dRveto, reco::PFCandidate::ParticleType pfToUse) {
   
-  return pfEcalIso(localPho, dRmax, dRveto, dRveto, 0.0, 0.0, 0.0, pfToUse);
+  return pfEcalIso(localPho, dRmax, dRveto, dRveto, 0.0, 0.0, 0.0, 0.0, pfToUse);
 }
 
 void CiCPhotonID::setPhotonIDThresholds(const edm::ParameterSet& iConfig) {

@@ -44,7 +44,7 @@ class CiCPhotonID {
   int photonCutLevel6catPF(reco::PhotonRef, Int_t);
 
   std::vector<float> pfTkIsoWithVertex(reco::PhotonRef, float, float, float, float, float, float, reco::PFCandidate::ParticleType);
-  float pfEcalIso(reco::PhotonRef, float, float, float, float, float, float, reco::PFCandidate::ParticleType);
+  float pfEcalIso(reco::PhotonRef, float, float, float, float, float, float, float, reco::PFCandidate::ParticleType);
   float pfHcalIso(reco::PhotonRef, float, float, reco::PFCandidate::ParticleType);
   
   void setPhotonIDThresholds(const edm::ParameterSet&);
