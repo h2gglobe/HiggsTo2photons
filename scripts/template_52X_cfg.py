@@ -66,8 +66,7 @@ if flagSkimDiphoton == 'ON':
 
 process.load("HiggsAnalysis.HiggsTo2photons.photonInvariantMassFilter_cfi")
 process.load("HiggsAnalysis.HiggsTo2photons.CMSSW_RelValDUMMY_cfi")
-#process.skipEvents = cms.untracked.PSet(input=cms.untracked.uint32(3500))
-#skipEvents = cms.untracked.uint32(3500)
+#process.source.skipEvents = cms.untracked.uint32(3500)
 
 hltLabel = "HLT"
 
