@@ -12,6 +12,7 @@ tier2transfer [options]
 
 --input-dir, -i                    origin directory
 --output-dir, -o                   destination directory
+--wildcard, -wc                    selects only directories with wc to transfer
 --toCastorFromHadoop               move file from hadoop to CASTOR
 --toEOSFromHadoop                  move file from EOS to CASTOR
 --toHadoopFromEOS                  move files from EOS to hadoop (default)
@@ -24,8 +25,9 @@ flag      = 0
 diskType  = "HADOOPfromEOS"
 inputDir  = ""
 outputDir = ""
+wildcard=""
 
-(opts, args) = getopt.getopt(sys.argv[1:], 'i:o:h', ['toHadoopFromEOS', 'toHadoopFromCASTOR', 'toCastorFromHadoop', 'toEOSFromHadoop', 'input-dir=', 'output-dir=', 'help'])
+(opts, args) = getopt.getopt(sys.argv[1:], 'i:o:h:wc', ['toHadoopFromEOS', 'toHadoopFromCASTOR', 'toCastorFromHadoop', 'toEOSFromHadoop', 'input-dir=', 'output-dir=', 'help', 'wildcard='])
 
 for opt,argm in opts:
     if (opt == "--help" or opt == "-h"):
@@ -43,6 +45,8 @@ for opt,argm in opts:
         inputDir = argm
     elif (opt == "-o" or opt == "--output-dir"):
         outputDir = argm        
+    elif (opt == "-wc" or opt == "--wildcard"):
+        wildcard = argm        
     else:
         print 'Wrong options: %s' % (opt)
         sys.exit(3)
@@ -55,13 +59,11 @@ if (inputDir == "" or outputDir == ""):
 if (diskType == "HADOOPfromEOS"):
     mysearch = inputDir.split("eos/cms")[1]
     dirs = os.popen("cmsLs "+ mysearch)
-    #dirs = os.popen("/usr/bin/nsls "+ inputDir).readlines()
     myHadoop = outputDir
 
     for dir in dirs:
         print dir
         dir=dir.split()[4]
-        #dir=dir.split("\n")[0]
         files = os.popen("cmsLs " +  dir).readlines()
         dir=dir.split("/")[-1]
         print dir
@@ -250,6 +252,9 @@ if (diskType == "EOSFromHadoop"):
 
     for dir in dirs:
         dir=dir.split("\n")[0]
+        if wildcard != "" and dir.find(wildcard) is -1:
+            print dir+"not matching "+wildcard+" -- skipping"
+            continue
         files = os.popen("ls " + inputDir + "/" + dir).readlines()
         filesinfo = os.popen("ls -l " + inputDir + "/" + dir).readlines()
         for fileinfo in filesinfo:
