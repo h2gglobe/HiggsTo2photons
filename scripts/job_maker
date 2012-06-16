@@ -337,6 +337,5 @@ for run in runselection:
 
     checker = open("../test/crabTasks/checker", "a+")
     checker.write("crab -c "+job_name+"/"+job_name+" -status\n")
-    checker.write("crab -c "+job_name+"/"+job_name+" -get\n")
-    checker.write("crab -c "+job_name+"/"+job_name+" -status\n")
+    checker.write("crab -c "+job_name+"/"+job_name+" -get &> getting.log &\n")
     checker.close()
