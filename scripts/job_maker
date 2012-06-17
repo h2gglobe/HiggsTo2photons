@@ -28,6 +28,7 @@ job_maker [options]
 --energyCorrFromDB                 read energy corrections from DB (default is read from ROOT file)
 --skimworz                         skim for T&P
 --diphoskim                        DiPhoton HLT Skim
+--pjetskim                         Do PhotonPlusJet Skim (Works for both Data and MC)
 --vlpresel                         Very Loose Preselection on 2 photons
 --noskim                           no skim performed (typically only for signal)
 --skimmmg                          skim for mumugamma
@@ -59,6 +60,7 @@ flagData = False
 flagMC = False
 flagMyPreSelection = False
 flagSkimDiphoton = False
+flagSkimPJet = False
 flagSkimworz = False
 flagSkim1El = False
 flagVLPreSelection = False
@@ -93,7 +95,7 @@ toEnable = []
 toDisable = []
 jecFromSqlite = False
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -117,6 +119,8 @@ for opt,argm in opts:
         useCAF = True
     elif (opt == "--diphoskim"):
         flagSkimDiphoton = True
+    elif (opt == "--pjetskim"):
+         flagSkimPJet = True
     elif (opt == "--vlpresel"):
         flagVLPreSelection = True
     elif (opt == "--mypresel"):
@@ -178,7 +182,7 @@ for opt,argm in opts:
 if (globaltag == ""):
     print "WARNING: you are using default GLOBAL-TAG, it may not be correct."
 
-if (not(flagNoSkim ^ flagSkimDiphoton ^ flagMMgSkim ^ flagVLPreSelection ^ flagSkim1El ^ flagSkimworz ^ flagMyPreSelection)):
+if (not(flagNoSkim ^ flagSkimDiphoton ^ flagSkimPJet ^ flagMMgSkim ^ flagVLPreSelection ^ flagSkim1El ^ flagSkimworz ^ flagMyPreSelection)):
     print "You must have one and only one of the skims."
     print "Try again when you have chosen one:  --skim2pho or --noskim or --skimmmg or --skimworz."
     sys.exit(1)
@@ -233,6 +237,8 @@ for run in runselection:
             file_out.write("flagSkim1El = \'ON\'\n")
         elif ("flagSkimDiphoton = 'OFF'" in line and flagSkimDiphoton):
             file_out.write("flagSkimDiphoton = \'ON\'\n")
+        elif ("flagSkimPJet = 'OFF'" in line and flagSkimPJet):
+            file_out.write("flagSkimPJet = \'ON\'\n")
         elif ("flagVLPreSelection = 'OFF'" in line and flagVLPreSelection):
             file_out.write("flagVLPreSelection = \'ON\'\n")
         elif ("flagMyPreSelection = 'OFF'" in line and flagMyPreSelection):
