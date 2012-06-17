@@ -142,7 +142,6 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	for (size_t i = 0; i < configProvider.size(); ++i) {
 	  hlt_path_names_HLT->push_back(configProvider.triggerName(i));
       hlt_prescale->push_back(configProvider.prescaleValue(iEvent, iSetup, configProvider.triggerName(i)));
-      std::cout << "PreScale for Trigger " << configProvider.triggerName(i) << " is " << configProvider.prescaleValue(iEvent, iSetup, configProvider.triggerName(i)) << std::endl;
     }
     
 	// Trigger Results
