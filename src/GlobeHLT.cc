@@ -33,6 +33,7 @@ GlobeHLT::GlobeHLT(const edm::ParameterSet& iConfig, const char* n): nome(n) {
 
   hlt_path_names_HLT = new std::vector<std::string>;
   hlt_bit = new std::vector<unsigned short>;
+  hlt_prescale = new std::vector<unsigned int>;
   hlt_candpath = new std::vector<std::vector<unsigned short> >; 
   hlt_candpath2 = new std::vector<std::vector<unsigned short> >; 
 
@@ -46,7 +47,8 @@ void GlobeHLT::defineBranch(TTree* tree) {
   // Event Trigger
   tree->Branch("hlt_bit", "std::vector<unsigned short>", &hlt_bit);
   tree->Branch("hlt_path_names_HLT", "std::vector<std::string>", &hlt_path_names_HLT);
-
+  tree->Branch("hlt_prescale", "std::vector<unsigned int>", &hlt_prescale);
+  
   // Trigger Candidates
   tree->Branch("hlt_n", &hlt_n, "hlt_n/I");
   tree->Branch("hlt_p4", "TClonesArray", &hlt_p4, 32000, 0);
@@ -132,13 +134,17 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   if (h_triggerResults_HLT.isValid()) {
 	hlt_path_names_HLT->clear();
-
+    hlt_prescale->clear();
+    
 	if(debug_level > 9) 
 	  std::cout << "Fill names HLT" << std::endl;
 
-	for (size_t i = 0; i < configProvider.size(); ++i)
+	for (size_t i = 0; i < configProvider.size(); ++i) {
 	  hlt_path_names_HLT->push_back(configProvider.triggerName(i));
-
+      hlt_prescale->push_back(configProvider.prescaleValue(iEvent, iSetup, configProvider.triggerName(i)));
+      std::cout << "PreScale for Trigger " << configProvider.triggerName(i) << " is " << configProvider.prescaleValue(iEvent, iSetup, configProvider.triggerName(i)) << std::endl;
+    }
+    
 	// Trigger Results
 	for (size_t i = 0; i < configProvider.size(); ++i) {
 	  if(h_triggerResults_HLT->accept(i))
