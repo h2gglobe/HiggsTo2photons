@@ -1,6 +1,5 @@
 cvs co -r V00-03-35 RecoEgamma/ElectronIdentification
-#cvs co -r PFDevPatch2  RecoEgamma/EgammaTools
-cvs co -r regressionMay18a RecoEgamma/EgammaTools
+cvs co -r regressionMay18b RecoEgamma/EgammaTools
 addpkg CommonTools/ParticleFlow  V00-03-13
 addpkg RecoEcal/EgammaCoreTools V05-08-21
 addpkg RecoParticleFlow/PFProducer  V15-01-08

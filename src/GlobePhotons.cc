@@ -664,7 +664,12 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
     EcalClusterLazyTools lazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);   
     if (regressionVersion == "V3") {
-      std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV3(*localPho, *hVertex, rho, lazyTool, iSetup);
+      std::pair<double,double> cor;
+      if (iEvent.isRealData()) 
+	cor = ecorr_.CorrectedEnergyWithErrorV3(*localPho, *hVertex, rho, lazyTool, iSetup);
+      else
+	cor = ecorr_.CorrectedEnergyWithErrorV3(*localPho, *hVertex, rho, lazyTool, iSetup, true);
+
       pho_regr_energy[pho_n]    = cor.first;
       pho_regr_energyerr[pho_n] = cor.second;
     } else {
