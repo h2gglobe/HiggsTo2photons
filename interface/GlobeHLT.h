@@ -29,7 +29,8 @@ class GlobeHLT {
    std::vector<std::vector<unsigned short> >* hlt_candpath;
    std::vector<std::vector<unsigned short> >* hlt_candpath2;
    std::vector<std::string> *hlt_path_names_HLT;
-
+   std::vector<unsigned int> *hlt_prescale;
+  
    TClonesArray* hlt_p4;
 
    std::vector<std::string> *filter_names_HLT1;
