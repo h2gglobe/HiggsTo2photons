@@ -372,7 +372,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       correctedJet->scaleEnergy(jet_erescale[jet_n]);
 
-      if(correctedJet->pt() < 1) continue;
+      //if(correctedJet->pt() < 1) continue;
       
       pat::strbitset ret = (*pfLooseId).getBitTemplate();
       jet_pfloose[jet_n] = (*pfLooseId)(*j, ret);
