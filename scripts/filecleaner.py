@@ -120,7 +120,7 @@ if len(rootfiles)!=0:
 
 if options.recursive:
     if options.castor: subdirs = popen("nsfind "+dir+" -type d ").readlines()
-    if options.eos: subdirs = popen(eos+" find -d "+dir).readlines()
+    if options.eos: subdirs = popen(eos+" find -d "+dir+" | grep /").readlines()
     for i in range(len(subdirs)):
         subdir = subdirs[i].strip("\n")
         if (options.duplicate): removeduplicated(subdir)
