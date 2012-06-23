@@ -255,7 +255,7 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     mu_hcaliso03[mu_n]=muIso03.hadEt;
     mu_tkiso03[mu_n]=muIso03.sumPt;
     
-    reco::MuonPFIsolation muPFIso04=m->pfIsolationR03();
+    reco::MuonPFIsolation muPFIso04=m->pfIsolationR04();
     mu_chhadiso04[mu_n]=muPFIso04.sumChargedHadronPt;
     mu_nehadiso04[mu_n]=muPFIso04.sumNeutralHadronEt;
     mu_photiso04[mu_n]=muPFIso04.sumPhotonEt;
