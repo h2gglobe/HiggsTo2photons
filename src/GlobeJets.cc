@@ -238,7 +238,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       reco::CaloJetRef j(jetH, i);
 	
       // apply the cuts
-      if (gCUT->cut(*j)) continue;
+      //if (gCUT->cut(*j)) continue;
       // passed cuts
       
       new ((*jet_p4)[jet_n]) TLorentzVector();
