@@ -34,7 +34,8 @@ job_maker [options]
 --skimmmg                          skim for mumugamma
 --skim1el                          skim to select only one electron
 --storage=eos/castor/hadoop        use eos/castor/hadoop as storage element
---name=                            name of the job, directory, files
+--name=                            name of the job, directory, files (without a default will be made)
+--append=                          appends the name of the task
 --scheduler=                       glite or glidein
 --datasetpath=                     datasetpath
 --runselection=                    comma separated list of runs
@@ -73,8 +74,9 @@ flagFastSim = False
 flagT1 = False
 flagDB = False
 
-name = "NoNameGiven"
+name = ""
 datasetpath=""
+append=""
 runselection = [""]
 total_number = -1
 events_job = 10000
@@ -95,7 +97,7 @@ toEnable = []
 toDisable = []
 jecFromSqlite = False
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'append=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -141,6 +143,8 @@ for opt,argm in opts:
         name = argm
     elif (opt == "--datasetpath"):
         datasetpath = argm
+    elif (opt == "--append"):
+        append = argm
     elif (opt == "--runselection"):
         runselection = argm.split(",")
     elif (opt == "--events"):
@@ -179,6 +183,13 @@ for opt,argm in opts:
         print 'Wrong options: %s' % (opt)
         sys.exit(3)
         
+if (name == ""):
+    name = datasetpath.replace("/", "_")
+    name = name[1:]
+    if (append != ""):
+        name=name+'_'+append
+
+
 if (globaltag == ""):
     print "WARNING: you are using default GLOBAL-TAG, it may not be correct."
 
