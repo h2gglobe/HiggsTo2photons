@@ -186,8 +186,9 @@ for opt,argm in opts:
 if (name == ""):
     name = datasetpath.replace("/", "_")
     name = name[1:]
-    if (append != ""):
-        name=name+'_'+append
+
+if (append != ""):
+    name=name+'_'+append
 
 
 if (globaltag == ""):
