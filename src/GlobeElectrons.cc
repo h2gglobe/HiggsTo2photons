@@ -29,6 +29,7 @@
 
 #include "HiggsAnalysis/HiggsTo2photons/interface/Mustache.h"
 #include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
+#include "EGamma/EGammaAnalysisTools/interface/EGammaMvaEleEstimator.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -66,7 +67,47 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
   eIDLabels = iConfig.getParameter<std::vector<edm::InputTag> >("eIDLabels");
   mvaWeightFile = iConfig.getParameter<edm::FileInPath>("electronMVAWeightFileName");
   mvaEstimator = new ElectronMVAEstimator(mvaWeightFile.fullPath());
-  
+
+
+  // files put in by-hand below because of compilation error
+  //mvaNonTrigWeightFiles = iConfig.getParameter<std::vector<edm::FileInPath> >("electronNonTrigMVAWeightFileNames");
+  //mvaTrigWeightFiles    = iConfig.getParameter<std::vector<edm::FileInPath> >("electronTrigMVAWeightFileNames");
+  //
+  //for(unsigned int j=0; j<mvaTrigWeightFiles.size(); j++) {
+  //  myManualCatWeightsTrig.push_back(mvaTrigWeightFiles[j].fullPath());
+  //}
+  //
+  //for(unsigned int j=0; j<mvaNonTrigWeightFiles.size(); j++) {
+  //  myManualCatWeightsNonTrig.push_back(mvaNonTrigWeightFiles[j].fullPath());
+  //}
+    
+  myManualCatWeightsNonTrig.push_back(edm::FileInPath("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat1.weights.xml").fullPath());
+  myManualCatWeightsNonTrig.push_back(edm::FileInPath("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat2.weights.xml").fullPath());
+  myManualCatWeightsNonTrig.push_back(edm::FileInPath("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat3.weights.xml").fullPath());
+  myManualCatWeightsNonTrig.push_back(edm::FileInPath("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat4.weights.xml").fullPath());
+  myManualCatWeightsNonTrig.push_back(edm::FileInPath("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat5.weights.xml").fullPath());
+  myManualCatWeightsNonTrig.push_back(edm::FileInPath("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat6.weights.xml").fullPath());
+    
+  myManualCatWeightsTrig.push_back(edm::FileInPath("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat1.weights.xml").fullPath());
+  myManualCatWeightsTrig.push_back(edm::FileInPath("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat2.weights.xml").fullPath());
+  myManualCatWeightsTrig.push_back(edm::FileInPath("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat3.weights.xml").fullPath());
+  myManualCatWeightsTrig.push_back(edm::FileInPath("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat4.weights.xml").fullPath());
+  myManualCatWeightsTrig.push_back(edm::FileInPath("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat5.weights.xml").fullPath());
+  myManualCatWeightsTrig.push_back(edm::FileInPath("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat6.weights.xml").fullPath());
+    
+
+  myMVANonTrig = new EGammaMvaEleEstimator();
+  myMVANonTrig->initialize("BDT",
+           EGammaMvaEleEstimator::kNonTrig,
+           true, // use manual cat
+           myManualCatWeightsNonTrig);
+
+  myMVATrig = new EGammaMvaEleEstimator();
+  myMVATrig->initialize("BDT",
+           EGammaMvaEleEstimator::kTrig,
+           true, // use manual cat
+           myManualCatWeightsTrig);
+
   inputTagIsoValElectronsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectronPF");   
 
   energyCorrectionsFromDB = iConfig.getParameter<bool> ("energyCorrectionsFromDB"); 
@@ -80,6 +121,8 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
 
 GlobeElectrons::~GlobeElectrons() {
   delete mvaEstimator;
+  delete myMVANonTrig;
+  delete myMVATrig;
   delete gCUT;
   delete gES;
 }
@@ -262,6 +305,14 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_mva", nome);
   sprintf(a2, "el_%s_mva[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_mva, a2);
+  
+  sprintf(a1, "el_%s_mva_nontrig", nome);
+  sprintf(a2, "el_%s_mva_nontrig[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_mva_nontrig, a2);
+  
+  sprintf(a1, "el_%s_mva_trig", nome);
+  sprintf(a2, "el_%s_mva_trig[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_mva_trig, a2);
   
   sprintf(a1, "el_%s_ch_gsf", nome);
   sprintf(a2, "el_%s_ch_gsf[el_%s_n]/I", nome, nome);
@@ -560,6 +611,10 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<double> rhoHandle;
   iEvent.getByLabel(rhoCollection, rhoHandle);
   double rho = *(rhoHandle.product());
+  
+  // transient track builder needed for ele ID MVA
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder_);  
+  const TransientTrackBuilder thebuilder = *(trackBuilder_.product());
   
 
   /*
@@ -928,6 +983,20 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     el_mva_noiso[el_n] = egsf.mva();
     el_mva[el_n] = mvaEstimator->mva(egsf, vtxH->size());
+    
+    el_mva_nontrig[el_n] = myMVANonTrig->mvaValue(egsf, 
+						    vtxH->front(), 
+						    thebuilder,
+						    ecalLazyTool,
+						    false);
+       
+    el_mva_trig[el_n] = myMVATrig->mvaValue(egsf,
+					      vtxH->front(),
+					      thebuilder,
+					      ecalLazyTool,
+					      false);
+    
+    std::cout<<"el_n el_mva_trig el_mva_nontrig "<<el_n<<" "<<el_mva_trig[el_n]<<" "<<el_mva_nontrig[el_n]<<std::endl;
 
     /* NEW variables */
     

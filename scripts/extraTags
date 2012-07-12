@@ -4,4 +4,5 @@ addpkg CommonTools/ParticleFlow  V00-03-13
 addpkg RecoEcal/EgammaCoreTools V05-08-21
 addpkg RecoParticleFlow/PFProducer  V15-01-08
 cvs co -r V00-02-05 -d CMGTools/External UserCode/CMG/CMGTools/External
+cvs co -r V00-00-16 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
 checkdeps -a
