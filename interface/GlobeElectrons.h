@@ -30,6 +30,7 @@
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
+#include "EGamma/EGammaAnalysisTools/interface/EGammaMvaEleEstimator.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -51,6 +52,12 @@ class GlobeElectrons {
   float hoeCalculator(const reco::BasicCluster*, const CaloGeometry&,
                       const edm::Event&, const edm::EventSetup&);
   std::map<DetId, EcalRecHit> rechits_map_;
+
+  EGammaMvaEleEstimator* myMVANonTrig;
+  EGammaMvaEleEstimator* myMVATrig;
+  std::vector<std::string> myManualCatWeightsNonTrig;
+  std::vector<std::string> myManualCatWeightsTrig;
+  edm::ESHandle<TransientTrackBuilder> trackBuilder_;
 
   //bool identify(const reco::GsfElectronRef electron, int type);
   //bool st_identify(const reco::GsfElectronRef electron, int type);
@@ -152,6 +159,8 @@ class GlobeElectrons {
 
   Float_t el_mva[MAX_ELECTRONS];  
   Float_t el_mva_noiso[MAX_ELECTRONS];
+  Float_t el_mva_nontrig[MAX_ELECTRONS];  
+  Float_t el_mva_trig[MAX_ELECTRONS];  
   Bool_t el_ecaldrv[MAX_ELECTRONS];
   Bool_t el_tkdrv[MAX_ELECTRONS];
   Float_t el_ip_ctf[MAX_ELECTRONS];
@@ -228,6 +237,8 @@ class GlobeElectrons {
   edm::InputTag ecalHitESColl;
   edm::InputTag hcalHitColl;
   edm::FileInPath mvaWeightFile;  
+  std::vector<edm::FileInPath> mvaNonTrigWeightFiles;  
+  std::vector<edm::FileInPath> mvaTrigWeightFiles;  
   std::vector<edm::InputTag> inputTagIsoValElectronsPFId_;
 
   EGEnergyCorrector ecorr_;
