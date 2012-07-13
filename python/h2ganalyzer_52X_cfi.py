@@ -186,6 +186,7 @@ h2ganalyzer = cms.EDAnalyzer(
     CaloMETColl = cms.InputTag("met"),
     TcMETColl = cms.InputTag("tcMet"),
     PFMETColl = cms.InputTag("pfMet"),
+    PFMETTYPE1Coll = cms.InputTag("pfType1CorrectedMet"),
 
     BeamSpot = cms.InputTag("offlineBeamSpot"),
     VertexColl_std = cms.InputTag("offlinePrimaryVerticesWithBS"),

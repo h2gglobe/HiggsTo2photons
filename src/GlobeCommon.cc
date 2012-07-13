@@ -34,7 +34,7 @@ bool GlobeCommon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   run = iEvent.id().run();  
   lumis = iEvent.luminosityBlock();
   bx = iEvent.bunchCrossing();
-
+  //std::cout<<"event run "<<event<<" "<<run<<std::endl;
   // add event PTHAT
   iEvent.getByLabel(generatorColl, HepMCEvt);
   iEvent.getByLabel ("csa07EventWeightProducer","weight", weightHandle);
