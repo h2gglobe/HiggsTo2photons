@@ -184,8 +184,8 @@ for opt,argm in opts:
         sys.exit(3)
         
 if (name == ""):
-    name = datasetpath.replace("/", "_")
-    name = name[1:]
+    parts = datasetpath.split("/")
+    name = parts[1]+"_"+parts[2]
 
 if (append != ""):
     name=name+'_'+append
