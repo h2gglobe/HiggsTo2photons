@@ -53,6 +53,7 @@ job_maker [options]
 
 --enable=                          enable processing of specified objects (comma separated list)
 --disable=                         disable processing of specified objects (comma separated list)
+--published                        to run on local dbs published dataset
 """
 
 
@@ -73,6 +74,7 @@ flagPG = False
 flagFastSim = False
 flagT1 = False
 flagDB = False
+flagPublished = False
 
 name = ""
 datasetpath=""
@@ -97,7 +99,7 @@ toEnable = []
 toDisable = []
 jecFromSqlite = False
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'append=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'append=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite', 'published'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -179,6 +181,8 @@ for opt,argm in opts:
         toDisable = argm.split(",")
     elif (opt == "--jecFromSqlite"):
         jecFromSqlite = True
+    elif (opt == "--published"):
+        flagPublished = True
     else:
         print 'Wrong options: %s' % (opt)
         sys.exit(3)
@@ -295,6 +299,9 @@ for run in runselection:
             file_out.write("use_server = 1\n")
         elif ("datasetpath" in line):
             file_out.write("datasetpath="+datasetpath+"\n")
+        elif ("dbs_url" in line):
+            if flagPublished:
+                file_out.write("dbs_url = http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet\n")
         elif ("pset" in line):
             file_out.write("pset = "+job_name+"_cfg.py\n")    
         elif ("output_file" in line):
