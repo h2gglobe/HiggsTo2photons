@@ -996,7 +996,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 					      ecalLazyTool,
 					      false);
     
-    std::cout<<"el_n el_mva_trig el_mva_nontrig "<<el_n<<" "<<el_mva_trig[el_n]<<" "<<el_mva_nontrig[el_n]<<std::endl;
+    //std::cout<<"el_n el_mva_trig el_mva_nontrig "<<el_n<<" "<<el_mva_trig[el_n]<<" "<<el_mva_nontrig[el_n]<<std::endl;
 
     /* NEW variables */
     

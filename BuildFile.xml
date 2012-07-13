@@ -6,12 +6,16 @@
 <use name="DataFormats/JetReco"/>
 <use name="Geometry/Records"/>
 <use name="Geometry/EcalAlgo"/>
+<use name="EGamma/EGammaAnalysisTools"/>
 <use name="RecoEcal/EgammaCoreTools"/>
+<use name="JetMETCorrections/Type1MET"/>
+<use name="PhysicsTools/PatUtils"/>
+<use name="CommonTools/RecoUtils"/>
 <use name="RecoEgamma/EgammaTools"/>
 <use name="HLTrigger/HLTcore"/>
-<use name="TrackingTools/TrackAssociator"/>
 <use name="RecoEgamma/EgammaElectronAlgos"/>
 <use name="RecoEgamma/ElectronIdentification"/>
+<use name="TrackingTools/TrackAssociator"/>
 <use name="TrackingTools/TransientTrack"/>
 <use name="SimDataFormats/Track"/>
 <use name="SimDataFormats/Vertex"/>
