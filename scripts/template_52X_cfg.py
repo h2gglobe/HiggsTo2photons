@@ -64,7 +64,7 @@ if flagSkimDiphoton == 'ON':
   process.DiPhotonHltFilter.HLTPaths = ["HLT_Photon*_CaloId*_Iso*_Photon*_CaloId*_Iso*_*","HLT_Photon*_CaloId*_Iso*_Photon*_R9Id*_*","HLT_Photon*_R9Id*_Photon*_CaloId*_Iso*_*","HLT_Photon*_R9Id*_Photon*_R9Id*_*","HLT_Photon*_R9Id*_OR_CaloId*_Iso*_Photon*_R9Id*_OR_CaloId*_Iso*_*","HLT_Photon*_R9Id*_OR_CaloId*_Iso*_Photon*_*"]
   #process.load('Configuration.Skimming.PDWG_DiPhoton_SD_cff')
 
-if flagData == 'ON' and flagSkimPJet == 'ON':
+if flagSkimPJet == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
   process.PhotonHltFilter = copy.deepcopy(process.hltHighLevel)
   process.PhotonHltFilter.throw = cms.bool(False)
@@ -182,8 +182,8 @@ elif flagData == 'ON' and flagSkimPJet == 'ON':
   process.eventFilter1 = cms.Sequence(process.PhotonHltFilter)
   process.eventFilter2 = cms.Sequence(process.PhotonHltFilter)
 elif flagMC == 'ON' and flagSkimPJet == 'ON':
-  process.eventFilter1 = cms.Sequence(process.superClusterMerger*process.goodPhotonsHighPtCut*process.OnePhotonsHighPtCut) # for bkg
-  process.eventFilter2 = cms.Sequence(process.superClusterMerger*process.goodPhotonsHighPtCut+process.OnePhotonsHighPtCut) # for bkg
+  process.eventFilter1 = cms.Sequence(process.PhotonHltFilter*process.superClusterMerger*process.goodPhotonsHighPtCut*process.OnePhotonsHighPtCut) # for bkg
+  process.eventFilter2 = cms.Sequence(process.PhotonHltFilter*process.superClusterMerger*process.goodPhotonsHighPtCut+process.OnePhotonsHighPtCut) # for bkg
 elif flagNoSkim == 'ON':    
   process.eventFilter1 = cms.Sequence(process.dummySelector)   #for signal MC
   process.eventFilter2 = cms.Sequence(process.dummySelector)   #for signal MC
