@@ -24,12 +24,11 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
-
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 
-#include "FWCore/ParameterSet/interface/FileInPath.h"
+//#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "EGamma/EGammaAnalysisTools/interface/EGammaMvaEleEstimator.h"
 
 #include "TTree.h"
@@ -157,8 +156,8 @@ class GlobeElectrons {
   Float_t el_ip3d_sig[MAX_ELECTRONS];
   Float_t el_sc_time[MAX_ELECTRONS];
 
-  Float_t el_mva[MAX_ELECTRONS];  
-  Float_t el_mva_noiso[MAX_ELECTRONS];
+  //Float_t el_mva[MAX_ELECTRONS];  
+  //Float_t el_mva_noiso[MAX_ELECTRONS];
   Float_t el_mva_nontrig[MAX_ELECTRONS];  
   Float_t el_mva_trig[MAX_ELECTRONS];  
   Bool_t el_ecaldrv[MAX_ELECTRONS];
@@ -236,16 +235,16 @@ class GlobeElectrons {
   edm::InputTag ecalHitEEColl;
   edm::InputTag ecalHitESColl;
   edm::InputTag hcalHitColl;
-  edm::FileInPath mvaWeightFile;  
-  std::vector<edm::FileInPath> mvaNonTrigWeightFiles;  
-  std::vector<edm::FileInPath> mvaTrigWeightFiles;  
+  //edm::FileInPath mvaWeightFile;  
+  std::vector<std::string> mvaNonTrigWeightFiles;  
+  std::vector<std::string> mvaTrigWeightFiles;  
   std::vector<edm::InputTag> inputTagIsoValElectronsPFId_;
 
   EGEnergyCorrector ecorr_;
   bool energyCorrectionsFromDB;
   std::string energyRegFilename;
   std::string regressionVersion;
-  ElectronMVAEstimator*  mvaEstimator;
+  //ElectronMVAEstimator*  mvaEstimator;
 
   const TransientTrackBuilder* transientTrackBuilder;
 };
