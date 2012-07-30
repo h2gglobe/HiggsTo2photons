@@ -107,24 +107,22 @@ h2ganalyzer = cms.EDAnalyzer(
     ElectronColl_std = cms.InputTag("gsfElectrons"),        
     eIDLabels        = cms.VInputTag(cms.InputTag("eidLoose"),
                                      cms.InputTag("eidTight")),
-    electronMVAWeightFileName =  cms.FileInPath("RecoEgamma/ElectronIdentification/data/TMVA_BDTSimpleCat_17Feb2011.weights.xml"),
-    # NOT USED - compliation error regarding vector of FileInPath
-    #electronNonTrigMVAWeightFileNames =  cms.VInputTag(
-    #                                      cms.FileInPath("RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat1.weights.xml"),
-    #                                      cms.FileInPath("RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat2.weights.xml"),
-    #                                      cms.FileInPath("RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat3.weights.xml"),
-    #                                      cms.FileInPath("RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat4.weights.xml"),
-    #                                      cms.FileInPath("RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat5.weights.xml"),
-    #                                      cms.FileInPath("RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat6.weights.xml") ),
-    #
-    #electronTrigMVAWeightFileNames =  cms.VInputTag(
-    #                                      cms.FileInPath("RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat1.weights.xml"),
-    #                                      cms.FileInPath("RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat2.weights.xml"),
-    #                                      cms.FileInPath("RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat3.weights.xml"),
-    #                                      cms.FileInPath("RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat4.weights.xml"),
-    #                                      cms.FileInPath("RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat5.weights.xml"),
-    #                                      cms.FileInPath("RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat6.weights.xml") ),
-    #
+    #electronMVAWeightFileName =  cms.FileInPath("RecoEgamma/ElectronIdentification/data/TMVA_BDTSimpleCat_17Feb2011.weights.xml"),
+
+    electronNonTrigMVAWeightFileNames = cms.vstring("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat1.weights.xml",
+                                                    "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat2.weights.xml",
+                                                    "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat3.weights.xml",
+                                                    "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat4.weights.xml",
+                                                    "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat5.weights.xml",
+                                                    "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat6.weights.xml"),
+    
+    electronTrigMVAWeightFileNames =  cms.vstring("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat1.weights.xml",
+                                                  "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat2.weights.xml",
+                                                  "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat3.weights.xml",
+                                                  "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat4.weights.xml",
+                                                  "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat5.weights.xml",
+                                                  "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat6.weights.xml"),
+    
     IsoValElectronPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIdPFIso'),
                                      cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
                                      cms.InputTag('elPFIsoValueNeutral03PFIdPFIso')),
