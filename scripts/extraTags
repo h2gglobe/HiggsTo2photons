@@ -1,10 +1,22 @@
-cvs co -r V00-03-35 RecoEgamma/ElectronIdentification
+cvs co -r V00-03-37 RecoEgamma/ElectronIdentification
 cvs co -r regressionMay18b RecoEgamma/EgammaTools
 addpkg CommonTools/ParticleFlow  V00-03-13
 addpkg RecoEcal/EgammaCoreTools V05-08-21
 addpkg RecoParticleFlow/PFProducer  V15-01-08
 cvs co -r V00-02-05 -d CMGTools/External UserCode/CMG/CMGTools/External
 cvs co -r V00-00-16 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
+wget http://cmsdoc.cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat1.weights.xml
+wget http://cmsdoc.cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat2.weights.xml
+wget http://cmsdoc.cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat3.weights.xml
+wget http://cmsdoc.cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat4.weights.xml
+wget http://cmsdoc.cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat5.weights.xml
+wget http://cmsdoc.cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_NonTrigV0_Cat6.weights.xml
+wget http://cmsdoc.cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat1.weights.xml
+wget http://cmsdoc.cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat2.weights.xml
+wget http://cmsdoc.cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat3.weights.xml
+wget http://cmsdoc.cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat4.weights.xml
+wget http://cmsdoc.cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat5.weights.xml
+wget http://cmsdoc.cern.ch/cms/data/CMSSW/RecoEgamma/ElectronIdentification/data/Electrons_BDTG_TrigV0_Cat6.weights.xml
 addpkg JetMETCorrections/Type1MET V04-06-09
 addpkg PhysicsTools/PatUtils V03-09-22
 addpkg CommonTools/RecoUtils V00-00-09
