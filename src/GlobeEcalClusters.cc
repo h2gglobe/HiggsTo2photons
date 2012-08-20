@@ -156,6 +156,25 @@ bool GlobeEcalClusters::analyze(const edm::Event& iEvent, const edm::EventSetup&
   }
   
 
+  //----------------------------------------  
+  // analyze basic clusters 
+  //----------------------------------------  
+  {
+    bc_n = 0;
+    bc_islbar_n = 0;
+    bc_islend_n = 0;
+    bc_hybrid_n = 0;
+
+    bc_p4->Clear();
+    bc_xyz->Clear();
+
+    // endcap (note the order that endcap comes first)
+    analyzeEndcapBasicClusters();
+
+    // barrel
+    analyzeBarrelHybridClusters();
+  }
+
   //----------------------------------------    
   // analyze super clusters
   //----------------------------------------  
@@ -176,30 +195,7 @@ bool GlobeEcalClusters::analyze(const edm::Event& iEvent, const edm::EventSetup&
     // ISLAND ENDCAP
     analyzeEndcapSuperClusters();
   }
-  
-  //----------------------------------------  
-  // analyze basic clusters 
-  //----------------------------------------  
-  {
-    bc_n = 0;
-    bc_islbar_n = 0;
-    bc_islend_n = 0;
-    bc_hybrid_n = 0;
-
-    bc_p4->Clear();
-    bc_xyz->Clear();
-
-    // endcap (note the order that endcap comes first)
-    analyzeEndcapBasicClusters();
-
-    // barrel
-    analyzeBarrelHybridClusters();
-  }
-
-  
-  //if (bc_n == 0 || sc_islbar_n == 0)
-  //  return false;
-  
+    
   return true;
 }
 
@@ -282,7 +278,8 @@ GlobeEcalClusters::analyzeBarrelSuperClusters() {
     for(unsigned int j=0; j<hybridClustersBarrelH->size(); ++j) {
       reco::BasicClusterRef basic(hybridClustersBarrelH, j);
       if (&(*sc->seed()) == &(*basic)) {
-        sc_bcseedind[sc_n] = j + basicClustersEndcapH->size();
+        //sc_bcseedind[sc_n] = j + basicClustersEndcapH->size();
+	sc_bcseedind[sc_n] = j + bc_islend_n;
         break;
       }
     }
@@ -344,7 +341,8 @@ GlobeEcalClusters::analyzeBarrelSuperClusters() {
         for(unsigned int j=0; j<hybridClustersBarrelH->size(); ++j) {
           reco::BasicClusterRef basic(hybridClustersBarrelH, j);
           if (&(**itClus) == &(*basic)) {
-            sc_bcind[sc_n][limit] = j + basicClustersEndcapH->size();
+            //sc_bcind[sc_n][limit] = j + basicClustersEndcapH->size();
+	    sc_bcind[sc_n][limit] = j + bc_islend_n;
             break;
           }
         }
@@ -356,6 +354,7 @@ GlobeEcalClusters::analyzeBarrelSuperClusters() {
         limit++;
       }
     }
+
     sc_barrel[sc_n] = 1;
     sc_n++;
     sc_hybrid_n++;
@@ -411,6 +410,9 @@ GlobeEcalClusters::analyzeEndcapSuperClusters()
     // get index to seed basic cluster
     for(unsigned int j=0; j<basicClustersEndcapH->size(); ++j) {
       reco::BasicClusterRef basic(basicClustersEndcapH, j);
+
+       if(gCUT->cut(*basic))
+	 continue;
       if (&(*sc->seed()) == &(*basic)) {
         sc_bcseedind[sc_n] = j;
         break;
@@ -427,7 +429,9 @@ GlobeEcalClusters::analyzeEndcapSuperClusters()
         } 
         for(unsigned int j=0; j<basicClustersEndcapH->size(); ++j) {
           reco::BasicClusterRef basic(basicClustersEndcapH, j);
-          if (&(**itClus) == &(*basic)) {
+	  if(gCUT->cut(*basic))
+	    continue;
+	  if (&(**itClus) == &(*basic)) {
             sc_bcind[sc_n][limit] = j;
             break;
           }
@@ -515,7 +519,6 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
     //bc_sieie[bc_n] = sqrt(EcalClusterTools::localCovariances(*(bc), &(*endcapRecHits), &(*topology))[0]);
 
     bc_type[bc_n] = 2;
-
     bc_n++;
     bc_islend_n++;
   }
@@ -605,7 +608,6 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
        //bc_sieie[bc_n] = sqrt(EcalClusterTools::localCovariances(*(bc), &(*barrelRecHits), &(*topology))[0]);
 
        bc_type[bc_n] = 3;
-       
        bc_n++;
        bc_islbar_n++;
      }
@@ -668,7 +670,6 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
     //bc_5x1_sam[bc_n] = EcalClusterTools::e5x1(*(bc), &(*endcapRecHits), &(*topology));
     
     bc_type[bc_n] = 1;
-
     bc_n++;
     bc_hybrid_n++;
   }

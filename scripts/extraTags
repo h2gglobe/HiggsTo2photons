@@ -2,7 +2,7 @@ cvs co -r V00-03-37 RecoEgamma/ElectronIdentification
 cvs co -r regressionMay18b RecoEgamma/EgammaTools
 addpkg CommonTools/ParticleFlow  V00-03-13
 addpkg RecoEcal/EgammaCoreTools V05-08-21
-addpkg RecoParticleFlow/PFProducer  V15-01-08
+addpkg RecoParticleFlow/PFProducer  V15-01-11
 cvs co -r V00-02-05 -d CMGTools/External UserCode/CMG/CMGTools/External
 cvs co -r V00-00-16 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
 cp HiggsAnalysis/HiggsTo2photons/scripts/download.url EGamma/EGammaAnalysisTools/data/.

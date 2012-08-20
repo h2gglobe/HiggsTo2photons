@@ -48,6 +48,7 @@ GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "algo1"):
   }
 
   debug_level = iConfig.getParameter<int>("Debug_Level");
+  jet_nvtx = iConfig.getParameter<unsigned int>("JetVertexToProcess");
   
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
@@ -155,6 +156,10 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a1, "jet_%s_betaStarClassic_ext", nome);
   tree->Branch(a1, "std::vector<std::vector<float> >", &jet_betaStarClassic_ext);
 
+  sprintf(a1, "jet_%s_nvtx", nome);
+  sprintf(a2, "jet_%s_nvtx/i", nome);
+  tree->Branch(a1, &jet_nvtx, a2);
+  
   sprintf(a1, "jet_%s_pfloose", nome);
   sprintf(a2, "jet_%s_pfloose[jet_%s_n]/O", nome, nome);
   tree->Branch(a1, &jet_pfloose, a2);
@@ -421,8 +426,10 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           mvas_[imva][jet_n] = id.mva() ;
           wp_levels_[imva][jet_n] = id.idFlag() ;
         }
-	
-	for(size_t vtx=0; vtx<vertexCollection.size(); ++vtx) {
+
+	// FIXME MATTEO
+	//for(size_t vtx=0; vtx<vertexCollection.size(); ++vtx) {
+	for(size_t vtx=0; vtx<jet_nvtx; ++vtx) {
 	  PileupJetIdentifier ext_vars = jetMVACalculator->computeIdVariables( thisjet, jet_erescale[jet_n], &vertexCollection[vtx], vertexCollection);
 	  jet_beta_ext[jet_n][vtx]=ext_vars.beta();
 	  jet_betaStar_ext[jet_n][vtx]=ext_vars.betaStar();
