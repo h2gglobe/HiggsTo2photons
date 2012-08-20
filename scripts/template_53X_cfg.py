@@ -57,6 +57,16 @@ process.load('HiggsAnalysis.HiggsTo2photons.ZMuSkim_cff')
 process.load('HiggsAnalysis.HiggsTo2photons.photonReRecoForMMG_cfi')
 process.load('HiggsAnalysis.HiggsTo2photons.cicFilter_cfi')
 
+
+if flagSkimworz == 'ON':
+  process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
+  process.TPHltFilter = copy.deepcopy(process.hltHighLevel)
+  process.TPHltFilter.throw = cms.bool(False)
+  process.TPHltFilter.HLTPaths = ["HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_*",
+                                  "HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_*",
+                                  "HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_*"]
+  
+  
 if flagSkimDiphoton == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
   process.DiPhotonHltFilter = copy.deepcopy(process.hltHighLevel)
@@ -193,8 +203,8 @@ elif flagMMgSkim == 'ON':
 elif flagSkimworz == 'ON':
   process.load('HiggsAnalysis.HiggsTo2photons.eidFilter_cfi')
   process.load('HiggsAnalysis.HiggsTo2photons.invariantMassFilter_cfi')
-  process.eventFilter1 = cms.Sequence(process.goodElectronsOver5*process.superClusterMerger*process.goodSCOver5*process.invariantMassFilter*process.electronIdentificationFilter)
-  process.eventFilter2= cms.Sequence(process.goodElectronsOver5*process.superClusterMerger*process.goodSCOver5*process.invariantMassFilter*process.electronIdentificationFilter)
+  process.eventFilter1 = cms.Sequence(process.TPHltFilter*process.goodElectronsOver5*process.superClusterMerger*process.goodSCOver5*process.invariantMassFilter*process.electronIdentificationFilter)
+  process.eventFilter2 = cms.Sequence(process.TPHltFilter*process.goodElectronsOver5*process.superClusterMerger*process.goodSCOver5*process.invariantMassFilter*process.electronIdentificationFilter)
 elif flagSkim1El == 'ON':
   process.eventFilter1 = cms.Sequence(process.goodElectronsOver5)
   process.eventFilter2 = cms.Sequence(process.goodElectronsOver5)
