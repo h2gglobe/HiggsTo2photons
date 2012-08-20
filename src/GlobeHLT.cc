@@ -33,7 +33,6 @@ GlobeHLT::GlobeHLT(const edm::ParameterSet& iConfig, const char* n): nome(n) {
 
   hlt_path_names_HLT = new std::vector<std::string>;
   hlt_bit = new std::vector<unsigned short>;
-  hlt_prescale = new std::vector<unsigned int>;
   hlt_candpath = new std::vector<std::vector<unsigned short> >; 
   hlt_candpath2 = new std::vector<std::vector<unsigned short> >; 
 
@@ -47,8 +46,7 @@ void GlobeHLT::defineBranch(TTree* tree) {
   // Event Trigger
   tree->Branch("hlt_bit", "std::vector<unsigned short>", &hlt_bit);
   tree->Branch("hlt_path_names_HLT", "std::vector<std::string>", &hlt_path_names_HLT);
-  tree->Branch("hlt_prescale", "std::vector<unsigned int>", &hlt_prescale);
-  
+
   // Trigger Candidates
   tree->Branch("hlt_n", &hlt_n, "hlt_n/I");
   tree->Branch("hlt_p4", "TClonesArray", &hlt_p4, 32000, 0);
@@ -60,12 +58,15 @@ void GlobeHLT::defineBranch(TTree* tree) {
   tree->Branch("filter_pass", "std::vector<unsigned int>", &filter_pass);
 
   //Mass filter decisions
+  //RELATED to making sure OR is same as four separate paths
+  /*
   tree->Branch("pass_Mass60_isoiso",&pass_Mass60_isoiso, "pass_Mass60_isoiso/I");
   tree->Branch("pass_Mass60_R9R9",&pass_Mass60_R9R9, "pass_Mass60_R9R9/I");
   tree->Branch("pass_Mass60_mix",&pass_Mass60_mix, "pass_Mass60_mix/I");
   tree->Branch("pass_Mass70_isoiso",&pass_Mass70_isoiso, "pass_Mass70_isoiso/I");
   tree->Branch("pass_Mass70_R9R9",&pass_Mass70_R9R9, "pass_Mass70_R9R9/I");
   tree->Branch("pass_Mass70_mix",&pass_Mass70_mix, "pass_Mass70_mix/I");
+*/
 
   //Ele32_SC17 trigger objects
   tree->Branch("trg_SC_ele_n", &ElectronRefs0_n,"ElectronRefs0_n/I");
@@ -134,16 +135,13 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   if (h_triggerResults_HLT.isValid()) {
 	hlt_path_names_HLT->clear();
-    hlt_prescale->clear();
-    
+
 	if(debug_level > 9) 
 	  std::cout << "Fill names HLT" << std::endl;
 
-	for (size_t i = 0; i < configProvider.size(); ++i) {
+	for (size_t i = 0; i < configProvider.size(); ++i)
 	  hlt_path_names_HLT->push_back(configProvider.triggerName(i));
-      hlt_prescale->push_back(configProvider.prescaleValue(iEvent, iSetup, configProvider.triggerName(i)));
-    }
-    
+
 	// Trigger Results
 	for (size_t i = 0; i < configProvider.size(); ++i) {
 	  if(h_triggerResults_HLT->accept(i))
@@ -228,17 +226,17 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   temp_names.clear();
   temp_names.push_back("hltEG26CaloId10Iso50HcalIsoLastFilter");
   temp_names.push_back("hltEG26R9Id85LastFilter");
-  temp_names.push_back("HLTEG26R9Id85ORCaloId10Iso50LegCombLastFilter");
+  //temp_names.push_back("HLTEG26R9Id85ORCaloId10Iso50LegCombLastFilter");
   temp_names.push_back("hltEG18R9Id85LastFilterUnseeded");
   temp_names.push_back("hltEG18CaloId10Iso50TrackIsoLastFilterUnseeded");
 
   temp_names.push_back("hltEG36CaloId10Iso50HcalIsoLastFilter");
   temp_names.push_back("hltEG36R9Id85LastFilter");
-  temp_names.push_back("HLTEG36R9Id85ORCaloId10Iso50LegCombLastFilter");
+  //temp_names.push_back("HLTEG36R9Id85ORCaloId10Iso50LegCombLastFilter");
   temp_names.push_back("hltEG22R9Id85LastFilterUnseeded");
   temp_names.push_back("hltEG22CaloId10Iso50TrackIsoLastFilterUnseeded");
 
-  temp_names.push_back("hltEG18CaloId10Iso50TrackIsoDoubleLastFilterUnseeded");
+  //temp_names.push_back("hltEG18CaloId10Iso50TrackIsoDoubleLastFilterUnseeded");
   temp_names.push_back("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17PMMassFilter");
   temp_names.push_back("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsoFilter");
   filter_pass->clear();
@@ -256,10 +254,10 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   std::vector<trigger::TriggerObject> PhotonRefs9;
 
 
-  std::vector<trigger::TriggerObject> PhotonRefs10;
+//  std::vector<trigger::TriggerObject> PhotonRefs10;
   std::vector<trigger::TriggerObject> ElectronRefs0;
   std::vector<trigger::TriggerObject> ElectronRefs1;
-  std::vector<trigger::TriggerObject> ElectronRefs00;
+  //std::vector<trigger::TriggerObject> ElectronRefs00;
 
   if ( trigEvent.isValid() ){
 	for (filter_it = temp_names.begin(); filter_it != temp_names.end(); ++filter_it){
@@ -273,18 +271,17 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 		filter_pass->push_back(nkeys);
 		for (int ikey = 0; ikey < nkeys; ++ikey ) {
 		  if (*filter_it == "hltEG26CaloId10Iso50HcalIsoLastFilter") PhotonRefs0.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
-		  if (*filter_it == "hltEG26R9Id85LastFilter") PhotonRefs1.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
-		  if (*filter_it == "hltEG18R9Id85LastFilterUnseeded") PhotonRefs3.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
-		  if (*filter_it == "hltEG18CaloId10Iso50TrackIsoLastFilterUnseeded") PhotonRefs4.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
-		  if (*filter_it == "hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17PMMassFilter") ElectronRefs0.push_back(triggerObjects[ triggerKeys [ikey] ]);
-		  if (*filter_it == "hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsoFilter") ElectronRefs1.push_back(triggerObjects[ triggerKeys [ikey]]);
-		  if (*filter_it == "hltEG18CaloId10Iso50TrackIsoDoubleLastFilterUnseeded") PhotonRefs10.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+		  else if (*filter_it == "hltEG26R9Id85LastFilter") PhotonRefs1.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+		  else if (*filter_it == "hltEG18R9Id85LastFilterUnseeded") PhotonRefs3.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+		  else if (*filter_it == "hltEG18CaloId10Iso50TrackIsoLastFilterUnseeded") PhotonRefs4.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+		  else if (*filter_it == "hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17PMMassFilter") ElectronRefs0.push_back(triggerObjects[ triggerKeys [ikey] ]);
+		  else if (*filter_it == "hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsoFilter") ElectronRefs1.push_back(triggerObjects[ triggerKeys [ikey]]);
+		  //else if (*filter_it == "hltEG18CaloId10Iso50TrackIsoDoubleLastFilterUnseeded") PhotonRefs10.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
 
-		  if (*filter_it == "hltEG36CaloId10Iso50HcalIsoLastFilter") PhotonRefs5.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
-		  if (*filter_it == "hltEG36R9Id85LastFilter") PhotonRefs6.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
-		  if (*filter_it == "hltEG22R9Id85LastFilterUnseeded") PhotonRefs8.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
-		  if (*filter_it == "hltEG22CaloId10Iso50TrackIsoLastFilterUnseeded") PhotonRefs9.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
-
+		  else if (*filter_it == "hltEG36CaloId10Iso50HcalIsoLastFilter") PhotonRefs5.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+		  else if (*filter_it == "hltEG36R9Id85LastFilter") PhotonRefs6.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+		  else if (*filter_it == "hltEG22R9Id85LastFilterUnseeded") PhotonRefs8.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+		  else if (*filter_it == "hltEG22CaloId10Iso50TrackIsoLastFilterUnseeded") PhotonRefs9.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
 		}
 	  }
 	  else 
@@ -391,6 +388,9 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	PhotonRefs9_n++;
   }
 
+
+  //RELATED to making sure OR is same as four separate paths
+  /*
   //logic for Mass isoiso
   pass_Mass60_isoiso = 0;
   Mass60_isoiso = 0;
@@ -415,23 +415,6 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	}	
   }     
 
-  Mass60_isoiso_org = 0;
-  if (PhotonRefs10.size() >=2) {
-	TLorentzVector e1;  
-	TLorentzVector e2;  
-	TLorentzVector meson;
-	float mass = 0.;
-	for (int i = 0; i < (int)PhotonRefs10.size(); i++){
-	  for (int j = i+1; j < (int)PhotonRefs10.size(); j++){
-		e1.SetPtEtaPhiM(PhotonRefs10.at(i).pt(),PhotonRefs10.at(i).eta(),PhotonRefs10.at(i).phi(),0.); 
-		e2.SetPtEtaPhiM(PhotonRefs10.at(j).pt(),PhotonRefs10.at(j).eta(),PhotonRefs10.at(j).phi(),0.); 
-
-		meson = e1 + e2; 
-		mass = meson.M(); 
-		if (mass > Mass60_isoiso_org) Mass60_isoiso_org = mass;
-	  }     
-	}
-  }
   //logic for Mass R9R9
   pass_Mass60_R9R9 = 0;
   pass_Mass70_R9R9 = 0;
@@ -471,5 +454,6 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	  }
 	}
   }
+  */
   return true;
 }
