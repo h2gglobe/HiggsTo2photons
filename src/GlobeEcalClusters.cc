@@ -481,11 +481,11 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
     new ((*bc_p4)[bc_n]) TLorentzVector();
     ((TLorentzVector *)bc_p4->At(bc_n))->SetXYZT(px, py, pz, en);
 
-    new ((*bc_xyz)[sc_n]) TVector3();
-    ((TVector3 *)bc_xyz->At(sc_n))->SetXYZ(bc->position().x(), bc->position().y(), bc->position().z());
+    new ((*bc_xyz)[bc_n]) TVector3();
+    ((TVector3 *)bc_xyz->At(bc_n))->SetXYZ(bc->position().x(), bc->position().y(), bc->position().z());
 
     std::vector<std::pair<DetId,float > > hits = bc->hitsAndFractions();
-    bc_nhits[bc_n] = hits.size(); // CHECK no direct method in the dataFormat only getRecHitsByDetId
+    bc_nhits[bc_n] = hits.size(); 
 
     bc_seed[bc_n] = -1;
     for(EERecHitCollection::const_iterator it=endcapRecHits->begin(); it!=endcapRecHits->end(); it++) {
@@ -493,12 +493,6 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
         bc_seed[bc_n] = (it - endcapRecHits->begin()); 
     }
 
-    // compute position of ECAL shower
-    //float e3x3=   EcalClusterTools::e3x3(  *(bc), &(*endcapRecHits), &(*topology)); 
-    //float r9 =e3x3/(aClus->rawEnergy()+aClus->preshowerEnergy());
-    //float e5x5= EcalClusterTools::e5x5( *(aClus->seed()), &(*hits), &(*topology)); 
-    //std::pair<DetId, float> mypair=EcalClusterTools::getMaximum( *(bc), &(*endcapRecHits)); 
-    
     bc_s1[bc_n] = EcalClusterTools::eMax(*(bc), &(*endcapRecHits)); 
     bc_s4[bc_n] = EcalClusterTools::e2x2(*(bc), &(*endcapRecHits), &(*topology)); 
     bc_s9[bc_n] = EcalClusterTools::e3x3(*(bc), &(*endcapRecHits), &(*topology)); 
@@ -509,14 +503,12 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
     rook_vect.push_back(EcalClusterTools::eTop(*(bc), &(*endcapRecHits), &(*topology)));
     rook_vect.push_back(EcalClusterTools::eBottom(*(bc), &(*endcapRecHits), &(*topology)));
     rook_vect.push_back(EcalClusterTools::eRight(*(bc), &(*endcapRecHits), &(*topology)));
-    //bc_rook[bc_n] = *(max_element(rook_vect.begin(), rook_vect.end()));
     bc_chx[bc_n] = std::accumulate(rook_vect.begin(), rook_vect.end(), 0.);
 
     std::vector<float> vCov = EcalClusterTools::localCovariances( *(bc), &(*endcapRecHits), &(*topology));
     bc_sieie[bc_n] = sqrt(vCov[0]);
     bc_sieip[bc_n] = vCov[1];
     bc_sipip[bc_n] = sqrt(vCov[2]);
-    //bc_sieie[bc_n] = sqrt(EcalClusterTools::localCovariances(*(bc), &(*endcapRecHits), &(*topology))[0]);
 
     bc_type[bc_n] = 2;
     bc_n++;
@@ -553,17 +545,11 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
        new ((*bc_p4)[bc_n]) TLorentzVector();
        ((TLorentzVector *)bc_p4->At(bc_n))->SetXYZT(px, py, pz, en);
        
-       new ((*bc_xyz)[sc_n]) TVector3();
-       ((TVector3 *)bc_xyz->At(sc_n))->SetXYZ(bc->position().x(), bc->position().y(), bc->position().z());
+       new ((*bc_xyz)[bc_n]) TVector3();
+       ((TVector3 *)bc_xyz->At(bc_n))->SetXYZ(bc->position().x(), bc->position().y(), bc->position().z());
        
        std::vector<std::pair<DetId,float > > hits = bc->hitsAndFractions();
-       bc_nhits[bc_n] = hits.size(); // CHECK no direct method in the dataFormat only getRecHitsByDetId
-       
-       // compute position of ECAL shower
-       //float e3x3=   EcalClusterTools::e3x3(  *(bc), &(*endcapRecHits), &(*topology)); 
-       //float r9 =e3x3/(aClus->rawEnergy()+aClus->preshowerEnergy());
-       //float e5x5= EcalClusterTools::e5x5( *(aClus->seed()), &(*hits), &(*topology)); 
-       //std::pair<DetId, float> mypair=EcalClusterTools::getMaximum( *(bc), &(*barrelRecHits)); 
+       bc_nhits[bc_n] = hits.size(); 
        
        bc_seed[bc_n] = -1;
        for(EBRecHitCollection::const_iterator it=barrelRecHits->begin(); it!=barrelRecHits->end(); it++) {
@@ -589,23 +575,6 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
        bc_sieie[bc_n] = sqrt(vCov[0]);
        bc_sieip[bc_n] = vCov[1];
        bc_sipip[bc_n] = sqrt(vCov[2]);
-       //bc_seed[bc_n] = bc->seed();
-       /*
-         bc_s1x5_0[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), 0, 0, -2, 2);
-         bc_s1x5_1[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -1, -1, -2, 2);
-         bc_s1x5_2[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), 1, 1, -2, 2);
-         bc_s1x3_0[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), 0, 0, -1, 1);
-         bc_s1x3_1[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -1, -1, -1, 1);
-         bc_s1x3_2[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), 1, 1, -1, 1);
-         bc_s5x1_0[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -2, 2, 0, 0);
-         bc_s5x1_1[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -2, 2, -1, -1);
-         bc_s5x1_2[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -2, 2, 1, 1);
-         bc_s3x1_0[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -1, 1, 0, 0);
-         bc_s3x1_1[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -1, 1, -1, -1);
-         bc_s3x1_2[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -1, 1, 1, 1);
-       */
-       // localCovariances no longer takes geometry as input.  At this point still need to do "cvs co RecoEcal/EgammaClusterTools" from the cern cvs. REMOVE COMENT ONCE TI WORKS
-       //bc_sieie[bc_n] = sqrt(EcalClusterTools::localCovariances(*(bc), &(*barrelRecHits), &(*topology))[0]);
 
        bc_type[bc_n] = 3;
        bc_n++;
@@ -636,6 +605,9 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
 
     new ((*bc_p4)[bc_n]) TLorentzVector();
     ((TLorentzVector *)bc_p4->At(bc_n))->SetXYZT(px, py, pz, en);
+       
+    new ((*bc_xyz)[bc_n]) TVector3();
+    ((TVector3 *)bc_xyz->At(bc_n))->SetXYZ(bc->position().x(), bc->position().y(), bc->position().z());
 
     std::vector<std::pair<DetId,float > > hits = bc->hitsAndFractions();
     bc_nhits[bc_n] = hits.size(); // CHECK no direct method in the dataFormat only getRecHitsByDetId
