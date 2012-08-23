@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Matteosan SANI
 //         Created:  Thu Feb  7 10:14:43 CET 2008
-// $Id: GlobeAnalyzer.h,v 1.1 2012/03/20 20:54:57 sani Exp $
+// $Id: GlobeAnalyzer.h,v 1.2 2012/04/23 21:04:36 sani Exp $
 //
 //
 
@@ -187,6 +187,8 @@ private:
   std::vector<edm::InputTag> theMuHLTLabels;
   std::vector<edm::InputTag> thePhHLTLabels;
   std::vector<edm::InputTag> theJetHLTLabels;
+
+  Int_t nProcessedEvents;
 };
 
 #endif

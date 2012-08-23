@@ -113,6 +113,9 @@ void GlobeHLT::defineBranch(TTree* tree) {
   tree->Branch("PhotonRefs9_eta", &PhotonRefs9_eta,"PhotonRefs9_eta[PhotonRefs9_n]/F");
   tree->Branch("PhotonRefs9_et", &PhotonRefs9_et,"PhotonRefs9_et[PhotonRefs9_n]/F");
   tree->Branch("PhotonRefs9_phi", &PhotonRefs9_phi,"PhotonRefs9_phi[PhotonRefs9_n]/F");
+
+  filter_pass = new std::vector<unsigned int>;
+  filter_names_HLT1 = new std::vector<std::string>;
 }
 
 bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -123,9 +126,8 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   // HLT
   hlt_bit->clear();
-  filter_pass = new std::vector<unsigned int>; filter_pass->clear();
-  filter_names_HLT1 = new std::vector<std::string>; filter_names_HLT1->clear();
-
+  filter_pass->clear();
+  filter_names_HLT1->clear();
 
   // FIXME possibly move to beginRun
   bool changed = false;
@@ -454,6 +456,7 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	  }
 	}
   }
-  */
+  */ 
+
   return true;
 }

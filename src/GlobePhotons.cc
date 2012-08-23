@@ -22,6 +22,7 @@
 #include "TFile.h"
 #include <cstdlib>
 
+
 void GlobePhotons::checkSetup(const edm::EventSetup& iSetup) {
 
   // Initialise the Correction Scheme
@@ -116,6 +117,7 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   pho_pfiso_mycharged05 = new std::vector<std::vector<float> >();
   pho_pfiso_mycharged06 = new std::vector<std::vector<float> >();
 
+  /*
   pho_pfiso_egcharged01 = new std::vector<std::vector<float> >();
   pho_pfiso_egcharged02 = new std::vector<std::vector<float> >();
   pho_pfiso_egcharged03 = new std::vector<std::vector<float> >();
@@ -129,9 +131,10 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   pho_pfiso_barecharged04 = new std::vector<std::vector<float> >();
   pho_pfiso_barecharged05 = new std::vector<std::vector<float> >();
   pho_pfiso_barecharged06 = new std::vector<std::vector<float> >();
+  */
 
-  pho_frixiso = new std::vector<std::vector<float> >();
-
+  //pho_frixiso = new std::vector<std::vector<float> >();
+ 
   cicPhotonId = new CiCPhotonID(iConfig);
   //pfFrixIso = new pfFrixioneIso(); 
 
@@ -243,7 +246,7 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_pfiso_myphoton06", &pho_pfiso_myphoton06, "pho_pfiso_myphoton06[pho_n]/F");
   tree->Branch("pho_pfiso_mycharged06", "std::vector<std::vector<float> >", &pho_pfiso_mycharged06);
 
-
+  /*
   tree->Branch("pho_pfiso_barephoton01", &pho_pfiso_barephoton01, "pho_pfiso_barephoton01[pho_n]/F");  
   tree->Branch("pho_pfiso_barecharged01", "std::vector<std::vector<float> >", &pho_pfiso_barecharged01);
   tree->Branch("pho_pfiso_barephoton02", &pho_pfiso_barephoton02, "pho_pfiso_barephoton02[pho_n]/F");  
@@ -270,8 +273,8 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_pfiso_egphoton06", &pho_pfiso_egphoton06, "pho_pfiso_egphoton06[pho_n]/F");
   tree->Branch("pho_pfiso_egcharged06", "std::vector<std::vector<float> >", &pho_pfiso_egcharged06);
 
-
-  tree->Branch("pho_frixiso", "std::vector<std::vector<float> >", &pho_frixiso);  
+  */
+  //tree->Branch("pho_frixiso", "std::vector<std::vector<float> >", &pho_frixiso);  
 
   tree->Branch("pho_pfconvVtxZ", &pho_pfconvVtxZ, "pho_pfconvVtxZ[pho_n]/F");
   tree->Branch("pho_pfconvVtxZErr", &pho_pfconvVtxZErr, "pho_pfconvVtxZErr[pho_n]/F");
@@ -388,8 +391,8 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_bieta",&pho_bieta,"pho_bieta[pho_n]/I");
   tree->Branch("pho_betacry",&pho_betacry,"pho_betacry[pho_n]/F");
   tree->Branch("pho_phicry",&pho_bphicry,"pho_bphicry[pho_n]/F");
-  tree->Branch("pho_bthetatilt",&pho_bthetatilt,"pho_bthetatilt[pho_n]/F");
-  tree->Branch("pho_bphitilt",&pho_bphitilt,"pho_bphitilt[pho_n]/F");
+  //tree->Branch("pho_bthetatilt",&pho_bthetatilt,"pho_bthetatilt[pho_n]/F");
+  //tree->Branch("pho_bphitilt",&pho_bphitilt,"pho_bphitilt[pho_n]/F");
 
   //tree->Branch("pho_e2overe9",&pho_e2overe9,"pho_e2overe9[pho_n]/F");
   tree->Branch("pho_seed_severity",&pho_seed_severity,"pho_seed_severity[pho_n]/F");
@@ -470,7 +473,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       //validTrackInputs=false;
     }
   }
-
+  
   std::vector<reco::TransientTrack> t_outInTrk;
   if (!doFastSim)
    t_outInTrk = ( *theTTkBuilder).build(outInTrkHandle );
@@ -495,10 +498,11 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   const CaloSubdetectorGeometry *geometryES = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   CaloSubdetectorTopology *topology_p = 0;
-  if (geometryES) topology_p = new EcalPreshowerTopology(geoHandle);
+  if (geometryES) 
+    topology_p = new EcalPreshowerTopology(geoHandle);
   const CaloSubdetectorGeometry* geomBar_=geoHandle->getSubdetectorGeometry(DetId::Ecal,1);
   const CaloSubdetectorGeometry* geomEnd_=geoHandle->getSubdetectorGeometry(DetId::Ecal,2);
-  
+   
   // FOR PF ISOLATION
   edm::Handle<reco::PFCandidateCollection> pfCollection;
   iEvent.getByLabel(pfColl, pfCollection);
@@ -541,6 +545,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   pho_pfiso_mycharged05->clear();
   pho_pfiso_mycharged06->clear();
 
+  /*
   pho_pfiso_egcharged01->clear();
   pho_pfiso_egcharged02->clear();
   pho_pfiso_egcharged03->clear();
@@ -554,7 +559,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   pho_pfiso_barecharged04->clear();
   pho_pfiso_barecharged05->clear();
   pho_pfiso_barecharged06->clear();
-
+  */
 
   pho_n = 0;
 
@@ -803,7 +808,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_mustnc[pho_n] = -1;
     //reco::Mustache m;
     //m.MustacheID(*(localPho->superCluster()), pho_mustnc[pho_n], pho_must[pho_n]);
-    
+
     edm::Handle<EcalRecHitCollection> EBReducedRecHits;
     edm::Handle<EcalRecHitCollection> EEReducedRecHits;
     iEvent.getByLabel(ecalHitEBColl, EBReducedRecHits);
@@ -941,7 +946,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       } 
     }
 
-    
     // more cluster shapes from Lazy Tools
     std::vector<float> viCov;
     viCov = lazyTool.localCovariances(*seed_clu);
@@ -994,9 +998,6 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     float lambdaPlus_glo           = (cov[0] + cov[2] + sqrt(pow(cov[0] - cov[2], 2) + 4*pow(cov[1], 2)));
     pho_lambdaratio_global[pho_n]  = lambdaMinus_glo/lambdaPlus_glo;
     pho_lambdadivcov_global[pho_n] = lambdaMinus_glo/cov[0];
-
-
-
 
     // Added by Aris - Begin
 
@@ -1065,6 +1066,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_pfiso_myphoton05[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.5, 0.0, 0.070, 0.015, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
     pho_pfiso_myphoton06[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.6, 0.0, 0.070, 0.015, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
 
+    /*
     // Egamma vetoes
     pho_pfiso_egphoton01[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.1, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
     pho_pfiso_egphoton02[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.2, 0.0, 0.05, 0.0, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
@@ -1080,7 +1082,8 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_pfiso_barephoton04[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
     pho_pfiso_barephoton05[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
     pho_pfiso_barephoton06[pho_n]  = cicPhotonId->pfEcalIso(localPho, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
-    
+    */
+
     temp.push_back(reco::PFCandidate::h0);
     // Custom Egamma and noveto are the same
     pho_pfiso_myneutral01[pho_n] = cicPhotonId->pfHcalIso(localPho, 0.1, 0.00, reco::PFCandidate::h0);
@@ -1098,6 +1101,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_pfiso_mycharged05->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.5, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
     pho_pfiso_mycharged06->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.6, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
 
+    /*
     pho_pfiso_egcharged01->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.1, 0.1, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
     pho_pfiso_egcharged02->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.2, 0.1, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
     pho_pfiso_egcharged03->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.3, 0.1, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
@@ -1111,7 +1115,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_pfiso_barecharged04->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.4, 0.0, 0.0, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
     pho_pfiso_barecharged05->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.5, 0.0, 0.0, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
     pho_pfiso_barecharged06->push_back(cicPhotonId->pfTkIsoWithVertex(localPho, 0.6, 0.0, 0.0, 0.0, 0.2, 0.1, reco::PFCandidate::h)); 
-        
+    */  
 
     pho_ecalsumetconedr04[pho_n] = localPho->ecalRecHitSumEtConeDR04();
     pho_hcalsumetconedr04[pho_n] = localPho->hcalTowerSumEtConeDR04();
@@ -1257,6 +1261,8 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   if(debug_level>9)
     std::cout << "End Photon" << std::endl;
+
+  delete topology_p;
 
   return true;
 }
