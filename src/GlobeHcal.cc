@@ -188,8 +188,9 @@ bool GlobeHcal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 
   hc_n = hcB_n + hcF_n + hcHo_n;
 
-  //if (hc_n == 0)
-  //  return false;
+
+  delete lptPos;
+  delete lptMom;
 
   return true;
 }

@@ -55,6 +55,7 @@ void GlobeEcalHits::defineBranch(TTree* tree) {
 bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
                             GlobeElectrons *el, GlobeMuons *mu, GlobePhotons *pho) {
 
+  
   TClonesArray* lptPos = new TClonesArray("TVector3");
   TClonesArray* lptMom = new TClonesArray("TVector3");
 
@@ -280,6 +281,9 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
   }
-    
+
+  delete lptPos;
+  delete lptMom;
+
   return true;
 }

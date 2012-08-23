@@ -335,7 +335,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     PileupJetIdAlgo* jetMVACalculator = 0;
     if(algos_.size()>0) jetMVACalculator = algos_[0];
     size_t n_jets = std::min(pfjetH->size(),(size_t)MAX_JETS);
-    size_t n_vtx = vtxH->size();
+    size_t n_vtx = std::min(vtxH->size(), (size_t)jet_nvtx); //vtxH->size();
     for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
       mvas_ext_[imva]->clear();
       mvas_ext_[imva]->resize(n_jets, std::vector<float>(n_vtx,-999.));
@@ -427,9 +427,9 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           wp_levels_[imva][jet_n] = id.idFlag() ;
         }
 
-	// FIXME MATTEO
+	size_t n_vtx = std::min(vtxH->size(), (size_t)jet_nvtx); //vtxH->size();
 	//for(size_t vtx=0; vtx<vertexCollection.size(); ++vtx) {
-	for(size_t vtx=0; vtx<jet_nvtx; ++vtx) {
+	for(size_t vtx=0; vtx<n_vtx; ++vtx) {
 	  PileupJetIdentifier ext_vars = jetMVACalculator->computeIdVariables( thisjet, jet_erescale[jet_n], &vertexCollection[vtx], vertexCollection);
 	  jet_beta_ext[jet_n][vtx]=ext_vars.beta();
 	  jet_betaStar_ext[jet_n][vtx]=ext_vars.betaStar();

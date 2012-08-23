@@ -6,11 +6,26 @@
 #include <stdio.h>
 #include <time.h>
 
-double diffclock(clock_t clock1,clock_t clock2)
-{
-	double diffticks=clock1-clock2;
-	double diffms=(diffticks*10)/CLOCKS_PER_SEC;
-	return diffms;
+#define TIMINGDEBUG 0
+
+static string memory_usage() {
+  ostringstream mem;
+  //PP("hi");
+  ifstream proc("/proc/self/status");
+  string s;
+  while(getline(proc, s), !proc.fail()) {
+    if(s.substr(0, 6) == "VmSize") {
+      mem << s;
+      return mem.str();
+    }
+  }
+  return mem.str();
+}
+
+double diffclock1(clock_t clock1,clock_t clock2) {
+  double diffticks=clock1-clock2;
+  double diffms=(diffticks*10)/CLOCKS_PER_SEC;
+  return diffms;
 }
 
 GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
@@ -205,50 +220,73 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
   }
   
   readConfiguration(iConfig);
+  nProcessedEvents = 0;
 }
 
 GlobeAnalyzer::~GlobeAnalyzer() {}
 
 void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+
+  clock_t begin, t;
+  if (TIMINGDEBUG)
+    begin=clock();
   
-  //clock_t begin=clock();
-
-
   if(debug_level > 9) std::cout << "GlobeAnalyzer: Begin" << std::endl;
   
   tot_events++;
   
   common->analyze(iEvent, iSetup);
+
   
-  //clock_t t=clock();
-  //std::cout << "Time elapsed T1: " << double(diffclock(t,begin)) << " ms"<< std::endl;
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T1: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+    std::cout << "Mem1: " << memory_usage() << std::endl;
+  }
   
 
   //PHOTONS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: photons" << std::endl;  
   if (doPhoton)
     photons->analyze(iEvent, iSetup);
+
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T1.2: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+    std::cout << "Mem2: " << memory_usage() << std::endl;
+  }
   
   //ALL CONVERSIONS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: conversions" << std::endl;
   if (doAllConversions)
     allConversions->analyze(iEvent, iSetup);
-  
+
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T1: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+  }
+
   //ELECTRONS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: std_electrons" << std::endl;
   if (doElectronStd)
     std_electrons->analyze(iEvent, iSetup);
   
-  //t=clock();
-  //std::cout << "Time elapsed T2: " << double(diffclock(t,begin)) << " ms"<< std::endl;
-
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T2: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+    std::cout << "Mem3: " << memory_usage() << std::endl;
+  }
+  
   //MUONS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: muons" << std::endl;
   if (doMuon)
     muons->analyze(iEvent, iSetup);
   
-  //t=clock();
-  //std::cout << "Time elapsed T3: " << double(diffclock(t,begin)) << " ms"<< std::endl;
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T3: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+    std::cout << "Mem4: " << memory_usage() << std::endl;
+  }
 
   //Leptons
   if (doLeptons)
@@ -283,9 +321,11 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doGenVertices)
     genV->analyze(iEvent, iSetup);
 
-  //t=clock();
-  //std::cout << "Time elapsed T4: " << double(diffclock(t,begin)) << " ms"<< std::endl;
-
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T4: " << double(diffclock1(t,begin)) << " ms"<< std::endl;    
+    std::cout << "Mem5: " << memory_usage() << std::endl;
+  }
 
   //SIMHITS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: simhits" << std::endl;
@@ -307,9 +347,11 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doHLT)
     hlt->analyze(iEvent, iSetup);
   
-  //t=clock();
-  //std::cout << "Time elapsed T5: " << double(diffclock(t,begin)) << " ms"<< std::endl;
-
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T5: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+    std::cout << "Mem6: " << memory_usage() << std::endl;
+  }
 
   //TRACKS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: tracks" << std::endl;
@@ -327,27 +369,34 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     tracks->GetAssociatedTrackingParticleIndex(iEvent,iSetup,trackingParticles);
   }
 
-  //t=clock();
-  //std::cout << "Time elapsed T6: " << double(diffclock(t,begin)) << " ms"<< std::endl;
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T6: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+    std::cout << "Mem7: " << memory_usage() << std::endl;
+  }
 
   //ECAL REC HITS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: ecalrechits" << std::endl;
   if (doEcalRecHits)
     ecalrechits->analyze(iEvent, iSetup, std_electrons, muons, photons);
   
-  //t=clock();
-  //std::cout << "Time elapsed T7: " << double(diffclock(t,begin)) << " ms"<< std::endl;
-
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T7: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+    std::cout << "Mem7: " << memory_usage() << std::endl;
+  }
   
   //ECAL CLUSTERS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: ecalclusters" << std::endl;
   if (doEcal)
     ecalclusters->analyze(iEvent, iSetup);
   
-  //t=clock();
-  //std::cout << "Time elapsed T8: " << double(diffclock(t,begin)) << " ms"<< std::endl;
-
-
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T8: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+    std::cout << "Mem8: " << memory_usage() << std::endl;
+  }
+  
   //HCAL HITS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: hcalhits" << std::endl;
   if (doHcal)
@@ -358,9 +407,11 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doCaloTower)
     calotowers->analyze(iEvent, iSetup);
   
-  //t=clock();
-  //std::cout << "Time elapsed T9: " << double(diffclock(t,begin)) << " ms"<< std::endl;
-
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T9: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+    std::cout << "Mem9: " << memory_usage() << std::endl;
+  }
 
   //VERTEX
   if(debug_level > 2) std::cout << "GlobeAnalyzer: vertex_std" << std::endl;
@@ -371,8 +422,11 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doVertices_nobs) 
     vertex_nobs->analyze(iEvent, iSetup);
 
-  //t=clock();
-  //std::cout << "Time elapsed T10: " << double(diffclock(t,begin)) << " ms"<< std::endl;
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T10: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+    std::cout << "Mem10: " << memory_usage() << std::endl;
+  }
 
   //MET
   if(debug_level > 2) std::cout << "GlobeAnalyzer: met" << std::endl;
@@ -396,9 +450,11 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doGenJetAlgo3)
     algo3_genJets->analyze(iEvent, iSetup);
 
-  //t=clock();
-  //std::cout << "Time elapsed T11: " << double(diffclock(t,begin)) << " ms"<< std::endl;
-
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T11: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+    std::cout << "Mem11: " << memory_usage() << std::endl;
+  }
 
   //JETS
   if(debug_level > 2) std::cout << "GlobeAnalyzer: algo1_jets" << std::endl;
@@ -423,8 +479,11 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (doJetAlgoPF3)
     algoPF3_jets->analyze(iEvent, iSetup);
 
-  //t=clock();
-  //std::cout << "Time elapsed T12: " << double(diffclock(t,begin)) << " ms"<< std::endl;
+  if (TIMINGDEBUG) {
+    t=clock();
+    std::cout << "Time elapsed T12: " << double(diffclock1(t,begin)) << " ms"<< std::endl;
+    std::cout << "Mem12: " << memory_usage() << std::endl;
+  }
 
   //HT
   //if (doHt) {
@@ -496,6 +555,13 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     
     // fill the tree
     tree->Fill();
+    nProcessedEvents++;
+  }
+
+  if (nProcessedEvents % 50 == 0) {
+    file->cd();
+    tree->Write(0, TObject::kWriteDelete);
+    nProcessedEvents = 0;
   }
 
   if(debug_level > 9) std::cout << "GlobeAnalyzer: End" << std::endl;
@@ -643,8 +709,8 @@ void GlobeAnalyzer::endJob() {
     h->Write();  
   }
 
-  tree->Write();
-  tree2->Write();
+  tree->Write(0, TObject::kWriteDelete);
+  tree2->Write(0, TObject::kWriteDelete);
   lumitree->Write();
 
   file->Close();

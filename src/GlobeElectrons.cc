@@ -640,7 +640,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   const CaloGeometry& geometry = *geoHandle;
   const CaloSubdetectorGeometry *geometryES = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   CaloSubdetectorTopology *topology_p = 0;
-  if (geometryES) topology_p = new EcalPreshowerTopology(geoHandle);
+  if (geometryES) 
+    topology_p = new EcalPreshowerTopology(geoHandle);
 
   EcalClusterLazyTools ecalLazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);
   edm::Handle<EcalRecHitCollection> ESRecHits;
@@ -1083,6 +1084,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_n++;
   } // end of loop over electrons (reco::GsfElectronCollection)
 
+
+  delete topology_p;
   return true;
 }
 

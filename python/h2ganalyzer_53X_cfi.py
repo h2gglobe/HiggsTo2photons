@@ -143,7 +143,7 @@ h2ganalyzer = cms.EDAnalyzer(
     JetCorrectionMC_algoPF3   = cms.untracked.string("ak5PFchsL1FastL2L3"),
     JetCorrectionData_algoPF3 = cms.untracked.string("ak5PFchsL1FastL2L3Residual"),
 
-    JetVertexToProcess = cms.uint32(10),
+    JetVertexToProcess = cms.uint32(5),
     JetColl_algo1 = cms.InputTag("ak5CaloJets"),
     JetColl_algo2 = cms.InputTag("ak7CaloJets"),
     JetColl_algo3 = cms.InputTag("kt4CaloJets"),
@@ -338,7 +338,7 @@ h2ganalyzer = cms.EDAnalyzer(
     doJet_algo2 = cms.bool(False),
     doJet_algo3 = cms.bool(False),
     doJet_algoPF1 = cms.bool(True),
-    doJet_algoPF2 = cms.bool(True),
+    doJet_algoPF2 = cms.bool(False),
     doJet_algoPF3 = cms.bool(True),
 
     doPFCandidates = cms.bool(True),
