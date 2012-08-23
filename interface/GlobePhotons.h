@@ -144,12 +144,20 @@ class GlobePhotons {
   Float_t pho_e2nd[MAX_PHOTONS];
   Float_t pho_e2x5right[MAX_PHOTONS];
   Float_t pho_e2x5left[MAX_PHOTONS];
-  Float_t pho_e2x5Top[MAX_PHOTONS];
+  Float_t pho_e2x5top[MAX_PHOTONS];
+  Float_t pho_e2x5max[MAX_PHOTONS];
   Float_t pho_e2x5bottom[MAX_PHOTONS];
   Float_t pho_eright[MAX_PHOTONS];
   Float_t pho_eleft[MAX_PHOTONS];
   Float_t pho_etop[MAX_PHOTONS];
   Float_t pho_ebottom[MAX_PHOTONS];
+
+  Int_t pho_bieta[MAX_PHOTONS];
+  Int_t pho_biphi[MAX_PHOTONS];
+  Float_t pho_betacry[MAX_PHOTONS];
+  Float_t pho_bphicry[MAX_PHOTONS];
+  Float_t pho_bthetatilt[MAX_PHOTONS];
+  Float_t pho_bphitilt[MAX_PHOTONS];
 
   Float_t pho_pfconvVtxZ[MAX_PHOTONS];
   Float_t pho_pfconvVtxZErr[MAX_PHOTONS];
