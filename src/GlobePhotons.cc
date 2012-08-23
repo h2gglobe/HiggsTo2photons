@@ -3,6 +3,8 @@
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+#include "RecoEgamma/EgammaTools/interface/EcalClusterLocal.h"
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 #include "DataFormats/EgammaCandidates/interface/PhotonPi0DiscriminatorAssociation.h"
@@ -303,7 +305,6 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_pfemaxxtal", &pho_pfemaxxtal, "pho_pfemaxxtal[pho_n]/F");
   tree->Branch("pho_pfe2nd", &pho_pfe2nd, "pho_pfe2nd[pho_n]/F");
 
-
   tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
   tree->Branch("pho_hcal1sumetconedr04",&pho_hcal1sumetconedr04,"pho_hcal1sumetconedr04[pho_n]/F");
@@ -373,15 +374,22 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_zernike42",&pho_zernike42,"pho_zernike42[pho_n]/F");
   tree->Branch("pho_e2nd",&pho_e2nd,"pho_e2nd[pho_n]/F");
   tree->Branch("pho_e5x5",&pho_e5x5,"pho_e5x5[pho_n]/F");
-
   tree->Branch("pho_e2x5right",&pho_e2x5right,"pho_e2x5right[pho_n]/F");
   tree->Branch("pho_e2x5left",&pho_e2x5left,"pho_e2x5left[pho_n]/F");
-  tree->Branch("pho_e2x5Top",&pho_e2x5Top,"pho_e2x5Top[pho_n]/F");
+  tree->Branch("pho_e2x5top",&pho_e2x5top,"pho_e2x5top[pho_n]/F");
   tree->Branch("pho_e2x5bottom",&pho_e2x5bottom,"pho_e2x5bottom[pho_n]/F");
+  tree->Branch("pho_e2x5max",&pho_e2x5max,"pho_e2x5max[pho_n]/F");
   tree->Branch("pho_eright",&pho_eright,"pho_eright[pho_n]/F");
   tree->Branch("pho_eleft",&pho_eleft,"pho_eleft[pho_n]/F");
   tree->Branch("pho_etop",&pho_etop,"pho_etop[pho_n]/F");
   tree->Branch("pho_ebottom",&pho_ebottom,"pho_ebottom[pho_n]/F");
+
+  tree->Branch("pho_biphi",&pho_biphi,"pho_biphi[pho_n]/I");
+  tree->Branch("pho_bieta",&pho_bieta,"pho_bieta[pho_n]/I");
+  tree->Branch("pho_betacry",&pho_betacry,"pho_betacry[pho_n]/F");
+  tree->Branch("pho_phicry",&pho_bphicry,"pho_bphicry[pho_n]/F");
+  tree->Branch("pho_bthetatilt",&pho_bthetatilt,"pho_bthetatilt[pho_n]/F");
+  tree->Branch("pho_bphitilt",&pho_bphitilt,"pho_bphitilt[pho_n]/F");
 
   //tree->Branch("pho_e2overe9",&pho_e2overe9,"pho_e2overe9[pho_n]/F");
   tree->Branch("pho_seed_severity",&pho_seed_severity,"pho_seed_severity[pho_n]/F");
@@ -397,9 +405,9 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_regr_energy", &pho_regr_energy, "pho_regr_energy[pho_n]/F");
   tree->Branch("pho_regr_energyerr", &pho_regr_energyerr, "pho_regr_energyerr[pho_n]/F");
 
-  tree->Branch("pho_id_4cat", &pho_id_4cat, "pho_id_4cat[pho_n][100]/I");
-  tree->Branch("pho_id_6cat", &pho_id_6cat, "pho_id_6cat[pho_n][100]/I");  
-  tree->Branch("pho_id_6catpf", &pho_id_6catpf, "pho_id_6catpf[pho_n][100]/I");
+  //tree->Branch("pho_id_4cat", &pho_id_4cat, "pho_id_4cat[pho_n][100]/I");
+  //tree->Branch("pho_id_6cat", &pho_id_6cat, "pho_id_6cat[pho_n][100]/I");  
+  //tree->Branch("pho_id_6catpf", &pho_id_6catpf, "pho_id_6catpf[pho_n][100]/I");
    
   pho_conv_vtx = new TClonesArray("TVector3", MAX_PHOTONS);
   tree->Branch("pho_conv_vtx", "TClonesArray", &pho_conv_vtx, 32000, 0);
@@ -947,13 +955,26 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_e2nd[pho_n] = lazyTool.e2nd(*seed_clu);
     pho_e2x5right[pho_n] = lazyTool.e2x5Right(*seed_clu);
     pho_e2x5left[pho_n] = lazyTool.e2x5Left(*seed_clu);
-    pho_e2x5Top[pho_n] = lazyTool.e2x5Top(*seed_clu);
+    pho_e2x5top[pho_n] = lazyTool.e2x5Top(*seed_clu);
     pho_e2x5bottom[pho_n] = lazyTool.e2x5Bottom(*seed_clu);
+    pho_e2x5max[pho_n] = lazyTool.e2x5Max(*seed_clu);
     pho_eright[pho_n] = lazyTool.eRight(*seed_clu);
     pho_eleft[pho_n] = lazyTool.eLeft(*seed_clu);
     pho_etop[pho_n] = lazyTool.eTop(*seed_clu);
     pho_ebottom[pho_n] = lazyTool.eBottom(*seed_clu);
 
+    if (seed_clu->hitsAndFractions().at(0).first.subdetId() == EcalBarrel) {
+      EcalClusterLocal _ecalLocal;
+      _ecalLocal.localCoordsEB(*seed_clu, iSetup, pho_betacry[pho_n], pho_bphicry[pho_n], pho_bieta[pho_n], pho_biphi[pho_n], pho_bthetatilt[pho_n], pho_bphitilt[pho_n]);
+    } else {
+      pho_betacry[pho_n] = -999;
+      pho_bphicry[pho_n] = -999;
+      pho_bieta[pho_n] = -999;
+      pho_biphi[pho_n] = -999;
+      pho_bthetatilt[pho_n] = -999;
+      pho_bphitilt[pho_n] = -999;
+      
+    }
     // NN variables
     pho_r19[pho_n]            = lazyTool.eMax(*seed_clu)/pho_e3x3[pho_n];
     pho_maxoraw[pho_n]        = lazyTool.eMax(*seed_clu)/localPho->superCluster()->rawEnergy();
