@@ -558,9 +558,9 @@ void GlobeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     nProcessedEvents++;
   }
 
-  if (nProcessedEvents % 50 == 0) {
+  if (nProcessedEvents % 500 == 0) {
     file->cd();
-    tree->Write(0, TObject::kWriteDelete);
+    tree->AutoSave();
     nProcessedEvents = 0;
   }
 

@@ -224,7 +224,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<reco::VertexCollection> vtxH;
     iEvent.getByLabel(vertexColl, vtxH);
     
-    jet_p4->Clear();
+    jet_p4->Delete();
     jet_tkind->clear();
     jet_calotwind->clear();
 
@@ -316,7 +316,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<reco::VertexCollection> vtxH;
     iEvent.getByLabel(vertexColl, vtxH);
     
-    jet_p4->Clear();
+    jet_p4->Delete();
     jet_tkind->clear();
     jet_calotwind->clear();
 
@@ -360,15 +360,18 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       reco::PFJetRef j(pfjetH, i);
       
       // apply the cuts
-      if (gCUT->cut(*j)) continue;
+      if (gCUT->cut(*j)) 
+	continue;
       // passed cuts
       
       reco::PFJet* correctedJet = (reco::PFJet*) j->clone();
       
       if (pfak5corr!="") {
-	      const JetCorrector* corrector = JetCorrector::getJetCorrector(pfak5corr, iSetup);
+	const JetCorrector* corrector = JetCorrector::getJetCorrector(pfak5corr, iSetup);
         edm::RefToBase<reco::Jet> jetRef(edm::Ref<reco::PFJetCollection>(pfjetH, i));
         jet_erescale[jet_n] = corrector->correction(*j, iEvent, iSetup);
+	//delete corrector;
+	
       } else {
         jet_erescale[jet_n] = 1;
       }
@@ -443,8 +446,9 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    (*wp_levels_ext_[imva])[jet_n][vtx] = id.idFlag();
 	  }
 	}
-	
       }
+
+      delete correctedJet;
 
       float dy = 0;
       float dphi = 0;
