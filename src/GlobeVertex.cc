@@ -105,7 +105,7 @@ bool GlobeVertex::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   bs_z0Error = bsH->z0Error();
   bs_sigmaZ0Error = bsH->sigmaZ0Error();
 
-  //if (debug_level > 9)
+  if (debug_level > 9)
     std::cout << "GlobeVertex: Vertex collection size: "<< vtxH->size() << std::endl;
   
   for(unsigned int i=0; i<vtxH->size(); i++) {
