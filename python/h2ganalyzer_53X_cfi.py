@@ -143,7 +143,7 @@ h2ganalyzer = cms.EDAnalyzer(
     JetCorrectionMC_algoPF3   = cms.untracked.string("ak5PFchsL1FastL2L3"),
     JetCorrectionData_algoPF3 = cms.untracked.string("ak5PFchsL1FastL2L3Residual"),
 
-    JetVertexToProcess = cms.uint32(5),
+    JetVertexToProcess = cms.uint32(10),
     JetColl_algo1 = cms.InputTag("ak5CaloJets"),
     JetColl_algo2 = cms.InputTag("ak7CaloJets"),
     JetColl_algo3 = cms.InputTag("kt4CaloJets"),
