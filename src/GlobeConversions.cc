@@ -178,7 +178,8 @@ bool GlobeConversions::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     reco::Conversion localConv = reco::Conversion(*iConv);
 
-    if(gCUT->cut(localConv)) continue;
+    if(gCUT->cut(localConv)) 
+      continue;
 
     new ((*conv_p4)[conv_n]) TLorentzVector();
     new ((*conv_vtx)[conv_n]) TVector3();

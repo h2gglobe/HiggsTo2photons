@@ -29,6 +29,7 @@
 <use name="heppdt"/>
 <use name="root"/>
 <use name="boost"/>
+#<flags CXXFLAGS="-O0 -g3 -fno-inline"></flags>
 <export>
 <lib name = "1"/>
 </export>
