@@ -15,6 +15,8 @@
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include "DataFormats/BTauReco/interface/JetTag.h"
+
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include <iostream>
 
@@ -122,7 +124,7 @@ void GlobeJets::defineBranch(TTree* tree) {
   tree->Branch(a1, &jet_frac07, a2);
 
   sprintf(a1, "jet_%s_nNeutrals", nome);
-  sprintf(a2, "jet_%s_nNeutrals[jet_%s_n]/F", nome, nome);
+  sprintf(a2, "jet_%s_nNeutrals[jet_%s_n]/I", nome, nome);
   tree->Branch(a1, &jet_nNeutrals, a2);
 
   sprintf(a1, "jet_%s_beta", nome);
@@ -138,8 +140,73 @@ void GlobeJets::defineBranch(TTree* tree) {
   tree->Branch(a1, &jet_dZ, a2);
 
   sprintf(a1, "jet_%s_nCharged", nome);
-  sprintf(a2, "jet_%s_nCharged[jet_%s_n]/F", nome, nome);
+  sprintf(a2, "jet_%s_nCharged[jet_%s_n]/I", nome, nome);
   tree->Branch(a1, &jet_nCharged, a2);
+
+  sprintf(a1, "jet_%s_rmsCand", nome);
+  sprintf(a2, "jet_%s_rmsCand[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_rmsCand, a2);
+
+  sprintf(a1, "jet_%s_ptD", nome);
+  sprintf(a2, "jet_%s_ptD[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_ptD, a2);
+
+  sprintf(a1, "jet_%s_axis1", nome);
+  sprintf(a2, "jet_%s_axis1[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_axis1, a2);
+
+  sprintf(a1, "jet_%s_axis2", nome);
+  sprintf(a2, "jet_%s_axis2[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_axis2, a2);
+
+  sprintf(a1, "jet_%s_pull", nome);
+  sprintf(a2, "jet_%s_pull[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_pull, a2);
+
+  sprintf(a1, "jet_%s_tana", nome);
+  sprintf(a2, "jet_%s_tana[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_tana, a2);
+
+  sprintf(a1, "jet_%s_rmsCand_QC", nome);
+  sprintf(a2, "jet_%s_rmsCand_QC[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_rmsCand_QC, a2);
+
+  sprintf(a1, "jet_%s_ptD_QC", nome);
+  sprintf(a2, "jet_%s_ptD_QC[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_ptD_QC, a2);
+
+  sprintf(a1, "jet_%s_axis1_QC", nome);
+  sprintf(a2, "jet_%s_axis1_QC[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_axis1_QC, a2);
+
+  sprintf(a1, "jet_%s_axis2_QC", nome);
+  sprintf(a2, "jet_%s_axis2_QC[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_axis2_QC, a2);
+
+  sprintf(a1, "jet_%s_pull_QC", nome);
+  sprintf(a2, "jet_%s_pull_QC[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_pull_QC, a2);
+
+  sprintf(a1, "jet_%s_tana_QC", nome);
+  sprintf(a2, "jet_%s_tana_QC[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_tana_QC, a2);
+
+  sprintf(a1, "jet_%s_Rchg", nome);
+  sprintf(a2, "jet_%s_Rchg[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_Rchg, a2);
+
+  sprintf(a1, "jet_%s_Rneutral", nome);
+  sprintf(a2, "jet_%s_Rneutral[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_Rneutral, a2);
+
+  sprintf(a1, "jet_%s_R", nome);
+  sprintf(a2, "jet_%s_R[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_R, a2);
+
+  sprintf(a1, "jet_%s_Rchg_QC", nome);
+  sprintf(a2, "jet_%s_Rchg_QC[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_Rchg_QC, a2);
+
 
   sprintf(a1, "jet_%s_dR2Mean", nome);
   sprintf(a2, "jet_%s_dR2Mean[jet_%s_n]/F", nome, nome);
@@ -163,6 +230,23 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a1, "jet_%s_pfloose", nome);
   sprintf(a2, "jet_%s_pfloose[jet_%s_n]/O", nome, nome);
   tree->Branch(a1, &jet_pfloose, a2);
+
+  sprintf(a1, "jet_%s_csvBtag", nome);
+  sprintf(a2, "jet_%s_csvBtag[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_csvBtag, a2);
+
+  sprintf(a1, "jet_%s_csvMvaBtag", nome);
+  sprintf(a2, "jet_%s_csvMvaBtag[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_csvMvaBtag, a2);
+
+  sprintf(a1, "jet_%s_jetProbBtag", nome);
+  sprintf(a2, "jet_%s_jetProbBtag[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_jetProbBtag, a2);
+
+  sprintf(a1, "jet_%s_tcheBtag", nome);
+  sprintf(a2, "jet_%s_tcheBtag[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_tcheBtag, a2);
+
  
   for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
     
@@ -316,6 +400,31 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<reco::VertexCollection> vtxH;
     iEvent.getByLabel(vertexColl, vtxH);
     
+    edm::Handle<reco::JetTagCollection> combinedSecondaryVertexBJetTags;
+    if( strnome=="algoPF1" )
+      iEvent.getByLabel("newPFCombinedSecondaryVertexBPFJetTags", combinedSecondaryVertexBJetTags);
+    else
+      iEvent.getByLabel("newPFchsCombinedSecondaryVertexBPFJetTags", combinedSecondaryVertexBJetTags);
+    
+    edm::Handle<reco::JetTagCollection> combinedSecondaryVertexMVABJetTags;
+    if( strnome=="algoPF1" )
+      iEvent.getByLabel("newPFCombinedSecondaryVertexMVABPFJetTags", combinedSecondaryVertexMVABJetTags);
+    else
+      iEvent.getByLabel("newPFchsCombinedSecondaryVertexMVABPFJetTags", combinedSecondaryVertexMVABJetTags);
+    
+    edm::Handle<reco::JetTagCollection> jetProbabilityBJetTags;
+    if( strnome=="algoPF1" )
+      iEvent.getByLabel("newPFJetProbabilityBPFJetTags", jetProbabilityBJetTags);
+    else
+      iEvent.getByLabel("newPFchsJetProbabilityBPFJetTags", jetProbabilityBJetTags);
+    
+    edm::Handle<reco::JetTagCollection> trackCountingHighEffBJetTags;
+    if( strnome=="algoPF1" )
+      iEvent.getByLabel("newPFTrackCountingHighEffBJetTags", trackCountingHighEffBJetTags);
+    else
+      iEvent.getByLabel("newPFchsTrackCountingHighEffBJetTags", trackCountingHighEffBJetTags);
+
+    
     jet_p4->Delete();
     jet_tkind->clear();
     jet_calotwind->clear();
@@ -454,26 +563,94 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       float dphi = 0;
       float dy_i = 0;
       float dphi_i = 0;
+      float deta_i = 0;
       float y_i = 0;
       float phi_i = 0;
+      float eta_i = 0;
       float dr_i = 0;
       float pt_i = 0;
       
       float pt_jt = j->pt();
       float y_jt = j->rapidity();
       float phi_jt = j->phi();
+      float eta_jt = j->eta();
       unsigned int nCand = j->getPFConstituents().size();
       
+      
+      // Quark-Gluon discrimination variable computation --- BEGIN
+
       jet_pull_dy[jet_n]   = 0;
       jet_pull_dphi[jet_n] = 0;
+
+      jet_ptD[jet_n] = -1.;
+      jet_rmsCand[jet_n] = -1.;
+      jet_axis1[jet_n] = -1.;
+      jet_axis2[jet_n] = -1.;
+      jet_pull[jet_n] = -1.;
+      jet_tana[jet_n] = -1.;
+
+      jet_ptD_QC[jet_n] = -1.;
+      jet_rmsCand_QC[jet_n] = -1.;
+      jet_axis1_QC[jet_n] = -1.;
+      jet_axis2_QC[jet_n] = -1.;
+      jet_pull_QC[jet_n] = -1.;
+      jet_tana_QC[jet_n] = -1.;
+
+      jet_Rchg[jet_n] = -1.;
+      jet_Rneutral[jet_n] = -1.;
+      jet_R[jet_n] = -1.;
+      jet_Rchg_QC[jet_n] = -1.;
+
+      //float rmsCand=  -999.;
+      //float ptD=      -999.;
+      //float axis1=    -999.;
+      //float axis2=    -999.;
+      //float pull=     -999.;
+      //float tana =    -999.;
+      //float rmsCand_QC=  -999.;
+      //float ptD_QC=      -999.;
+      //float axis1_QC=    -999.;
+      //float axis2_QC=    -999.;
+      //float pull_QC=     -999.;
+      //float tana_QC =    -999.;
       
+      float SumW=0;
+      float SumW2=0;
+      float SumDeta=0;
+      float SumDeta2=0;
+      float SumDphi=0;
+      float SumDphi2=0;
+      float SumDetaDphi=0;
+      
+      float SumW_QC=0;
+      float SumW2_QC=0;
+      float SumDeta_QC=0;
+      float SumDeta2_QC=0;
+      float SumDphi_QC=0;
+      float SumDphi2_QC=0;
+      float SumDetaDphi_QC=0;
+
+      float pTMax(0.0),pTMaxChg(0.0),pTMaxNeutral(0.0),pTMaxChg_QC(0.0);
+      
+      std::vector<bool> jetPart_forMult,jetPart_forAxis;
+
+      
+      
+      // first loop on cands
+
       for(unsigned int c=0; c<nCand; c++) {
+
+
         reco::PFCandidatePtr iCand = j->getPFConstituent(c);
         y_i = iCand->rapidity(); //iCand rapidity
         dy_i = y_i - y_jt;
+
+        eta_i = iCand->eta(); //iCand rapidity
+        deta_i = eta_i - eta_jt;
         
         phi_i = iCand->phi(); //iCand phi
         dphi_i = phi_i - phi_jt;
+        double dphi_i_wrap = 2*atan(tan((phi_i-phi_jt)/2));      
         
         dr_i=sqrt(dy_i*dy_i + phi_i*phi_i);
         
@@ -481,10 +658,192 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         
         dy += pt_i*dr_i/pt_jt*dy_i;
         dphi += pt_i*dr_i/pt_jt*dphi_i;
+
+
+        reco::TrackRef itrk ;
+        if (iCand.isNonnull())
+          itrk = (*iCand).trackRef();
+        if (pt_i > pTMax) 
+          pTMax = pt_i;
+        if (itrk.isNonnull() && pt_i > pTMaxChg) 
+          pTMaxChg = pt_i;
+        if (!itrk.isNonnull() && pt_i > pTMaxNeutral) 
+          pTMaxNeutral = pt_i;
+
+        
+        bool trkForAxis = false;
+        bool trkForMult = false;
+        
+        //-----matching with vertex tracks-------
+        if (!itrk.isNonnull()) { 
+          trkForMult = true;
+          trkForAxis = true;
+        }
+        else {
+          float dZmin = 999;
+          int index_min = 999;
+          reco::VertexCollection::const_iterator vtxClose;
+          for(unsigned ivtx = 0;ivtx < n_vtx;ivtx++) {
+            float dZ_cut = fabs(itrk->dz((*vtxH)[ivtx].position()));
+            float sumpT = 0;
+            for(reco::Vertex::trackRef_iterator itk = (*vtxH)[ivtx].tracks_begin();itk!=(*vtxH)[ivtx].tracks_end(); ++itk) {
+              sumpT = sumpT + ((*itk)->pt())*((*itk)->pt());
+            }
+            if (dZ_cut < dZmin) {
+              dZmin = dZ_cut;
+              index_min = ivtx;
+            }
+          }//Loop over vertices 
+
+          if (index_min == 0) {
+            float dz = itrk->dz((*vtxH)[0].position());
+            float d0 = itrk->dxy((*vtxH)[0].position());
+            float vtx_xError = (*vtxH)[0].xError();
+            float vtx_yError = (*vtxH)[0].yError();
+            float vtx_zError = (*vtxH)[0].zError();
+            float d0_sigma=sqrt(pow(itrk->d0Error(),2) + pow(vtx_xError,2) + pow(vtx_yError,2));
+            float dz_sigma=sqrt(pow(itrk->dzError(),2) + pow(vtx_zError,2));
+            if (itrk->quality(reco::TrackBase::qualityByName("highPurity")) && fabs(dz/dz_sigma) < 5.) {
+              trkForAxis = true;
+              if (fabs(d0/d0_sigma) < 5.)
+                trkForMult = true;
+            }
+          }
+          if (pt_i > pTMaxChg_QC && trkForAxis)  
+            pTMaxChg_QC = pt_i;
+        }// for charged particles only
+
+
+        jetPart_forMult.push_back(trkForMult);
+        jetPart_forAxis.push_back(trkForAxis);
+    
+        SumW+=pt_i;
+        SumW2+=pt_i*pt_i;
+        SumDeta+=pt_i*pt_i*deta_i;
+        SumDeta2+=pt_i*pt_i*deta_i*deta_i;
+        SumDphi+=pt_i*pt_i*dphi_i_wrap;
+        SumDphi2+=pt_i*pt_i*dphi_i_wrap*dphi_i_wrap;
+        SumDetaDphi+=pt_i*pt_i*deta_i*dphi_i_wrap;
+        if (trkForAxis) {
+          SumW_QC+=pt_i;
+          SumW2_QC+=pt_i*pt_i;
+          SumDeta_QC+=pt_i*pt_i*deta_i;
+          SumDeta2_QC+=pt_i*pt_i*deta_i*deta_i;
+          SumDphi_QC+=pt_i*pt_i*dphi_i_wrap;
+          SumDphi2_QC+=pt_i*pt_i*dphi_i_wrap*dphi_i_wrap;
+          SumDetaDphi_QC+=pt_i*pt_i*deta_i*dphi_i_wrap;
+        }
+
+      } //first loop on PFCandidates
+
+
+      float ave_deta = SumDeta/SumW2;
+      float ave_dphi = SumDphi/SumW2;
+      float ave_deta2 = SumDeta2/SumW2;
+      float ave_dphi2 = SumDphi2/SumW2;
+      float a = ave_deta2-ave_deta*ave_deta;
+      float b = ave_dphi2-ave_dphi*ave_dphi;
+      float c = -(SumDetaDphi/SumW2-ave_deta*ave_dphi);
+      float delta = sqrt(fabs((a-b)*(a-b)+4*c*c));
+      if (a+b+delta >= 0) {
+        jet_axis1[jet_n] = sqrt(0.5*(a+b+delta));
       }
+      if (a+b-delta >= 0) {  
+        jet_axis2[jet_n] = sqrt(0.5*(a+b-delta));
+      }
+      if (c != 0) {
+        jet_tana[jet_n] = 0.5*(b-a+delta)/c;
+      }
+
+      jet_ptD[jet_n] = sqrt( SumW2/ (SumW*SumW));
+
+
+      float ave_deta_QC = SumDeta_QC/SumW2_QC;
+      float ave_dphi_QC = SumDphi_QC/SumW2_QC;
+      float ave_deta2_QC = SumDeta2_QC/SumW2_QC;
+      float ave_dphi2_QC = SumDphi2_QC/SumW2_QC;
+      float a_QC = ave_deta2_QC-ave_deta_QC*ave_deta_QC;
+      float b_QC = ave_dphi2_QC-ave_dphi_QC*ave_dphi_QC;
+      float c_QC = -(SumDetaDphi_QC/SumW2_QC-ave_deta_QC*ave_dphi_QC);
+      float delta_QC = sqrt(fabs((a_QC-b_QC)*(a_QC-b_QC)+4*c_QC*c_QC));
+      if (a_QC+b_QC+delta_QC >= 0) {
+        jet_axis1_QC[jet_n] = sqrt(0.5*(a_QC+b_QC+delta_QC));
+      }
+      if (a_QC+b_QC-delta_QC >= 0) {  
+        jet_axis2_QC[jet_n] = sqrt(0.5*(a_QC+b_QC-delta_QC));
+      }
+      if (c != 0) {
+        jet_tana_QC[jet_n] = 0.5*(b-a+delta)/c;
+      }
+
+      jet_ptD_QC[jet_n] = sqrt( SumW2_QC/ (SumW_QC*SumW_QC));
+
+
+
+      //-------second loop to calculate higher moments
+
+      float ddetaR_sum(0.0), ddphiR_sum(0.0),ddetaR_sum_QC(0.0), ddphiR_sum_QC(0.0);
+      float sum_ddR = 0.;
+      float sum_ddR_QC = 0.;
+
+      for(int icand=0; icand<j->nConstituents(); ++icand) {
+
+        double pt=j->getJetConstituentsQuick()[icand]->pt();
+        double eta=j->getJetConstituentsQuick()[icand]->eta();
+        double phi=j->getJetConstituentsQuick()[icand]->phi();
+        double dphi = 2*atan(tan((phi-phi_jt)/2));      
+        double deta = eta-eta_jt;
+        float weight = pt*pt;
+        float ddeta, ddphi,ddR;
+        ddeta = deta - ave_deta ;
+        ddphi = 2*atan(tan(( dphi - ave_dphi)/2.)) ;
+        ddR = sqrt(ddeta*ddeta + ddphi*ddphi);
+        sum_ddR += ddR *ddR* weight;
+        ddetaR_sum += ddR*ddeta*weight;
+        ddphiR_sum += ddR*ddphi*weight;
+        if (jetPart_forAxis[icand]) { 
+          float ddeta_QC = deta - ave_deta_QC ;
+          float ddphi_QC = 2*atan(tan(( dphi - ave_dphi_QC)/2.)) ;
+          float ddR_QC = sqrt(ddeta_QC*ddeta_QC + ddphi_QC*ddphi_QC);
+          sum_ddR_QC += ddR_QC *ddR_QC* weight;
+          ddetaR_sum_QC += ddR_QC*ddeta_QC*weight;
+          ddphiR_sum_QC += ddR_QC*ddphi_QC*weight;
+        }
+     
+      }//second loop over constituents  
+
+
+
+      if (SumW2 > 0) {
+        float ddetaR_ave = ddetaR_sum/SumW2;
+        float ddphiR_ave = ddphiR_sum/SumW2;
+        jet_pull[jet_n] = sqrt(ddetaR_ave*ddetaR_ave+ddphiR_ave*ddphiR_ave);
+      }
+
+      if (SumW2_QC > 0) {
+        float ddetaR_ave_QC = ddetaR_sum_QC/SumW2_QC;
+        float ddphiR_ave_QC = ddphiR_sum_QC/SumW2_QC;
+        jet_pull_QC[jet_n] = sqrt(ddetaR_ave_QC*ddetaR_ave_QC+ddphiR_ave_QC*ddphiR_ave_QC);
+      }
+
+
+      jet_rmsCand[jet_n] = sqrt( sum_ddR / SumW2);
+      jet_rmsCand_QC[jet_n] = sqrt( sum_ddR_QC / SumW2_QC);
+
+      jet_Rchg[jet_n] = pTMaxChg/SumW;
+      jet_Rneutral[jet_n] = pTMaxNeutral/SumW;
+      jet_R[jet_n] = pTMax/SumW;
+      jet_Rchg_QC[jet_n] = pTMaxChg_QC/SumW_QC;
+
+
       
       jet_pull_dy[jet_n]   = dy;
       jet_pull_dphi[jet_n] = dphi;
+
+
+      // Quark-Gluon discrimination variable computation --- END
+
+
 
       std::vector<unsigned short> temp;       
       reco::TrackRefVector tracks = j->getTrackRefs();
@@ -501,6 +860,14 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
       }
       jet_tkind->push_back(temp);
+
+
+      // btags:
+      jet_csvBtag    [jet_n] =  (*combinedSecondaryVertexBJetTags)[i].second ;
+      jet_csvMvaBtag [jet_n] =  (*combinedSecondaryVertexMVABJetTags)[i].second ;
+      jet_jetProbBtag[jet_n] =  (*jetProbabilityBJetTags)[i].second ;
+      jet_tcheBtag   [jet_n] =  (*trackCountingHighEffBJetTags)[i].second ;
+
       
       jet_n++;
       
