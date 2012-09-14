@@ -26,6 +26,7 @@
 <use name="JetMETCorrections/Objects"/>
 <use name="CMGTools/External"/>
 <use name="TrackingTools/IPTools"/>
+<use name="DataFormats/BTauReco"/>
 <use name="heppdt"/>
 <use name="root"/>
 <use name="boost"/>

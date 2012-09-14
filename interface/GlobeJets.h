@@ -49,11 +49,11 @@ class GlobeJets {
   Float_t jet_frac05[MAX_JETS];
   Float_t jet_frac06[MAX_JETS];
   Float_t jet_frac07[MAX_JETS];
-  Float_t jet_nNeutrals[MAX_JETS];
+  Int_t jet_nNeutrals[MAX_JETS];
   Float_t jet_beta[MAX_JETS];
   Float_t jet_betaStar[MAX_JETS];
   Float_t jet_dZ[MAX_JETS];
-  Float_t jet_nCharged[MAX_JETS];
+  Int_t jet_nCharged[MAX_JETS];
   Float_t jet_dR2Mean[MAX_JETS];
   Float_t jet_betaStarClassic[MAX_JETS];
   std::vector<std::vector<float> > jet_beta_ext;
@@ -61,6 +61,34 @@ class GlobeJets {
   std::vector<std::vector<float> > jet_betaStarClassic_ext;
   
   Bool_t jet_pfloose[MAX_JETS];
+
+
+  // quark-gluon discrimination:
+  Float_t jet_rmsCand[MAX_JETS];
+  Float_t jet_ptD[MAX_JETS];
+  Float_t jet_axis1[MAX_JETS];
+  Float_t jet_axis2[MAX_JETS];
+  Float_t jet_pull[MAX_JETS];
+  Float_t jet_tana[MAX_JETS];
+  Float_t jet_rmsCand_QC[MAX_JETS];
+  Float_t jet_ptD_QC[MAX_JETS];
+  Float_t jet_axis1_QC[MAX_JETS];
+  Float_t jet_axis2_QC[MAX_JETS];
+  Float_t jet_pull_QC[MAX_JETS];
+  Float_t jet_tana_QC[MAX_JETS];
+
+  Float_t jet_Rchg[MAX_JETS];
+  Float_t jet_Rneutral[MAX_JETS];
+  Float_t jet_R[MAX_JETS];
+  Float_t jet_Rchg_QC[MAX_JETS];
+
+      
+  // btags:
+  Float_t jet_csvBtag[MAX_JETS];
+  Float_t jet_csvMvaBtag[MAX_JETS];
+  Float_t jet_jetProbBtag[MAX_JETS];
+  Float_t jet_tcheBtag[MAX_JETS];
+
 
   Int_t jet_ntk[MAX_JETS];
   Int_t jet_ncalotw[MAX_JETS];

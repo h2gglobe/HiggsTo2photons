@@ -303,10 +303,137 @@ process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
 
 
 #################################################
+# B-Tagging Modules                             #
+#################################################
+
+from RecoJets.JetAssociationProducers.ak5JTA_cff import *
+from RecoBTag.Configuration.RecoBTag_cff import *
+
+# for standard pfjets:
+import RecoJets.JetAssociationProducers.ak5JTA_cff
+process.newPFJetTracksAssociatorAtVertex = RecoJets.JetAssociationProducers.ak5JTA_cff.ak5JetTracksAssociatorAtVertex.clone()
+process.newPFJetTracksAssociatorAtVertex.jets = "ak5PFJets"
+process.newPFJetTracksAssociatorAtVertex.tracks = "generalTracks"
+
+process.newPFImpactParameterTagInfos = RecoBTag.Configuration.RecoBTag_cff.impactParameterTagInfos.clone()
+process.newPFImpactParameterTagInfos.jetTracks = "newPFJetTracksAssociatorAtVertex"
+process.newPFTrackCountingHighEffBJetTags = RecoBTag.Configuration.RecoBTag_cff.trackCountingHighEffBJetTags.clone()
+process.newPFTrackCountingHighEffBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFImpactParameterTagInfos") )
+#process.newPFTrackCountingHighPurBJetTags = RecoBTag.Configuration.RecoBTag_cff.trackCountingHighPurBJetTags.clone()
+#process.newPFTrackCountingHighPurBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFImpactParameterTagInfos") )
+process.newPFJetProbabilityBPFJetTags = RecoBTag.Configuration.RecoBTag_cff.jetProbabilityBJetTags.clone()
+process.newPFJetProbabilityBPFJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFImpactParameterTagInfos") )
+#process.newPFJetBProbabilityBPFJetTags = RecoBTag.Configuration.RecoBTag_cff.jetBProbabilityBJetTags.clone()
+#process.newPFJetBProbabilityBPFJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFImpactParameterTagInfos") )
+
+process.newPFSecondaryVertexTagInfos = RecoBTag.Configuration.RecoBTag_cff.secondaryVertexTagInfos.clone()
+process.newPFSecondaryVertexTagInfos.trackIPTagInfos = "newPFImpactParameterTagInfos"
+#process.newPFSimpleSecondaryVertexHighEffBJetTags = RecoBTag.Configuration.RecoBTag_cff.simpleSecondaryVertexHighEffBJetTags.clone()
+#process.newPFSimpleSecondaryVertexHighEffBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFSecondaryVertexTagInfos") )
+#process.newPFSimpleSecondaryVertexHighPurBJetTags = RecoBTag.Configuration.RecoBTag_cff.simpleSecondaryVertexHighPurBJetTags.clone()
+#process.newPFSimpleSecondaryVertexHighPurBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFSecondaryVertexTagInfos") )
+process.newPFCombinedSecondaryVertexBPFJetTags = RecoBTag.Configuration.RecoBTag_cff.combinedSecondaryVertexBJetTags.clone()
+process.newPFCombinedSecondaryVertexBPFJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFImpactParameterTagInfos"), cms.InputTag("newPFSecondaryVertexTagInfos") )
+process.newPFCombinedSecondaryVertexMVABPFJetTags = RecoBTag.Configuration.RecoBTag_cff.combinedSecondaryVertexMVABJetTags.clone()
+process.newPFCombinedSecondaryVertexMVABPFJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFImpactParameterTagInfos"), cms.InputTag("newPFSecondaryVertexTagInfos") )
+
+process.newPFJetTracksAssociator = cms.Sequence(
+    process.newPFJetTracksAssociatorAtVertex
+    )
+
+process.newPFJetBtaggingIP = cms.Sequence(
+    process.newPFImpactParameterTagInfos * (
+       process.newPFTrackCountingHighEffBJetTags +
+#       process.newPFTrackCountingHighPurBJetTags +
+       process.newPFJetProbabilityBPFJetTags )
+#       process.newPFJetBProbabilityBPFJetTags )
+    )
+
+process.newPFJetBtaggingSV = cms.Sequence(
+    process.newPFImpactParameterTagInfos *
+    process.newPFSecondaryVertexTagInfos * (
+#       process.newPFSimpleSecondaryVertexHighEffBJetTags +
+#       process.newPFSimpleSecondaryVertexHighPurBJetTags +
+       process.newPFCombinedSecondaryVertexBPFJetTags +
+       process.newPFCombinedSecondaryVertexMVABPFJetTags )
+    )
+
+process.newPFJetBtagging = cms.Sequence(
+    process.newPFJetBtaggingIP +
+    process.newPFJetBtaggingSV )
+
+process.newPFBtaggingSequence = cms.Sequence(
+    process.newPFJetTracksAssociator *
+       process.newPFJetBtagging )
+
+
+
+# for chs pfjets:
+import RecoJets.JetAssociationProducers.ak5JTA_cff
+process.newPFchsJetTracksAssociatorAtVertex = RecoJets.JetAssociationProducers.ak5JTA_cff.ak5JetTracksAssociatorAtVertex.clone()
+process.newPFchsJetTracksAssociatorAtVertex.jets = "ak5PFchsJets"
+process.newPFchsJetTracksAssociatorAtVertex.tracks = "generalTracks"
+
+process.newPFchsImpactParameterTagInfos = RecoBTag.Configuration.RecoBTag_cff.impactParameterTagInfos.clone()
+process.newPFchsImpactParameterTagInfos.jetTracks = "newPFchsJetTracksAssociatorAtVertex"
+process.newPFchsTrackCountingHighEffBJetTags = RecoBTag.Configuration.RecoBTag_cff.trackCountingHighEffBJetTags.clone()
+process.newPFchsTrackCountingHighEffBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFchsImpactParameterTagInfos") )
+#process.newPFchsTrackCountingHighPurBJetTags = RecoBTag.Configuration.RecoBTag_cff.trackCountingHighPurBJetTags.clone()
+#process.newPFchsTrackCountingHighPurBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFchsImpactParameterTagInfos") )
+process.newPFchsJetProbabilityBPFJetTags = RecoBTag.Configuration.RecoBTag_cff.jetProbabilityBJetTags.clone()
+process.newPFchsJetProbabilityBPFJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFchsImpactParameterTagInfos") )
+#process.newPFchsJetBProbabilityBPFJetTags = RecoBTag.Configuration.RecoBTag_cff.jetBProbabilityBJetTags.clone()
+#process.newPFchsJetBProbabilityBPFJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFchsImpactParameterTagInfos") )
+
+process.newPFchsSecondaryVertexTagInfos = RecoBTag.Configuration.RecoBTag_cff.secondaryVertexTagInfos.clone()
+process.newPFchsSecondaryVertexTagInfos.trackIPTagInfos = "newPFchsImpactParameterTagInfos"
+#process.newPFchsSimpleSecondaryVertexHighEffBJetTags = RecoBTag.Configuration.RecoBTag_cff.simpleSecondaryVertexHighEffBJetTags.clone()
+#process.newPFchsSimpleSecondaryVertexHighEffBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFchsSecondaryVertexTagInfos") )
+#process.newPFchsSimpleSecondaryVertexHighPurBJetTags = RecoBTag.Configuration.RecoBTag_cff.simpleSecondaryVertexHighPurBJetTags.clone()
+#process.newPFchsSimpleSecondaryVertexHighPurBJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFchsSecondaryVertexTagInfos") )
+process.newPFchsCombinedSecondaryVertexBPFJetTags = RecoBTag.Configuration.RecoBTag_cff.combinedSecondaryVertexBJetTags.clone()
+process.newPFchsCombinedSecondaryVertexBPFJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFchsImpactParameterTagInfos"), cms.InputTag("newPFchsSecondaryVertexTagInfos") )
+process.newPFchsCombinedSecondaryVertexMVABPFJetTags = RecoBTag.Configuration.RecoBTag_cff.combinedSecondaryVertexMVABJetTags.clone()
+process.newPFchsCombinedSecondaryVertexMVABPFJetTags.tagInfos = cms.VInputTag( cms.InputTag("newPFchsImpactParameterTagInfos"), cms.InputTag("newPFchsSecondaryVertexTagInfos") )
+
+process.newPFchsJetTracksAssociator = cms.Sequence(
+    process.newPFchsJetTracksAssociatorAtVertex
+    )
+
+process.newPFchsJetBtaggingIP = cms.Sequence(
+    process.newPFchsImpactParameterTagInfos * (
+       process.newPFchsTrackCountingHighEffBJetTags +
+#       process.newPFchsTrackCountingHighPurBJetTags +
+       process.newPFchsJetProbabilityBPFJetTags )
+#       process.newPFchsJetBProbabilityBPFJetTags )
+    )
+
+process.newPFchsJetBtaggingSV = cms.Sequence(
+    process.newPFchsImpactParameterTagInfos *
+    process.newPFchsSecondaryVertexTagInfos * (
+#       process.newPFchsSimpleSecondaryVertexHighEffBJetTags +
+#       process.newPFchsSimpleSecondaryVertexHighPurBJetTags +
+       process.newPFchsCombinedSecondaryVertexBPFJetTags +
+       process.newPFchsCombinedSecondaryVertexMVABPFJetTags )
+    )
+
+process.newPFchsJetBtagging = cms.Sequence(
+    process.newPFchsJetBtaggingIP +
+    process.newPFchsJetBtaggingSV )
+
+process.newPFchsBtaggingSequence = cms.Sequence(
+    process.newPFchsJetTracksAssociator *
+       process.newPFchsJetBtagging )
+
+
+
+
+
+#################################################
 # Define path, first for AOD case then for RECO #
 #################################################
 
-process.p11 = cms.Path(process.eventCounters*process.eventFilter1* process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.producePFMETCorrections  )
+process.p11 = cms.Path(process.eventCounters*process.eventFilter1* process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence  )
 #process.p11 = cms.Path(process.eventCounters*process.eventFilter1* process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.pfType1CorrectedMet  )
 
 
