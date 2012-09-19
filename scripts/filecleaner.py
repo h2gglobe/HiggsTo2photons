@@ -28,6 +28,7 @@ if (not options.eos and not options.castor) or (options.eos and options.castor):
 eos="/afs/cern.ch/project/eos/installation/0.2.5/bin/eos.select"
 
 def cleanfiles(dir):
+    if dir[len(dir)-1:len(dir)]!="/": dir+="/"
     if options.castor: popen("nsfind "+dir+" -type f | grep .root | xargs -i stager_qry -M {} | grep 'not on disk' | awk '{print $8}' | xargs -i stager_get -M {}")
     if options.castor: filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
     if options.eos: filename = popen(eos+" ls "+dir+" | grep .root").readlines()
@@ -49,6 +50,7 @@ def cleanfiles(dir):
         else:
             TestTree = testfile.Get("event")
             if TestTree.GetEntries()==0:
+                testfile.Close()
                 newfilename = filename[i].replace(".root",".empty")
                 print "Moving empty file %s to %s" %(dir+filename[i], newfilename)
                 if not options.dryrun:
@@ -58,13 +60,14 @@ def cleanfiles(dir):
                         popen(eos+" rm "+dir+filename[i])
 
 def checkfiles(dir):
+    if dir[len(dir)-1:len(dir)]!="/": dir+="/"
     if options.castor:
         print "Warning: Job checker not implemented for CASTOR!"
         return
     missingjobs=[]
     duplicatejobs=[]
     numjobs=int(popen(eos+" find "+dir+" -f | grep .root | awk 'BEGIN{FS=\"_\"}{print $(NF-2)}' | sort -n | tail -n 1").readline())
-    basename=popen(eos+" ls "+dir+" | grep .root | head -n 1 | sed 's|\(.*\)_[0-9]*_[0-9]*_[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9].root|\1|'").readline()
+    basename=popen(eos+" ls "+dir+" | grep .root | sed 's|\(.*\)_[0-9]*_[0-9]*_[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9].root|\\1|'").readline().strip('\n')
     for jobnum in range(1,numjobs+1):
         jobsearch=int(popen(eos+" ls "+dir+" | grep '"+basename+"_"+str(jobnum)+"_[0-9]*_[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9].root' | wc -l").readline())
         if jobsearch==0:
@@ -77,6 +80,7 @@ def checkfiles(dir):
     if len(duplicatejobs)>0: print "Duplicate Jobs",duplicatejobs
 
 def removeduplicated(dir):
+    if dir[len(dir)-1:len(dir)]!="/": dir+="/"
     jobnum=[]
     subnum=[]
     if options.debug: print "Looking at directory: "+dir
