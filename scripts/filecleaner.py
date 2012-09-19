@@ -40,7 +40,7 @@ def cleanfiles(dir):
         if options.castor: testfile = TFile.Open("rfio:"+dir+filename[i])
         if options.eos: testfile = TFile.Open("root://eoscms/"+dir+filename[i])
         if (testfile==None or testfile.IsZombie()):
-			if testfile!=None: testfile.Close()
+            if testfile!=None: testfile.Close()
             newfilename = filename[i].replace(".root",".resubmit")
             print "Moving corrupted file %s to %s" %(dir+filename[i], newfilename)
             if not options.dryrun:
