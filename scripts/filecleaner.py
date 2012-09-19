@@ -5,6 +5,7 @@ import re
 
 parser = OptionParser()
 parser.add_option("-c", "--clean", action="store_true", dest="clean", default=False, help="Remove Corrupted File")
+parser.add_option("-k", "--check", action="store_true", dest="check", default=True, help="Check that all jobs are completed and that there are no duplicates.")
 parser.add_option("-d", "--duplicate", action="store_true", dest="duplicate", default=False, help="Remove Duplicate Job Submissions")
 parser.add_option("-p", "--path", dest="directory", help="The data directory on CASTOR", metavar="DIR")
 parser.add_option("-r", "--recursive", action="store_true", dest="recursive", default=False, help="Clean files in sub directories")
@@ -24,10 +25,9 @@ if (not options.eos and not options.castor) or (options.eos and options.castor):
     print "You must select either EOS xor CASTOR"
     exit(1)
 
-eos="/afs/cern.ch/project/eos/installation/0.1.0-22d/bin/eos.select"
+eos="/afs/cern.ch/project/eos/installation/0.2.5/bin/eos.select"
 
 def cleanfiles(dir):
-    if dir[len(dir)-1:len(dir)]!="/": dir+="/"
     if options.castor: popen("nsfind "+dir+" -type f | grep .root | xargs -i stager_qry -M {} | grep 'not on disk' | awk '{print $8}' | xargs -i stager_get -M {}")
     if options.castor: filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
     if options.eos: filename = popen(eos+" ls "+dir+" | grep .root").readlines()
@@ -57,10 +57,28 @@ def cleanfiles(dir):
                         popen("xrdcp -s root://eoscms/"+dir+filename[i]+" root://eoscms/"+dir+newfilename)
                         popen(eos+" rm "+dir+filename[i])
 
+def checkfiles(dir):
+    if options.castor:
+        print "Warning: Job checker not implemented for CASTOR!"
+        return
+    missingjobs=[]
+    duplicatejobs=[]
+    numjobs=int(popen(eos+" find "+dir+" -f | grep .root | awk 'BEGIN{FS=\"_\"}{print $(NF-2)}' | sort -n | tail -n 1").readline())
+    basename=popen(eos+" ls "+dir+" | grep .root | head -n 1 | sed 's|\(.*\)_[0-9]*_[0-9]*_[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9].root|\1|'").readline()
+    for jobnum in range(1,numjobs+1):
+        jobsearch=int(popen(eos+" ls "+dir+" | grep '"+basename+"_"+str(jobnum)+"_[0-9]*_[a-zA-Z0-9][a-zA-Z0-9][a-zA-Z0-9].root' | wc -l").readline())
+        if jobsearch==0:
+            print "Warning!!!! Job "+str(jobnum)+" not found!!!!"
+            missingjobs.append(jobnum)
+        if jobsearch>1:
+            print "Warning!!!! Job "+str(jobnum)+" has "+str(jobsearch-1)+" duplicates!!!!"
+            duplicatejobs.append(jobnum)
+    if len(missingjobs)>0: print "Missing Jobs",missingjobs
+    if len(duplicatejobs)>0: print "Duplicate Jobs",duplicatejobs
+
 def removeduplicated(dir):
     jobnum=[]
     subnum=[]
-    if dir[len(dir)-1:len(dir)]!="/": dir+="/"
     if options.debug: print "Looking at directory: "+dir
     if options.castor: filename = popen("rfdir "+dir+" | grep .root | awk '{print $9}' ").readlines()
     if options.eos: filename = popen(eos+" ls "+dir+" | grep .root").readlines()
@@ -109,7 +127,7 @@ if options.debug: print "EOS Value:"+str(options.eos)
 if options.debug: print "CASTOR Value:"+str(options.castor)
 
 dir = options.directory
-if dir[len(dir)-1:len(dir)]!="/": dir+="/" 
+if dir[:1]!="/": dir+="/" 
 if dir[0:1]!="/": dir="/"+dir 
 if options.castor: rootfiles = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
 if options.eos: rootfiles = popen(eos+" ls "+dir+" | grep .root").readlines()
@@ -117,6 +135,7 @@ if options.eos: rootfiles = popen(eos+" ls "+dir+" | grep .root").readlines()
 if len(rootfiles)!=0:
     if (options.duplicate): removeduplicated(dir)
     if (options.clean): cleanfiles(dir)
+    if (options.check): checkfiles(dir)
 
 if options.recursive:
     if options.castor: subdirs = popen("nsfind "+dir+" -type d ").readlines()
@@ -125,3 +144,4 @@ if options.recursive:
         subdir = subdirs[i].strip("\n")
         if (options.duplicate): removeduplicated(subdir)
         if (options.clean): cleanfiles(subdir)
+        if (options.check): checkfiles(subdir)
