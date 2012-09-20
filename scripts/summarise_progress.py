@@ -8,7 +8,7 @@ from optparse import OptionParser
 parser = OptionParser()
 parser.add_option("-i","--input",dest="input_file",help="input txt file",default='temp_progress.txt')
 parser.add_option("-b","--bash",dest="bash_file",help="run bash file to get status first",default="Off")
-parser.add_option("-r","--resub",dest="resub_file",help="file where resub suggestions will be put",default="resubFile.txt")
+parser.add_option("-r","--resub",dest="resub_file",help="file where resub suggestions will be put",default="resubFile.sh")
 (options,args) = parser.parse_args()
 
 if options.bash_file!='Off':
@@ -16,6 +16,7 @@ if options.bash_file!='Off':
 
 readFile = open(options.input_file)
 resubFile = open(options.resub_file,'w')
+resubFile.write("#!/bin/bash\n")
 
 job_status={'Done':0,'Cleared':0,'Aborted':0,'Submitting':0,'Submitted':0,'Ready':0,'Running':0,'Pending':0}
 job_action={'Aborted':0,'Cleared':0,'Terminated':0,'SubRequested':0,'SubSuccess':0,'SubFailed':0,'Cleaned':0,'KillSuccess':0,}
