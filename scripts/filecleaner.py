@@ -1,7 +1,7 @@
 from optparse import OptionParser
-import os
-from os import popen, path, environ, getpid
+from os import popen
 import re
+import ROOT
 
 parser = OptionParser()
 parser.add_option("-c", "--clean", action="store_true", dest="clean", default=False, help="Remove Corrupted File")
@@ -15,8 +15,6 @@ parser.add_option("--debug", action="store_true", dest="debug", default=False, h
 parser.add_option("--dryrun", action="store_true", dest="dryrun", default=False, help="Dont Actually Move Files")
 (options, args) = parser.parse_args()
 
-from ROOT import *
-
 if not options.eos and not options.castor:
     if options.directory.find("/castor/cern.ch/user/")!=-1: options.castor=True
     if options.directory.find("/eos/cms/store/")!=-1: options.eos=True
@@ -27,8 +25,14 @@ if (not options.eos and not options.castor) or (options.eos and options.castor):
 
 eos="/afs/cern.ch/project/eos/installation/0.2.5/bin/eos.select"
 
+def makejobstring(list):
+    returnstring=""
+    for i in list: returnstring+=str(i)+","
+    return returnstring
+
 def cleanfiles(dir):
     if dir[-1]!="/": dir+="/"
+    print "Cleaning Directory:",dir
     if options.castor: popen("nsfind "+dir+" -type f | grep .root | xargs -i stager_qry -M {} | grep 'not on disk' | awk '{print $8}' | xargs -i stager_get -M {}")
     if options.castor: filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
     if options.eos: filename = popen(eos+" ls "+dir+" | grep .root").readlines()
@@ -37,8 +41,8 @@ def cleanfiles(dir):
     for i in range(len(filename)):
         filename[i] = filename[i].strip("\n")
         if options.debug: print "Checking File: %s" %(dir+filename[i])
-        if options.castor: testfile = TFile.Open("rfio:"+dir+filename[i])
-        if options.eos: testfile = TFile.Open("root://eoscms/"+dir+filename[i])
+        if options.castor: testfile = ROOT.TFile.Open("rfio:"+dir+filename[i])
+        if options.eos: testfile = ROOT.TFile.Open("root://eoscms/"+dir+filename[i])
         if (testfile==None or testfile.IsZombie()):
             if testfile!=None: testfile.Close()
             newfilename = filename[i].replace(".root",".resubmit")
@@ -59,9 +63,11 @@ def cleanfiles(dir):
                     if options.eos:
                         popen("xrdcp -s root://eoscms/"+dir+filename[i]+" root://eoscms/"+dir+newfilename)
                         popen(eos+" rm "+dir+filename[i])
+            else: testfile.Close()
 
 def checkfiles(dir):
     if dir[-1]!="/": dir+="/"
+    print "Checking Directory:",dir
     if options.castor:
         print "Warning: Job checker not implemented for CASTOR!"
         return
@@ -72,6 +78,7 @@ def checkfiles(dir):
     for file in filelist:
         jobnumber=int(file.strip("\n").split("_")[-3])
         jobnumbers.append(jobnumber)
+    if len(jobnumbers)==0: return
     print max(jobnumbers),"total jobs found for",dir
     for jobnum in range(1,max(jobnumbers)+1):
         jobsearch=jobnumbers.count(jobnum)
@@ -81,14 +88,14 @@ def checkfiles(dir):
         if jobsearch>1:
             print "Warning!!!! Job "+str(jobnum)+" has "+str(jobsearch-1)+" duplicates!!!!"
             duplicatejobs.append(jobnum)
-    if len(missingjobs)>0: print "Missing Jobs",missingjobs
-    if len(duplicatejobs)>0: print "Duplicate Jobs",duplicatejobs
+    if len(missingjobs)>0: print "Missing Jobs",makejobstring(missingjobs)
+    if len(duplicatejobs)>0: print "Duplicate Jobs",makejobstring(duplicatejobs)
 
 def removeduplicated(dir):
     if dir[-1]!="/": dir+="/"
     jobnum=[]
     subnum=[]
-    if options.debug: print "Looking at directory: "+dir
+    print "Scanning for Duplicates in:",dir
     if options.castor: filename = popen("rfdir "+dir+" | grep .root | awk '{print $9}' ").readlines()
     if options.eos: filename = popen(eos+" ls "+dir+" | grep .root").readlines()
     if len(filename)==0: return
@@ -154,5 +161,3 @@ if options.recursive:
         if (options.duplicate): removeduplicated(subdir)
         if (options.clean): cleanfiles(subdir)
         if (options.check): checkfiles(subdir)
-
-if (options.clean): print "filecleaner.py is finished but eos is slow and is handling dangling files."
