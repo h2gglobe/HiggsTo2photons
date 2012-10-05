@@ -1,7 +1,9 @@
 from optparse import OptionParser
 from os import popen
+from threading import Thread
 import re
 import ROOT
+import os,signal
 
 parser = OptionParser()
 parser.add_option("-c", "--clean", action="store_true", dest="clean", default=False, help="Remove Corrupted File")
@@ -13,6 +15,7 @@ parser.add_option("--eos", action="store_true", dest="eos", default=False, help=
 parser.add_option("--castor", action="store_true", dest="castor", default=False, help="Enable CASTOR flag")
 parser.add_option("--debug", action="store_true", dest="debug", default=False, help="Enable Debug Mode")
 parser.add_option("--dryrun", action="store_true", dest="dryrun", default=False, help="Dont Actually Move Files")
+parser.add_option("--fastkill", action="store_true", dest="fastkill", default=False, help="Have program kill self instead of waiting for files to close.")
 (options, args) = parser.parse_args()
 
 if not options.eos and not options.castor:
@@ -37,14 +40,15 @@ def cleanfiles(dir):
     if options.castor: filename = popen("rfdir "+dir+" | awk '{print $9}' | grep .root").readlines()
     if options.eos: filename = popen(eos+" ls "+dir+" | grep .root").readlines()
   
+    tfilelist=[]
     if len(filename)==0: return
     for i in range(len(filename)):
         filename[i] = filename[i].strip("\n")
         if options.debug: print "Checking File: %s" %(dir+filename[i])
-        if options.castor: testfile = ROOT.TFile.Open("rfio:"+dir+filename[i])
-        if options.eos: testfile = ROOT.TFile.Open("root://eoscms/"+dir+filename[i])
-        if (testfile==None or testfile.IsZombie()):
-            if testfile!=None: testfile.Close()
+        if options.castor: tfilelist.append(ROOT.TFile.Open("rfio:"+dir+filename[i]))
+        if options.eos: tfilelist.append(ROOT.TFile.Open("root://eoscms/"+dir+filename[i]))
+        if (tfilelist[i]==None or tfilelist[i].IsZombie()):
+            if tfilelist[i].IsZombie(): tfilelist[i].Close()
             newfilename = filename[i].replace(".root",".resubmit")
             print "Moving corrupted file %s to %s" %(dir+filename[i], newfilename)
             if not options.dryrun:
@@ -53,9 +57,9 @@ def cleanfiles(dir):
                     popen("xrdcp -s root://eoscms/"+dir+filename[i]+" root://eoscms/"+dir+newfilename)
                     popen(eos+" rm "+dir+filename[i])
         else:
-            TestTree = testfile.Get("event")
+            TestTree = tfilelist[i].Get("event")
             if TestTree.GetEntries()==0:
-                testfile.Close()
+                tfilelist[i].Close()
                 newfilename = filename[i].replace(".root",".empty")
                 print "Moving empty file %s to %s" %(dir+filename[i], newfilename)
                 if not options.dryrun:
@@ -63,7 +67,9 @@ def cleanfiles(dir):
                     if options.eos:
                         popen("xrdcp -s root://eoscms/"+dir+filename[i]+" root://eoscms/"+dir+newfilename)
                         popen(eos+" rm "+dir+filename[i])
-            else: testfile.Close()
+            else:
+                if options.debug: print "Closing file: "+tfilelist[i].GetName()
+                t = Thread(None,tfilelist[i].Close)
 
 def checkfiles(dir):
     if dir[-1]!="/": dir+="/"
@@ -161,3 +167,5 @@ if options.recursive:
         if (options.duplicate): removeduplicated(subdir)
         if (options.clean): cleanfiles(subdir)
         if (options.check): checkfiles(subdir)
+
+if options.fastkill: os.kill(os.getpid(),signal.SIGKILL)
