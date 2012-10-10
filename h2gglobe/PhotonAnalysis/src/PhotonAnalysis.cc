@@ -1032,17 +1032,17 @@ void PhotonAnalysis::Init(LoopAll& l)
         if(PADEBUG) 
             cout << "Opening PU file END"<<endl;
     } else if ( puHist == "auto" ) {
-	TFile * puTargetFile = TFile::Open( puTarget ); 
-	assert( puTargetFile != 0 );
-	puTargetHist = (TH1*)puTargetFile->Get("pileup");
-	if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pileup"); }
-	puTargetHist = (TH1*)puTargetHist->Clone();
-	puTargetHist->SetDirectory(0);
-	puTargetHist->Scale( 1. / puTargetHist->Integral() );
-	puTargetFile->Close();
+    TFile * puTargetFile = TFile::Open( puTarget ); 
+    assert( puTargetFile != 0 );
+    puTargetHist = (TH1*)puTargetFile->Get("pileup");
+    if( puTargetHist == 0 ) { puTargetHist = (TH1*)puTargetFile->Get("target_pileup"); }
+    puTargetHist = (TH1*)puTargetHist->Clone();
+    puTargetHist->SetDirectory(0);
+    puTargetHist->Scale( 1. / puTargetHist->Integral() );
+    puTargetFile->Close();
     }
-    
-    if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp || l.typerun != l.kFill ) {
+
+    if( recomputeBetas || recorrectJets || rerunJetMva || recomputeJetWp ) {
 	std::cout << "JetHandler: \n" 
 		  << "recomputeBetas " << recomputeBetas << "\n" 
 		  << "recorrectJets " << recorrectJets << "\n" 
@@ -1595,25 +1595,20 @@ void PhotonAnalysis::FillReductionVariables(LoopAll& l, int jentry)
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx) 
 {
-    int minv = 0, maxv = l.vtx_std_n;
-    if( l.typerun == l.kFill && l.version > 14 && maxv >= l.jet_algoPF1_nvtx ) {
-	maxv = l.jet_algoPF1_nvtx-1;
-    }
-    if( vtx!=-1 ){
-	minv = vtx;
-	maxv = vtx+1;
-    }
-    if( vtx == -1 || vtx == 0 ) {
-	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
-	    if( recorrectJets ) {
-		jetHandler_->recomputeJec(ijet, true);
-	    }
+    for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
+	int minv = 0, maxv = l.vtx_std_n;
+	if( l.version > 14 && maxv > 10 ) {
+	    maxv = 10;
 	}
-    }
-    for(int ivtx=minv;ivtx<maxv; ++ivtx) {
-	for(int ijet=0; ijet<l.jet_algoPF1_n; ++ijet) {
-	    if( recomputeBetas || (l.version > 14 && ivtx >= l.jet_algoPF1_nvtx) ) {
-		/// std::cout << "recomputeBetas " << ivtx << " " << l.jet_algoPF1_nvtx << std::endl;
+	if( vtx!=-1 ){
+	    minv = vtx;
+	    maxv = vtx+1;
+	}
+	if( recorrectJets ) {
+	    jetHandler_->recomputeJec(ijet, true);
+	}
+	for(int ivtx=minv;ivtx<maxv; ++ivtx) {
+	    if( recomputeBetas ) {
 		jetHandler_->computeBetas(ijet, ivtx);
 	    }
 	    if( rerunJetMva ) {
@@ -1622,17 +1617,14 @@ void PhotonAnalysis::postProcessJets(LoopAll & l, int vtx)
 		jetHandler_->computeWp(ijet, ivtx);
 	    }
 	}
-	if( ivtx >= l.jet_algoPF1_nvtx ) {
-	    l.jet_algoPF1_nvtx = ivtx+1;
-	}
     }
 }
 
 // ----------------------------------------------------------------------------------------------------
 void PhotonAnalysis::switchJetIdVertex(LoopAll &l, int ivtx) 
 {
-    if( l.typerun == l.kFill && l.version > 14 && ivtx >= l.jet_algoPF1_nvtx ) {
-	std::cout << "WARNING choosen vertex beyond " << l.jet_algoPF1_nvtx << " and jet ID was not computed. Falling back to vertex 0." << std::endl;
+    if( l.version > 14 && ivtx > 10 ) {                                                                                                    
+	std::cout << "WARNING choosen vertex beyond 10 and jet ID was not computed. Falling back to vertex 0." << std::endl;
 	ivtx = 0;
     }               
     
@@ -1691,6 +1683,8 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
     //l.doJetMatching(*l.jet_algoPF2_p4,*l.genjet_algo2_p4,l.jet_algoPF2_genMatched,l.jet_algoPF2_vbfMatched,l.jet_algoPF2_genPt,l.jet_algoPF2_genDr);
     // CHS ak5
     l.doJetMatching(*l.jet_algoPF3_p4,*l.genjet_algo1_p4,l.jet_algoPF3_genMatched,l.jet_algoPF3_vbfMatched,l.jet_algoPF3_genPt,l.jet_algoPF3_genDr);
+
+    postProcessJets(l);
 
     if( pho_presel.size() < 2 ) {
         // zero or one photons, can't determine a vertex based on photon pairs
@@ -1773,15 +1767,8 @@ bool PhotonAnalysis::SelectEventsReduction(LoopAll& l, int jentry)
        
        MetCorrections2012( l );
     }
+    
 
-    // Post-process jets and compute beta variables for missing vertexes if needed.
-    int highestVtx = ( ! l.dipho_vtx_std_sel->empty() ? 
-		       *std::max_element(l.dipho_vtx_std_sel->begin(), l.dipho_vtx_std_sel->end()) + 1
-		       : 1 );
-    for(int ivtx = 0; ivtx<highestVtx; ++ivtx ) {
-	postProcessJets(l,ivtx);
-    }
- 
     return oneKinSelected;
 }
 
@@ -2622,11 +2609,8 @@ void PhotonAnalysis::ControlPlotsMetTag2012B(LoopAll& l, TLorentzVector lead_p4,
     TLorentzVector myMet = l.METCorrection2012B(lead_p4, sublead_p4); 
     float corrMet    = myMet.Pt();
     float corrMetPhi = myMet.Phi();
-
-    //    std::cout << "***corrMet " << corrMet << " corrPhi " << corrMetPhi << std::endl;
-
+    
     int met_cat=(int)(abs(lead_p4.Eta())>1.5 || abs(sublead_p4.Eta())>1.5); 
-
     l.FillHist(Form("MetTag_leadGammaPt_%s",label.c_str()),    met_cat, lead_p4.Pt(), evweight);
     l.FillHist(Form("MetTag_subleadGammaPt_%s",label.c_str()), met_cat, sublead_p4.Pt(), evweight);
     l.FillHist(Form("MetTag_diphomva_%s",label.c_str()),       met_cat, bdtoutput, evweight);
@@ -3723,7 +3707,6 @@ bool PhotonAnalysis::METTag2012B(LoopAll& l, int& diphotonVHmet_id, int& met_cat
     }
     
     if(diphotonVHmet_id!=-1){ 
-	//	std::cout << "+++PFMET UNCORR " << l.met_pfmet << std::endl;
         TLorentzVector lead_p4 = l.get_pho_p4( l.dipho_leadind[diphotonVHmet_id], metVtx, &smeared_pho_energy[0]);
         TLorentzVector sublead_p4 = l.get_pho_p4( l.dipho_subleadind[diphotonVHmet_id], metVtx, &smeared_pho_energy[0]);
         TLorentzVector dipho_p4 = lead_p4+sublead_p4;
