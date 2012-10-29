@@ -11,8 +11,9 @@ parser.add_option("-e", "--Expected", action="store_true", dest="Expected", defa
 parser.add_option("-o", "--Observed", action="store_true", dest="Observed", default=False, help="Do Observed PValues")
 parser.add_option("-l", "--Limits", action="store_true", dest="Limits", default=False, help="Do Asymptotic CLs Limits")
 parser.add_option("-p", "--PValues", action="store_true", dest="PValues", default=False, help="Do PValues Limits")
+parser.add_option("-m", "--Masses", dest="Masses", default="", help="Only calculate limits or pvalues at listed masses. --Masses=120,124,125")
 parser.add_option("-c", "--Categories", action="store_true", dest="Categories", default=False, help="Do PValues for all categories")
-parser.add_option("-u", "--CustumCat", dest="CustumCat", default="", help="Make datacards and do PValues for custum category --CustumCat=\"cat0 cat1 cat2 cat3\" ")
+parser.add_option("-u", "--CustumCat", dest="CustumCat", default="", help="Make datacards and do PValues for custum category. --CustumCat=\"cat0 cat1 cat2 cat3\" ")
 parser.add_option("-s", "--OutputDirectory", dest="OutputDirectory", default="", help="Output Directory")
 parser.add_option("-t", "--toysFile", dest="toysFile", default="", help="Asimov Toy Set File")
 
@@ -22,7 +23,7 @@ parser.add_option("--expectSignal", dest="expectSignal", default=1, help="Expect
 parser.add_option("--threads", type="int", dest="threads", default=0, help="Maximum Number of Threads")
 parser.add_option("--overwrite", action="store_true", dest="overwrite", default=False, help="Overwrite output directory")
 parser.add_option("--RegularMasses", action="store_true", dest="RegularMasses", default=False, help="Only run pvalues at 110-150 in 5 GeV steps.")
-parser.add_option("--SkipDatacard", action="store_true", dest="SkipDatacard", default=False, help="Don't Calculate limits or pvalues for the given datacard.")
+parser.add_option("--SkipDatacard", action="store_true", dest="SkipDatacard", default=False, help="Don't Calculate limits or pvalues for the given datacard. Use this if you only want limits or pvalues for a custum category, but don't have a datacard yet.")
 (options, args) = parser.parse_args()
 
 def waitthreads(program,maxthreads):
@@ -42,8 +43,10 @@ if options.threads==0:
 if options.debug: print "Max Threads:",options.threads
 
 Masses=[x * 0.1 for x in range(1100,1501,5)]
-if options.RegularMasses:
-    Masses=range(110,151,5)
+if options.RegularMasses: Masses=range(110,151,5)
+if options.Masses!="":
+    Masses=[]
+    for Mass in options.Masses.split(","): Masses.append(int(Mass))
 
 if options.debug and options.RegularMasses: print "Running with restricted masses:",Masses
 else: print "Running with full mass range:",Masses
@@ -58,7 +61,8 @@ if not options.SkipDatacard:
 basedir=os.getcwd()
 
 if options.Categories:
-    categories=os.popen("grep bin "+options.datacard+" | grep cat | grep -v combine | head -n 1 | sed 's|bin[ \\t][ \\t]*||'").readlines()[0].strip("\n")
+    categories=os.popen("grep bin "+options.datacard+" | grep cat | grep -v combine | head -n 1 | sed 's|bin[ \\t][ \\t]*||' | sed 's|[ \\t][ \\t]*| |g' | sed 's|[ \\t][ \\t]*$||'").readlines()[0].strip("\n")
+    if options.debug: print "Categories:",categories
     categorylist=categories.split(" ")
     if options.debug: print "Category List:",categorylist
     for cat in categorylist:
@@ -75,7 +79,8 @@ if options.Categories:
 
 
 if options.CustumCat!="":
-    categorylist=os.popen("grep bin "+options.datacard+" | grep cat | grep -v combine | head -n 1 | sed 's|bin[ \\t][ \\t]*||'").readlines()[0].strip("\n").split(" ")
+    categorylist=os.popen("grep bin "+options.datacard+" | grep cat | grep -v combine | head -n 1 | sed 's|bin[ \\t][ \\t]*||' | sed 's|[ \\t][ \\t]*| |g' | sed 's|[ \\t][ \\t]*$||'").readlines()[0].strip("\n").split(" ")
+    if options.debug: print "Category List:",categorylist
     keeplist=options.CustumCat.split(" ")
     veto=""
     for cat in categorylist:
@@ -87,8 +92,8 @@ if options.CustumCat!="":
     cat=options.CustumCat.replace(" ","")
     if options.debug: print "Veto string for",cat,":",veto
     outputdatacardname=basedir+"/"+os.path.basename(options.datacard).replace(".txt","_"+cat+".txt")
-    if options.debug: print "combineCards.py --xc=\""+veto+"\" "+os.path.abspath(options.datacard)+" >& "+outputdatacardname
-    os.system("combineCards.py --xc=\""+veto+"\" "+os.path.abspath(options.datacard)+" >& "+outputdatacardname)
+    if options.debug: print "combineCards.py --xc=\""+veto+"\" "+os.path.abspath(options.datacard)+" &> "+outputdatacardname
+    os.system("combineCards.py --xc=\""+veto+"\" "+os.path.abspath(options.datacard)+" &> "+outputdatacardname)
     DatacardList.append(outputdatacardname)
 
 for datacard in DatacardList:
@@ -127,7 +132,7 @@ for datacard in DatacardList:
         if options.Observed and options.PValues:
             os.chdir(datacardoutputdir)
             if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -s -1 -n PValue --signif --pvalue >& higgsCombinePValue.ProfileLikelihood.mH"+str(mass)+".log &"
-            if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood 0 -s -1 -n PValue --signif --pvalue >& higgsCombinePValue.ProfileLikelihood.mH"+str(mass)+".log &")
+            if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -s -1 -n PValue --signif --pvalue >& higgsCombinePValue.ProfileLikelihood.mH"+str(mass)+".log &")
         waitthreads("combine",options.threads)
         if options.Expected and options.PValues and options.toysFile=="":
             os.chdir(datacardoutputdirexpected)
@@ -137,7 +142,7 @@ for datacard in DatacardList:
         if options.Expected and options.PValues and options.toysFile!="":
             os.chdir(datacardoutputdirexpected)
             if options.debug: print "combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+str(mass)+".log &"
-            if options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+str(mass)+".log &")
+            if not options.dryrun: os.system("combine "+datacard+" -m "+str(mass)+" -M ProfileLikelihood -t -1 -s -1 -n PValueExpected --signif --pvalue --expectSignal="+str(options.expectSignal)+" --toysFile="+options.toysFile+" >& higgsCombinePValueExpected.ProfileLikelihood.mH"+str(mass)+".log &")
         waitthreads("combine",options.threads)
         if options.Limits:
             os.chdir(limitoutputdir)
