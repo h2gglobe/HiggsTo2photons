@@ -21,16 +21,16 @@ if __name__ == '__main__':
                          help = '"subtraction" (i.e., lumi sections in alpha not in beta) of two files')
     cmdGroup.add_option ('--diff', dest='command', action='store_const',
                          const='diff',
-                         help = '"All differences (i.e., alpha - beta AND beta - alpha) of two files. Output will only be to screen (not proper JSON format).')
+                         help = 'All differences (i.e., alpha - beta AND beta - alpha) of two files. Output will only be to screen (not proper JSON format).')
     parser.add_option_group (cmdGroup)
     (options, args) = parser.parse_args()
-    if len (args) < 2 or len (args) > 3:
-        raise RuntimeError, "Two input filenames with one optional output filename must be provided."
+    if len (args) < 2:
+        raise RuntimeError, "At least two input filenames must be provided."
     if not options.command:
         raise RuntimeError, "Exactly one command option must be specified"
 
-    alphaList = LumiList (filename = args[0])  # Read in first  JSON file
-    betaList  = LumiList (filename = args[1])  # Read in second JSON file
+    LumiListList=[]
+    for arg in args: LumiListList.append(LumiList(arg))
 
     ##################
     ## Diff Command ##
@@ -38,8 +38,8 @@ if __name__ == '__main__':
     if options.command == 'diff':
         if len (args) >= 3:
             raise RuntimeError, "Can not output to file with '--diff' option.  The output is not standard JSON."
-        firstOnly  = alphaList - betaList
-        secondOnly = betaList  - alphaList
+        firstOnly  = LumiListList[0] - LumiListList[1]
+        secondOnly = LumiListList[1] - LumiListList[0]
         if not firstOnly and not secondOnly:
             print "Files '%s' and '%s' are the same." % (args[0], args[1])
             sys.exit()
@@ -59,17 +59,18 @@ if __name__ == '__main__':
     ## All other commands ##
     ########################
     if options.command == 'and':
-        outputList = alphaList & betaList
+        outputList = LumiListList[0]
+        for lumi in LumiListList[1:]:
+            outputList = outputList & lumi
 
     if options.command == 'or':
-        outputList = alphaList | betaList
+        outputList = LumiListList[0]
+        for lumi in LumiListList[1:]:
+            outputList = outputList | lumi
 
     if options.command == 'sub':
-        outputList = alphaList - betaList
+        outputList = LumiListList[0]
+        for lumi in LumiListList[1:]:
+            outputList = outputList - lumi
 
-    if len (args) >= 3:
-        outputList.writeJSON (args[2])
-    else:
-        # print to screen
-        print outputList
-
+    print outputList
