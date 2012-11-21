@@ -127,6 +127,10 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a2, "jet_%s_nNeutrals[jet_%s_n]/I", nome, nome);
   tree->Branch(a1, &jet_nNeutrals, a2);
 
+  sprintf(a1, "jet_%s_nNeutrals_ptCut", nome);
+  sprintf(a2, "jet_%s_nNeutrals_ptCut[jet_%s_n]/I", nome, nome);
+  tree->Branch(a1, &jet_nNeutrals, a2);
+
   sprintf(a1, "jet_%s_beta", nome);
   sprintf(a2, "jet_%s_beta[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_beta, a2);
@@ -142,6 +146,14 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a1, "jet_%s_nCharged", nome);
   sprintf(a2, "jet_%s_nCharged[jet_%s_n]/I", nome, nome);
   tree->Branch(a1, &jet_nCharged, a2);
+
+  sprintf(a1, "jet_%s_nCharged_QC", nome);
+  sprintf(a2, "jet_%s_nCharged_QC[jet_%s_n]/I", nome, nome);
+  tree->Branch(a1, &jet_nCharged_QC, a2);
+
+  sprintf(a1, "jet_%s_nCharged_ptCut_QC", nome);
+  sprintf(a2, "jet_%s_nCharged_ptCut_QC[jet_%s_n]/I", nome, nome);
+  tree->Branch(a1, &jet_nCharged_ptCut_QC, a2);
 
   sprintf(a1, "jet_%s_rmsCand", nome);
   sprintf(a2, "jet_%s_rmsCand[jet_%s_n]/F", nome, nome);
@@ -631,6 +643,7 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       float SumDetaDphi_QC=0;
 
       float pTMax(0.0),pTMaxChg(0.0),pTMaxNeutral(0.0),pTMaxChg_QC(0.0);
+      int nChg_QC(0),nChg_ptCut(0),nChg_ptCut_QC(0),nNeutral_ptCut(0);
       
       std::vector<bool> jetPart_forMult,jetPart_forAxis;
 
@@ -669,6 +682,9 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           pTMaxChg = pt_i;
         if (!itrk.isNonnull() && pt_i > pTMaxNeutral) 
           pTMaxNeutral = pt_i;
+        if (!itrk.isNonnull() && pt_i > 1.0) 
+          nNeutral_ptCut++;
+
 
         
         bool trkForAxis = false;
@@ -680,6 +696,8 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           trkForAxis = true;
         }
         else {
+          if (pt_i > 1.0)
+            nChg_ptCut++;
           float dZmin = 999;
           int index_min = 999;
           reco::VertexCollection::const_iterator vtxClose;
@@ -709,6 +727,10 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                 trkForMult = true;
             }
           }
+          if (trkForMult)
+            nChg_QC++;
+          if (itrk.isNonnull() && trkForMult && pt_i > 1.0)
+            nChg_ptCut_QC++;
           if (pt_i > pTMaxChg_QC && trkForAxis)  
             pTMaxChg_QC = pt_i;
         }// for charged particles only
@@ -826,6 +848,11 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         jet_pull_QC[jet_n] = sqrt(ddetaR_ave_QC*ddetaR_ave_QC+ddphiR_ave_QC*ddphiR_ave_QC);
       }
 
+
+      jet_nCharged_ptCut[jet_n] = nChg_ptCut;
+      jet_nCharged_QC[jet_n] = nChg_QC;
+      jet_nCharged_ptCut_QC[jet_n] = nChg_ptCut_QC;
+      jet_nNeutrals_ptCut[jet_n] = nNeutral_ptCut;
 
       jet_rmsCand[jet_n] = sqrt( sum_ddR / SumW2);
       jet_rmsCand_QC[jet_n] = sqrt( sum_ddR_QC / SumW2_QC);

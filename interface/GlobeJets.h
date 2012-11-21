@@ -50,10 +50,14 @@ class GlobeJets {
   Float_t jet_frac06[MAX_JETS];
   Float_t jet_frac07[MAX_JETS];
   Int_t jet_nNeutrals[MAX_JETS];
+  Int_t jet_nNeutrals_ptCut[MAX_JETS];
   Float_t jet_beta[MAX_JETS];
   Float_t jet_betaStar[MAX_JETS];
   Float_t jet_dZ[MAX_JETS];
   Int_t jet_nCharged[MAX_JETS];
+  Int_t jet_nCharged_QC[MAX_JETS];
+  Int_t jet_nCharged_ptCut_QC[MAX_JETS];
+  Int_t jet_nCharged_ptCut[MAX_JETS];
   Float_t jet_dR2Mean[MAX_JETS];
   Float_t jet_betaStarClassic[MAX_JETS];
   std::vector<std::vector<float> > jet_beta_ext;
