@@ -787,7 +787,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	char* descr = getenv("CMSSW_BASE");
 	sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/%s", descr, energyRegFilename.c_str());
 	if (fexist(filename)) {
-	  sprintf(filename, "http://home.cern.ch/sani/%s", energyRegFilename.c_str());
+	  sprintf(filename, "http://cern.ch/sani/%s", energyRegFilename.c_str());
 	  ecorr_.Initialize(iSetup, filename);
 	} else {
 	  ecorr_.Initialize(iSetup, filename);
