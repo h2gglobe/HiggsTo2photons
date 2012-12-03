@@ -86,6 +86,16 @@ class GlobeHLT {
    Float_t PhotonRefs9_eta[8];
    Float_t PhotonRefs9_phi[8];
 
+   Int_t PhotonRefs10_n;
+   Float_t PhotonRefs10_et[8];
+   Float_t PhotonRefs10_eta[8];
+   Float_t PhotonRefs10_phi[8];
+   Int_t PhotonRefs11_n;
+   Float_t PhotonRefs11_et[8];
+   Float_t PhotonRefs11_eta[8];
+   Float_t PhotonRefs11_phi[8];
+
+
 
 
 

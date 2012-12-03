@@ -114,6 +114,19 @@ void GlobeHLT::defineBranch(TTree* tree) {
   tree->Branch("PhotonRefs9_et", &PhotonRefs9_et,"PhotonRefs9_et[PhotonRefs9_n]/F");
   tree->Branch("PhotonRefs9_phi", &PhotonRefs9_phi,"PhotonRefs9_phi[PhotonRefs9_n]/F");
 
+  //spin trigger
+  tree->Branch("PhotonRefs10_n", &PhotonRefs10_n,"PhotonRefs10_n/I");
+  tree->Branch("PhotonRefs10_eta", &PhotonRefs10_eta,"PhotonRefs10_eta[PhotonRefs10_n]/F");
+  tree->Branch("PhotonRefs10_et", &PhotonRefs10_et,"PhotonRefs10_et[PhotonRefs10_n]/F");
+  tree->Branch("PhotonRefs10_phi", &PhotonRefs10_phi,"PhotonRefs10_phi[PhotonRefs10_n]/F");
+
+  tree->Branch("PhotonRefs11_n", &PhotonRefs11_n,"PhotonRefs11_n/I");
+  tree->Branch("PhotonRefs11_eta", &PhotonRefs11_eta,"PhotonRefs11_eta[PhotonRefs11_n]/F");
+  tree->Branch("PhotonRefs11_et", &PhotonRefs11_et,"PhotonRefs11_et[PhotonRefs11_n]/F");
+  tree->Branch("PhotonRefs11_phi", &PhotonRefs11_phi,"PhotonRefs11_phi[PhotonRefs11_n]/F");
+
+
+
   filter_pass = new std::vector<unsigned int>;
   filter_names_HLT1 = new std::vector<std::string>;
 }
@@ -241,6 +254,12 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   //temp_names.push_back("hltEG18CaloId10Iso50TrackIsoDoubleLastFilterUnseeded");
   temp_names.push_back("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17PMMassFilter");
   temp_names.push_back("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsoFilter");
+  
+  //spin trigger:
+  temp_names.push_back("hltEG10R9Id85LastFilterUnseeded");
+  temp_names.push_back("hltEG10CaloId10Iso50TrackIsoLastFilterUnseeded");
+
+
   filter_pass->clear();
   filter_names_HLT1->clear();
   std::vector<std::string>::iterator filter_it;
@@ -254,6 +273,10 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   std::vector<trigger::TriggerObject> PhotonRefs6;
   std::vector<trigger::TriggerObject> PhotonRefs8;
   std::vector<trigger::TriggerObject> PhotonRefs9;
+
+//spin trigger
+  std::vector<trigger::TriggerObject> PhotonRefs10;
+  std::vector<trigger::TriggerObject> PhotonRefs11;
 
 
 //  std::vector<trigger::TriggerObject> PhotonRefs10;
@@ -278,12 +301,16 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 		  else if (*filter_it == "hltEG18CaloId10Iso50TrackIsoLastFilterUnseeded") PhotonRefs4.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
 		  else if (*filter_it == "hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17PMMassFilter") ElectronRefs0.push_back(triggerObjects[ triggerKeys [ikey] ]);
 		  else if (*filter_it == "hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsoFilter") ElectronRefs1.push_back(triggerObjects[ triggerKeys [ikey]]);
-		  //else if (*filter_it == "hltEG18CaloId10Iso50TrackIsoDoubleLastFilterUnseeded") PhotonRefs10.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
 
 		  else if (*filter_it == "hltEG36CaloId10Iso50HcalIsoLastFilter") PhotonRefs5.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
 		  else if (*filter_it == "hltEG36R9Id85LastFilter") PhotonRefs6.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
 		  else if (*filter_it == "hltEG22R9Id85LastFilterUnseeded") PhotonRefs8.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
 		  else if (*filter_it == "hltEG22CaloId10Iso50TrackIsoLastFilterUnseeded") PhotonRefs9.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+		  else if (*filter_it == "hltEG10CaloId10Iso50TrackIsoLastFilterUnseeded") PhotonRefs11.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+		  else if (*filter_it == "hltEG10R9Id85LastFilterUnseeded") PhotonRefs10.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+
+
+
 		}
 	  }
 	  else 
@@ -390,6 +417,25 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	PhotonRefs9_n++;
   }
 
+//spin trigger:
+  PhotonRefs10_n= 0;
+  for(unsigned int i=0; i<PhotonRefs10.size(); i++) {
+	if (PhotonRefs10_n >= 8) break;
+	trigger::TriggerObject pho = PhotonRefs10[i];
+	PhotonRefs10_eta[i] = pho.eta();
+	PhotonRefs10_phi[i] = pho.phi();
+	PhotonRefs10_et[i] = pho.et();
+	PhotonRefs10_n++;
+  }
+  PhotonRefs11_n= 0;
+  for(unsigned int i=0; i<PhotonRefs11.size(); i++) {
+	if (PhotonRefs11_n >= 8) break;
+	trigger::TriggerObject pho = PhotonRefs11[i];
+	PhotonRefs11_eta[i] = pho.eta();
+	PhotonRefs11_phi[i] = pho.phi();
+	PhotonRefs11_et[i] = pho.et();
+	PhotonRefs11_n++;
+  }
 
   //RELATED to making sure OR is same as four separate paths
   /*
@@ -399,22 +445,22 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   pass_Mass70_isoiso = 0;
 
   if (PhotonRefs4.size() >=2) {
-	TLorentzVector e1;  
-	TLorentzVector e2;  
-	TLorentzVector meson;
-	float mass = 0.;
-	for (int i = 0; i < (int)PhotonRefs4.size(); i++){
-	  for (int j = i+1; j < (int)PhotonRefs4.size(); j++){
-		e1.SetPtEtaPhiM(PhotonRefs4.at(i).pt(),PhotonRefs4.at(i).eta(),PhotonRefs4.at(i).phi(),0.); 
-		e2.SetPtEtaPhiM(PhotonRefs4.at(j).pt(),PhotonRefs4.at(j).eta(),PhotonRefs4.at(j).phi(),0.); 
-		meson = e1 + e2; 
-		mass = meson.M(); 
-		if (mass > Mass60_isoiso) Mass60_isoiso = mass;
-		if (mass>60)  pass_Mass60_isoiso = 1;
-		if (mass>70)  pass_Mass70_isoiso = 1;
+  TLorentzVector e1;  
+  TLorentzVector e2;  
+  TLorentzVector meson;
+  float mass = 0.;
+  for (int i = 0; i < (int)PhotonRefs4.size(); i++){
+  for (int j = i+1; j < (int)PhotonRefs4.size(); j++){
+  e1.SetPtEtaPhiM(PhotonRefs4.at(i).pt(),PhotonRefs4.at(i).eta(),PhotonRefs4.at(i).phi(),0.); 
+  e2.SetPtEtaPhiM(PhotonRefs4.at(j).pt(),PhotonRefs4.at(j).eta(),PhotonRefs4.at(j).phi(),0.); 
+  meson = e1 + e2; 
+  mass = meson.M(); 
+  if (mass > Mass60_isoiso) Mass60_isoiso = mass;
+  if (mass>60)  pass_Mass60_isoiso = 1;
+  if (mass>70)  pass_Mass70_isoiso = 1;
 
-	  }
-	}	
+  }
+  }	
   }     
 
   //logic for Mass R9R9
@@ -422,39 +468,39 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   pass_Mass70_R9R9 = 0;
 
   if (PhotonRefs3.size() >=2) {
-	TLorentzVector e1;  
-	TLorentzVector e2;  
-	TLorentzVector meson;
-	float mass = 0.;
-	for (int i = 0; i < (int)PhotonRefs3.size(); i++){
-	  for (int j = i+1; j < (int)PhotonRefs3.size(); j++){
-		e1.SetPtEtaPhiM(PhotonRefs3.at(i).pt(),PhotonRefs3.at(i).eta(),PhotonRefs3.at(i).phi(),0.); 
-		e2.SetPtEtaPhiM(PhotonRefs3.at(j).pt(),PhotonRefs3.at(j).eta(),PhotonRefs3.at(j).phi(),0.); 
-		meson = e1 + e2; 
-		mass = meson.M();  
-		if (mass>60)  pass_Mass60_R9R9 = 1; 
-		if (mass>70)  pass_Mass70_R9R9 = 1; 
-	  }
-	}
+  TLorentzVector e1;  
+  TLorentzVector e2;  
+  TLorentzVector meson;
+  float mass = 0.;
+  for (int i = 0; i < (int)PhotonRefs3.size(); i++){
+  for (int j = i+1; j < (int)PhotonRefs3.size(); j++){
+  e1.SetPtEtaPhiM(PhotonRefs3.at(i).pt(),PhotonRefs3.at(i).eta(),PhotonRefs3.at(i).phi(),0.); 
+  e2.SetPtEtaPhiM(PhotonRefs3.at(j).pt(),PhotonRefs3.at(j).eta(),PhotonRefs3.at(j).phi(),0.); 
+  meson = e1 + e2; 
+  mass = meson.M();  
+  if (mass>60)  pass_Mass60_R9R9 = 1; 
+  if (mass>70)  pass_Mass70_R9R9 = 1; 
+  }
+  }
   }
   //logic for Mass mix
   pass_Mass60_mix = 0;
   pass_Mass70_mix = 0;
   if (PhotonRefs3.size() >=1 && PhotonRefs4.size() >=1) {
-	for (int i = 0; i < (int)PhotonRefs3.size(); i++){
-	  for (int j = 0; j < (int)PhotonRefs4.size(); j++){
-		TLorentzVector e1;  
-		TLorentzVector e2; 	
-		TLorentzVector meson;
-		float mass = 0.;
-		e1.SetPtEtaPhiM(PhotonRefs3.at(i).pt(),PhotonRefs3.at(i).eta(),PhotonRefs3.at(i).phi(),0); 
-		e2.SetPtEtaPhiM(PhotonRefs4.at(j).pt(),PhotonRefs4.at(j).eta(),PhotonRefs4.at(j).phi(),0); 
-		meson = e1 + e2; 
-		mass = meson.M();  
-		if (mass>60)  pass_Mass60_mix = 1; 
-		if (mass>70)  pass_Mass70_mix = 1; 
-	  }
-	}
+  for (int i = 0; i < (int)PhotonRefs3.size(); i++){
+  for (int j = 0; j < (int)PhotonRefs4.size(); j++){
+  TLorentzVector e1;  
+  TLorentzVector e2; 	
+  TLorentzVector meson;
+  float mass = 0.;
+  e1.SetPtEtaPhiM(PhotonRefs3.at(i).pt(),PhotonRefs3.at(i).eta(),PhotonRefs3.at(i).phi(),0); 
+  e2.SetPtEtaPhiM(PhotonRefs4.at(j).pt(),PhotonRefs4.at(j).eta(),PhotonRefs4.at(j).phi(),0); 
+  meson = e1 + e2; 
+  mass = meson.M();  
+  if (mass>60)  pass_Mass60_mix = 1; 
+  if (mass>70)  pass_Mass70_mix = 1; 
+  }
+  }
   }
   */ 
 
