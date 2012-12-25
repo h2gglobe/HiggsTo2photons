@@ -87,7 +87,8 @@ process.load("HiggsAnalysis.HiggsTo2photons.CMSSW_RelValDUMMY_cfi")
 hltLabel = "HLT"
 
 process.options = cms.untracked.PSet(
-    wantSummary = cms.untracked.bool(True)
+  wantSummary = cms.untracked.bool(True),
+  SkipEvent = cms.untracked.vstring('FatalRootError','InvalidReference')
 )
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
