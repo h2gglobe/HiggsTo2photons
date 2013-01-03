@@ -80,7 +80,7 @@ def checkfiles(dir):
     jobnumbers=[]
     missingjobs=[]
     duplicatejobs=[]
-    filelist=popen(eos+" ls "+dir+" | grep .root").readlines()
+    filelist=popen(eos+" ls "+dir+" | egrep '.root|.empty'").readlines()
     for file in filelist:
         jobnumber=int(file.strip("\n").split("_")[-3])
         jobnumbers.append(jobnumber)
