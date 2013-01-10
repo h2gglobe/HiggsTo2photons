@@ -13,6 +13,7 @@ flagSkimPJet = 'OFF'
 flagVLPreSelection = 'OFF'
 flagMyPreSelection = 'OFF'
 flagNoSkim = 'OFF'
+flagMuMuSkim = 'OFF'
 flagMMgSkim = 'OFF'
 flagSkimworz = 'OFF'
 flagSkim1El = 'OFF'
@@ -22,7 +23,7 @@ flagAddPdfWeight = 'OFF'
 flagAOD = 'ON'
 jobMaker = 'jobmaker unknown'
 
-if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON') ^ (flagVLPreSelection is 'ON') ^ (flagSkim1El is 'ON') ^ (flagSkimworz is 'ON') ^ (flagMyPreSelection is 'ON') ^ (flagSkimPJet is 'ON'))):
+if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMuMuSkim is 'ON') ^ (flagMMgSkim is 'ON') ^ (flagVLPreSelection is 'ON') ^ (flagSkim1El is 'ON') ^ (flagSkimworz is 'ON') ^ (flagMyPreSelection is 'ON') ^ (flagSkimPJet is 'ON'))):
   print "You must skim or not skim... these are your options"
   exit(-1)
 
@@ -198,6 +199,10 @@ elif flagMC == 'ON' and flagSkimPJet == 'ON':
 elif flagNoSkim == 'ON':    
   process.eventFilter1 = cms.Sequence(process.dummySelector)   #for signal MC
   process.eventFilter2 = cms.Sequence(process.dummySelector)   #for signal MC
+elif flagMuMuSkim == 'ON':
+  process.dimuons.cut = 'mass > 60'
+  process.eventFilter1 = cms.Sequence(process.diMuonSelSeq)
+  process.eventFilter2 = cms.Sequence(process.diMuonSelSeq)
 elif flagMMgSkim == 'ON':
   process.eventFilter1 = cms.Sequence(process.diMuonSelSeq*process.photonReReco)
   process.eventFilter2 = cms.Sequence(process.diMuonSelSeq*process.photonReReco)

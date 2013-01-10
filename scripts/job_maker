@@ -31,6 +31,7 @@ job_maker [options]
 --pjetskim                         Do PhotonPlusJet Skim (Works for both Data and MC)
 --vlpresel                         Very Loose Preselection on 2 photons
 --noskim                           no skim performed (typically only for signal)
+--skimmm                           skim for DYmumu
 --skimmmg                          skim for mumugamma
 --skim1el                          skim to select only one electron
 --storage=eos/castor/hadoop        use eos/castor/hadoop as storage element
@@ -67,6 +68,7 @@ flagSkimworz = False
 flagSkim1El = False
 flagVLPreSelection = False
 flagNoSkim = False
+flagMuMuSkim = False
 flagMMgSkim = False
 flagAOD = False
 flagRECO = False
@@ -99,7 +101,7 @@ toEnable = []
 toDisable = []
 jecFromSqlite = False
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'append=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite', 'published'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'append=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmm', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite', 'published'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -129,6 +131,8 @@ for opt,argm in opts:
         flagVLPreSelection = True
     elif (opt == "--mypresel"):
         flagMyPreSelection = True
+    elif (opt == "--skimmm"):
+        flagMuMuSkim = True
     elif (opt == "--skimmmg"):
         flagMMgSkim = True
     elif (opt == "--skimworz"):
@@ -198,7 +202,7 @@ if (append != ""):
 if (globaltag == ""):
     print "WARNING: you are using default GLOBAL-TAG, it may not be correct."
 
-if (not(flagNoSkim ^ flagSkimDiphoton ^ flagSkimPJet ^ flagMMgSkim ^ flagVLPreSelection ^ flagSkim1El ^ flagSkimworz ^ flagMyPreSelection)):
+if (not(flagNoSkim ^ flagSkimDiphoton ^ flagSkimPJet ^ flagMuMuSkim ^ flagMMgSkim ^ flagVLPreSelection ^ flagSkim1El ^ flagSkimworz ^ flagMyPreSelection)):
     print "You must have one and only one of the skims."
     print "Try again when you have chosen one:  --skim2pho or --noskim or --skimmmg or --skimworz."
     sys.exit(1)
@@ -259,6 +263,8 @@ for run in runselection:
             file_out.write("flagVLPreSelection = \'ON\'\n")
         elif ("flagMyPreSelection = 'OFF'" in line and flagMyPreSelection):
             file_out.write("flagMyPreSelection = \'ON\'\n")            
+        elif ("flagMuMuSkim = 'OFF'" in line and flagMuMuSkim):
+            file_out.write("flagMuMuSkim = \'ON\'\n")
         elif ("flagMMgSkim = 'OFF'" in line and flagMMgSkim):
             file_out.write("flagMMgSkim = \'ON\'\n")
         elif ("hltLabel = \"HLT\"" in line and hlttag != ""):
