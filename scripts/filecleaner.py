@@ -11,6 +11,7 @@ parser.add_option("-k", "--check", action="store_true", dest="check", default=Tr
 parser.add_option("-d", "--duplicate", action="store_true", dest="duplicate", default=False, help="Remove Duplicate Job Submissions")
 parser.add_option("-p", "--path", dest="directory", help="The data directory on CASTOR", metavar="DIR")
 parser.add_option("-r", "--recursive", action="store_true", dest="recursive", default=False, help="Clean files in sub directories")
+parser.add_option("-e", "--reduction", action="store_true", dest="reduction", default=False, help="Check Reduced NTuples")
 parser.add_option("--eos", action="store_true", dest="eos", default=False, help="Enable EOS flag")
 parser.add_option("--hadoop", action="store_true", dest="hadoop", default=False, help="Enable HADOOP flag")
 parser.add_option("--castor", action="store_true", dest="castor", default=False, help="Enable CASTOR flag")
@@ -111,7 +112,8 @@ def checkfiles(dir):
     duplicatejobs=[]
     filelist=popen(eos+" ls "+dir+" | egrep '.root|.empty'").readlines()
     for file in filelist:
-        jobnumber=int(file.strip("\n").split("_")[-3])
+        if options.reduction: jobnumber=int(file[file.rfind("_")+1:file.rfind(".")])
+        else: jobnumber=int(file.strip("\n").split("_")[-3])
         jobnumbers.append(jobnumber)
     if len(jobnumbers)==0: return
     print max(jobnumbers),"total jobs found for",dir
