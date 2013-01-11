@@ -112,7 +112,9 @@ def checkfiles(dir):
     duplicatejobs=[]
     filelist=popen(eos+" ls "+dir+" | egrep '.root|.empty'").readlines()
     for file in filelist:
-        if options.reduction: jobnumber=int(file[file.rfind("_")+1:file.rfind(".")])
+        if options.reduction:
+            if file[file.rfind("_")+1:file.rfind(".")].isdigit(): jobnumber=int(file[file.rfind("_")+1:file.rfind(".")])
+            else: continue
         else: jobnumber=int(file.strip("\n").split("_")[-3])
         jobnumbers.append(jobnumber)
     if len(jobnumbers)==0: return
