@@ -34,6 +34,9 @@ int TreeContainer::getTreeVal() {
   return treeVal;
 }
 
+void TreeContainer::setScale(float scale){
+  total_scale=scale;
+}
 
 void TreeContainer::AddTreeBranch(std::string name,int type){
 

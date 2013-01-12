@@ -30,6 +30,7 @@ class TreeContainer {
   void setTreeVal(int);
   int getTreeVal();
   void setTreeNam(std::string);
+  void setScale(float);
   std::string ModifiedName(char*, int);
   float total_scale;
 
