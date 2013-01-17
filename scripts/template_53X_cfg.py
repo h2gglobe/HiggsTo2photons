@@ -179,6 +179,9 @@ process.pdfWeights = cms.EDProducer("PdfWeightProducer",
 
 process.diMuonSelSeq.remove(process.ZMuHLTFilter)
 
+process.eventFilter1 = cms.Sequence()
+process.eventFilter2 = cms.Sequence()
+
 if flagVLPreSelection == 'ON':
   process.eventFilter1 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut+process.photonInvariantMassFilter) # for bkg
   process.eventFilter2 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut+process.photonInvariantMassFilter) # for bkg
@@ -207,10 +210,16 @@ elif flagMMgSkim == 'ON':
   process.eventFilter1 = cms.Sequence(process.diMuonSelSeq*process.photonReReco)
   process.eventFilter2 = cms.Sequence(process.diMuonSelSeq*process.photonReReco)
 elif flagSkimworz == 'ON':
-  process.load('HiggsAnalysis.HiggsTo2photons.eidFilter_cfi')
+  if (flagData == 'ON'):
+    process.eventFilter1 = cms.Sequence(process.TPHltFilter)
+    process.eventFilter2 = cms.Sequence(process.TPHltFilter)
+  else:
+    process.eventFilter1 = cms.Sequence()
+    process.eventFilter2 = cms.Sequence()
+  #process.load('HiggsAnalysis.HiggsTo2photons.eidFilter_cfi')
   process.load('HiggsAnalysis.HiggsTo2photons.invariantMassFilter_cfi')
-  process.eventFilter1 = cms.Sequence(process.TPHltFilter*process.goodElectronsOver5*process.superClusterMerger*process.goodSCOver5*process.invariantMassFilter*process.electronIdentificationFilter)
-  process.eventFilter2 = cms.Sequence(process.TPHltFilter*process.goodElectronsOver5*process.superClusterMerger*process.goodSCOver5*process.invariantMassFilter*process.electronIdentificationFilter)
+  process.eventFilter1 *= cms.Sequence(process.goodElectronsOver5*process.superClusterMerger*process.goodSCOver5*process.invariantMassFilter)
+  process.eventFilter2 *= cms.Sequence(process.goodElectronsOver5*process.superClusterMerger*process.goodSCOver5*process.invariantMassFilter)
 elif flagSkim1El == 'ON':
   process.eventFilter1 = cms.Sequence(process.goodElectronsOver5)
   process.eventFilter2 = cms.Sequence(process.goodElectronsOver5)
@@ -218,25 +227,27 @@ elif flagSkim1El == 'ON':
 process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
 process.h2ganalyzer.Debug_Level = 0
 
-##-------------------- ANOMALOUS LASER CORRECTION FILTER -----------------------------
+##-------------------- ANOMALOUS HCAL LASER CORRECTION FILTER ------------------------
+process.load("EventFilter.HcalRawToDigi.hcallasereventfilter2012_cff.py")
+##-------------------- ANOMALOUS ECAL LASER CORRECTION FILTER ------------------------
 process.load("RecoMET.METFilters.ecalLaserCorrFilter_cfi")
-##-------------------- PFIsolation for Electrons ---------------------
+##-------------------- PFIsolation for Electrons -------------------------------------
 from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFPhotonIso
 process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
 #process.phoIsoSequence = setupPFPhotonIso(process, 'photons')
-##-------------------- PFNoPU for PF Isolation Electrons -------------
+##-------------------- PFNoPU for PF Isolation Electrons -----------------------------
 process.load("CommonTools.ParticleFlow.pfPileUp_cfi")
 process.pfPileUp.PFCandidates = cms.InputTag("particleFlow")
-##-------------------- Import the JEC services -----------------------
+##-------------------- Import the JEC services ---------------------------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
-##-------------------- Import the Jet RECO modules -----------------------
+##-------------------- Import the Jet RECO modules -----------------------------------
 #process.load('RecoJets.Configuration.RecoPFJets_cff')
 #process.kt6PFJets = process.kt6PFJets.clone(rParam = 0.6, doRhoFastjet = True)
 #process.ak5PFJets.doAreaFastjet = True
 #process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(rParam = 0.6, doRhoFastjet = True)
 #process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
 
-##-------------------- Filter to skip bugged events with non conserved energy -------
+##-------------------- Filter to skip bugged events with non conserved energy --------
 process.load("GeneratorInterface.GenFilters.TotalKinematicsFilter_cfi")
 
 # event counters
@@ -441,7 +452,7 @@ process.newPFchsBtaggingSequence = cms.Sequence(
 # Define path, first for AOD case then for RECO #
 #################################################
 
-process.p11 = cms.Path(process.eventCounters*process.ecalLaserCorrFilter*process.eventFilter1* process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence  )
+process.p11 = cms.Path(process.eventCounters*process.hcallLaserEvent2012Filter*process.ecalLaserCorrFilter*process.eventFilter1*process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence)
 #process.p11 = cms.Path(process.eventCounters*process.eventFilter1* process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.pfType1CorrectedMet  )
 
 
