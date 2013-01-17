@@ -228,7 +228,7 @@ process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
 process.h2ganalyzer.Debug_Level = 0
 
 ##-------------------- ANOMALOUS HCAL LASER CORRECTION FILTER ------------------------
-process.load("EventFilter.HcalRawToDigi.hcallasereventfilter2012_cff.py")
+process.load("EventFilter.HcalRawToDigi.hcallasereventfilter2012_cff")
 ##-------------------- ANOMALOUS ECAL LASER CORRECTION FILTER ------------------------
 process.load("RecoMET.METFilters.ecalLaserCorrFilter_cfi")
 ##-------------------- PFIsolation for Electrons -------------------------------------
