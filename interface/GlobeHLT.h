@@ -57,6 +57,23 @@ class GlobeHLT {
    Float_t ElectronRefs00_eta[8];
    Float_t ElectronRefs00_phi[8];
 
+Int_t ElectronRefs2_n;
+   Float_t ElectronRefs2_et[8];
+   Float_t ElectronRefs2_eta[8];
+   Float_t ElectronRefs2_phi[8];
+   Int_t ElectronRefs3_n;
+   Float_t ElectronRefs3_et[8];
+   Float_t ElectronRefs3_eta[8];
+   Float_t ElectronRefs3_phi[8];
+ Int_t ElectronRefs4_n;
+   Float_t ElectronRefs4_et[8];
+   Float_t ElectronRefs4_eta[8];
+   Float_t ElectronRefs4_phi[8];
+   Int_t ElectronRefs5_n;
+   Float_t ElectronRefs5_et[8];
+   Float_t ElectronRefs5_eta[8];
+   Float_t ElectronRefs5_phi[8];
+     
    Int_t PhotonRefs1_n;
    Float_t PhotonRefs1_et[8];
    Float_t PhotonRefs1_eta[8];

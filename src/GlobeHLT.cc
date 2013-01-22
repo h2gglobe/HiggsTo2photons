@@ -78,6 +78,28 @@ void GlobeHLT::defineBranch(TTree* tree) {
   tree->Branch("trg_ele_et", &ElectronRefs1_et,"ElectronRefs1_et[ElectronRefs1_n]/F");
   tree->Branch("trg_ele_phi", &ElectronRefs1_phi,"ElectronRefs1_phi[ElectronRefs1_n]/F");
 
+
+//Ele17_Ele8 trigger objects
+  tree->Branch("trg8_ele_n", &ElectronRefs2_n,"ElectronRefs2_n/I");
+  tree->Branch("trg8_ele_eta", &ElectronRefs2_eta,"ElectronRefs2_eta[ElectronRefs2_n]/F");
+  tree->Branch("trg8_ele_et", &ElectronRefs2_et,"ElectronRefs2_et[ElectronRefs2_n]/F");
+  tree->Branch("trg8_ele_phi", &ElectronRefs2_phi,"ElectronRefs2_phi[ElectronRefs2_n]/F");
+  tree->Branch("trg17_ele_n", &ElectronRefs3_n,"ElectronRefs3_n/I");
+  tree->Branch("trg17_ele_eta", &ElectronRefs3_eta,"ElectronRefs3_eta[ElectronRefs3_n]/F");
+  tree->Branch("trg17_ele_et", &ElectronRefs3_et,"ElectronRefs3_et[ElectronRefs3_n]/F");
+  tree->Branch("trg17_ele_phi", &ElectronRefs3_phi,"ElectronRefs3_phi[ElectronRefs3_n]/F");
+
+//Ele17_Ele8_mass50 trigger objects
+  tree->Branch("trg8_mass50_ele_n", &ElectronRefs4_n,"ElectronRefs4_n/I");
+  tree->Branch("trg8_mass50_ele_eta", &ElectronRefs4_eta,"ElectronRefs4_eta[ElectronRefs4_n]/F");
+  tree->Branch("trg8_mass50_ele_et", &ElectronRefs4_et,"ElectronRefs4_et[ElectronRefs4_n]/F");
+  tree->Branch("trg8_mass50_ele_phi", &ElectronRefs4_phi,"ElectronRefs4_phi[ElectronRefs4_n]/F");
+  tree->Branch("trg17_mass50_ele_n", &ElectronRefs5_n,"ElectronRefs3_n/I");
+  tree->Branch("trg17_mass50_ele_eta", &ElectronRefs5_eta,"ElectronRefs3_eta[ElectronRefs3_n]/F");
+  tree->Branch("trg17_mass50_ele_et", &ElectronRefs5_et,"ElectronRefs3_et[ElectronRefs3_n]/F");
+  tree->Branch("trg17_mass50_ele_phi", &ElectronRefs5_phi,"ElectronRefs3_phi[ElectronRefs3_n]/F");
+
+
   //26_18 OR trigger objects
   tree->Branch("PhotonRefs0_n", &PhotonRefs0_n,"PhotonRefs0_n/I");
   tree->Branch("PhotonRefs0_eta", &PhotonRefs0_eta,"PhotonRefs0_eta[PhotonRefs0_n]/F");
@@ -124,6 +146,7 @@ void GlobeHLT::defineBranch(TTree* tree) {
   tree->Branch("PhotonRefs11_eta", &PhotonRefs11_eta,"PhotonRefs11_eta[PhotonRefs11_n]/F");
   tree->Branch("PhotonRefs11_et", &PhotonRefs11_et,"PhotonRefs11_et[PhotonRefs11_n]/F");
   tree->Branch("PhotonRefs11_phi", &PhotonRefs11_phi,"PhotonRefs11_phi[PhotonRefs11_n]/F");
+
 
 
 
@@ -259,6 +282,11 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   temp_names.push_back("hltEG10R9Id85LastFilterUnseeded");
   temp_names.push_back("hltEG10CaloId10Iso50TrackIsoLastFilterUnseeded");
 
+ //new electron triggers:
+  temp_names.push_back("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoFilter");
+  temp_names.push_back("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter");
+  temp_names.push_back("hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8PMMassFilter");
+  temp_names.push_back("hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8TrackIsoFilter");
 
   filter_pass->clear();
   filter_names_HLT1->clear();
@@ -278,8 +306,14 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   std::vector<trigger::TriggerObject> PhotonRefs10;
   std::vector<trigger::TriggerObject> PhotonRefs11;
 
+//new electron trigger
+  std::vector<trigger::TriggerObject> ElectronRefs2;
+  std::vector<trigger::TriggerObject> ElectronRefs3;
+  std::vector<trigger::TriggerObject> ElectronRefs4;
+  std::vector<trigger::TriggerObject> ElectronRefs5;
 
-//  std::vector<trigger::TriggerObject> PhotonRefs10;
+
+
   std::vector<trigger::TriggerObject> ElectronRefs0;
   std::vector<trigger::TriggerObject> ElectronRefs1;
   //std::vector<trigger::TriggerObject> ElectronRefs00;
@@ -308,7 +342,10 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 		  else if (*filter_it == "hltEG22CaloId10Iso50TrackIsoLastFilterUnseeded") PhotonRefs9.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
 		  else if (*filter_it == "hltEG10CaloId10Iso50TrackIsoLastFilterUnseeded") PhotonRefs11.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
 		  else if (*filter_it == "hltEG10R9Id85LastFilterUnseeded") PhotonRefs10.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
-
+		  else if (*filter_it == "hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter") ElectronRefs2.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+		  else if (*filter_it == "hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoFilter") ElectronRefs3.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+		  else if (*filter_it == "hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8PMMassFilter") ElectronRefs4.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+		  else if (*filter_it == "hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8TrackIsoFilter") ElectronRefs5.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
 
 
 		}
@@ -339,6 +376,52 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	ElectronRefs1_et[i] = pho.et();
 	ElectronRefs1_n++;
   }
+
+
+  //Ele17_ele8
+  //final mass filter 
+  ElectronRefs2_n= 0;
+  for (unsigned int i=0; i<ElectronRefs2.size(); i++) {
+	if (ElectronRefs2_n >= 8) break;
+	trigger::TriggerObject pho=ElectronRefs2[i];
+	ElectronRefs2_eta[i] = pho.eta();
+	ElectronRefs2_phi[i] = pho.phi();
+	ElectronRefs2_et[i] = pho.et();
+	ElectronRefs2_n++;
+  }
+
+  //L1seeded
+  ElectronRefs3_n= 0;
+  for (unsigned int i=0; i<ElectronRefs3.size(); i++) {
+	if (ElectronRefs3_n >= 8) break;
+	trigger::TriggerObject pho=ElectronRefs3[i];
+	ElectronRefs3_eta[i] = pho.eta();
+	ElectronRefs3_phi[i] = pho.phi();
+	ElectronRefs3_et[i] = pho.et();
+	ElectronRefs3_n++;
+  }
+ //final mass filter 
+  ElectronRefs4_n= 0;
+  for (unsigned int i=0; i<ElectronRefs4.size(); i++) {
+	if (ElectronRefs4_n >= 8) break;
+	trigger::TriggerObject pho=ElectronRefs4[i];
+	ElectronRefs4_eta[i] = pho.eta();
+	ElectronRefs4_phi[i] = pho.phi();
+	ElectronRefs4_et[i] = pho.et();
+	ElectronRefs4_n++;
+  }
+
+  //L1seeded
+  ElectronRefs5_n= 0;
+  for (unsigned int i=0; i<ElectronRefs5.size(); i++) {
+	if (ElectronRefs5_n >= 8) break;
+	trigger::TriggerObject pho=ElectronRefs5[i];
+	ElectronRefs5_eta[i] = pho.eta();
+	ElectronRefs5_phi[i] = pho.phi();
+	ElectronRefs5_et[i] = pho.et();
+	ElectronRefs5_n++;
+  }
+
 
   PhotonRefs0_n= 0;
   for (unsigned int i=0; i<PhotonRefs0.size(); i++) {
@@ -417,7 +500,7 @@ bool GlobeHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 	PhotonRefs9_n++;
   }
 
-//spin trigger:
+  //spin trigger:
   PhotonRefs10_n= 0;
   for(unsigned int i=0; i<PhotonRefs10.size(); i++) {
 	if (PhotonRefs10_n >= 8) break;
