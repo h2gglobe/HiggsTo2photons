@@ -18,12 +18,15 @@ flagMMgSkim = 'OFF'
 flagSkimworz = 'OFF'
 flagSkim1El = 'OFF'
 flagAddPdfWeight = 'OFF'
+flagSkimHmm = 'OFF'
+flagSkimHee = 'OFF'
+flagSkimMu = 'OFF'
 
 #ADDITIONAL OPTIONS
 flagAOD = 'ON'
 jobMaker = 'jobmaker unknown'
 
-if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMuMuSkim is 'ON') ^ (flagMMgSkim is 'ON') ^ (flagVLPreSelection is 'ON') ^ (flagSkim1El is 'ON') ^ (flagSkimworz is 'ON') ^ (flagMyPreSelection is 'ON') ^ (flagSkimPJet is 'ON'))):
+if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON') ^ (flagVLPreSelection is 'ON') ^ (flagSkim1El is 'ON') ^ (flagSkimworz is 'ON') ^ (flagMyPreSelection is 'ON') ^ (flagSkimPJet is 'ON')^ (flagSkimHmm is 'ON')^ (flagSkimHee is 'ON') ^ (flagSkimMu is 'ON'))):
   print "You must skim or not skim... these are your options"
   exit(-1)
 
@@ -58,6 +61,11 @@ process.load('HiggsAnalysis.HiggsTo2photons.ZMuSkim_cff')
 process.load('HiggsAnalysis.HiggsTo2photons.photonReRecoForMMG_cfi')
 process.load('HiggsAnalysis.HiggsTo2photons.cicFilter_cfi')
 
+if flagSkimMu == 'ON':
+  process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
+  process.HLTSingleMu = copy.deepcopy(process.hltHighLevel)
+  process.HLTSingleMu.throw = cms.bool(False)
+  process.HLTSingleMu.HLTPaths = ["HLT_IsoMu24_eta2p1_*",]
 
 if flagSkimworz == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
@@ -139,15 +147,37 @@ process.goodPhotonsHighPtCut = cms.EDFilter("PhotonSelector",
                                    )
 
 process.OnePhotonsHighPtCut = cms.EDFilter("CandViewCountFilter",
-                                       src = cms.InputTag("goodPhotonsHighPtCut"),
-                                       minNumber = cms.uint32(1)
-                                     )
+                                           src = cms.InputTag("goodPhotonsHighPtCut"),
+                                           minNumber = cms.uint32(1)
+                                           )
 
 
 process.dummySelector = cms.EDFilter("CandViewCountFilter",
                                      src = cms.InputTag("gsfElectrons"),
                                      minNumber = cms.uint32(0)
                                      )
+
+process.muonsOver20 = cms.EDFilter("MuonSelector",
+                                   filter = cms.bool(True),
+                                   src = cms.InputTag("muons"),
+                                   cut = cms.string('pt() > 20.')
+                                   )
+
+process.muonCounter = cms.EDFilter("CandViewCountFilter",
+                                   src = cms.InputTag("muonsOver20"),
+                                   minNumber = cms.uint32(2)
+                                   )
+
+process.electronsOver20 = cms.EDFilter("GsfElectronSelector",
+                                       filter = cms.bool(True),
+                                       src = cms.InputTag("gsfElectrons"),
+                                       cut = cms.string('superCluster().rawEnergy()*sin((2*atan(exp(superCluster().eta())))) > 20.')
+                                       )
+
+process.electronCounter = cms.EDFilter("CandViewCountFilter",
+                                       src = cms.InputTag("electronsOver20"),
+                                       minNumber = cms.uint32(2)
+                                       )
 
 process.goodElectronsOver5 = cms.EDFilter("GsfElectronSelector",
                                           filter = cms.bool(True),
@@ -209,6 +239,12 @@ elif flagMuMuSkim == 'ON':
 elif flagMMgSkim == 'ON':
   process.eventFilter1 = cms.Sequence(process.diMuonSelSeq*process.photonReReco)
   process.eventFilter2 = cms.Sequence(process.diMuonSelSeq*process.photonReReco)
+elif flagSkimHmm == 'ON':
+  process.eventFilter1 = cms.Sequence(process.muonsOver20*process.muonCounter)
+  process.eventFilter2 = cms.Sequence(process.muonsOver20*process.muonCounter)
+elif flagSkimHee == 'ON':
+  process.eventFilter1 = cms.Sequence(process.electronsOver20*process.electronCounter)
+  process.eventFilter2 = cms.Sequence(process.electronsOver20*process.electronCounter)
 elif flagSkimworz == 'ON':
   if (flagData == 'ON'):
     process.eventFilter1 = cms.Sequence(process.TPHltFilter)
@@ -223,6 +259,10 @@ elif flagSkimworz == 'ON':
 elif flagSkim1El == 'ON':
   process.eventFilter1 = cms.Sequence(process.goodElectronsOver5)
   process.eventFilter2 = cms.Sequence(process.goodElectronsOver5)
+elif flagSkimMu == 'ON':
+  process.eventFilter1 = cms.Sequence(process.HLTSingleMu)
+  process.eventFilter2 = cms.Sequence(process.HLTSingleMu)
+
 
 process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
 process.h2ganalyzer.Debug_Level = 0
