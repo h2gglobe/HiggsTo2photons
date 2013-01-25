@@ -70,6 +70,9 @@ flagVLPreSelection = False
 flagNoSkim = False
 flagMuMuSkim = False
 flagMMgSkim = False
+flagSkimHmm = False
+flagSkimHee = False
+flagSkimMu  = False
 flagAOD = False
 flagRECO = False
 flagPG = False
@@ -101,7 +104,7 @@ toEnable = []
 toDisable = []
 jecFromSqlite = False
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'append=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmm', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite', 'published'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'append=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite', 'published', 'skimhee', 'skimhmm', 'skimmu'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -131,6 +134,12 @@ for opt,argm in opts:
         flagVLPreSelection = True
     elif (opt == "--mypresel"):
         flagMyPreSelection = True
+    elif (opt == "--skimhmm"):
+        flagSkimHmm = True
+    elif (opt == "--skimmu"):
+        flagSkimMu = True
+    elif (opt == "--skimhee"):
+        flagSkimHee = True        
     elif (opt == "--skimmm"):
         flagMuMuSkim = True
     elif (opt == "--skimmmg"):
@@ -202,7 +211,7 @@ if (append != ""):
 if (globaltag == ""):
     print "WARNING: you are using default GLOBAL-TAG, it may not be correct."
 
-if (not(flagNoSkim ^ flagSkimDiphoton ^ flagSkimPJet ^ flagMuMuSkim ^ flagMMgSkim ^ flagVLPreSelection ^ flagSkim1El ^ flagSkimworz ^ flagMyPreSelection)):
+if (not(flagNoSkim ^ flagSkimDiphoton ^ flagSkimPJet ^ flagMMgSkim ^ flagVLPreSelection ^ flagSkim1El ^ flagSkimworz ^ flagMyPreSelection ^ flagSkimHmm ^ flagSkimHee ^ flagSkimMu)):
     print "You must have one and only one of the skims."
     print "Try again when you have chosen one:  --skim2pho or --noskim or --skimmmg or --skimworz."
     sys.exit(1)
@@ -231,7 +240,6 @@ for run in runselection:
         os.mkdir("../test/crabTasks/"+job_name)
     file_out = open("../test/crabTasks/" + job_name + "/" + job_name + "_cfg.py", "w")
     printHeader(file_out)
-
     for line in lines:
         if ("RootFileName" in line):
             file_out.write("process.h2ganalyzer.RootFileName = \'"+job_name+".root\'\n")
@@ -257,6 +265,12 @@ for run in runselection:
             file_out.write("flagSkim1El = \'ON\'\n")
         elif ("flagSkimDiphoton = 'OFF'" in line and flagSkimDiphoton):
             file_out.write("flagSkimDiphoton = \'ON\'\n")
+        elif ("flagSkimHmm = 'OFF'" in line and flagSkimHmm):
+            file_out.write("flagSkimHmm = \'ON\'\n")
+        elif ("flagSkimHee = 'OFF'" in line and flagSkimHee):
+            file_out.write("flagSkimHee = \'ON\'\n")
+        elif ("flagSkimMu = 'OFF'" in line and flagSkimMu):
+            file_out.write("flagSkimMu = \'ON\'\n")            
         elif ("flagSkimPJet = 'OFF'" in line and flagSkimPJet):
             file_out.write("flagSkimPJet = \'ON\'\n")
         elif ("flagVLPreSelection = 'OFF'" in line and flagVLPreSelection):
