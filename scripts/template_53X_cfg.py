@@ -146,10 +146,23 @@ process.goodPhotonsHighPtCut = cms.EDFilter("PhotonSelector",
                                                       )
                                    )
 
+process.goodSuperclusters = cms.EDFilter("PhotonSelector",
+                                         src = cms.InputTag("photons"),
+                                         cut = cms.string(
+                                         "abs(superCluster.eta) < 2.5"
+                                         " && superCluster.energy*sin(superCluster.position.theta) > 20."
+                                         )
+                                         )
+
 process.OnePhotonsHighPtCut = cms.EDFilter("CandViewCountFilter",
                                            src = cms.InputTag("goodPhotonsHighPtCut"),
                                            minNumber = cms.uint32(1)
                                            )
+
+process.OneSupercluster = cms.EDFilter("CandViewCountFilter",
+                                       src = cms.InputTag("goodSuperclusters"),
+                                       minNumber = cms.uint32(1)
+                                       )
 
 
 process.dummySelector = cms.EDFilter("CandViewCountFilter",
@@ -260,8 +273,8 @@ elif flagSkim1El == 'ON':
   process.eventFilter1 = cms.Sequence(process.goodElectronsOver5)
   process.eventFilter2 = cms.Sequence(process.goodElectronsOver5)
 elif flagSkimMu == 'ON':
-  process.eventFilter1 = cms.Sequence(process.HLTSingleMu)
-  process.eventFilter2 = cms.Sequence(process.HLTSingleMu)
+  process.eventFilter1 = cms.Sequence(process.HLTSingleMu*process.superClusterMerger*process.goodSuperclusters*process.OneSupercluster)
+  process.eventFilter2 = cms.Sequence(process.HLTSingleMu*process.superClusterMerger*process.goodSuperclusters*process.OneSupercluster)
 
 
 process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
