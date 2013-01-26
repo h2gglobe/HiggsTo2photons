@@ -15,7 +15,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 
-#include "../interface/JetResponseChange.h"
 
 #include <string>
 
@@ -34,7 +33,6 @@ public:
     void computeWp(int ijet, int ivtx=-1);
     
     void recomputeJec(int ijet, bool correct=false);
-    void recomputeJecEmulatingResponse(int ijet, bool correct=false, int entry=0);
     void applyJecUncertainty(int ijet, float shift);
     void applyJerUncertainty(int ijet, float shift);
 
@@ -55,9 +53,7 @@ private:
     
     TTree * flatTree;
     boost::shared_ptr<edm::ParameterSet> myPset;
-
-    JetResponseChange *jetResponseChange;
- 
+    
 };
 
 #endif

@@ -68,7 +68,6 @@ dotitles=False
 cattitles=["EB-EB","!(EB-EB)"]
 dointegrals=False
 
-dataitype=0
 
 linex=-1
 dodata=True
@@ -201,8 +200,6 @@ class SampleInfo:
    
 
 
-NEWVALS=["dataitype","linex","stackmax","stackmin","maxscaleup","linewidth","NReBin","plotscale","legx1","legx2","legy1","legy2","textx1","textx2","texty1","texty2"]
-
 PLOTPROPS=["dolog","dogridx","dogridy","doline","domergecats","doreplot","dointegrals","dotitles","doxtitle","doytitle","dooflow","douflow","dorebin","StaticMin","StaticMax","dolegend","dotext","dodata","dobkg","dodivide", "Normalize" ,"Debug","DebugNew"]
 def FindFunction(option):
     print option
@@ -261,14 +258,7 @@ def FindFunction(option):
         if len(option.split()) == 2:
             Write(str(option.split()[1]))
         else: 
-            if option.split()[1]=="all":
-                tempind=cur_plot.index
-                for iplot in range(0,len(plotinfos)):
-                    Plot(iplot)
-                    Write(str(option.split()[2]))
-                Plot(int(tempind))
-            else:
-                WriteCat(str(option.split()[1]),int(option.split()[2]))
+            WriteCat(str(option.split()[1]),int(option.split()[2]))
     elif option in PLOTPROPS:
         Switch(option)
     elif len(option.split())==2:
@@ -299,11 +289,8 @@ def ListCMDs():
     print "singlecat #:         Display only # cat (-1 turns off)"
     print "mvlegx/y #:          Move legend by # in x/y"
     print "mvtextx/y #:         Move text by # in x/y"
-    print "write appendix:      Write current plot with appendix"
-    print "write all appendix:  Writes all plots with current settings"
     print "cmds:             Will loop over the lines of a file and"
     print "                     excute those lines as commands"
-    print "variablename newval:",NEWVALS
     print "Switch on/off:      ",PLOTPROPS
 
 
@@ -438,10 +425,9 @@ def PrintSamples(samples):
 
 def Startup(configfilename):
     print "Reading in inputfiles and plotvariables from rootfile"
-    print "  and reading plot features from "+configfilename
+    print "  and reading plot features from config.dat"
     file=open(configfilename, "r")
     configlines=file.readlines()
-    file.close()
     #print configlines
     for line in configlines:
         if Debug:
@@ -451,7 +437,6 @@ def Startup(configfilename):
             global rootfile
             rootfile=ROOT.TFile(rootline)
             break
-    SetupGlobalVariables(configlines)
     print "rootline",rootline
     if rootfile is not "":
         ReadPlotVariables(rootfile)
@@ -463,6 +448,7 @@ def Startup(configfilename):
         sys.exit(0)
     
     AssociateConfigToSample(configlines)
+    SetupGlobalVariables(configlines)
 
     for itype in samples:
         samples[itype].ParseConfigLines()
@@ -475,7 +461,6 @@ def AssociateConfigToSample(configlines):
                 print "AssociateConfigToSample",line
             items=line.split()
             for item in items:
-                print item
                 if item.find("itype=") is not -1:
                     itype_config=int(item.split("=")[1])
                     if samples.has_key(itype_config) == False:
@@ -766,8 +751,7 @@ def Plot(num,printsuffix="",printcat=-1):
                 itype=index[1]
                 if dolegend:
                     legend.AddEntry(stacks["datalines"][index],str(samples[itype].displayname),"ep"); 
-            dataIntegral = stacks["datalines"+str(icat)][lineorder[0]].Integral()
-            print dataIntegral
+                dataIntegral = stacks["datalines"+str(icat)][index].Integral()
         
         lineorder = stacks["siglines"].keys()
         lineorder.sort()
@@ -776,8 +760,6 @@ def Plot(num,printsuffix="",printcat=-1):
             itype=index[1]
             if dolegend:
                 legend.AddEntry(stacks["siglines"][index],str(samples[itype].displayname),"l"); 
-            sigIntegral = stacks["siglines"+str(icat)][index].Integral()
-            print sigIntegral
         
         lineorder = stacks["bkglines"].keys()
         lineorder.sort()
@@ -795,12 +777,11 @@ def Plot(num,printsuffix="",printcat=-1):
             stacks["bkglines"][index].SetLineWidth(linewidth*plotscale)
             stacks["bkglines"][index].SetFillStyle(1001)
             stacks["bkglines"][index].SetFillColor(int(samples[itype].color))
-            if (Normalize and (index == lineorder[0])):
+            if (Normalize and (index == lineorder[-1])):
                 stacks["bkglines"+str(icat)][index].Scale(dataIntegral/stacks["bkglines"+str(icat)][index].Integral())
             stacks["bkglines"][index].Draw("histsame")
             if dolegend:
                 legend.AddEntry(stacks["bkglines"][index],str(samples[itype].displayname),"f"); 
-        print "bkg integral",stacks["bkglines"+str(icat)][lineorder[0]].Integral()
         
         if dointegrals:
             oflowbin = int(stacks["bkglines"][lineorder[0]].GetNbinsX()+1)
@@ -923,13 +904,16 @@ def Plot(num,printsuffix="",printcat=-1):
                     itype=index[1]
                     if dolegend and icat==0:
                         legend.AddEntry(stacks["datalines"+str(icat)][index],str(samples[itype].displayname),"ep"); 
-                dataIntegral = stacks["datalines"+str(icat)][lineorder[0]].Integral()
-                print "data int ", dataIntegral
-                if dodivide:
-                    #if (index == lineorder[0]):
-                    dataTot[icat] =  stacks["datalines"+str(icat)][lineorder[0]].Clone("dataTot")
-                    #else:
-                    #    dataTot[icat].Add(stacks["datalines"+str(icat)][index])
+                    if DebugNew:
+                        print "about to dataIntegral"
+                    dataIntegral = stacks["datalines"+str(icat)][index].Integral()
+                    if DebugNew:
+                        print "have data Integral"
+                    if dodivide:
+                        if (index == lineorder[0]):
+                            dataTot[icat] =  stacks["datalines"+str(icat)][index].Clone("dataTot")
+                        else:
+                            dataTot[icat].Add(stacks["datalines"+str(icat)][index])
  
             lineorder = stacks["siglines"+str(icat)].keys()
             lineorder.sort()
@@ -938,8 +922,6 @@ def Plot(num,printsuffix="",printcat=-1):
                 itype=index[1]
                 if dolegend and icat==0:
                     legend.AddEntry(stacks["siglines"+str(icat)][index],str(samples[itype].displayname),"l"); 
-                sigIntegral = stacks["siglines"+str(icat)][index].Integral()
-                print "sig int ", sigIntegral
  
             if dobkg:
                 lineorder = stacks["bkglines"+str(icat)].keys()
@@ -958,8 +940,7 @@ def Plot(num,printsuffix="",printcat=-1):
                     stacks["bkglines"+str(icat)][index].SetLineWidth(linewidth*plotscale)
                     stacks["bkglines"+str(icat)][index].SetFillStyle(1001)
                     stacks["bkglines"+str(icat)][index].SetFillColor(int(samples[itype].color))
-                    print "bkg int",stacks["bkglines"+str(icat)][index].Integral() 
-                    if (Normalize and (index == lineorder[0])):
+                    if (Normalize and (index == lineorder[-1])):
                         stacks["bkglines"+str(icat)][index].Scale(dataIntegral/stacks["bkglines"+str(icat)][index].Integral())
                     stacks["bkglines"+str(icat)][index].Draw("histsame")
                     if dolegend and icat==0:
@@ -967,8 +948,8 @@ def Plot(num,printsuffix="",printcat=-1):
                     if dodivide:
                         if (index == lineorder[0]):
                             mcTot[icat] = stacks["bkglines"+str(icat)][index].Clone("mcTot")
-                        #else:
-                        #    mcTot[icat].Add(stacks["bkglines"+str(icat)][index])
+                        else:
+                            mcTot[icat].Add(stacks["bkglines"+str(icat)][index])
  
                 if dointegrals:
                     oflowbin = int(stacks["bkglines"+str(icat)][lineorder[0]].GetNbinsX()+1)
@@ -987,8 +968,8 @@ def Plot(num,printsuffix="",printcat=-1):
                 if dodivide:
                     if (index == lineorder[0] and mcTot[icat] == ""):
                         mcTot[icat] = stacks["siglines"+str(icat)][index].Clone("mcTot")
-                    #else:
-                    #    mcTot[icat].Add(stacks["siglines"+str(icat)][index])
+                    else:
+                        mcTot[icat].Add(stacks["siglines"+str(icat)][index])
             
             if dointegrals:
                 oflowbin = int(stacks["siglines"+str(icat)][lineorder[0]].GetNbinsX()+1)
@@ -1076,11 +1057,11 @@ def SampleMap(sampletype):
             print "SampleMap, itype:",samples[sample].itype
         if samples[sample].plotsample==0:
             continue
-        if sampletype == "sig" and sample < dataitype:
+        if sampletype == "sig" and sample < 0:
             itypes[samples[sample].order]=samples[sample].itype
-        elif sampletype == "data" and sample == dataitype:
+        elif sampletype == "data" and sample == 0:
             itypes[samples[sample].order]=samples[sample].itype
-        elif sampletype == "bkg" and sample >dataitype:
+        elif sampletype == "bkg" and sample >0:
             itypes[samples[sample].order]=samples[sample].itype
         elif sampletype == "all":
             itypes[samples[sample].order]=samples[sample].itype
