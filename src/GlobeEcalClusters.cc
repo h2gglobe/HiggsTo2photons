@@ -21,7 +21,9 @@
 
 //----------------------------------------------------------------------
 
-GlobeEcalClusters::GlobeEcalClusters(const edm::ParameterSet& iConfig, const char* n): nome(n) {
+GlobeEcalClusters::GlobeEcalClusters(const edm::ParameterSet& iConfig, const char* n): 
+  bc_hitdetid(new vector<vector<Int_t> >), 
+  nome(n) {
   
   debug_level = iConfig.getParameter<int>("Debug_Level");
   gCUT = new GlobeCuts(iConfig);
@@ -98,6 +100,14 @@ void GlobeEcalClusters::defineBranch(TTree* tree) {
   tree->Branch("bc_p4", "TClonesArray", &bc_p4, 32000, 0);
   tree->Branch("bc_xyz", "TClonesArray", &bc_xyz, 32000, 0);
   tree->Branch("bc_nhits", &bc_nhits,"bc_nhits[bc_n]/I");
+
+  // detids of the rechits
+  // sprintf (a2, "bc_hitdetid[bc_n][%d]/I", MAX_ECALRECHITS);
+  // tree->Branch("bc_hitdetid", &bc_hitdetid,a2);
+
+  // see http://root.cern.ch/phpBB3/viewtopic.php?t=8185
+  tree->Branch("bc_hitdetid","vector<vector<Int_t> >",&bc_hitdetid);
+
   tree->Branch("bc_s1", &bc_s1, "bc_s1[bc_n]/F");
   tree->Branch("bc_chx", &bc_chx, "bc_chx[bc_n]/F");
   tree->Branch("bc_s4", &bc_s4, "bc_s4[bc_n]/F");
@@ -155,6 +165,8 @@ bool GlobeEcalClusters::analyze(const edm::Event& iEvent, const edm::EventSetup&
     std::cout << "GlobeEcalClusters: basicClustersEndcapH->size() "<< basicClustersEndcapH->size() << std::endl;
   }
   
+  // empty the collection before analyzing the evnet
+  bc_hitdetid->clear();
 
   //----------------------------------------  
   // analyze basic clusters 
@@ -487,6 +499,9 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
     std::vector<std::pair<DetId,float > > hits = bc->hitsAndFractions();
     bc_nhits[bc_n] = hits.size(); 
 
+    // fill the rechits associated to the basic cluster
+    fillBasicClusterRecHits(hits);
+
     bc_seed[bc_n] = -1;
     for(EERecHitCollection::const_iterator it=endcapRecHits->begin(); it!=endcapRecHits->end(); it++) {
       if (bc->seed().rawId() == it->detid().rawId())
@@ -550,6 +565,9 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
        
        std::vector<std::pair<DetId,float > > hits = bc->hitsAndFractions();
        bc_nhits[bc_n] = hits.size(); 
+
+       // fill the rechits associated to the basic cluster
+       fillBasicClusterRecHits(hits);
        
        bc_seed[bc_n] = -1;
        for(EBRecHitCollection::const_iterator it=barrelRecHits->begin(); it!=barrelRecHits->end(); it++) {
@@ -611,6 +629,9 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
 
     std::vector<std::pair<DetId,float > > hits = bc->hitsAndFractions();
     bc_nhits[bc_n] = hits.size(); // CHECK no direct method in the dataFormat only getRecHitsByDetId
+
+    // fill the rechits associated to the basic cluster
+    fillBasicClusterRecHits(hits);
 
     bc_seed[bc_n] = -1;
     for(EBRecHitCollection::const_iterator it=barrelRecHits->begin(); it!=barrelRecHits->end(); it++) {
@@ -815,3 +836,15 @@ std::vector<float> GlobeEcalClusters::getESShape(std::vector<float> ESHits0)
     
   return esShape;
 }
+
+//----------------------------------------------------------------------
+
+void 
+GlobeEcalClusters::fillBasicClusterRecHits(const std::vector<std::pair<DetId,float > > &hits)
+{
+  bc_hitdetid->push_back(vector<Int_t>());
+  for (unsigned bcindex = 0; bcindex < hits.size(); ++bcindex)
+    bc_hitdetid->back().push_back(hits[bcindex].first.rawId());
+}
+
+//----------------------------------------------------------------------
