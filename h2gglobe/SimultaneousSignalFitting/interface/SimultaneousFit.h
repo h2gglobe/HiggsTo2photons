@@ -14,16 +14,13 @@
 #include "RooConstVar.h"
 #include "RooFormulaVar.h"
 #include "RooGaussian.h"
-#include "RooVoigtian.h"
 #include "RooAddPdf.h"
 #include "RooDataSet.h"
 #include "RooSimultaneous.h"
 #include "RooCategory.h"
 #include "RooHistFunc.h"
-#include "HiggsAnalysis/CombinedLimit/interface/RooSpline1D.h"
 #include "RooExtendPdf.h"
 #include "RooWorkspace.h"
-#include "RooAddition.h"
 
 #include "Normalization_8TeV.h"
 
@@ -34,7 +31,7 @@ class SimultaneousFit {
   
   public:
     
-    SimultaneousFit(string infilename, string outfilename, int mhLow=110, int mhHigh=150, int verbose=0, int nInclusiveCats=4, int nExclusiveCats=5, bool SMasBkg=true, bool SecHiggs=true, bool NatWidth=true);
+    SimultaneousFit(string infilename, string outfilename, int mhLow=110, int mhHigh=150, int verbose=0, int nInclusiveCats=4, int nExclusiveCats=5);
     ~SimultaneousFit();
 
     void runFit(string proc="ggh", int cat=0, int nGaussians=3, int dmOrder=1, int sigmaOrder=1, int fracOrder=0, bool recursive=false, bool setToFitValues=true);
@@ -43,7 +40,7 @@ class SimultaneousFit {
     void setSimultaneousFit(bool);
     void setMHDependentFit(bool);
     void setForceFracUnity(bool);
-    void setLoadPriorConstraints(bool,float);
+    void setLoadPriorConstraints(bool);
     void saveExtra(string name);
     
     vector<int> getAllMH();
@@ -71,7 +68,6 @@ class SimultaneousFit {
     RooRealVar* findPolParam(string);
     RooFormulaVar* findFormVar(string);
     RooHistFunc* findHistFunc(string);
-    RooSpline1D* findSpline1D(string);
     RooConstVar* getConstPolParam(string);
     void setParamAttributes(RooRealVar*);
     void constructFormulaVar(string prefix, int order);
@@ -138,19 +134,6 @@ class SimultaneousFit {
     RooRealVar *MH;
     RooRealVar *weight;
     RooRealVar *intLumi;
-
-    // for extension models
-    RooRealVar *higgsDecayWidth;
-    RooRealVar *MH_SM;
-    RooRealVar *DeltaM;
-    //RooFormulaVar *MH_2;
-    RooAddition *MH_2;
-    RooAddPdf *smHiggsBkgPdf;
-    RooAddPdf *secondHiggsPdf;
-    RooAddPdf *naturalWidthPdf;
-    RooHistFunc *funcEffAccRel_SM;
-    RooSpline1D *funcEffAccRel_2;
-    RooHistFunc *funcEffAccRel_NW;
    
     // gaussian params (dm, sigma, frac, mean)
     map<string,double> startVals;
@@ -159,14 +142,12 @@ class SimultaneousFit {
     map<string,RooFormulaVar*> recfracParams;
     map<string,RooGaussian*> initialGaussians;
     map<string,RooGaussian*> finalGaussians;
-    map<string,RooVoigtian*> finalVoigtians; 
 
     // th1fs from initial fit
     map<string,TH1F*> th1fs;
     map<string,double> polStartVals;
     map<string,RooDataHist*> dHists;
     map<string,RooHistFunc*> histFuncs;
-    map<string,RooSpline1D*> spline1Ds;
 
     // tgraphs from final fit
     map<string,TFormula*> tforms;
@@ -211,10 +192,6 @@ class SimultaneousFit {
     RooHistFunc *funcEffAccRel;
     bool systematicsSet_;
     bool loadPriorConstraints_;
-    float constraintValue_;
-    bool doSMHiggsAsBackground_;
-    bool doSecondHiggs_;
-    bool doNaturalWidth_;
     int fork_;
     bool saveExtraFile_;
     TFile *extraFile_;
