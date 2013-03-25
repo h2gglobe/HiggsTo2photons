@@ -25,12 +25,10 @@
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
-//#include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 
+//#include "HiggsAnalysis/HiggsTo2photons/interface/PFIsolation.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/Mustache.h"
-//#include "RecoEgamma/ElectronIdentification/interface/ElectronMVAEstimator.h"
-#include "EGamma/EGammaAnalysisTools/interface/EGammaMvaEleEstimator.h"
-//#include "FWCore/ParameterSet/interface/FileInPath.h"
+
 #include "Utilities/General/interface/FileInPath.h"
 
 #include "TrackingTools/IPTools/interface/IPTools.h"
@@ -66,22 +64,30 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
   hcalHitColl = iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
 
   eIDLabels = iConfig.getParameter<std::vector<edm::InputTag> >("eIDLabels");
-  //mvaWeightFile = iConfig.getParameter<edm::FileInPath>("electronMVAWeightFileName");
-  //mvaEstimator = new ElectronMVAEstimator(mvaWeightFile.fullPath());
 
+  //eleRegressionFilename = iConfig.getParameter<std::string> ("eleRegressionFileName");  
+  //eleRegressionType     = iConfig.getParameter<int> ("eleRegressionType");  
 
-  //mvaNonTrigWeightFiles = iConfig.getParameter<std::vector<edm::FileInPath> >("electronNonTrigMVAWeightFileNames");
-  //mvaTrigWeightFiles    = iConfig.getParameter<std::vector<edm::FileInPath> >("electronTrigMVAWeightFileNames");
+  //eleRegression = new ElectronEnergyRegressionEvaluate();
+  //char filename[500];
+  //char* descr = getenv("CMSSW_BASE");
+  //const char* version[] = {"V1", "V2"};
+  //sprintf(filename, "%s/src/EGamma/EGammaAnalysisTools/data/%s_%s.root", descr, eleRegressionFilename.c_str(), version[eleRegressionType]);
+  //if (fexist(filename)) {
+  //  sprintf(filename, "http://cern.ch/sani/%s_%s.root", eleRegressionFilename.c_str(), version[eleRegressionType]);
+  //  eleRegression->initialize(filename, ElectronEnergyRegressionEvaluate::ElectronEnergyRegressionType::kNoTrkVar);
+  //} else {
+  //  eleRegression->initialize(filename, ElectronEnergyRegressionEvaluate::ElectronEnergyRegressionType::kNoTrkVar);
+  //}
+
   mvaNonTrigWeightFiles = iConfig.getParameter<std::vector<std::string> >("electronNonTrigMVAWeightFileNames");
   mvaTrigWeightFiles    = iConfig.getParameter<std::vector<std::string> >("electronTrigMVAWeightFileNames");
   
-  for(unsigned int j=0; j<mvaTrigWeightFiles.size(); j++) {
+  for(unsigned int j=0; j<mvaTrigWeightFiles.size(); j++)
     myManualCatWeightsTrig.push_back(edm::FileInPath(mvaTrigWeightFiles[j]).fullPath());
-  }
-  
-  for(unsigned int j=0; j<mvaNonTrigWeightFiles.size(); j++) {
+
+  for(unsigned int j=0; j<mvaNonTrigWeightFiles.size(); j++)
     myManualCatWeightsNonTrig.push_back(edm::FileInPath(mvaNonTrigWeightFiles[j]).fullPath());
-  }
 
   myMVANonTrig = new EGammaMvaEleEstimator();
   myMVANonTrig->initialize("BDT",
@@ -107,7 +113,7 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
 }
 
 GlobeElectrons::~GlobeElectrons() {
-  //delete mvaEstimator;
+
   delete myMVANonTrig;
   delete myMVATrig;
   delete gCUT;
@@ -118,6 +124,7 @@ void GlobeElectrons::defineBranch(TTree* tree) {
 
   el_sc = new TClonesArray("TLorentzVector", MAX_ELECTRONS);
   el_p4 = new TClonesArray("TLorentzVector", MAX_ELECTRONS);
+  el_p4_corr = new TClonesArray("TLorentzVector", MAX_ELECTRONS);
   el_momvtx = new TClonesArray("TVector3", MAX_ELECTRONS);  
   el_momvtxconst = new TClonesArray("TVector3", MAX_ELECTRONS);
   el_momcalo = new TClonesArray("TVector3", MAX_ELECTRONS);
@@ -138,6 +145,9 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   
   sprintf(a1, "el_%s_p4", nome);
   tree->Branch(a1, "TClonesArray", &el_p4, 32000, 0);
+
+  sprintf(a1, "el_%s_p4_corr", nome);
+  tree->Branch(a1, "TClonesArray", &el_p4_corr, 32000, 0);
 
   sprintf(a1, "el_%s_momvtx", nome);
   tree->Branch(a1, "TClonesArray", &el_momvtx, 32000, 0);
@@ -452,6 +462,22 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a2, "el_%s_conv[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_conv, a2);
 
+  sprintf(a1, "el_%s_corr_energy", nome);
+  sprintf(a2, "el_%s_corr_energy[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_corr_energy, a2);
+
+  sprintf(a1, "el_%s_corr_energyerr", nome);
+  sprintf(a2, "el_%s_corr_energyerr[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_corr_energyerr, a2);
+
+  sprintf(a1, "el_%s_calib_energy", nome);
+  sprintf(a2, "el_%s_calib_energy[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_calib_energy, a2);
+
+  sprintf(a1, "el_%s_calib_energyerr", nome);
+  sprintf(a2, "el_%s_calib_energyerr[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_calib_energyerr, a2);
+
   sprintf(a1, "el_%s_regr_energy", nome);
   sprintf(a2, "el_%s_regr_energy[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_regr_energy, a2);
@@ -572,6 +598,25 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<reco::GsfElectronCollection> elH;
   iEvent.getByLabel(electronColl, elH);
 
+  edm::Handle<reco::GsfElectronCollection> calibEleH;
+  iEvent.getByLabel("calibratedElectrons", "calibratedGsfElectrons", calibEleH);
+
+  edm::Handle<edm::ValueMap<double>> calibEnergyH;
+  iEvent.getByLabel("calibratedElectrons" ,"eneRegForGsfEle", calibEnergyH);
+  const edm::ValueMap<double>* calibEnergy = calibEnergyH.product();
+  
+  edm::Handle<edm::ValueMap<double>> calibEnergyErrH;
+  iEvent.getByLabel("calibratedElectrons" ,"eneErrorRegForGsfEle", calibEnergyErrH);
+  const edm::ValueMap<double>* calibEnergyErr = calibEnergyErrH.product();
+  
+  edm::Handle<edm::ValueMap<double>> corrEnergyH;
+  iEvent.getByLabel("eleRegressionEnergy" ,"eneRegForGsfEle", corrEnergyH);
+  const edm::ValueMap<double>* corrEnergy = corrEnergyH.product();
+  
+  edm::Handle<edm::ValueMap<double>> corrEnergyErrH;
+  iEvent.getByLabel("eleRegressionEnergy" ,"eneErrorRegForGsfEle", corrEnergyErrH);
+  const edm::ValueMap<double>* corrEnergyErr = corrEnergyErrH.product();
+
   edm::Handle<reco::ConversionCollection> hConversions;
   iEvent.getByLabel(conversionColl, hConversions);
 
@@ -605,7 +650,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder_);  
   const TransientTrackBuilder thebuilder = *(trackBuilder_.product());
   
-
   /*
   edm::Handle<reco::PFCandidateCollection> pfHandle;
   iEvent.getByLabel(pfColl, pfHandle);
@@ -657,7 +701,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       rechits_map_.insert(std::make_pair(it->id(), *it));
     }
   }
-
+  
+  el_p4_corr->Clear();
   el_sc->Clear();
   el_p4->Clear(); 
   el_momvtx->Clear();
@@ -806,6 +851,16 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       el_regr_energy[el_n]    = cor.first;
       el_regr_energyerr[el_n] = cor.second;
     }
+    
+    reco::GsfElectronRef calibEleRef(calibEleH, std::distance(elH->begin(), igsf));
+    reco::GsfElectronRef myElectronRef(elH, std::distance(elH->begin(), igsf));
+    el_corr_energy[el_n]     = (*corrEnergy)[myElectronRef];
+    el_corr_energyerr[el_n]  = (*corrEnergyErr)[myElectronRef];
+    el_calib_energy[el_n]    = (*calibEnergy)[calibEleRef];
+    el_calib_energyerr[el_n] = (*calibEnergyErr)[calibEleRef];
+
+    new ((*el_p4_corr)[el_n]) TLorentzVector();
+    ((TLorentzVector *)el_p4_corr->At(el_n))->SetXYZT(calibEleRef->px(), calibEleRef->py(), calibEleRef->pz(), calibEleRef->energy());
 
     // ES variables
     el_eseffsixix[el_n] = 0.;
@@ -892,7 +947,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	el_ip3d[el_n] = ip3d; 
 	el_ip3d_sig[el_n] = ip3d/el_ip3d_err[el_n];
       }
-      
       
       el_kfhits[el_n] = egsf.closestCtfTrackRef()->hitPattern().trackerLayersWithMeasurement();
       el_kfchi2[el_n] = egsf.closestCtfTrackRef()->normalizedChi2();
@@ -1025,7 +1079,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_ecaldrv[el_n] = egsf.ecalDrivenSeed();
     el_tkdrv[el_n] = egsf.trackerDrivenSeed();
     
-    reco::GsfElectronRef myElectronRef(elH, std::distance(elH->begin(), igsf));
     el_pfiso_charged[el_n] =  (*(electronIsoVals[0].product()))[myElectronRef]; //egsf.pfIsolationVariables().chargedHadronIso;
     el_pfiso_photon[el_n] = (*(electronIsoVals[1].product()))[myElectronRef]; //egsf.pfIsolationVariables().photonIso;
     el_pfiso_neutral[el_n] = (*(electronIsoVals[2].product()))[myElectronRef]; //egsf.pfIsolationVariables().neutralHadronIso;

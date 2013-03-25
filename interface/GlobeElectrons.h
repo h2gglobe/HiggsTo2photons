@@ -30,6 +30,7 @@
 
 //#include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "EGamma/EGammaAnalysisTools/interface/EGammaMvaEleEstimator.h"
+//#include "EGamma/EGammaAnalysisTools/interface/ElectronEnergyRegressionEvaluate.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -169,6 +170,10 @@ class GlobeElectrons {
   
   Float_t el_regr_energy[MAX_ELECTRONS];
   Float_t el_regr_energyerr[MAX_ELECTRONS];
+  Float_t el_corr_energy[MAX_ELECTRONS];
+  Float_t el_corr_energyerr[MAX_ELECTRONS];
+  Float_t el_calib_energy[MAX_ELECTRONS];
+  Float_t el_calib_energyerr[MAX_ELECTRONS];
   Float_t el_eleopout[MAX_ELECTRONS];
   Float_t el_detaeleout[MAX_ELECTRONS];
   Int_t el_kfhits[MAX_ELECTRONS];
@@ -210,6 +215,7 @@ class GlobeElectrons {
 
   TClonesArray *el_sc;
   TClonesArray *el_p4;
+  TClonesArray *el_p4_corr;
   TClonesArray *el_momvtx;
   TClonesArray *el_momvtxconst;
   TClonesArray *el_momcalo;
@@ -244,7 +250,10 @@ class GlobeElectrons {
   bool energyCorrectionsFromDB;
   std::string energyRegFilename;
   std::string regressionVersion;
-  //ElectronMVAEstimator*  mvaEstimator;
+  //std::string eleRegressionFilename;
+  //Int_t eleRegressionType;
+
+  //ElectronEnergyRegressionEvaluate* eleRegression;
 
   const TransientTrackBuilder* transientTrackBuilder;
 };
