@@ -61,6 +61,14 @@ process.load('HiggsAnalysis.HiggsTo2photons.ZMuSkim_cff')
 process.load('HiggsAnalysis.HiggsTo2photons.photonReRecoForMMG_cfi')
 process.load('HiggsAnalysis.HiggsTo2photons.cicFilter_cfi')
 
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+                                                   calibratedElectrons = cms.PSet(
+  initialSeed = cms.untracked.uint32(1),
+  engineName = cms.untracked.string('TRandom3')
+  ),
+                                                   )
+
+
 if flagSkimMu == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
   process.HLTSingleMu = copy.deepcopy(process.hltHighLevel)
@@ -69,12 +77,46 @@ if flagSkimMu == 'ON':
 
 if flagSkimworz == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-  process.TPHltFilter = copy.deepcopy(process.hltHighLevel)
-  process.TPHltFilter.throw = cms.bool(False)
-  process.TPHltFilter.HLTPaths = ["HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_*",
-                                  "HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_*",
-                                  "HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_*"]
-  
+  prprocess.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+                                                   calibratedElectrons = cms.PSet(
+  initialSeed = cms.untracked.uint32(1),
+  engineName = cms.untracked.string('TRandom3')
+  ),
+                                                   )
+
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+                                                   calibratedElectrons = cms.PSet(
+  initialSeed = cms.untracked.uint32(1),
+  engineName = cms.untracked.string('TRandom3')
+  ),
+                                                   )
+
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+                                                   calibratedElectrons = cms.PSet(
+  initialSeed = cms.untracked.uint32(1),
+  engineName = cms.untracked.string('TRandom3')
+  ),
+                                                   )
+
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+                                                   calibratedElectrons = cms.PSet(
+  initialSeed = cms.untracked.uint32(1),
+  engineName = cms.untracked.string('TRandom3')
+  ),
+                                                   )
+
+process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
+                                                   calibratedElectrons = cms.PSet(
+  initialSeed = cms.untracked.uint32(1),
+  engineName = cms.untracked.string('TRandom3')
+  ),
+                                                   )
+
+process.TPHltFilter = copy.deepcopy(process.hltHighLevel)
+process.TPHltFilter.throw = cms.bool(False)
+process.TPHltFilter.HLTPaths = ["HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_*",
+                                "HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_*",
+                                "HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_*"]
   
 if flagSkimDiphoton == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
@@ -280,6 +322,29 @@ elif flagSkimMu == 'ON':
 process.h2ganalyzer.RootFileName = 'aod_mc_test.root'
 process.h2ganalyzer.Debug_Level = 0
 
+##---------------------ELECTRON REGRESSION AND SMEARING ------------------------------
+process.load("EgammaAnalysis.ElectronTools.calibratedElectrons_cfi")
+
+# dataset to correct
+if (flagMC == 'ON'):
+  process.calibratedElectrons.isMC = cms.bool(True)
+  process.calibratedElectrons.inputDataset = cms.string("Summer12_DR53X_HCP2012")
+else:
+  process.calibratedElectrons.isMC = cms.bool(False)
+  process.calibratedElectrons.inputDataset = cms.string("Moriond2013")
+  
+process.calibratedElectrons.updateEnergyError = cms.bool(True)
+process.calibratedElectrons.applyCorrections = cms.int32(1)
+process.calibratedElectrons.smearingRatio = cms.double(0.607)
+process.calibratedElectrons.verbose = cms.bool(False)
+#process.calibratedElectrons.synchronization = cms.bool(True) 
+
+process.load('EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi')
+process.eleRegressionEnergy.inputElectronsTag = cms.InputTag('gsfElectrons')
+process.eleRegressionEnergy.inputCollectionType = cms.uint32(0)
+process.eleRegressionEnergy.useRecHitCollections = cms.bool(True)
+process.eleRegressionEnergy.produceValueMaps = cms.bool(True)
+
 ##-------------------- ANOMALOUS HCAL LASER CORRECTION FILTER ------------------------
 process.load("EventFilter.HcalRawToDigi.hcallasereventfilter2012_cff")
 ##-------------------- ANOMALOUS ECAL LASER CORRECTION FILTER ------------------------
@@ -333,7 +398,6 @@ process.ak5PFchsJets.src = 'pfNoPileUp'
 process.load("CommonTools.ParticleFlow.pfNoPileUp_cff")
 process.load("CommonTools.ParticleFlow.pfParticleSelection_cff")
 
-
 # note pfPileUp modified according to JetMET's recommendations
 process.pfPileUp.checkClosestZVertex = False
 process.pfPileUp.Vertices = 'goodOfflinePrimaryVertices'
@@ -364,15 +428,13 @@ process.ak5PFchsL1FastL2L3Residual = cms.ESProducer(
   correctors =
   cms.vstring('ak5PFchsL1Fastjet','ak5PFchsL2Relative',
               'ak5PFchsL3Absolute','ak5PFchsResidual')
-  )
-
+)
 
 #################################################
 # Addition for Type1 pfMET corrections          #
 #################################################
 
 process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff") 
-
 
 #################################################
 # B-Tagging Modules                             #
@@ -497,17 +559,12 @@ process.newPFchsBtaggingSequence = cms.Sequence(
     process.newPFchsJetTracksAssociator *
        process.newPFchsJetBtagging )
 
-
-
-
-
 #################################################
 # Define path, first for AOD case then for RECO #
 #################################################
 
-process.p11 = cms.Path(process.eventCounters*process.hcallLaserEvent2012Filter*process.ecalLaserCorrFilter*process.eventFilter1*process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence)
+process.p11 = cms.Path(process.eventCounters*process.hcallLaserEvent2012Filter*process.ecalLaserCorrFilter*process.eventFilter1*process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence*process.eleRegressionEnergy * process.calibratedElectrons)
 #process.p11 = cms.Path(process.eventCounters*process.eventFilter1* process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.pfType1CorrectedMet  )
-
 
 if (flagFastSim == 'OFF' or flagAOD == 'OFF'):
   process.p11 *= process.piZeroDiscriminators

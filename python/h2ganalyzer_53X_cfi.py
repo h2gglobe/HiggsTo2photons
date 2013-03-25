@@ -24,6 +24,10 @@ h2ganalyzer = cms.EDAnalyzer(
     energyCorrectionsFileNamePho = cms.string("gbrv3ph_52x.root"),
     energyCorrectionsFileNameEle = cms.string("gbrv3ele_52x.root"),
     energyCorrectionsVersion = cms.string("V3"),
+
+    eleRegressionFileName = cms.string("eleEnergyRegWeights"),
+    eleRegressionType = cms.int32(0),
+    
     globalCounters = cms.vstring(),
 
     #PhotonFIX parameters
