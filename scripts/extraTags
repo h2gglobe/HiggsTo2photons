@@ -4,7 +4,7 @@ addpkg RecoEgamma/EgammaTools V09-00-00
 #addpkg RecoEcal/EgammaCoreTools V05-08-21
 #addpkg RecoParticleFlow/PFProducer  V15-01-11
 cvs co -r V00-02-05 -d CMGTools/External UserCode/CMG/CMGTools/External
-cvs co -r V00-00-30 -d EGamma/EGammaAnalysisTools UserCode/EGamma/EGammaAnalysisTools
+cvs co -d EGamma/EGammaAnalysisTools UserCode/Matteosan/EGamma/EGammaAnalysisTools
 cp HiggsAnalysis/HiggsTo2photons/scripts/download.url EGamma/EGammaAnalysisTools/data/.
 #addpkg JetMETCorrections/Type1MET V04-06-09
 #addpkg PhysicsTools/PatUtils V03-09-22
