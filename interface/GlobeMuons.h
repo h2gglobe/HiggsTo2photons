@@ -40,6 +40,7 @@ class GlobeMuons {
   Float_t mu_hoS9[MAX_MUONS];
   Float_t mu_dz[MAX_MUONS];
   Float_t mu_d0[MAX_MUONS];
+  Float_t mu_dxy[MAX_MUONS];
   Float_t mu_dzerr[MAX_MUONS];
   Float_t mu_d0err[MAX_MUONS];
   Float_t mu_chi2[MAX_MUONS];
