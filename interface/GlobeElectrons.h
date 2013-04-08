@@ -142,6 +142,8 @@ class GlobeElectrons {
   Float_t el_DZVtx[MAX_ELECTRONS][100];
 
   std::vector<std::vector<int> >* el_catbased;
+  std::vector<std::vector<UInt_t> >* el_schits;
+  std::vector<std::vector<UInt_t> >* el_bchits;
 
   TClonesArray *el_sc;
   TClonesArray *el_p4;
@@ -171,6 +173,17 @@ class GlobeElectrons {
 
   EcalClusterLazyTools* ecalLazyTool;
   EGEnergyCorrector ecorr_;
+
+  bool energyCorrectionsFromDB;
+  std::string energyRegFilename;
+  std::string regressionVersion;
+  bool applyEnergyCorrection;
+  //std::string eleRegressionFilename;
+  //Int_t eleRegressionType;
+  
+  //ElectronEnergyRegressionEvaluate* eleRegression;
+
+  const TransientTrackBuilder* transientTrackBuilder;
 };
 
 #endif

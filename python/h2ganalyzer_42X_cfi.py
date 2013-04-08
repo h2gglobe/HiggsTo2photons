@@ -11,17 +11,29 @@ import FWCore.ParameterSet.Config as cms
 # OTHER
 
 from HiggsAnalysis.HiggsTo2photons.hggPhotonIDCuts_cfi import *
+#from CMGTools.External.pujetidsequence_cff   import puJetMva
+from CMGTools.External.pujetidproducer_cfi import stdalgos, chsalgos
 #from HiggsAnalysis.HiggsToGammaGamma.PhotonFixParams4_2_cfi import *
+from PhysicsTools.SelectorUtils.pfJetIDSelector_cfi import pfJetIDSelector
 
 h2ganalyzer = cms.EDAnalyzer(
     "GlobeAnalyzer",
     RootFileName = cms.string('prova.root'),
     JobMaker = cms.string('jobmaker unknown'),
-    globalCounters = cms.vstring(),
+    energyCorrectionsFromDB = cms.bool(False),
+    energyCorrectionsFileNamePho = cms.string("gbrv2pho.root"),
+    energyCorrectionsFileNameEle = cms.string("gbrv2ele.root"),
+    energyCorrectionsVersion = cms.string("V1"),
+
+    applyEnergyCorrection = cms.bool(False),
+    eleRegressionFileName = cms.string("eleEnergyRegWeights"),
+    eleRegressionType = cms.int32(0),
     
+    globalCounters = cms.vstring(),
+
     #PhotonFIX parameters
     #PFParameters = PhotonFixParameters,
-    
+
     # COLLECTIONS
     GeneratorColl = cms.InputTag("generator"),
     GenParticlesColl = cms.InputTag("genParticles"),
@@ -82,7 +94,7 @@ h2ganalyzer = cms.EDAnalyzer(
     EndcapBasicClusterColl = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),    
     BarrelBasicClusterShapeColl = cms.InputTag("",""),
     BarrelHybridClusterShapeColl = cms.InputTag("hybridSuperClusters","hybridShapeAssoc"),
-    EndcapBasicClusterShapeColl = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapShapeAssoc"),
+    EndcapBasicClusterShapeColl = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapShapeAssoc"),
     BarrelSuperClusterColl = cms.InputTag("multi5x5SuperClusters","multi5x5BarrelSuperClusters"),
     BarrelHybridClusterColl = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
     EndcapSuperClusterColl = cms.InputTag("correctedMulti5x5SuperClustersWithPreshower"),
@@ -90,6 +102,7 @@ h2ganalyzer = cms.EDAnalyzer(
     
     TrackColl = cms.InputTag("generalTracks"),
     GsfTrackColl = cms.InputTag("electronGsfTracks"),
+
     # Temporary
     TrackColl2 = cms.InputTag("generalTracks"),
     TrackColl3 = cms.InputTag("electronGsfTracks"),
@@ -98,47 +111,91 @@ h2ganalyzer = cms.EDAnalyzer(
     ElectronColl_std = cms.InputTag("gsfElectrons"),        
     eIDLabels        = cms.VInputTag(cms.InputTag("eidLoose"),
                                      cms.InputTag("eidTight")),
+    #electronMVAWeightFileName =  cms.FileInPath("RecoEgamma/ElectronIdentification/data/TMVA_BDTSimpleCat_17Feb2011.weights.xml"),
+
+    electronNonTrigMVAWeightFileNames = cms.vstring("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat1.weights.xml",
+                                                    "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat2.weights.xml",
+                                                    "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat3.weights.xml",
+                                                    "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat4.weights.xml",
+                                                    "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat5.weights.xml",
+                                                    "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_NonTrigV0_Cat6.weights.xml"),
+    
+    electronTrigMVAWeightFileNames =  cms.vstring("EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat1.weights.xml",
+                                                  "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat2.weights.xml",
+                                                  "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat3.weights.xml",
+                                                  "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat4.weights.xml",
+                                                  "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat5.weights.xml",
+                                                  "EGamma/EGammaAnalysisTools/data/Electrons_BDTG_TrigV0_Cat6.weights.xml"),
+    
+    IsoValElectronPF = cms.VInputTag(cms.InputTag('elPFIsoValueCharged03PFIdPFIso'),
+                                     cms.InputTag('elPFIsoValueGamma03PFIdPFIso'),
+                                     cms.InputTag('elPFIsoValueNeutral03PFIdPFIso')),
+ 
                                 
     PhotonCollStd = cms.InputTag("photons"),
+    PhotonCollPf = cms.InputTag("pfPhotonTranslator:pfphot"),
     ConvertedPhotonColl = cms.InputTag("allConversions"),
     MuonColl = cms.InputTag("muons"),
-   
-    JetCorrectionMC   = cms.string("ak5PFL1FastL2L3"),
-    JetCorrectionData = cms.string("ak5PFL1FastL2L3Residual"),
+    RhoCollectionForMuons = cms.InputTag("kt6PFJetsCentralNeutral","rho"),
+    
+    #JetCorrectionMC_algoPF1   = cms.untracked.string("ak5PFL1FastL2L3"),
+    #JetCorrectionData_algoPF1 = cms.untracked.string("ak5PFL1FastL2L3Residual"),
+    #
+    #JetCorrectionMC_algoPF2   = cms.untracked.string("ak7PFL1FastL2L3"),
+    #JetCorrectionData_algoPF2 = cms.untracked.string("ak7PFL1FastL2L3Residual"),
+    #
+    #JetCorrectionMC_algoPF3   = cms.untracked.string("ak5PFchsL1FastL2L3"),
+    #JetCorrectionData_algoPF3 = cms.untracked.string("ak5PFchsL1FastL2L3Residual"),
 
+    JetCorrectionMC_algoPF1   = cms.untracked.string(""),
+    JetCorrectionData_algoPF1 = cms.untracked.string(""),
+    JetCorrectionMC_algoPF2   = cms.untracked.string(""),
+    JetCorrectionData_algoPF2 = cms.untracked.string(""),
+    JetCorrectionMC_algoPF3   = cms.untracked.string(""),
+    JetCorrectionData_algoPF3 = cms.untracked.string(""),
+
+    JetVertexToProcess = cms.uint32(50),
     JetColl_algo1 = cms.InputTag("ak5CaloJets"),
     JetColl_algo2 = cms.InputTag("ak7CaloJets"),
     JetColl_algo3 = cms.InputTag("kt4CaloJets"),
     JetColl_algoPF1 = cms.InputTag("ak5PFJets"),
     JetColl_algoPF2 = cms.InputTag("ak7PFJets"),
-    JetColl_algoPF3 = cms.InputTag("kt4PFJets"),
-    bcBColl = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
-    bcEColl = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
+    JetColl_algoPF3 = cms.InputTag("ak5PFchsJets"),
+    
+    puJetIDAlgos_algoPF1 = cms.untracked.VPSet(stdalgos),
+    puJetIDAlgos_algoPF2 = cms.untracked.VPSet(stdalgos),
+    puJetIDAlgos_algoPF3 = cms.untracked.VPSet(chsalgos),
+
+    pfLooseId = pfJetIDSelector.clone(),
+    
+    #bcBColl = cms.InputTag("hybridSuperClusters","hybridBarrelBasicClusters"),
+    #bcEColl = cms.InputTag("multi5x5BasicClusters","multi5x5EndcapBasicClusters"),
     tkColl = cms.InputTag("generalTracks"),                                                 
 
     JetTrackAssociationColl_algo1 = cms.InputTag("ak5JetTracksAssociatorAtVertex"),    
     JetTrackAssociationColl_algo2 = cms.InputTag("ak7JetTracksAssociatorAtVertex"),
     JetTrackAssociationColl_algo3 = cms.InputTag(""),
     
-    rhoCorrection = cms.InputTag("kt6PFJetsForRhoCorrection","rho"),
+    rhoCollection_algo1 = cms.InputTag("kt6PFJetsForRhoCorrection","rho"),
+    rhoCollection_algo2 = cms.InputTag("",""),
+    rhoCollection_algo3 = cms.InputTag("",""),
 
     PFCandidateColl = cms.InputTag("particleFlow"),
     isolationValues03 = cms.PSet(pfChargedHadrons = cms.InputTag('isoValPhotonWithCharged03'),
                                  pfPhotons        = cms.InputTag('isoValPhotonWithPhotons03'),
                                  pfNeutralHadrons = cms.InputTag('isoValPhotonWithNeutral03'),
-                                 pfPhotonsNoveto  = cms.InputTag('isoValPhotonWithPhotons03noveto')
                                  ),
 
     isolationValues04 = cms.PSet(pfChargedHadrons = cms.InputTag('isoValPhotonWithCharged04'),
                                  pfPhotons        = cms.InputTag('isoValPhotonWithPhotons04'),
                                  pfNeutralHadrons = cms.InputTag('isoValPhotonWithNeutral04'),
-                                 pfPhotonsNoveto  = cms.InputTag('isoValPhotonWithPhotons04noveto')
                                  ),
     
     CaloMETColl = cms.InputTag("met"),
     TcMETColl = cms.InputTag("tcMet"),
     PFMETColl = cms.InputTag("pfMet"),
-
+    PFMETTYPE1Coll = cms.InputTag("pfType1CorrectedMet"),
+    
     BeamSpot = cms.InputTag("offlineBeamSpot"),
     VertexColl_std = cms.InputTag("offlinePrimaryVerticesWithBS"),
     VertexColl_nobs = cms.InputTag("offlinePrimaryVertices"),
@@ -167,28 +224,30 @@ h2ganalyzer = cms.EDAnalyzer(
     # CUTS
     hggPhotonIDConfiguration = cms.PSet(hggPhotonIDCuts),
     
-    GeneratorCuts = cms.PSet(EtCut = cms.double(10.0)),
+    GeneratorCuts = cms.PSet(EtCut = cms.double(5.0)),
     GenJetCuts = cms.PSet(EtCut = cms.double(-1.0)),
     
     SimHitCuts = cms.PSet(EnergyCut = cms.double(0.0)),
     SimTrackCuts = cms.PSet(EnergyCut = cms.double(0.0)),
     
-    EcalHitCuts = cms.PSet(BarrelEnergyCut = cms.double(0.08),
-                           EndcapEnergyCut = cms.double(0.24),
+    EcalHitCuts = cms.PSet(BarrelEnergyCut = cms.double(0.0),
+                           EndcapEnergyCut = cms.double(0.0),
                            PreEnergyCut = cms.double(-999.0),
                            EcalMaxDR = cms.double(0.5),
-                           KeepOutsideCone = cms.bool(True)),
+                           KeepOutsideCone = cms.bool(False)),
+    
     HcalHitsCuts = cms.PSet(HBHEEnergyCut = cms.double(0.35),
                             HFEnergyCut = cms.double(1.0),
                             HOEnergyCut = cms.double(0.7),
                             HcalMaxDR = cms.double(0.6),
-                            KeepOutsideCone = cms.bool(True)),
+                            KeepOutsideCone = cms.bool(False)),
     
     BasicClusterCuts = cms.PSet(EnergyCut = cms.double(-1.0)),
     SuperClusterCuts = cms.PSet(EnergyCut = cms.double(-1.0)),
     CaloTowerCuts = cms.PSet(EtCut = cms.double(1.0)),
     
     TrackCuts = cms.PSet(PtCut = cms.double(-1.0)),
+    
     TPCuts = cms.PSet(tpLvpCut = cms.double(99999.0),
                       tpEtaCut = cms.double(2.5),
                       tpTvpCut = cms.double(99999.0),
@@ -201,7 +260,11 @@ h2ganalyzer = cms.EDAnalyzer(
     MuonCuts = cms.PSet(PtCut = cms.double(-1.0)),
     PhotonCuts = cms.PSet(EtCut = cms.double(0.0)),
     ConvertedPhotonCuts = cms.PSet(EtCut = cms.double(0.0)),
-    JetCuts = cms.PSet(EnergyCut = cms.double(0.0)),
+    JetCuts = cms.PSet(EnergyCut = cms.double(5.0)),
+
+    GenParticleCuts = cms.PSet(EtCut = cms.double(0.0),
+                               PdgId = cms.vint32(),
+                               Keep = cms.bool(True)),
 
     # DEBUG
     Debug_Level = cms.int32(0),
@@ -241,13 +304,15 @@ h2ganalyzer = cms.EDAnalyzer(
     
     # RUNNING MODULES
     doGenerator = cms.bool(False),
-    doReducedGen = cms.bool(True),
+    doReducedGen = cms.bool(False),
     doGenParticles = cms.bool(True),
     doGenVertices = cms.bool(True),
     
     doGenJet_algo1 = cms.bool(True),
     doGenJet_algo2 = cms.bool(True),
     doGenJet_algo3 = cms.bool(True),
+
+    doGenMet = cms.bool(True),
     
     doSimHits = cms.bool(False),
     doSimTracks = cms.bool(False),
@@ -280,12 +345,12 @@ h2ganalyzer = cms.EDAnalyzer(
     doAllConversions = cms.bool(True),
     doLeptons = cms.bool(True),
     
-    doJet_algo1 = cms.bool(True),
-    doJet_algo2 = cms.bool(True),
-    doJet_algo3 = cms.bool(True),
+    doJet_algo1 = cms.bool(False),
+    doJet_algo2 = cms.bool(False),
+    doJet_algo3 = cms.bool(False),
     doJet_algoPF1 = cms.bool(True),
-    doJet_algoPF2 = cms.bool(True),
-    doJet_algoPF3 = cms.bool(True),
+    doJet_algoPF2 = cms.bool(False),
+    doJet_algoPF3 = cms.bool(False),
 
     doPFCandidates = cms.bool(True),
     PFIsoOuterCone = cms.double(0.4),
@@ -298,12 +363,12 @@ h2ganalyzer = cms.EDAnalyzer(
     
     doRho = cms.bool(True),
     doPileup = cms.bool(True),
-
     doPdfWeight = cms.bool(False),
     PdfWeightsCollList = cms.VInputTag(cms.InputTag("pdfWeights","cteq66")),
-    
+
     doFastSim = cms.bool(False),
     doAodSim  = cms.bool(True),
+    doParticleGun = cms.bool(False),
     
     storeGsfTracksOnlyIfElectrons = cms.bool(True),
 

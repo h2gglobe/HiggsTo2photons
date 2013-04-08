@@ -30,6 +30,7 @@
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 
+//#include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"
@@ -127,8 +128,18 @@ class GlobePhotons {
   Float_t pho_pfiso_myphoton03[MAX_PHOTONS];  
   Float_t pho_pfiso_myneutral04[MAX_PHOTONS];
   Float_t pho_pfiso_myphoton04[MAX_PHOTONS];
+  Float_t pho_pfiso_myphoton05[MAX_PHOTONS]; 
+  Float_t pho_pfiso_myphoton06[MAX_PHOTONS]; 
+
+  std::vector<std::vector<float> >* pho_pfiso_mycharged01;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged02;
   std::vector<std::vector<float> >* pho_pfiso_mycharged03;
   std::vector<std::vector<float> >* pho_pfiso_mycharged04;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged05;
+  std::vector<std::vector<float> >* pho_pfiso_mycharged06;
+  
+  std::vector<std::vector<UInt_t> >* pho_schits;
+  std::vector<std::vector<UInt_t> >* pho_bchits;
 
   Float_t pho_ecalsumetconedr04[MAX_PHOTONS];
   Float_t pho_hcalsumetconedr04[MAX_PHOTONS];
@@ -146,7 +157,9 @@ class GlobePhotons {
   Float_t pho_trksumpthollowconedr03[MAX_PHOTONS];
   Float_t pho_ntrksolidconedr03[MAX_PHOTONS];
   Float_t pho_ntrkhollowconedr03[MAX_PHOTONS];
-  std::vector<std::vector<float> >* pho_frixiso;
+
+  //std::vector<std::vector<float> >* pho_frixiso;
+
   Float_t pho_must[MAX_PHOTONS];
 
   Int_t pho_barrel[MAX_PHOTONS];
