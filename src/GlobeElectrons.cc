@@ -9,6 +9,7 @@
 #include "Geometry/CaloTopology/interface/EcalEndcapTopology.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -133,6 +134,8 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   el_poscalo = new TClonesArray("TVector3", MAX_ELECTRONS);
 
   el_catbased = new std::vector<std::vector<int> >;
+  el_schits = new std::vector<std::vector<UInt_t> >;
+  el_bchits = new std::vector<std::vector<UInt_t> >;
 
   char a1[50], a2[50];
   
@@ -343,6 +346,12 @@ void GlobeElectrons::defineBranch(TTree* tree) {
 
   sprintf(a1, "el_%s_catbased", nome);
   tree->Branch(a1, "std::vector<std::vector<int> >", &el_catbased);
+
+  sprintf(a1, "el_%s_schits", nome);
+  tree->Branch(a1, "std::vector<std::vector<UInt_t> >", &el_schits);
+
+  sprintf(a1, "el_%s_bchits", nome);
+  tree->Branch(a1, "std::vector<std::vector<UInt_t> >", &el_bchits);
 
   sprintf(a1, "el_%s_tkind", nome);
   sprintf(a2, "el_%s_tkind[el_%s_n]/I", nome, nome);
@@ -711,6 +720,8 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   el_posvtx->Clear();
   el_poscalo->Clear(); 
   el_catbased ->clear();
+  el_schits->clear();
+  el_bchits->clear();
   el_n = 0;
 
   if (debug_level > 9)
@@ -1024,6 +1035,17 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(egsf.superCluster()), &(*endcapRecHits), &(*topology))[0]);
       }
     }
+    
+    std::vector<UInt_t> schits, bchits;    
+    for (reco::CaloCluster_iterator clusterIt=egsf.superCluster()->clustersBegin(); clusterIt!=egsf.superCluster()->clustersEnd(); clusterIt++) {
+      for (unsigned int j=0; j<(*clusterIt)->hitsAndFractions().size(); j++)
+	schits.push_back(((*clusterIt)->hitsAndFractions())[j].first);
+      el_schits->push_back(schits);
+    }
+
+    for (unsigned int j=0; j<egsf.superCluster()->seed()->hitsAndFractions().size(); j++)
+      bchits.push_back((egsf.superCluster()->seed()->hitsAndFractions())[j].first);
+    el_bchits->push_back(bchits);
 
     //el_mva_noiso[el_n] = egsf.mva();
     //el_mva[el_n] = mvaEstimator->mva(egsf, vtxH->size());

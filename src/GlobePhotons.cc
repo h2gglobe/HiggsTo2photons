@@ -117,21 +117,8 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   pho_pfiso_mycharged05 = new std::vector<std::vector<float> >();
   pho_pfiso_mycharged06 = new std::vector<std::vector<float> >();
 
-  /*
-  pho_pfiso_egcharged01 = new std::vector<std::vector<float> >();
-  pho_pfiso_egcharged02 = new std::vector<std::vector<float> >();
-  pho_pfiso_egcharged03 = new std::vector<std::vector<float> >();
-  pho_pfiso_egcharged04 = new std::vector<std::vector<float> >();
-  pho_pfiso_egcharged05 = new std::vector<std::vector<float> >();
-  pho_pfiso_egcharged06 = new std::vector<std::vector<float> >();
-
-  pho_pfiso_barecharged01 = new std::vector<std::vector<float> >();
-  pho_pfiso_barecharged02 = new std::vector<std::vector<float> >();
-  pho_pfiso_barecharged03 = new std::vector<std::vector<float> >();
-  pho_pfiso_barecharged04 = new std::vector<std::vector<float> >();
-  pho_pfiso_barecharged05 = new std::vector<std::vector<float> >();
-  pho_pfiso_barecharged06 = new std::vector<std::vector<float> >();
-  */
+  pho_schits = new std::vector<std::vector<UInt_t> >;
+  pho_bchits = new std::vector<std::vector<UInt_t> >;
 
   //pho_frixiso = new std::vector<std::vector<float> >();
  
@@ -246,34 +233,9 @@ void GlobePhotons::defineBranch(TTree* tree) {
   tree->Branch("pho_pfiso_myphoton06", &pho_pfiso_myphoton06, "pho_pfiso_myphoton06[pho_n]/F");
   tree->Branch("pho_pfiso_mycharged06", "std::vector<std::vector<float> >", &pho_pfiso_mycharged06);
 
-  /*
-  tree->Branch("pho_pfiso_barephoton01", &pho_pfiso_barephoton01, "pho_pfiso_barephoton01[pho_n]/F");  
-  tree->Branch("pho_pfiso_barecharged01", "std::vector<std::vector<float> >", &pho_pfiso_barecharged01);
-  tree->Branch("pho_pfiso_barephoton02", &pho_pfiso_barephoton02, "pho_pfiso_barephoton02[pho_n]/F");  
-  tree->Branch("pho_pfiso_barecharged02", "std::vector<std::vector<float> >", &pho_pfiso_barecharged02);
-  tree->Branch("pho_pfiso_barephoton03", &pho_pfiso_barephoton03, "pho_pfiso_barephoton03[pho_n]/F");  
-  tree->Branch("pho_pfiso_barecharged03", "std::vector<std::vector<float> >", &pho_pfiso_barecharged03);
-  tree->Branch("pho_pfiso_barephoton04", &pho_pfiso_barephoton04, "pho_pfiso_barephoton04[pho_n]/F");
-  tree->Branch("pho_pfiso_barecharged04", "std::vector<std::vector<float> >", &pho_pfiso_barecharged04);
-  tree->Branch("pho_pfiso_barephoton05", &pho_pfiso_barephoton05, "pho_pfiso_barephoton05[pho_n]/F");
-  tree->Branch("pho_pfiso_barecharged05", "std::vector<std::vector<float> >", &pho_pfiso_barecharged05);
-  tree->Branch("pho_pfiso_barephoton06", &pho_pfiso_barephoton06, "pho_pfiso_barephoton06[pho_n]/F");
-  tree->Branch("pho_pfiso_barecharged06", "std::vector<std::vector<float> >", &pho_pfiso_barecharged06);
+  tree->Branch("pho_schits", "std::vector<std::vector<UInt_t> >", &pho_schits);
+  tree->Branch("pho_bchits", "std::vector<std::vector<UInt_t> >", &pho_bchits);
 
-  tree->Branch("pho_pfiso_egphoton01", &pho_pfiso_egphoton01, "pho_pfiso_egphoton01[pho_n]/F");  
-  tree->Branch("pho_pfiso_egcharged01", "std::vector<std::vector<float> >", &pho_pfiso_egcharged01);
-  tree->Branch("pho_pfiso_egphoton02", &pho_pfiso_egphoton02, "pho_pfiso_egphoton02[pho_n]/F");  
-  tree->Branch("pho_pfiso_egcharged02", "std::vector<std::vector<float> >", &pho_pfiso_egcharged02);
-  tree->Branch("pho_pfiso_egphoton03", &pho_pfiso_egphoton03, "pho_pfiso_egphoton03[pho_n]/F");  
-  tree->Branch("pho_pfiso_egcharged03", "std::vector<std::vector<float> >", &pho_pfiso_egcharged03);
-  tree->Branch("pho_pfiso_egphoton04", &pho_pfiso_egphoton04, "pho_pfiso_egphoton04[pho_n]/F");
-  tree->Branch("pho_pfiso_egcharged04", "std::vector<std::vector<float> >", &pho_pfiso_egcharged04);
-  tree->Branch("pho_pfiso_egphoton05", &pho_pfiso_egphoton05, "pho_pfiso_egphoton05[pho_n]/F");
-  tree->Branch("pho_pfiso_egcharged05", "std::vector<std::vector<float> >", &pho_pfiso_egcharged05);
-  tree->Branch("pho_pfiso_egphoton06", &pho_pfiso_egphoton06, "pho_pfiso_egphoton06[pho_n]/F");
-  tree->Branch("pho_pfiso_egcharged06", "std::vector<std::vector<float> >", &pho_pfiso_egcharged06);
-
-  */
   //tree->Branch("pho_frixiso", "std::vector<std::vector<float> >", &pho_frixiso);  
 
   tree->Branch("pho_pfconvVtxZ", &pho_pfconvVtxZ, "pho_pfconvVtxZ[pho_n]/F");
@@ -545,21 +507,8 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   pho_pfiso_mycharged05->clear();
   pho_pfiso_mycharged06->clear();
 
-  /*
-  pho_pfiso_egcharged01->clear();
-  pho_pfiso_egcharged02->clear();
-  pho_pfiso_egcharged03->clear();
-  pho_pfiso_egcharged04->clear();
-  pho_pfiso_egcharged05->clear();
-  pho_pfiso_egcharged06->clear();
-
-  pho_pfiso_barecharged01->clear();
-  pho_pfiso_barecharged02->clear();
-  pho_pfiso_barecharged03->clear();
-  pho_pfiso_barecharged04->clear();
-  pho_pfiso_barecharged05->clear();
-  pho_pfiso_barecharged06->clear();
-  */
+  pho_schits->clear();
+  pho_bchits->clear();
 
   pho_n = 0;
 
@@ -590,6 +539,19 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     ((TVector3 *)pho_calopos->At(pho_n))->SetXYZ(localPho->caloPosition().x(), localPho->caloPosition().y(), localPho->caloPosition().z());
 
     reco::SuperClusterRef theClus = localPho->superCluster();
+
+    std::vector<UInt_t> schits,bchits;
+
+    for (reco::CaloCluster_iterator clusterIt=theClus->clustersBegin(); clusterIt!=theClus->clustersEnd(); clusterIt++) {
+      for (unsigned int j=0; j<theClus->hitsAndFractions().size(); j++)
+	schits.push_back((theClus->hitsAndFractions())[j].first);
+      pho_schits->push_back(schits);
+    }
+    
+    for (unsigned int j=0; j<theClus->seed()->hitsAndFractions().size(); j++)
+      bchits.push_back((theClus->seed()->hitsAndFractions())[j].first);
+    pho_bchits->push_back(bchits);
+
     pho_scind[pho_n] = -1;
 
     //PF info

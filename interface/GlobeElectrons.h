@@ -212,6 +212,8 @@ class GlobeElectrons {
       See also https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideCategoryBasedElectronID#How_to_use_it_in_CMSSW
   */ 
   std::vector<std::vector<int> >* el_catbased;
+  std::vector<std::vector<UInt_t> >* el_schits;
+  std::vector<std::vector<UInt_t> >* el_bchits;
 
   TClonesArray *el_sc;
   TClonesArray *el_p4;
