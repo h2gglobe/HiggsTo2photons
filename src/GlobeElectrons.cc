@@ -36,6 +36,35 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
 
   eIDLabels = iConfig.getParameter<std::vector<edm::InputTag> >("eIDLabels");
 
+  applyEnergyCorrection = iConfig.getParameter<bool>("applyEnergyCorrection");
+
+  mvaNonTrigWeightFiles = iConfig.getParameter<std::vector<std::string> >("electronNonTrigMVAWeightFileNames");
+  mvaTrigWeightFiles    = iConfig.getParameter<std::vector<std::string> >("electronTrigMVAWeightFileNames");
+  
+  for(unsigned int j=0; j<mvaTrigWeightFiles.size(); j++)
+    myManualCatWeightsTrig.push_back(edm::FileInPath(mvaTrigWeightFiles[j]).fullPath());
+
+  for(unsigned int j=0; j<mvaNonTrigWeightFiles.size(); j++)
+    myManualCatWeightsNonTrig.push_back(edm::FileInPath(mvaNonTrigWeightFiles[j]).fullPath());
+
+  myMVANonTrig = new EGammaMvaEleEstimator();
+  myMVANonTrig->initialize("BDT",
+           EGammaMvaEleEstimator::kNonTrig,
+           true, // use manual cat
+           myManualCatWeightsNonTrig);
+
+  myMVATrig = new EGammaMvaEleEstimator();
+  myMVATrig->initialize("BDT",
+           EGammaMvaEleEstimator::kTrig,
+           true, // use manual cat
+           myManualCatWeightsTrig);
+
+  inputTagIsoValElectronsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectronPF");   
+
+  energyCorrectionsFromDB = iConfig.getParameter<bool> ("energyCorrectionsFromDB"); 
+  energyRegFilename       = iConfig.getParameter<std::string> ("energyCorrectionsFileNameEle");  
+  regressionVersion       = iConfig.getParameter<std::string> ("energyCorrectionsVersion");
+
   // get cut thresholds
   gCUT = new GlobeCuts(iConfig);
   gES  = new GlobeEcalClusters(iConfig);
@@ -53,6 +82,8 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   el_poscalo = new TClonesArray("TVector3", MAX_ELECTRONS);
 
   el_catbased = new std::vector<std::vector<int> >;
+  el_schits = new std::vector<std::vector<UInt_t> >;
+  el_bchits = new std::vector<std::vector<UInt_t> >;
 
   char a1[50], a2[50];
   
@@ -156,9 +187,17 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a2, "el_%s_hoed2[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_hoed2, a2);
 
-  sprintf(a1, "el_%s_h", nome);
-  sprintf(a2, "el_%s_h[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_h, a2);
+  //sprintf(a1, "el_%s_hoebc", nome);
+  //sprintf(a2, "el_%s_hoebc[el_%s_n]/F", nome, nome);
+  //tree->Branch(a1, &el_hoebc, a2);
+
+  //sprintf(a1, "el_%s_hoebcd1", nome);
+  //sprintf(a2, "el_%s_hoebcd1[el_%s_n]/F", nome, nome);
+  //tree->Branch(a1, &el_hoebcd1, a2);
+
+  //sprintf(a1, "el_%s_hoebcd2", nome);
+  //sprintf(a2, "el_%s_hoebcd2[el_%s_n]/F", nome, nome);
+  //tree->Branch(a1, &el_hoebcd2, a2);
   
   sprintf(a1, "el_%s_detain", nome);
   sprintf(a2, "el_%s_detain[el_%s_n]/F", nome, nome);
@@ -239,6 +278,12 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_catbased", nome);
   tree->Branch(a1, "std::vector<std::vector<int> >", &el_catbased);
 
+  sprintf(a1, "el_%s_schits", nome);
+  tree->Branch(a1, "std::vector<std::vector<UInt_t> >", &el_schits);
+
+  sprintf(a1, "el_%s_bchits", nome);
+  tree->Branch(a1, "std::vector<std::vector<UInt_t> >", &el_bchits);
+
   sprintf(a1, "el_%s_tkind", nome);
   sprintf(a2, "el_%s_tkind[el_%s_n]/I", nome, nome);
   tree->Branch(a1, &el_tkind, a2); 
@@ -294,6 +339,18 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_hcaliso04", nome);
   sprintf(a2, "el_%s_hcaliso04[el_%s_n]/F", nome, nome);
   tree->Branch(a1, &el_hcaliso04, a2);
+
+  sprintf(a1, "el_%s_hcalsolidiso04", nome);
+  sprintf(a2, "el_%s_hcalsolidiso04[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_hcalsolidiso04, a2);
+
+  //sprintf(a1, "el_%s_hcalbciso03", nome);
+  //sprintf(a2, "el_%s_hcalbciso03[el_%s_n]/F", nome, nome);
+  //tree->Branch(a1, &el_hcalbciso03, a2);
+
+  //sprintf(a1, "el_%s_hcalbciso04", nome);
+  //sprintf(a2, "el_%s_hcalbciso04[el_%s_n]/F", nome, nome);
+  //tree->Branch(a1, &el_hcalbciso04, a2);
 
   sprintf(a1, "el_%s_ecaliso04", nome);
   sprintf(a2, "el_%s_ecaliso04[el_%s_n]/F", nome, nome);
@@ -414,6 +471,42 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_DZVtx", nome);
   sprintf(a2, "el_%s_DZVtx[el_%s_n][100]/F", nome, nome);
   tree->Branch(a1, &el_DZVtx, a2);
+
+  sprintf(a1, "el_%s_must", nome);
+  sprintf(a2, "el_%s_must[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_must, a2);
+
+  sprintf(a1, "el_%s_mustnc", nome);
+  sprintf(a2, "el_%s_mustnc[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_mustnc, a2);
+
+  sprintf(a1, "el_%s_r9", nome);
+  sprintf(a2, "el_%s_r9[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_r9, a2);
+
+  sprintf(a1, "el_%s_gsfchi2", nome);
+  sprintf(a2, "el_%s_gsfchi2[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_gsfchi2, a2);
+  
+  sprintf(a1, "el_%s_ip3d", nome);
+  sprintf(a2, "el_%s_ip3d[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_ip3d, a2);
+
+  sprintf(a1, "el_%s_ip3d_err", nome);
+  sprintf(a2, "el_%s_ip3d_err[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_ip3d_err, a2);
+
+  sprintf(a1, "el_%s_ip3d_sig", nome);
+  sprintf(a2, "el_%s_ip3d_sig[el_%s_n]/I", nome, nome);
+  tree->Branch(a1, &el_ip3d_sig, a2);
+
+  //sprintf(a1, "el_%s_sc_time", nome);
+  //sprintf(a2, "el_%s_sc_time[el_%s_n]/I", nome, nome);
+  //tree->Branch(a1, &el_sc_time, a2);
+
+  sprintf(a1, "el_%s_conv_vtxProb", nome);
+  sprintf(a2, "el_%s_conv_vtxProb[el_%s_n]/F", nome, nome);
+  tree->Branch(a1, &el_conv_vtxProb, a2);
 }
 
 
@@ -422,6 +515,28 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   // take collections
   edm::Handle<reco::GsfElectronCollection> elH;
   iEvent.getByLabel(electronColl, elH);
+
+  edm::Handle<reco::GsfElectronCollection> calibEleH;
+  edm::Handle<edm::ValueMap<double> > calibEnergyH;
+  edm::Handle<edm::ValueMap<double> > calibEnergyErrH;
+  edm::Handle<edm::ValueMap<double> > corrEnergyH;
+  edm::Handle<edm::ValueMap<double> > corrEnergyErrH;
+  edm::ValueMap<double>* calibEnergy=0;
+  edm::ValueMap<double>* calibEnergyErr=0; 
+  edm::ValueMap<double>* corrEnergy=0; 
+  edm::ValueMap<double>* corrEnergyErr=0;
+
+  if (applyEnergyCorrection) {
+    iEvent.getByLabel("calibratedElectrons", "calibratedGsfElectrons", calibEleH);
+    iEvent.getByLabel("calibratedElectrons" ,"eneRegForGsfEle", calibEnergyH);
+    calibEnergy = const_cast<edm::ValueMap<double>* > (calibEnergyH.product());
+    iEvent.getByLabel("calibratedElectrons" ,"eneErrorRegForGsfEle", calibEnergyErrH);
+    calibEnergyErr = const_cast<edm::ValueMap<double>* > (calibEnergyErrH.product());
+    iEvent.getByLabel("eleRegressionEnergy" ,"eneRegForGsfEle", corrEnergyH);
+    corrEnergy = const_cast<edm::ValueMap<double>* > (corrEnergyH.product());
+    iEvent.getByLabel("eleRegressionEnergy" ,"eneErrorRegForGsfEle", corrEnergyErrH);
+    corrEnergyErr = const_cast<edm::ValueMap<double>* > (corrEnergyErrH.product());
+  }
 
   edm::Handle<reco::ConversionCollection> hConversions;
   iEvent.getByLabel(conversionColl, hConversions);
@@ -445,11 +560,21 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<reco::VertexCollection> vtxH;
   iEvent.getByLabel(vertexColl, vtxH);
 
+
+  //edm::Handle<double> rhoHandle;
+  //iEvent.getByLabel(rhoCollection, rhoHandle);
+  //double rho = *(rhoHandle.product());
+  
+  // transient track builder needed for ele ID MVA
+  iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder_);  
+  const TransientTrackBuilder thebuilder = *(trackBuilder_.product());
+  
+  /*
   edm::Handle<reco::PFCandidateCollection> pfHandle;
   iEvent.getByLabel(pfColl, pfHandle);
-
-  edm::Handle<reco::PileUpPFCandidateCollection> pfHandlePu;
+  edm::Handle<reco::PFCandidateCollection> pfHandlePu;
   iEvent.getByLabel("pfPileUp", pfHandlePu);
+  */
 
   edm::ESHandle<CaloTopology> theCaloTopo;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopo);
@@ -496,7 +621,9 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   el_momcalo->Clear();
   el_posvtx->Clear();
   el_poscalo->Clear(); 
-  el_catbased ->clear();
+  el_catbased ->clear();  
+  el_schits->clear();
+  el_bchits->clear();
   el_n = 0;
   
   if (debug_level > 9)
@@ -591,19 +718,60 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
     el_sieie[el_n] = egsf.sigmaIetaIeta();
 
+    //el_1oe_1op[el_n] = 1./egsf.ecalEnergy() - 1./egsf.trackMomentumAtVtx().R();
+    el_1oe_1op[el_n] = 1./egsf.ecalEnergy() - 1./egsf.p();
+    el_r9[el_n] = ecalLazyTool.e3x3(*(egsf.superCluster()->seed())) / egsf.superCluster()->rawEnergy();
+
+    //el_sc_time[el_n] = ecalLazyTool.SuperClusterTime(*(egsf.superCluster()), iEvent);
+
+    el_must[el_n] = -9999.;
+    el_mustnc[el_n] = -1;
+    reco::Mustache m;
+    m.MustacheID(*(egsf.superCluster()), el_mustnc[el_n], el_must[el_n]);
+
     // Regression Correction
-    if (!ecorr_.IsInitialized()) {   
-      //char filename[200];
-      char* descr = getenv("CMSSW_BASE");
-      //sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/gbrv2ele.root", descr);
-      std::string filename("http://home.cern.ch/sani/gbrele.root");
-      ecorr_.Initialize(iSetup, filename);
+    if (!ecorr_.IsInitialized()) {
+      if (energyCorrectionsFromDB and regressionVersion == "V3") {
+	std::cout << "DB version available only for V2" << std::endl;
+	energyCorrectionsFromDB = false;
+      }
+      
+      if (!energyCorrectionsFromDB) {
+	char filename[500];
+	char* descr = getenv("CMSSW_BASE");
+	sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/%s", descr, energyRegFilename.c_str());
+	if (fexist(filename)) {
+	  sprintf(filename, "http://cern.ch/sani/%s", energyRegFilename.c_str());
+	  ecorr_.Initialize(iSetup, filename);
+	} else {
+	  ecorr_.Initialize(iSetup, filename);
+	} 
+      } else {
+	ecorr_.Initialize(iSetup, "wgbrph", true); //FIXME no wgbrele in DB
+      }
     }
 
-    //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(egsf, *ecalLazyTool);
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(egsf, *(vtxH.product()), *ecalLazyTool, iSetup);
+    //if (regressionVersion == "V3") {
+    //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV3(egsf, *vtxH, rho, ecalLazyTool, iSetup);
+    //el_regr_energy[el_n]    = cor.first;
+    //el_regr_energyerr[el_n] = cor.second;
+    //} else {
+    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(egsf, ecalLazyTool);
     el_regr_energy[el_n]    = cor.first;
     el_regr_energyerr[el_n] = cor.second;
+    //}
+    
+    reco::GsfElectronRef myElectronRef(elH, std::distance(elH->begin(), igsf));
+    if (applyEnergyCorrection) {
+      reco::GsfElectronRef calibEleRef(calibEleH, std::distance(elH->begin(), igsf));
+      el_corr_energy[el_n]     = (*corrEnergy)[myElectronRef];
+      el_corr_energyerr[el_n]  = (*corrEnergyErr)[myElectronRef];
+      el_calib_energy[el_n]    = (*calibEnergy)[calibEleRef];
+      el_calib_energyerr[el_n] = (*calibEnergyErr)[calibEleRef];
+      
+      new ((*el_p4_corr)[el_n]) TLorentzVector();
+      ((TLorentzVector *)el_p4_corr->At(el_n))->SetXYZT(calibEleRef->px(), calibEleRef->py(), calibEleRef->pz(), calibEleRef->energy());
+    }
 
     // ES variables
     el_eseffsixix[el_n] = 0.;
@@ -619,7 +787,9 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_hoed1[el_n] = egsf.hcalDepth1OverEcal();
     el_hoed2[el_n] = egsf.hcalDepth2OverEcal();
 
-    el_h[el_n] = hoeCalculator(&(*(egsf.superCluster()->seed())), geometry, hbhe);
+    //el_hoebc[el_n] = egsf.hcalOverEcalBc();
+    //el_hoebcd1[el_n] = egsf.hcalDepth1OverEcalBc();
+    //el_hoebcd2[el_n] = egsf.hcalDepth2OverEcalBc();
 
     el_d0[el_n] = egsf.gsfTrack()->d0();
     el_z0[el_n] = egsf.gsfTrack()->dz(); 
@@ -747,7 +917,33 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       }
     }
 
-    el_mva[el_n] = egsf.mva();
+    std::vector<UInt_t> schits, bchits;    
+    for (reco::CaloCluster_iterator clusterIt=egsf.superCluster()->clustersBegin(); clusterIt!=egsf.superCluster()->clustersEnd(); clusterIt++) {
+      for (unsigned int j=0; j<(*clusterIt)->hitsAndFractions().size(); j++)
+	schits.push_back(((*clusterIt)->hitsAndFractions())[j].first);
+      el_schits->push_back(schits);
+    }
+    
+    for (unsigned int j=0; j<egsf.superCluster()->seed()->hitsAndFractions().size(); j++)
+      bchits.push_back((egsf.superCluster()->seed()->hitsAndFractions())[j].first);
+    el_bchits->push_back(bchits);
+
+    //el_mva_noiso[el_n] = egsf.mva();
+    //el_mva[el_n] = mvaEstimator->mva(egsf, vtxH->size());
+    
+    el_mva_nontrig[el_n] = myMVANonTrig->mvaValue(egsf, 
+						    vtxH->front(), 
+						    thebuilder,
+						    ecalLazyTool,
+						    false);
+       
+    el_mva_trig[el_n] = myMVATrig->mvaValue(egsf,
+					      vtxH->front(),
+					      thebuilder,
+					      ecalLazyTool,
+					      false);
+    
+    //std::cout<<"el_n el_mva_trig el_mva_nontrig "<<el_n<<" "<<el_mva_trig[el_n]<<" "<<el_mva_nontrig[el_n]<<std::endl;
 
     /* NEW variables */
     
@@ -798,37 +994,14 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_ecaliso03[el_n] = egsf.dr03EcalRecHitSumEt();
     el_hcaliso03[el_n] = egsf.dr03HcalTowerSumEt();
 
-    if (egsf.isEB()) {
-      std::vector<reco::PFCandidate::ParticleType> temp;
-      temp.push_back(reco::PFCandidate::h);
-      el_pfiso_mycharged03[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.3, 0, temp);
-      el_pfiso_mycharged04[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.4, 0, temp);
-      
-      temp.clear();
-      temp.push_back(reco::PFCandidate::h0);
-      el_pfiso_myneutral03[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.3, 0, temp);
-      el_pfiso_myneutral04[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.4, 0, temp);
+    EgammaTowerIsolation hcaliso03(0.3, 0., 0, -1, ctH.product());
+    EgammaTowerIsolation hcaliso04(0.4, 0., 0, -1, ctH.product());
 
-      temp.clear();
-      temp.push_back(reco::PFCandidate::gamma);
-      el_pfiso_myphoton03[el_n] = pfEcalIso(egsf, pfHandle.product(), 0.3, 0, temp);
-      el_pfiso_myphoton04[el_n] = pfEcalIso(egsf, pfHandle.product(), 0.4, 0, temp);
-    } else {
-      std::vector<reco::PFCandidate::ParticleType> temp;
-      temp.push_back(reco::PFCandidate::h);
-      el_pfiso_mycharged03[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.3, 0.015, temp);
-      el_pfiso_mycharged04[el_n] = pfTkIso(egsf, pfHandle, pfHandlePu, 0.4, 0.015, temp);
-      
-      temp.clear();
-      temp.push_back(reco::PFCandidate::h0);
-      el_pfiso_myneutral03[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.3, 0, temp);
-      el_pfiso_myneutral04[el_n] = pfHcalIso(egsf, pfHandle.product(), 0.4, 0, temp);
+    el_hcalsolidiso03[el_n] = hcaliso03.getTowerEtSum(&(*(egsf.superCluster())) );
+    el_hcalsolidiso04[el_n] = hcaliso04.getTowerEtSum(&(*(egsf.superCluster())) );
 
-      temp.clear();
-      temp.push_back(reco::PFCandidate::gamma);
-      el_pfiso_myphoton03[el_n] = pfEcalIso(egsf, pfHandle.product(), 0.3, 0.08, temp);
-      el_pfiso_myphoton04[el_n] = pfEcalIso(egsf, pfHandle.product(), 0.4, 0.08, temp);
-    }
+    //el_hcalbciso03[el_n] = egsf.dr03HcalTowerSumEtBc();
+    //el_hcalbciso04[el_n] = egsf.dr04HcalTowerSumEtBc();
 
     // Fill out electron identification
     std::vector<edm::Handle<edm::ValueMap<float> > > eIDVM(9); 
