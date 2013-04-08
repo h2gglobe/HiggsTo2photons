@@ -68,7 +68,6 @@ process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService
   ),
                                                    )
 
-
 if flagSkimMu == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
   process.HLTSingleMu = copy.deepcopy(process.hltHighLevel)
@@ -77,46 +76,11 @@ if flagSkimMu == 'ON':
 
 if flagSkimworz == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
-  prprocess.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-                                                   calibratedElectrons = cms.PSet(
-  initialSeed = cms.untracked.uint32(1),
-  engineName = cms.untracked.string('TRandom3')
-  ),
-                                                   )
-
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-                                                   calibratedElectrons = cms.PSet(
-  initialSeed = cms.untracked.uint32(1),
-  engineName = cms.untracked.string('TRandom3')
-  ),
-                                                   )
-
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-                                                   calibratedElectrons = cms.PSet(
-  initialSeed = cms.untracked.uint32(1),
-  engineName = cms.untracked.string('TRandom3')
-  ),
-                                                   )
-
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-                                                   calibratedElectrons = cms.PSet(
-  initialSeed = cms.untracked.uint32(1),
-  engineName = cms.untracked.string('TRandom3')
-  ),
-                                                   )
-
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-                                                   calibratedElectrons = cms.PSet(
-  initialSeed = cms.untracked.uint32(1),
-  engineName = cms.untracked.string('TRandom3')
-  ),
-                                                   )
-
-process.TPHltFilter = copy.deepcopy(process.hltHighLevel)
-process.TPHltFilter.throw = cms.bool(False)
-process.TPHltFilter.HLTPaths = ["HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_*",
-                                "HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_*",
-                                "HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_*"]
+  process.TPHltFilter = copy.deepcopy(process.hltHighLevel)
+  process.TPHltFilter.throw = cms.bool(False)
+  process.TPHltFilter.HLTPaths = ["HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_*",
+                                  "HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_*",
+                                  "HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_*"]
   
 if flagSkimDiphoton == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')

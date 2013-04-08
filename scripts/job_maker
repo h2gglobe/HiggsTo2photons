@@ -339,7 +339,7 @@ for run in runselection:
         elif ("user_remote_dir" in line and useCAF):
             file_out.write("user_remote_dir=/"+job_name +"\n")
         elif ("storage_element" in line and storage == "hadoop"):
-            file_out.write("storage_element = bsrm-1.t2.ucsd.edu\n")
+            file_out.write("storage_element = bsrm-3.t2.ucsd.edu\n")
         elif ("storage_path" in line and storage == "hadoop"):
             file_out.write("storage_path=/srm/v2/server?SFN=/hadoop/cms/store/user/\n")
         elif ("storage_element" in line and storage == "eos"):

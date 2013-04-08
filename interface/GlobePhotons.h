@@ -314,6 +314,9 @@ class GlobePhotons {
   //Int_t pho_id_4cat[MAX_PHOTONS][100];  
   //Int_t pho_id_6cat[MAX_PHOTONS][100];
   //Int_t pho_id_6catpf[MAX_PHOTONS][100];
+  
+  std::vector<std::vector<UInt_t> >* pho_schits;
+  std::vector<std::vector<UInt_t> >* pho_bchits;
 
   TClonesArray *pho_p4;
   TClonesArray *pho_calopos;

@@ -167,11 +167,11 @@ pfPileUp.PFCandidates = cms.InputTag("particleFlow")
 #    isoValPhotonWithPhotons04
 #)
 
-p#fPhotonIsolationSequence = cms.Sequence(
- #   pfPhotonIsoDepositsSequence +
- #   pfPhotonIsolationFromDepositsSequence03 +
- #   pfPhotonIsolationFromDepositsSequence04
- #   )
+#pfPhotonIsolationSequence = cms.Sequence(
+#   pfPhotonIsoDepositsSequence +
+#   pfPhotonIsolationFromDepositsSequence03 +
+#   pfPhotonIsolationFromDepositsSequence04
+#   )
 
 #pfBasedPhotonIsoSequence = cms.Sequence(
 #    pfAllChargedHadrons +
