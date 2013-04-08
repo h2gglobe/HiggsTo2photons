@@ -69,6 +69,7 @@ void GlobeMuons::defineBranch(TTree* tree) {
   tree->Branch("mu_glo_staind", &mu_staind,"mu_glo_staind[mu_glo_n]/I");
   tree->Branch("mu_glo_dz", &mu_dz, "mu_glo_dz[mu_glo_n]/F");
   tree->Branch("mu_glo_d0", &mu_d0, "mu_glo_d0[mu_glo_n]/F");
+  tree->Branch("mu_glo_dxy", &mu_dxy, "mu_glo_dxy[mu_glo_n]/F");
   tree->Branch("mu_glo_dzerr", &mu_dzerr, "mu_glo__dzerr[mu_glo_n]/F");
   tree->Branch("mu_glo_d0err", &mu_d0err, "mu_glo_d0err[mu_glo_n]/F");
   tree->Branch("mu_glo_charge", &mu_charge, "mu_glo_charge[mu_glo_n]/I");
@@ -148,7 +149,10 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     
     
     mu_type[mu_n] = 0;
-    
+
+    //if (m->isPFMuon()) {
+    //  mu_type[mu_n] +=10000; //was 0 but wrong because no else if
+    //}  
     if (m->isGlobalMuon()) {
       mu_type[mu_n] +=1000; //was 0 but wrong because no else if
     }
@@ -161,7 +165,7 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     if (m->isCaloMuon()) {
       mu_type[mu_n] +=1;   //was 3 but wrong because no else if
     }
-    
+
     if (m->isMatchesValid()) 
       mu_nmatches[mu_n] = m->numberOfMatches();
     else
@@ -191,6 +195,8 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       std::cout << "GlobeMuons: Start 4"<< std::endl;
     
     if (m->isGlobalMuon()) { 
+
+      mu_dxy[mu_n] = m->combinedMuon()->dxy((*(vtxH.product()))[0].position());
       mu_d0[mu_n] = m->combinedMuon()->d0();
       mu_dz[mu_n] = m->combinedMuon()->dz();
       mu_d0err[mu_n] = m->combinedMuon()->d0Error();
@@ -217,6 +223,7 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       }
 
     } else {
+      mu_dxy[mu_n] = -1;
       mu_d0[mu_n] = -1;
       mu_dz[mu_n] = -1;
       mu_d0err[mu_n] = -1;
@@ -236,6 +243,27 @@ bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     mu_ecaliso03[mu_n]=muIso03.emEt;
     mu_hcaliso03[mu_n]=muIso03.hadEt;
     mu_tkiso03[mu_n]=muIso03.sumPt;
+    
+    /*
+    reco::MuonPFIsolation muPFIso04=m->pfIsolationR04();
+    mu_chhadiso04[mu_n]=muPFIso04.sumChargedHadronPt;
+    mu_nehadiso04[mu_n]=muPFIso04.sumNeutralHadronEt;
+    mu_photiso04[mu_n]=muPFIso04.sumPhotonEt;
+    //Isolation (DbCorrected) I = [sumChargedHadronPt+ max(0.,sumNeutralHadronPt+sumPhotonPt-0.5sumPUPt]/pt
+    //Isolation (RhoCorrected) I= [sumChargedHadronPt+ max(0.,sumNeutralHadronPt+sumPhotonPt-EffArea*rho]/pt
+    //Effective Area for 0.4 isolation from http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/sixie/Muon/MuonAnalysisTools/interface/MuonEffectiveArea.h?view=markup
+    mu_dbCorr[mu_n]=0.5*muPFIso04.sumPUPt;
+    float EffArea=0;
+    float feta=fabs(m->eta());
+    if (feta >= 0.0 && feta < 1.0 )   EffArea = 0.674;
+    if (feta >= 1.0 && feta < 1.479 ) EffArea = 0.565;
+    if (feta >= 1.479 && feta < 2.0 ) EffArea = 0.442;
+    if (feta >= 2.0 && feta < 2.2 )   EffArea = 0.515;
+    if (feta >= 2.2 && feta < 2.3 )   EffArea = 0.821;
+    if (feta >= 2.3 )                 EffArea = 0.660;
+
+    mu_rhoCorr[mu_n]=(*rhoH)*EffArea;
+    */
 
     if (debug_level > 99)
       std::cout << "GlobeMuons: Start 5"<< std::endl;

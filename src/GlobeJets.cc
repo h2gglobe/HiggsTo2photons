@@ -189,7 +189,36 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<reco::TrackCollection> tkH;
     iEvent.getByLabel(trackColl, tkH);
     
-    jet_p4->Clear();
+    edm::Handle<reco::VertexCollection> vtxH;
+    iEvent.getByLabel(vertexColl, vtxH);
+    
+    edm::Handle<reco::JetTagCollection> combinedSecondaryVertexBJetTags;
+    /*
+    if( strnome=="algoPF1" )
+      iEvent.getByLabel("newPFCombinedSecondaryVertexBPFJetTags", combinedSecondaryVertexBJetTags);
+    else
+      iEvent.getByLabel("newPFchsCombinedSecondaryVertexBPFJetTags", combinedSecondaryVertexBJetTags);
+    
+    edm::Handle<reco::JetTagCollection> combinedSecondaryVertexMVABJetTags;
+    if( strnome=="algoPF1" )
+      iEvent.getByLabel("newPFCombinedSecondaryVertexMVABPFJetTags", combinedSecondaryVertexMVABJetTags);
+    else
+      iEvent.getByLabel("newPFchsCombinedSecondaryVertexMVABPFJetTags", combinedSecondaryVertexMVABJetTags);
+    
+    edm::Handle<reco::JetTagCollection> jetProbabilityBJetTags;
+    if( strnome=="algoPF1" )
+      iEvent.getByLabel("newPFJetProbabilityBPFJetTags", jetProbabilityBJetTags);
+    else
+      iEvent.getByLabel("newPFchsJetProbabilityBPFJetTags", jetProbabilityBJetTags);
+    
+    edm::Handle<reco::JetTagCollection> trackCountingHighEffBJetTags;
+    if( strnome=="algoPF1" )
+      iEvent.getByLabel("newPFTrackCountingHighEffBJetTags", trackCountingHighEffBJetTags);
+    else
+      iEvent.getByLabel("newPFchsTrackCountingHighEffBJetTags", trackCountingHighEffBJetTags);
+    */
+    
+    jet_p4->Delete();
     jet_tkind->clear();
     jet_calotwind->clear();
 
@@ -223,14 +252,90 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       jet_emfrac[jet_n] = j->chargedEmEnergyFraction() + j->neutralEmEnergyFraction() + j->chargedMuEnergyFraction();
       jet_hadfrac[jet_n] = j->chargedHadronEnergyFraction() + j->neutralHadronEnergyFraction();
 
-      
-      if (jetColl.encode() == "ak5PFJets") {
-        const JetCorrector* corrector = JetCorrector::getJetCorrector(pfak5corr, iSetup);
-        edm::RefToBase<reco::Jet> jetRef(edm::Ref<std::vector<reco::PFJet> >(pfjetH, i));
+      if (pfak5corr!="") {
+	const JetCorrector* corrector = JetCorrector::getJetCorrector(pfak5corr, iSetup);
+        edm::RefToBase<reco::Jet> jetRef(edm::Ref<reco::PFJetCollection>(pfjetH, i));
+        //jet_erescale[jet_n] = corrector->correction(*j, iEvent, iSetup);
 	jet_erescale[jet_n] = corrector->correction(*j, jetRef, iEvent, iSetup);
+	//delete corrector;
       } else {
         jet_erescale[jet_n] = 1;
       }
+      
+      if (debug_level > 9 && jet_n<20) std::cout<<"pre "<<correctedJet->energy()<<std::endl;
+
+      correctedJet->scaleEnergy(jet_erescale[jet_n]);
+
+      //if(correctedJet->pt() < 1) 
+      //continue;
+      
+      pat::strbitset ret = (*pfLooseId).getBitTemplate();
+      jet_pfloose[jet_n] = (*pfLooseId)(*j, ret);
+      
+      //  scale the jets ref here
+
+      new ((*jet_p4)[jet_n]) TLorentzVector();
+      ((TLorentzVector *)jet_p4->At(jet_n))->SetXYZT(correctedJet->px(), correctedJet->py(), correctedJet->pz(), correctedJet->energy()); 
+      jet_area[jet_n] = correctedJet->jetArea();
+      jet_emfrac[jet_n] = correctedJet->chargedEmEnergyFraction() + correctedJet->neutralEmEnergyFraction() + correctedJet->chargedMuEnergyFraction();
+      jet_hadfrac[jet_n] = correctedJet->chargedHadronEnergyFraction() + correctedJet->neutralHadronEnergyFraction();
+
+      if (debug_level > 9 && jet_n<20) std::cout<<"post "<<correctedJet->energy()<<std::endl;
+
+      if (debug_level > 9 && jet_n<20) std::cout<<"jet energy JECenergy "<<jet_n<<" "<<correctedJet->energy()<<" "<<jet_erescale[jet_n]<<std::endl;
+      
+      
+      if (algos_.size()>0) {
+        //compute id variables
+        const reco::VertexCollection vertexCollection = *(vtxH.product()); 
+        const reco::Vertex* selectedVtx  = &(*vertexCollection.begin());;
+        const reco::Jet* thisjet = correctedJet;
+        
+        PileupJetIdentifier jetIdentifer_vars = jetMVACalculator->computeIdVariables( thisjet, jet_erescale[jet_n], selectedVtx, vertexCollection);
+  
+        jet_dRMean[jet_n]=jetIdentifer_vars.dRMean();
+        jet_frac01[jet_n]=jetIdentifer_vars.frac01();
+        jet_frac02[jet_n]=jetIdentifer_vars.frac02();
+        jet_frac03[jet_n]=jetIdentifer_vars.frac03();
+        jet_frac04[jet_n]=jetIdentifer_vars.frac04();
+        jet_frac05[jet_n]=jetIdentifer_vars.frac05();
+        jet_frac06[jet_n]=jetIdentifer_vars.frac06();
+        jet_frac07[jet_n]=jetIdentifer_vars.frac07();
+        jet_nNeutrals[jet_n]=jetIdentifer_vars.nNeutrals();
+        jet_beta[jet_n]=jetIdentifer_vars.beta();
+        jet_betaStar[jet_n]=jetIdentifer_vars.betaStar();
+        jet_dZ[jet_n]=jetIdentifer_vars.dZ();
+        jet_nCharged[jet_n]=jetIdentifer_vars.nCharged();
+        jet_dR2Mean[jet_n]=jetIdentifer_vars.dR2Mean();
+        jet_betaStarClassic[jet_n]=jetIdentifer_vars.betaStarClassic();
+
+        for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
+          PileupJetIdAlgo* ialgo = (algos_[imva]);
+          ialgo->set(jetIdentifer_vars);
+          PileupJetIdentifier id = ialgo->computeMva();
+          mvas_[imva][jet_n] = id.mva() ;
+          wp_levels_[imva][jet_n] = id.idFlag() ;
+        }
+
+	size_t n_vtx = std::min(vtxH->size(), (size_t)jet_nvtx); //vtxH->size();
+	//for(size_t vtx=0; vtx<vertexCollection.size(); ++vtx) {
+	for(size_t vtx=0; vtx<n_vtx; ++vtx) {
+	  PileupJetIdentifier ext_vars = jetMVACalculator->computeIdVariables( thisjet, jet_erescale[jet_n], &vertexCollection[vtx], vertexCollection);
+	  jet_beta_ext[jet_n][vtx]=ext_vars.beta();
+	  jet_betaStar_ext[jet_n][vtx]=ext_vars.betaStar();
+	  jet_betaStarClassic_ext[jet_n][vtx]=ext_vars.betaStarClassic();
+	  
+	  for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
+	    PileupJetIdAlgo* ialgo = (algos_[imva]);
+	    ialgo->set(ext_vars);
+	    PileupJetIdentifier id = ialgo->computeMva();
+	    (*mvas_ext_[imva])[jet_n][vtx] = id.mva() ;
+	    (*wp_levels_ext_[imva])[jet_n][vtx] = id.idFlag();
+	  }
+	}
+      }
+
+      delete correctedJet;
 
       float dy = 0;
       float dphi = 0;
@@ -297,6 +402,14 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         }
         jet_tkind->push_back(temp);
       }
+
+      jet_tkind->push_back(temp);
+
+      // btags:
+      //jet_csvBtag    [jet_n] =  (*combinedSecondaryVertexBJetTags)[i].second ;
+      //jet_csvMvaBtag [jet_n] =  (*combinedSecondaryVertexMVABJetTags)[i].second ;
+      //jet_jetProbBtag[jet_n] =  (*jetProbabilityBJetTags)[i].second ;
+      //jet_tcheBtag   [jet_n] =  (*trackCountingHighEffBJetTags)[i].second ;
       
       jet_n++;
       

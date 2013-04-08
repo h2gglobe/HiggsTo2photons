@@ -13,10 +13,13 @@ void GlobeRho::defineBranch(TTree* tree) {
 
 bool GlobeRho::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
-  edm::Handle<double> rhoHandle;
-  iEvent.getByLabel(rhoCollection, rhoHandle);
-  
-  rho = *(rhoHandle.product());
- 
+  if(strcmp(rhoCollection.encode().c_str(), "") != 0) {
+    edm::Handle<double> rhoHandle;
+    iEvent.getByLabel(rhoCollection, rhoHandle);
+    rho = *(rhoHandle.product());
+  } else {
+    rho = 99999.;
+  }
+
   return true;
 }
