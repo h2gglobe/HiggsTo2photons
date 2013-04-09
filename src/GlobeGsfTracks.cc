@@ -158,6 +158,9 @@ bool GlobeGsfTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       double qpvar_out = qputils_out.mode().variance();
       gsf_tk_qoverpinerr[gsf_tk_n] =  qpvar_in; 
       gsf_tk_qoverpouterr[gsf_tk_n] = qpvar_out;
+
+      delete mtsTransform_;
+      delete mtsMode_;
     }
 
     gsf_tk_hp_expin[gsf_tk_n] = tk->trackerExpectedHitsInner().numberOfHits();

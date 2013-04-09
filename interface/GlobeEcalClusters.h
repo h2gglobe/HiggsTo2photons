@@ -62,6 +62,9 @@ public:
   std::vector<float> getESHits(double X, double Y, double Z, std::map<DetId, EcalRecHit> rechits_map, const CaloGeometry& geometry, CaloSubdetectorTopology *topology_p, int row=0);
   std::vector<float> getESShape(std::vector<float> ESHits0);
 
+  /** fills the association of the basic cluster to rechits */
+  void fillBasicClusterRecHits(const std::vector<std::pair<DetId,float > > &hits);
+
   //----------------------------------------
 protected:
   /** handles to superclusters */
@@ -127,13 +130,20 @@ public:
   Float_t sc_bccrackcorr[MAX_SUPERCLUSTERS][MAX_SUPERCLUSTER_BASICCLUSTERS];
   Float_t sc_bclocalcorr[MAX_SUPERCLUSTERS][MAX_SUPERCLUSTER_BASICCLUSTERS];
 
-// BASIC CLUSTERS
+  // BASIC CLUSTERS
   Int_t bc_n;
   Int_t bc_hybrid_n;
   Int_t bc_islbar_n;
   Int_t bc_islend_n;
   Int_t bc_nhits[MAX_BASICCLUSTERS];
   Int_t bc_type[MAX_BASICCLUSTERS];
+
+  /** first index is the basic cluster index, second index
+      is the index of the rechit within this basic cluster,
+      value is the detid of the rechit belonging to this
+      basic cluster */
+  // Int_t bc_hitdetid[bc_n][MAX_ECALRECHITS];
+  std::vector<std::vector<Int_t> > *bc_hitdetid;
 
   //Float_t bc_rook[MAX_BASICCLUSTERS];
   Float_t bc_s1[MAX_BASICCLUSTERS];

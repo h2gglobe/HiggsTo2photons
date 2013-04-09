@@ -22,7 +22,7 @@ bool GlobePdfWeights::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   
   weight_n=0;
   
-  for (uint iPDF=0; iPDF<pdfweightsCollList.size(); iPDF++){
+  for (unsigned int iPDF=0; iPDF<pdfweightsCollList.size(); iPDF++){
     edm::Handle<std::vector<double> > weightHandle;
     iEvent.getByLabel(pdfweightsCollList[iPDF], weightHandle);
     std::vector<double> weights = (*weightHandle);

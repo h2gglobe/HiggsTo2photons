@@ -49,15 +49,48 @@ void GlobeEcalHits::defineBranch(TTree* tree) {
   tree->Branch("ecalhit_p4", "TClonesArray", &ecalhit_p4, 32000, 0);
 }
 
+//bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
+//                            GlobeLeptons *lep, GlobeElectrons *el, GlobeMuons *mu,
+//                            GlobePhotons *pho) {
 bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
-                            GlobeLeptons *lep, GlobeElectrons *el, GlobeMuons *mu,
-                            GlobePhotons *pho) {
+                            GlobeElectrons *el, GlobeMuons *mu, GlobePhotons *pho) {
 
+  
+  TClonesArray* lptPos = new TClonesArray("TVector3");
+  TClonesArray* lptMom = new TClonesArray("TVector3");
 
-  if(!el) std::cout << "GlobeEcalHits: CAREFUL, GlobeElectron pointer is not set" << std::endl;
-  if(!mu) std::cout << "GlobeEcalHits: CAREFUL, GlobeMuon pointer is not set" << std::endl;
-  if(!pho) std::cout << "GlobeEcalHits: CAREFUL, GlobePhoton pointer is not set" << std::endl;
-    
+  unsigned int leptons = 0;
+  if (el) {
+    for (int i=0; i<el->el_n; i++) {
+      new((*lptPos)[leptons]) TVector3();
+      ((TVector3*)lptPos->At(leptons))->SetXYZ(((TVector3*)el->el_posvtx->At(i))->X(), ((TVector3*)el->el_posvtx->At(i))->Y(), ((TVector3*)el->el_posvtx->At(i))->Z());
+      new((*lptMom)[leptons]) TVector3();
+      ((TVector3*)lptMom->At(leptons))->SetXYZ(((TVector3*)el->el_momvtx->At(i))->X(), ((TVector3*)el->el_momvtx->At(i))->Y(), ((TVector3*)el->el_momvtx->At(i))->Z());
+      leptons++;
+    }
+  }
+
+  if (mu) {
+    for (int i=0; i<mu->mu_n; i++) {
+      new((*lptPos)[leptons]) TVector3();
+      ((TVector3*)lptPos->At(leptons))->SetXYZ(((TVector3*)mu->mu_posvtx->At(i))->X(), ((TVector3*)mu->mu_posvtx->At(i))->Y(), ((TVector3*)mu->mu_posvtx->At(i))->Z());
+      new((*lptMom)[leptons]) TVector3();
+      ((TVector3*)lptMom->At(leptons))->SetXYZ(((TVector3*)mu->mu_momvtx->At(i))->X(), ((TVector3*)mu->mu_momvtx->At(i))->Y(), ((TVector3*)mu->mu_momvtx->At(i))->Z());
+      leptons++;
+    }
+  }
+      
+  if (pho) {
+    for (int i=0; i<pho->pho_n; i++) {
+      new((*lptPos)[leptons]) TVector3();
+      ((TVector3*)lptPos->At(leptons))->SetXYZ(0, 0, 0);
+      new((*lptMom)[leptons]) TVector3();
+      TVector3  temp = (((TLorentzVector*)(pho->pho_p4->At(i)))->Vect()); 
+      ((TVector3*)lptMom->At(leptons))->SetXYZ(temp.X(), temp.Y(), temp.Z());
+      leptons++;
+    }
+  } 
+  
   // geometry initialization
   edm::ESHandle<CaloGeometry> geometry;
   iSetup.get<CaloGeometryRecord>().get(geometry);
@@ -101,39 +134,22 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     EcalRecHitRef rh(pEBRecHitH, i);
     DetId id = rh->detid(); 
 
-
     if(i<10) {
       if(debug_level == -17) {
         std::cout << "Ecal Barr "<<i<<" "<<rh->energy()<<std::endl;
       }
     }
-
-
         
     const CaloCellGeometry* this_cell = EB->getGeometry(id);
     if (this_cell) { //Being RecHit exists in geometry
       GlobalPoint posi = this_cell->getPosition();
       calPos.SetXYZ(posi.x(),posi.y(),posi.z());
-      
-      
-      for(int j=0;j<lep->lpt_n;++j) { //Begin Lepton Loop List 
+
+      for (unsigned int j=0; j<leptons; j++) {
+	vtxPos = *((TVector3*)lptPos->At(j));
+	vtxMom = *((TVector3*)lptMom->At(j));
 	
-	if(abs(lep->lpt_pdgid[j]) == 11) {  //accessing the electron collection
-          vtxPos = *((TVector3*)( el->el_posvtx->At(lep->lpt_ind[j]) ));
-          vtxMom = *((TVector3*)( el->el_momvtx->At(lep->lpt_ind[j]) ));
-        } else if(abs(lep->lpt_pdgid[j]) == 13) {
-          vtxPos = *((TVector3*)( mu->mu_posvtx->At(lep->lpt_ind[j]) ));
-          vtxMom = *((TVector3*)( mu->mu_momvtx->At(lep->lpt_ind[j]) ));
-        } else if(lep->lpt_pdgid[j] == 22) {
-          vtxPos.SetXYZ(0,0,0); 
-          vtxMom = ((TLorentzVector*)( pho->pho_p4->At( lep->lpt_ind[j] )))->Vect();
-        } else {
-          std::cout << "Error, Lepton is not a photon, electron, or muon!!!" << std::endl;
-          continue;                
-        }
-                 
-	
-        if( gCUT->cut(*rh,0,vtxMom.DeltaR(calPos-vtxPos)) ) 
+        if(gCUT->cut(*rh,0,vtxMom.DeltaR(calPos-vtxPos))) 
           continue;                   
         else {                                             //Passes all cuts
 	  
@@ -154,8 +170,8 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         } //End Passes All Cuts
       } //End Lepton List loop
 
-      if(lep->lpt_n==0) {
-        if( !gCUT->cut(*rh,0,100.) ) {
+      if(leptons == 0) {
+        if(!gCUT->cut(*rh,0,100.)) {
           new ((*ecalhit_p4)[ecalhit_n]) TLorentzVector(); 
           ((TLorentzVector *)ecalhit_p4->At(ecalhit_n))->SetXYZT(posi.x(),posi.y(),posi.z(),rh->energy());
 
@@ -182,34 +198,15 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (this_cell) { //Being RecHit exists in geometry
       GlobalPoint posi = this_cell->getPosition();
       calPos.SetXYZ(posi.x(),posi.y(),posi.z());
-        
-      for(int j=0;j<lep->lpt_n;++j) { //Begin Lepton Loop List 
-        if(abs(lep->lpt_pdgid[j]) == 11) {  //accessing the electron collection
-          vtxPos = *((TVector3*)( el->el_posvtx->At(lep->lpt_ind[j]) ));
-          vtxMom = *((TVector3*)( el->el_momvtx->At(lep->lpt_ind[j]) ));
-        } else if(abs(lep->lpt_pdgid[j]) == 13) {
-          vtxPos = *((TVector3*)( mu->mu_posvtx->At(lep->lpt_ind[j]) ));
-          vtxMom = *((TVector3*)( mu->mu_momvtx->At(lep->lpt_ind[j]) ));
-        } else if(lep->lpt_pdgid[j] == 22) {
-          vtxPos.SetXYZ(0,0,0); 
-          vtxMom = ((TLorentzVector*)( pho->pho_p4->At( lep->lpt_ind[j] )))->Vect();
-            
-        } else {
-          std::cout << "Error, Lepton is not a photon, electron, or muon!!!" << std::endl;
-          continue;
-        }
-          
-        if(debug_level == -17) {
-          //std::cout << "Vtx Pos: (" << vtxPos.X() << "," << vtxPos.Y() << "," << vtxPos.Z() << ")" << std::endl;
-          //std::cout << "Vtx Mom: (" << vtxMom.X() << "," << vtxMom.Y() << "," << vtxMom.Z() << ")" << std::endl;
-        }
+
+      for (unsigned int j=0; j<leptons; j++) {
+	vtxPos = *((TVector3*)lptPos->At(j));
+	vtxMom = *((TVector3*)lptMom->At(j));
           
         if( gCUT->cut(*rh,1,vtxMom.DeltaR(calPos-vtxPos)) ) continue;
         else {                                             //Passes all cuts
           new ((*ecalhit_p4)[ecalhit_n]) TLorentzVector(); 
-          ((TLorentzVector *)ecalhit_p4->At(ecalhit_n))
-            ->SetXYZT(posi.x(),posi.y(),posi.z(),rh->energy());
-          //->SetPtEtaPhiE(rh->energy()*sin(posi.theta()),posi.eta(),posi.phi(),rh->energy());
+          ((TLorentzVector *)ecalhit_p4->At(ecalhit_n))->SetXYZT(posi.x(),posi.y(),posi.z(),rh->energy());
             
           ecalhit_type[ecalhit_n] = 1;
           ecalhit_time[ecalhit_n] = rh->time();
@@ -226,18 +223,16 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         } //End Passes All Cuts
           
       } //End Lepton List loop 
-      if(lep->lpt_n==0) {
-        if( !gCUT->cut(*rh,1,100.) ) {
+
+      if(leptons == 0) {
+        if(!gCUT->cut(*rh, 1, 100.)) {
           new ((*ecalhit_p4)[ecalhit_n]) TLorentzVector(); 
-          ((TLorentzVector *)ecalhit_p4->At(ecalhit_n))
-            ->SetXYZT(posi.x(),posi.y(),posi.z(),rh->energy());
-          //->SetPtEtaPhiE(rh->energy()*sin(posi.theta()),posi.eta(),posi.phi(),rh->energy());
+          ((TLorentzVector *)ecalhit_p4->At(ecalhit_n))->SetXYZT(posi.x(),posi.y(),posi.z(),rh->energy());
+
           ecalhit_type[ecalhit_n] = 2;
           ecalhit_n++;  
 	}
       }
-
-
     }
   }
     
@@ -286,6 +281,9 @@ bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }
     }
   }
-    
+
+  delete lptPos;
+  delete lptMom;
+
   return true;
 }

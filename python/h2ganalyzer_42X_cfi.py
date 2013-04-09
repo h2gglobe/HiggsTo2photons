@@ -21,9 +21,9 @@ h2ganalyzer = cms.EDAnalyzer(
     RootFileName = cms.string('prova.root'),
     JobMaker = cms.string('jobmaker unknown'),
     energyCorrectionsFromDB = cms.bool(False),
-    energyCorrectionsFileNamePho = cms.string("gbrv2pho.root"),
+    energyCorrectionsFileNamePho = cms.string("gbrv2ph.root"),
     energyCorrectionsFileNameEle = cms.string("gbrv2ele.root"),
-    energyCorrectionsVersion = cms.string("V1"),
+    energyCorrectionsVersion = cms.string("V2"),
 
     applyEnergyCorrection = cms.bool(False),
     eleRegressionFileName = cms.string("eleEnergyRegWeights"),
@@ -355,7 +355,6 @@ h2ganalyzer = cms.EDAnalyzer(
     doPFCandidates = cms.bool(True),
     PFIsoOuterCone = cms.double(0.4),
 
-    doGenMet = cms.bool(True),
     doMet = cms.bool(True),
     dotcMet = cms.bool(True),
     doPFMet = cms.bool(True),

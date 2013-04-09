@@ -25,7 +25,8 @@
 class CiCPhotonID {
  public:
   
-  enum CiCPhotonIDLevel {NoCut = -1, Loose, Medium, Tight, SuperTight, HyperTight1, HyperTight2, HyperTight3, HyperTight4};
+  enum CiCPhotonIDLevel {NoCut = -1, Loose, Medium, Tight, SuperTight, HyperTight1, HyperTight2, HyperTight3, HyperTight4, 
+			 HyperTight5, HyperTight6, HyperTight7, Preselection};
   
   explicit CiCPhotonID(const edm::ParameterSet&);
   ~CiCPhotonID() {};
@@ -42,9 +43,9 @@ class CiCPhotonID {
   int photonCutLevel6cat(reco::PhotonRef, Int_t);
   int photonCutLevel6catPF(reco::PhotonRef, Int_t);
 
-  std::vector<float> pfTkIsoWithVertex(reco::PhotonRef, float, float, std::vector<reco::PFCandidate::ParticleType>);
-  float pfEcalIso(reco::PhotonRef, float, float, float, float, float, float, std::vector<reco::PFCandidate::ParticleType>);
-  float pfHcalIso(reco::PhotonRef, float, float, std::vector<reco::PFCandidate::ParticleType>);
+  std::vector<float> pfTkIsoWithVertex(reco::PhotonRef, float, float, float, float, float, float, reco::PFCandidate::ParticleType);
+  float pfEcalIso(reco::PhotonRef, float, float, float, float, float, float, float, reco::PFCandidate::ParticleType);
+  float pfHcalIso(reco::PhotonRef, float, float, reco::PFCandidate::ParticleType);
   
   void setPhotonIDThresholds(const edm::ParameterSet&);
   void configure(edm::Handle<reco::VertexCollection>, 
@@ -63,9 +64,9 @@ class CiCPhotonID {
   double rho; 
 
   // PhotonID thresholds
-  std::vector<double> phoIDcuts[11][7];
-  std::vector<double> phoIDcuts6cat[11][7];
-  std::vector<double> phoIDcuts6catPF[11][7];
+  std::vector<double> phoIDcuts[12][7];
+  std::vector<double> phoIDcuts6cat[12][7];
+  std::vector<double> phoIDcuts6catPF[12][7];
 };
 
 #endif

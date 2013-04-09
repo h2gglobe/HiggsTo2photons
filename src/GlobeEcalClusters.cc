@@ -21,7 +21,9 @@
 
 //----------------------------------------------------------------------
 
-GlobeEcalClusters::GlobeEcalClusters(const edm::ParameterSet& iConfig, const char* n): nome(n) {
+GlobeEcalClusters::GlobeEcalClusters(const edm::ParameterSet& iConfig, const char* n): 
+  bc_hitdetid(new vector<vector<Int_t> >), 
+  nome(n) {
   
   debug_level = iConfig.getParameter<int>("Debug_Level");
   gCUT = new GlobeCuts(iConfig);
@@ -38,7 +40,7 @@ GlobeEcalClusters::GlobeEcalClusters(const edm::ParameterSet& iConfig, const cha
   barrelBasicClusterColl = iConfig.getParameter<edm::InputTag>("BarrelBasicClusterColl");
   endcapBasicClusterColl = iConfig.getParameter<edm::InputTag>("EndcapBasicClusterColl");
   ecalHitEBColl = iConfig.getParameter<edm::InputTag>("EcalHitEBColl");
-  ecalHitEEColl = iConfig.getParameter<edm::InputTag>("EcalHitEEColl");
+  ecalHitEEColl = iConfig.getParameter<edm::InputTag>("EcalHitEEColl"); 
 
   CrackCorrFunc = EcalClusterFunctionFactory::get()->create("EcalClusterCrackCorrection", iConfig);
   LocalCorrFunc = EcalClusterFunctionFactory::get()->create("EcalClusterLocalContCorrection",iConfig);
@@ -85,7 +87,6 @@ void GlobeEcalClusters::defineBranch(TTree* tree) {
   tree->Branch("sc_bcseedind", &sc_bcseedind, "sc_bcseedind[sc_n]/I");
   sprintf (a2, "sc_bcind[sc_n][%d]/I", MAX_SUPERCLUSTER_BASICCLUSTERS);
   tree->Branch("sc_bcind", &sc_bcind, a2);
-
   sprintf (a2, "sc_bccrackcorr[sc_n][%d]/F", MAX_SUPERCLUSTER_BASICCLUSTERS);
   tree->Branch("sc_bccrackcorr",&sc_bccrackcorr, a2);
   sprintf (a2, "sc_bclocalcorr[sc_n][%d]/F", MAX_SUPERCLUSTER_BASICCLUSTERS);
@@ -99,6 +100,14 @@ void GlobeEcalClusters::defineBranch(TTree* tree) {
   tree->Branch("bc_p4", "TClonesArray", &bc_p4, 32000, 0);
   tree->Branch("bc_xyz", "TClonesArray", &bc_xyz, 32000, 0);
   tree->Branch("bc_nhits", &bc_nhits,"bc_nhits[bc_n]/I");
+
+  // detids of the rechits
+  // sprintf (a2, "bc_hitdetid[bc_n][%d]/I", MAX_ECALRECHITS);
+  // tree->Branch("bc_hitdetid", &bc_hitdetid,a2);
+
+  // see http://root.cern.ch/phpBB3/viewtopic.php?t=8185
+  tree->Branch("bc_hitdetid","vector<vector<Int_t> >",&bc_hitdetid);
+
   tree->Branch("bc_s1", &bc_s1, "bc_s1[bc_n]/F");
   tree->Branch("bc_chx", &bc_chx, "bc_chx[bc_n]/F");
   tree->Branch("bc_s4", &bc_s4, "bc_s4[bc_n]/F");
@@ -155,6 +164,28 @@ bool GlobeEcalClusters::analyze(const edm::Event& iEvent, const edm::EventSetup&
     std::cout << "GlobeEcalClusters: hybridClustersBarrelH->size() "<< hybridClustersBarrelH->size() << std::endl;
     std::cout << "GlobeEcalClusters: basicClustersEndcapH->size() "<< basicClustersEndcapH->size() << std::endl;
   }
+  
+  // empty the collection before analyzing the evnet
+  bc_hitdetid->clear();
+
+  //----------------------------------------  
+  // analyze basic clusters 
+  //----------------------------------------  
+  {
+    bc_n = 0;
+    bc_islbar_n = 0;
+    bc_islend_n = 0;
+    bc_hybrid_n = 0;
+
+    bc_p4->Clear();
+    bc_xyz->Clear();
+
+    // endcap (note the order that endcap comes first)
+    analyzeEndcapBasicClusters();
+
+    // barrel
+    analyzeBarrelHybridClusters();
+  }
 
   //----------------------------------------    
   // analyze super clusters
@@ -176,30 +207,7 @@ bool GlobeEcalClusters::analyze(const edm::Event& iEvent, const edm::EventSetup&
     // ISLAND ENDCAP
     analyzeEndcapSuperClusters();
   }
-  
-  //----------------------------------------  
-  // analyze basic clusters 
-  //----------------------------------------  
-  {
-    bc_n = 0;
-    bc_islbar_n = 0;
-    bc_islend_n = 0;
-    bc_hybrid_n = 0;
-
-    bc_p4->Clear();
-    bc_xyz->Clear();
-
-    // endcap (note the order that endcap comes first)
-    analyzeEndcapBasicClusters();
-
-    // barrel
-    analyzeBarrelHybridClusters();
-  }
-
-  
-  //if (bc_n == 0 || sc_islbar_n == 0)
-  //  return false;
-  
+    
   return true;
 }
 
@@ -282,7 +290,8 @@ GlobeEcalClusters::analyzeBarrelSuperClusters() {
     for(unsigned int j=0; j<hybridClustersBarrelH->size(); ++j) {
       reco::BasicClusterRef basic(hybridClustersBarrelH, j);
       if (&(*sc->seed()) == &(*basic)) {
-        sc_bcseedind[sc_n] = j + basicClustersEndcapH->size();
+        //sc_bcseedind[sc_n] = j + basicClustersEndcapH->size();
+	sc_bcseedind[sc_n] = j + bc_islend_n;
         break;
       }
     }
@@ -321,7 +330,7 @@ GlobeEcalClusters::analyzeBarrelSuperClusters() {
     else sc_brem[sc_n]=-1; // something is not ok with sigma_eta, in this case
 
     // SC r9
-    if (sc->rawEnergy()>0) sc_r9[sc_n] = EcalClusterTools::e3x3(*(sc->seed()), &(*barrelRecHits), &(*topology)) / sc->rawEnergy();
+    if (sc->rawEnergy()>0) sc_r9[sc_n] = EcalClusterTools::e3x3(  *(sc->seed()), &(*barrelRecHits), &(*topology)) / sc->rawEnergy();
     else sc_r9[sc_n]=-1;
 
     //SEED BC 
@@ -344,11 +353,12 @@ GlobeEcalClusters::analyzeBarrelSuperClusters() {
         for(unsigned int j=0; j<hybridClustersBarrelH->size(); ++j) {
           reco::BasicClusterRef basic(hybridClustersBarrelH, j);
           if (&(**itClus) == &(*basic)) {
-            sc_bcind[sc_n][limit] = j + basicClustersEndcapH->size();
+            //sc_bcind[sc_n][limit] = j + basicClustersEndcapH->size();
+	    sc_bcind[sc_n][limit] = j + bc_islend_n;
             break;
           }
         }
-
+	
 	const reco::CaloClusterPtr cc = *itClus;
 	sc_bccrackcorr[sc_n][limit] = CrackCorrFunc->getValue(*cc);
 	sc_bclocalcorr[sc_n][limit] = LocalCorrFunc->getValue(*cc);
@@ -356,6 +366,7 @@ GlobeEcalClusters::analyzeBarrelSuperClusters() {
         limit++;
       }
     }
+
     sc_barrel[sc_n] = 1;
     sc_n++;
     sc_hybrid_n++;
@@ -411,6 +422,9 @@ GlobeEcalClusters::analyzeEndcapSuperClusters()
     // get index to seed basic cluster
     for(unsigned int j=0; j<basicClustersEndcapH->size(); ++j) {
       reco::BasicClusterRef basic(basicClustersEndcapH, j);
+
+       if(gCUT->cut(*basic))
+	 continue;
       if (&(*sc->seed()) == &(*basic)) {
         sc_bcseedind[sc_n] = j;
         break;
@@ -427,12 +441,14 @@ GlobeEcalClusters::analyzeEndcapSuperClusters()
         } 
         for(unsigned int j=0; j<basicClustersEndcapH->size(); ++j) {
           reco::BasicClusterRef basic(basicClustersEndcapH, j);
-          if (&(**itClus) == &(*basic)) {
+	  if(gCUT->cut(*basic))
+	    continue;
+	  if (&(**itClus) == &(*basic)) {
             sc_bcind[sc_n][limit] = j;
             break;
           }
         }
-	
+
 	const reco::CaloClusterPtr cc = *itClus;
 	sc_bccrackcorr[sc_n][limit] = CrackCorrFunc->getValue(*cc);
 	sc_bclocalcorr[sc_n][limit] = LocalCorrFunc->getValue(*cc);
@@ -477,11 +493,14 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
     new ((*bc_p4)[bc_n]) TLorentzVector();
     ((TLorentzVector *)bc_p4->At(bc_n))->SetXYZT(px, py, pz, en);
 
-    new ((*bc_xyz)[sc_n]) TVector3();
-    ((TVector3 *)bc_xyz->At(sc_n))->SetXYZ(bc->position().x(), bc->position().y(), bc->position().z());
+    new ((*bc_xyz)[bc_n]) TVector3();
+    ((TVector3 *)bc_xyz->At(bc_n))->SetXYZ(bc->position().x(), bc->position().y(), bc->position().z());
 
     std::vector<std::pair<DetId,float > > hits = bc->hitsAndFractions();
-    bc_nhits[bc_n] = hits.size(); // CHECK no direct method in the dataFormat only getRecHitsByDetId
+    bc_nhits[bc_n] = hits.size(); 
+
+    // fill the rechits associated to the basic cluster
+    fillBasicClusterRecHits(hits);
 
     bc_seed[bc_n] = -1;
     for(EERecHitCollection::const_iterator it=endcapRecHits->begin(); it!=endcapRecHits->end(); it++) {
@@ -489,12 +508,6 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
         bc_seed[bc_n] = (it - endcapRecHits->begin()); 
     }
 
-    // compute position of ECAL shower
-    //float e3x3=   EcalClusterTools::e3x3(  *(bc), &(*endcapRecHits), &(*topology)); 
-    //float r9 =e3x3/(aClus->rawEnergy()+aClus->preshowerEnergy());
-    //float e5x5= EcalClusterTools::e5x5( *(aClus->seed()), &(*hits), &(*topology)); 
-    std::pair<DetId, float> mypair=EcalClusterTools::getMaximum( *(bc), &(*endcapRecHits)); 
-    
     bc_s1[bc_n] = EcalClusterTools::eMax(*(bc), &(*endcapRecHits)); 
     bc_s4[bc_n] = EcalClusterTools::e2x2(*(bc), &(*endcapRecHits), &(*topology)); 
     bc_s9[bc_n] = EcalClusterTools::e3x3(*(bc), &(*endcapRecHits), &(*topology)); 
@@ -505,17 +518,14 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
     rook_vect.push_back(EcalClusterTools::eTop(*(bc), &(*endcapRecHits), &(*topology)));
     rook_vect.push_back(EcalClusterTools::eBottom(*(bc), &(*endcapRecHits), &(*topology)));
     rook_vect.push_back(EcalClusterTools::eRight(*(bc), &(*endcapRecHits), &(*topology)));
-    //bc_rook[bc_n] = *(max_element(rook_vect.begin(), rook_vect.end()));
     bc_chx[bc_n] = std::accumulate(rook_vect.begin(), rook_vect.end(), 0.);
 
     std::vector<float> vCov = EcalClusterTools::localCovariances( *(bc), &(*endcapRecHits), &(*topology));
     bc_sieie[bc_n] = sqrt(vCov[0]);
     bc_sieip[bc_n] = vCov[1];
     bc_sipip[bc_n] = sqrt(vCov[2]);
-    //bc_sieie[bc_n] = sqrt(EcalClusterTools::localCovariances(*(bc), &(*endcapRecHits), &(*topology))[0]);
 
     bc_type[bc_n] = 2;
-
     bc_n++;
     bc_islend_n++;
   }
@@ -550,17 +560,14 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
        new ((*bc_p4)[bc_n]) TLorentzVector();
        ((TLorentzVector *)bc_p4->At(bc_n))->SetXYZT(px, py, pz, en);
        
-       new ((*bc_xyz)[sc_n]) TVector3();
-       ((TVector3 *)bc_xyz->At(sc_n))->SetXYZ(bc->position().x(), bc->position().y(), bc->position().z());
+       new ((*bc_xyz)[bc_n]) TVector3();
+       ((TVector3 *)bc_xyz->At(bc_n))->SetXYZ(bc->position().x(), bc->position().y(), bc->position().z());
        
        std::vector<std::pair<DetId,float > > hits = bc->hitsAndFractions();
-       bc_nhits[bc_n] = hits.size(); // CHECK no direct method in the dataFormat only getRecHitsByDetId
-       
-       // compute position of ECAL shower
-       //float e3x3=   EcalClusterTools::e3x3(  *(bc), &(*endcapRecHits), &(*topology)); 
-       //float r9 =e3x3/(aClus->rawEnergy()+aClus->preshowerEnergy());
-       //float e5x5= EcalClusterTools::e5x5( *(aClus->seed()), &(*hits), &(*topology)); 
-       std::pair<DetId, float> mypair=EcalClusterTools::getMaximum( *(bc), &(*barrelRecHits)); 
+       bc_nhits[bc_n] = hits.size(); 
+
+       // fill the rechits associated to the basic cluster
+       fillBasicClusterRecHits(hits);
        
        bc_seed[bc_n] = -1;
        for(EBRecHitCollection::const_iterator it=barrelRecHits->begin(); it!=barrelRecHits->end(); it++) {
@@ -586,26 +593,8 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
        bc_sieie[bc_n] = sqrt(vCov[0]);
        bc_sieip[bc_n] = vCov[1];
        bc_sipip[bc_n] = sqrt(vCov[2]);
-       //bc_seed[bc_n] = bc->seed();
-       /*
-         bc_s1x5_0[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), 0, 0, -2, 2);
-         bc_s1x5_1[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -1, -1, -2, 2);
-         bc_s1x5_2[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), 1, 1, -2, 2);
-         bc_s1x3_0[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), 0, 0, -1, 1);
-         bc_s1x3_1[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -1, -1, -1, 1);
-         bc_s1x3_2[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), 1, 1, -1, 1);
-         bc_s5x1_0[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -2, 2, 0, 0);
-         bc_s5x1_1[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -2, 2, -1, -1);
-         bc_s5x1_2[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -2, 2, 1, 1);
-         bc_s3x1_0[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -1, 1, 0, 0);
-         bc_s3x1_1[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -1, 1, -1, -1);
-         bc_s3x1_2[bc_n]=EcalClusterTools::matrixEnergy(*(bc), &(*barrelRecHits), &(*topology), mypair.first(), -1, 1, 1, 1);
-       */
-       // localCovariances no longer takes geometry as input.  At this point still need to do "cvs co RecoEcal/EgammaClusterTools" from the cern cvs. REMOVE COMENT ONCE TI WORKS
-       //bc_sieie[bc_n] = sqrt(EcalClusterTools::localCovariances(*(bc), &(*barrelRecHits), &(*topology))[0]);
 
        bc_type[bc_n] = 3;
-       
        bc_n++;
        bc_islbar_n++;
      }
@@ -634,9 +623,15 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
 
     new ((*bc_p4)[bc_n]) TLorentzVector();
     ((TLorentzVector *)bc_p4->At(bc_n))->SetXYZT(px, py, pz, en);
+       
+    new ((*bc_xyz)[bc_n]) TVector3();
+    ((TVector3 *)bc_xyz->At(bc_n))->SetXYZ(bc->position().x(), bc->position().y(), bc->position().z());
 
     std::vector<std::pair<DetId,float > > hits = bc->hitsAndFractions();
     bc_nhits[bc_n] = hits.size(); // CHECK no direct method in the dataFormat only getRecHitsByDetId
+
+    // fill the rechits associated to the basic cluster
+    fillBasicClusterRecHits(hits);
 
     bc_seed[bc_n] = -1;
     for(EBRecHitCollection::const_iterator it=barrelRecHits->begin(); it!=barrelRecHits->end(); it++) {
@@ -644,7 +639,7 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
         bc_seed[bc_n] = (it - barrelRecHits->begin()); 
     }
     
-    std::pair<DetId, float> mypair=EcalClusterTools::getMaximum( *(bc), &(*barrelRecHits)); 
+    //std::pair<DetId, float> mypair=EcalClusterTools::getMaximum( *(bc), &(*barrelRecHits)); 
     bc_s1[bc_n] = EcalClusterTools::eMax(  *(bc), &(*barrelRecHits));
     bc_s4[bc_n] = EcalClusterTools::e2x2(  *(bc), &(*barrelRecHits), &(*topology));
     bc_s9[bc_n] = EcalClusterTools::e3x3(  *(bc), &(*barrelRecHits), &(*topology));
@@ -668,7 +663,6 @@ GlobeEcalClusters::analyzeEndcapBasicClusters() {
     //bc_5x1_sam[bc_n] = EcalClusterTools::e5x1(*(bc), &(*endcapRecHits), &(*topology));
     
     bc_type[bc_n] = 1;
-
     bc_n++;
     bc_hybrid_n++;
   }
@@ -715,7 +709,7 @@ std::vector<float> GlobeEcalClusters::getESHits(double X, double Y, double Z, st
   } else {
 
     it = rechits_map.find(strip1);
-    if (it->second.energy() > 1.0e-10) esHits.push_back(it->second.energy());
+    if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
     else esHits.push_back(0);
     //cout<<"center : "<<strip1<<" "<<it->second.energy()<<endl;      
 
@@ -724,7 +718,7 @@ std::vector<float> GlobeEcalClusters::getESHits(double X, double Y, double Z, st
       next = theESNav1.east();
       if (next != ESDetId(0)) {
         it = rechits_map.find(next);
-        if (it->second.energy() > 1.0e-10) esHits.push_back(it->second.energy());
+        if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
         else esHits.push_back(0);
         //cout<<"east "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
       } else {
@@ -741,7 +735,7 @@ std::vector<float> GlobeEcalClusters::getESHits(double X, double Y, double Z, st
       next = theESNav1.west();
       if (next != ESDetId(0)) {
         it = rechits_map.find(next);
-        if (it->second.energy() > 1.0e-10) esHits.push_back(it->second.energy());
+        if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
         else esHits.push_back(0);
         //cout<<"west "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
       } else {
@@ -757,7 +751,7 @@ std::vector<float> GlobeEcalClusters::getESHits(double X, double Y, double Z, st
   } else {
 
     it = rechits_map.find(strip2);
-    if (it->second.energy() > 1.0e-10) esHits.push_back(it->second.energy());
+    if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
     else esHits.push_back(0);
     //cout<<"center : "<<strip2<<" "<<it->second.energy()<<endl;      
 
@@ -766,7 +760,7 @@ std::vector<float> GlobeEcalClusters::getESHits(double X, double Y, double Z, st
       next = theESNav2.north();
       if (next != ESDetId(0)) {
         it = rechits_map.find(next);
-        if (it->second.energy() > 1.0e-10) esHits.push_back(it->second.energy());
+        if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
         else esHits.push_back(0);
         //cout<<"north "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;  
       } else {
@@ -783,7 +777,7 @@ std::vector<float> GlobeEcalClusters::getESHits(double X, double Y, double Z, st
       next = theESNav2.south();
       if (next != ESDetId(0)) {
         it = rechits_map.find(next);
-        if (it->second.energy() > 1.0e-10) esHits.push_back(it->second.energy());
+        if (it->second.energy() > 1.0e-10 && it != rechits_map.end()) esHits.push_back(it->second.energy());
         else esHits.push_back(0);
         //cout<<"south "<<i<<" : "<<next<<" "<<it->second.energy()<<endl;
       } else {
@@ -842,3 +836,15 @@ std::vector<float> GlobeEcalClusters::getESShape(std::vector<float> ESHits0)
     
   return esShape;
 }
+
+//----------------------------------------------------------------------
+
+void 
+GlobeEcalClusters::fillBasicClusterRecHits(const std::vector<std::pair<DetId,float > > &hits)
+{
+  bc_hitdetid->push_back(vector<Int_t>());
+  for (unsigned bcindex = 0; bcindex < hits.size(); ++bcindex)
+    bc_hitdetid->back().push_back(hits[bcindex].first.rawId());
+}
+
+//----------------------------------------------------------------------

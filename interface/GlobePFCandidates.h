@@ -48,6 +48,7 @@ class GlobePFCandidates {
   Int_t pho_n;
   //Int_t pfcandtimespho_n;
   UInt_t pfcand_overlappho[MAX_PFCANDS];
+  UInt_t pfcand_ispu[MAX_PFCANDS];
   //Int_t pfcand_overlappho[MAX_PFCANDS][MAX_PHOTONS];
 
   TClonesArray *pfcand_p4;
@@ -58,6 +59,7 @@ class GlobePFCandidates {
   GlobeCuts *gCUT;
   edm::InputTag pfColl;
   edm::InputTag photonCollStd;
+  edm::InputTag electronCollStd;
   double PFIsoOuterConeSize;
   int debug_level;
 };

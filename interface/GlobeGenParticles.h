@@ -4,6 +4,7 @@
 #include "FWCore/Framework/interface/Event.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCuts.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -33,11 +34,9 @@ class GlobeGenParticles {
   TClonesArray *gp_vtx;
 
  private:
-  //double etCut_; 
+  GlobeCuts* gCUT;
   edm::InputTag genParticlesColl;
   int debug_level;
-  //const HepMC::GenEvent* myGenEvent;
-
 };
 
 #endif

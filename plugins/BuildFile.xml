@@ -1,10 +1,10 @@
-<export>
-</export>
-<library   name="HiggsAnalysisHiggsTo2photons_plugins" file="*.cc">
-  <use   name="FWCore/Framework"/>
-  <use   name="FWCore/ParameterSet"/>
-  <use   name="FWCore/MessageLogger"/>
-  <use   name="DataFormats/EgammaCandidates"/>
-  <use   name="CommonTools/Utils"/>
-<use   name="root"/>
+<library name="HiggsAnalysisHiggsTo2photonsPlugins" file="*.cc">
+<use name="FWCore/Framework"/>
+<use name="FWCore/ParameterSet"/>
+<use name="FWCore/MessageLogger"/>
+<use name="DataFormats/EgammaCandidates"/>
+<use name="CommonTools/Utils"/>
+<use name="HiggsAnalysis/HiggsTo2photons"/>
+<use name="root"/>
+<use name="roottmva"/>
 </library>

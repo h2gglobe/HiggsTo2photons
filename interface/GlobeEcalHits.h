@@ -28,7 +28,8 @@ class GlobeEcalHits {
   virtual ~GlobeEcalHits() {};
 
   void defineBranch(TTree* tree);
-  bool analyze(const edm::Event&, const edm::EventSetup&, GlobeLeptons*, GlobeElectrons*, GlobeMuons*, GlobePhotons*);
+  //bool analyze(const edm::Event&, const edm::EventSetup&, GlobeLeptons*, GlobeElectrons*, GlobeMuons*, GlobePhotons*);
+  bool analyze(const edm::Event&, const edm::EventSetup&, GlobeElectrons*, GlobeMuons*, GlobePhotons*);
 
 
   // variables

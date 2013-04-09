@@ -53,10 +53,10 @@ bool GlobeSimTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   fillGeantMap();
 
-  int iPV=-1; 
+  //int iPV=-1; 
   std::vector<SimTrack>::iterator iFirstSimTk = theSimTracks.begin();
   if (  !(*iFirstSimTk).noVertex() ) {
-    iPV =  (*iFirstSimTk).vertIndex();
+    //iPV =  (*iFirstSimTk).vertIndex();
     int vtxId =   (*iFirstSimTk).vertIndex();
     primVtx = theSimVertices[vtxId];  
   }
@@ -123,14 +123,14 @@ SimTrack GlobeSimTracks::getNextSimTrack(SimTrack &inputSimtrack) {
     if ( candSimtrack->vertIndex() == inputVertexIndex )continue; 
     SimVertex vertex = theSimVertices[candSimtrack->vertIndex()];
     if ( vertex.parentIndex() != -1 ) {
-
+      
       unsigned  motherGeantIndex = vertex.parentIndex(); 
       std::map<unsigned, unsigned >::iterator association = geantToIndex_.find( motherGeantIndex );
       int motherIndex=-1;
       if(association != geantToIndex_.end() )
-	     motherIndex = association->second;
+	motherIndex = association->second;
       if ( theSimTracks[motherIndex].trackId() == inputTrackId )
-	     return *candSimtrack;
+	return *candSimtrack;
     }
 
   }

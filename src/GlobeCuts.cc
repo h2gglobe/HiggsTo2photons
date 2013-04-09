@@ -1,8 +1,8 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCuts.h"
 
-
 GlobeCuts::GlobeCuts(const edm::ParameterSet& iConfig) {
 
+  edm::ParameterSet psetGenParticle         = iConfig.getParameter<edm::ParameterSet>("GenParticleCuts");
   edm::ParameterSet psetPhoton              = iConfig.getParameter<edm::ParameterSet>("PhotonCuts");
   edm::ParameterSet psetConvertedPhoton     = iConfig.getParameter<edm::ParameterSet>("ConvertedPhotonCuts");
   edm::ParameterSet psetElectron            = iConfig.getParameter<edm::ParameterSet>("ElectronCuts");
@@ -20,6 +20,9 @@ GlobeCuts::GlobeCuts(const edm::ParameterSet& iConfig) {
   edm::ParameterSet psetIso                 = iConfig.getParameter<edm::ParameterSet>("IsoCuts");
   edm::ParameterSet psetTP                  = iConfig.getParameter<edm::ParameterSet>("TPCuts");
 
+  genParticlePdgidCut_      = psetGenParticle.getParameter<std::vector<int> >("PdgId");
+  genParticleBoolCut_       = psetGenParticle.getParameter<bool>("Keep");
+  genParticleEtCut_         = psetGenParticle.getParameter<double>("EtCut");
   photonEtCut_              = psetPhoton.getParameter<double>("EtCut");
   convertedPhotonEtCut_     = psetConvertedPhoton.getParameter<double>("EtCut");
   electronEtCut_            = psetElectron.getParameter<double>("EtCut");
@@ -39,23 +42,39 @@ GlobeCuts::GlobeCuts(const edm::ParameterSet& iConfig) {
   tpLvpCut_                 = psetTP.getParameter<double>("tpLvpCut");
   tpPdgidCut_               = psetTP.getParameter<std::vector<int> > ("tpPdgidCut");
 
-  hcalHBHEEnergyCut_     = psetHcalHit.getParameter<double>("HBHEEnergyCut");
-  hcalMaxDR_             = psetHcalHit.getParameter<double>("HcalMaxDR");
-  hcalHFEnergyCut_	     = psetHcalHit.getParameter<double>("HFEnergyCut");
-  hcalKeepOutsideCone_   = psetEcalHit.getParameter<bool>("KeepOutsideCone");
-  hcalHOEnergyCut_	     = psetHcalHit.getParameter<double>("HOEnergyCut");
+  hcalHBHEEnergyCut_        = psetHcalHit.getParameter<double>("HBHEEnergyCut");
+  hcalMaxDR_                = psetHcalHit.getParameter<double>("HcalMaxDR");
+  hcalHFEnergyCut_	    = psetHcalHit.getParameter<double>("HFEnergyCut");
+  hcalKeepOutsideCone_      = psetEcalHit.getParameter<bool>("KeepOutsideCone");
+  hcalHOEnergyCut_	    = psetHcalHit.getParameter<double>("HOEnergyCut");
 
-  ecalHitBarrelECut_     = psetEcalHit.getParameter<double>("BarrelEnergyCut");
-  ecalHitEndcapECut_     = psetEcalHit.getParameter<double>("EndcapEnergyCut");
-  ecalHitPreECut_        = psetEcalHit.getParameter<double>("PreEnergyCut");
-  ecalKeepOutsideCone_   = psetEcalHit.getParameter<bool>("KeepOutsideCone");
-  ecalMaxDR_             = psetEcalHit.getParameter<double>("EcalMaxDR");
+  ecalHitBarrelECut_        = psetEcalHit.getParameter<double>("BarrelEnergyCut");
+  ecalHitEndcapECut_        = psetEcalHit.getParameter<double>("EndcapEnergyCut");
+  ecalHitPreECut_           = psetEcalHit.getParameter<double>("PreEnergyCut");
+  ecalKeepOutsideCone_      = psetEcalHit.getParameter<bool>("KeepOutsideCone");
+  ecalMaxDR_                = psetEcalHit.getParameter<double>("EcalMaxDR");
 
-  isoInnerCone_ 	     = psetIso.getParameter<double>("InnerCone");
-  isoOuterCone_ 	     = psetIso.getParameter<double>("OuterCone");
+  isoInnerCone_ 	    = psetIso.getParameter<double>("InnerCone");
+  isoOuterCone_ 	    = psetIso.getParameter<double>("OuterCone");
 }
 
 // The Functions return "true" if the object should be cut
+// GenParticle
+bool GlobeCuts::cut(const reco::GenParticle &gp) {
+
+  if (gp.et() < genParticleEtCut_)
+    return 0;
+
+  if (genParticlePdgidCut_.size() == 0)
+    return 1;
+
+  for(unsigned int i=0; i<genParticlePdgidCut_.size(); i++)
+    if ((abs(gp.pdgId()) == genParticlePdgidCut_[i] and genParticleBoolCut_) or 
+	(abs(gp.pdgId()) != genParticlePdgidCut_[i] and !genParticleBoolCut_))
+      return 1;
+
+  return 0;
+}
 
 //PFCands
 bool GlobeCuts::cut(const reco::PFCandidate &pf) {
@@ -168,16 +187,21 @@ bool GlobeCuts::cut(const reco::GenJet &genjet) {
 //Cut to determine if RecHit falls within the lepton cone
 //const EcalRecHit here is just used as a function identifier
 bool GlobeCuts::cut(const EcalRecHit &ecalhit, int type, double dR) { 
-   if (type == 2)  // preshower
+
+  if (type == 2)  // preshower
     return (ecalhit.energy() < ecalHitPreECut_); 
-   if( dR < ecalMaxDR_ ) return false; //keep if inside cone
-  if (!ecalKeepOutsideCone_) return true; //dont keep if user doesnt want
-                                      //stuff outside cone
-   if (type == 0)  // barrel
+   
+  if( dR < ecalMaxDR_ ) 
+    return false; //keep if inside cone
+  
+  if (!ecalKeepOutsideCone_) 
+    return true; //dont keep if user doesnt want stuff outside cone
+
+  if (type == 0)  // barrel
     return (fabs(ecalhit.energy()) < ecalHitBarrelECut_); 
-   if (type == 1)  // endcap
+  if (type == 1)  // endcap
     return (fabs(ecalhit.energy()) < ecalHitEndcapECut_); 
-   return false;
+  return false;
 }
 
 bool GlobeCuts::isocut(const reco::Track &tk, const reco::Track &lep, const reco::Vertex &vtx) {

@@ -1,8 +1,12 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.ParticleFlow.ParticleSelectors.pfCandsForIsolation_cff  import *
+#from CommonTools.ParticleFlow.ParticleSelectors.pfCandsForIsolation_cff  import *
+from CommonTools.ParticleFlow.ParticleSelectors.pfSortByType_cff  import *
+from CommonTools.ParticleFlow.pfNoPileUp_cff import *
+
 from CommonTools.ParticleFlow.Isolation.pfPhotonIsolation_cff import *
-from CommonTools.ParticleFlow.Isolation.pfPhotonIsolationFromDeposits_cff import *
+#from CommonTools.ParticleFlow.Isolation.pfPhotonIsolationFromDeposits_cff import *
+pfPileUp.PFCandidates = cms.InputTag("particleFlow")
 
 #pfSelectedPhotons = cms.EDFilter("GenericPFCandidateSelector",
 #                                 src = cms.InputTag("particleFlow"),
@@ -176,3 +180,4 @@ from CommonTools.ParticleFlow.Isolation.pfPhotonIsolationFromDeposits_cff import
 #    pfSelectedPhotons +
 #    pfPhotonIsolationSequence
 #    ) 
+
