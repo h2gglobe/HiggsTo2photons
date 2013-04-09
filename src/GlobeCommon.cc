@@ -4,6 +4,7 @@
 
 GlobeCommon::GlobeCommon(const edm::ParameterSet& iConfig) {
   generatorColl = iConfig.getParameter<edm::InputTag>("GeneratorColl");
+  doParticleGun =iConfig.getParameter<bool>("doParticleGun");
 }
 
 void GlobeCommon::defineBranch(TTree* tree) {
@@ -33,7 +34,7 @@ bool GlobeCommon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   run = iEvent.id().run();  
   lumis = iEvent.luminosityBlock();
   bx = iEvent.bunchCrossing();
-
+  //std::cout<<"event run "<<event<<" "<<run<<std::endl;
   // add event PTHAT
   iEvent.getByLabel(generatorColl, HepMCEvt);
   iEvent.getByLabel ("csa07EventWeightProducer","weight", weightHandle);
@@ -42,17 +43,23 @@ bool GlobeCommon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     const GenEventInfoProduct* event = HepMCEvt.product();
     pthat = event->qScale();
-    process_id = event->signalProcessID();
+    
+    if (doParticleGun)
+      process_id = -1;
+    else
+      process_id = event->signalProcessID();
 
     if (event->weights().size() > 1) {
       if (nerror++<10) {
 	      std::cout << "GlobeCommon: more than 1 weight." << std::endl;
       }
     }
-
-    weight = event->weights().front();
+    
+    if (doParticleGun)
+      weight = -1; 
+    else
+      weight = event->weights().front();
   } else {
-
     pthat = -1;
     process_id = -1;
     weight = 1;

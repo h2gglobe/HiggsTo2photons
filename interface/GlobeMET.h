@@ -44,10 +44,19 @@ class GlobeMET {
   Float_t met_phi_tcmet;
   Float_t met_pfmet;
   Float_t met_phi_pfmet;
+  Float_t met_sumet_pfmet;
+  Float_t met_mEtSig_pfmet;
+  Float_t met_significance_pfmet;
   
+  Float_t met_pfmetType1;
+  Float_t met_phi_pfmetType1;
+  Float_t met_sumet_pfmetType1;
+  Float_t met_mEtSig_pfmetType1;
+  Float_t met_significance_pfmetType1;
+
  private:
   const char* nome;
-  edm::InputTag caloMETColl, muonGlobalColl, jetColl, tcMETColl, pfMETColl;
+  edm::InputTag caloMETColl, muonGlobalColl, jetColl, tcMETColl, pfMETColl, pfType1METColl;
   int debug_level;
 };
 

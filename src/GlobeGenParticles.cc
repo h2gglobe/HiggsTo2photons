@@ -6,6 +6,7 @@ GlobeGenParticles::GlobeGenParticles(const edm::ParameterSet& iConfig) {
   
   genParticlesColl = iConfig.getParameter<edm::InputTag>("GenParticlesColl");
   debug_level = iConfig.getParameter<int>("Debug_Level");
+  gCUT = new GlobeCuts(iConfig);
 }
 
 void GlobeGenParticles::defineBranch(TTree* tree) {
@@ -47,6 +48,9 @@ bool GlobeGenParticles::analyze(const edm::Event& iEvent, const edm::EventSetup&
   for(size_t i = 0; i < gpH->size(); ++i) {
 
     const reco::GenParticleRef gp(gpH, i);
+
+    if(!gCUT->cut(*gp))
+      continue;
 
     gp_pdgid[gp_n] = gp->pdgId();
     gp_status[gp_n] = gp->status();

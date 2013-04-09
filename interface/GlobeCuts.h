@@ -33,7 +33,7 @@
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertex.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
-
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
@@ -53,6 +53,7 @@ class GlobeCuts {
   GlobeCuts(const edm::ParameterSet&);
   virtual ~GlobeCuts() {};
 
+  bool cut(const reco::GenParticle&);
   bool cut(const reco::Conversion&);
   bool cut(const reco::Photon&);
   bool cut(const reco::PFCandidate&);
@@ -78,23 +79,9 @@ class GlobeCuts {
   bool isocut(const reco::Track&,const reco::Track&);
 
  private:
- /*
-  edm::ParameterSet psetPhoton;
-  edm::ParameterSet psetConvertedPhoton;
-  edm::ParameterSet psetElectron;
-  edm::ParameterSet psetSuperCluster;
-  edm::ParameterSet psetBasicCluster;
-  edm::ParameterSet psetCaloTower;
-  edm::ParameterSet psetHcalHit;
-  edm::ParameterSet psetTrack;
-  edm::ParameterSet psetSimTrack;
-  edm::ParameterSet psetJet;
-  edm::ParameterSet psetMuon;
-  edm::ParameterSet psetGenJet;
-  edm::ParameterSet psetEcalHit;
-  edm::ParameterSet psetIso;
-  edm::ParameterSet psetTP;
-*/
+  bool genParticleBoolCut_;
+  std::vector<int> genParticlePdgidCut_;
+  double genParticleEtCut_;
 
   double photonEtCut_; 
   double convertedPhotonEtCut_; 

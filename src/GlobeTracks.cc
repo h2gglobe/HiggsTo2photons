@@ -57,11 +57,11 @@ bool GlobeTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     std::cout << "GlobeTracks: start " << std::endl;
 
   edm::Handle<reco::TrackCollection> tkH;
-  edm::Handle<reco::TrackCollection> tkH2;
+  //edm::Handle<reco::TrackCollection> tkH2;
 
   //if (nome == "ctf") // ONLY ONE TYPE
   iEvent.getByLabel(trackColl, tkH);
-  iEvent.getByLabel(trackColl2, tkH2);
+  //iEvent.getByLabel(trackColl2, tkH2);
 
   tk_p4->Clear();
   tk_vtx_pos->Clear();
@@ -70,8 +70,8 @@ bool GlobeTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
   if (debug_level > 9)
     std::cout << "GlobeTracks: Track collection size: "<< tkH->size() << std::endl;
-  if (debug_level > 9)
-    std::cout << "GlobeTracks: Track collection2 size: "<< tkH2->size() << std::endl;
+  //if (debug_level > 9)
+  //  std::cout << "GlobeTracks: Track collection2 size: "<< tkH2->size() << std::endl;
  
   for(unsigned int i=0; i<tkH->size(); i++) {
     if (tk_n >= MAX_TRACKS) {
@@ -80,9 +80,10 @@ bool GlobeTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 
     reco::TrackRef tk(tkH, i);
-	 // make the cuts
-	 if(gCUT->cut(*tk))continue; 
-	 // passed cuts
+    // make the cuts
+    if(gCUT->cut(*tk))
+      continue; 
+    // passed cuts
       
 
     new ((*tk_p4)[tk_n]) TLorentzVector();
