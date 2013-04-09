@@ -1,17 +1,20 @@
-#cvs co -r V00-03-37 RecoEgamma/ElectronIdentification
-addpkg RecoEgamma/EgammaTools V09-00-00
-#addpkg CommonTools/ParticleFlow  V00-03-13
-#addpkg RecoEcal/EgammaCoreTools V05-08-21
-#addpkg RecoParticleFlow/PFProducer  V15-01-11
+cvs co -r B4_2_X_V00-03-04 CommonTools/ParticleFlow                         
+cvs co -r V00-02-01      CommonTools/TriggerUtils                         
+cvs co -r regression42x_Dec3 CondFormats/DataRecord                           
+cvs co -r V00-02-04      CondFormats/EgammaObjects                        
+cvs co -r V00-07-04      Configuration/JetMET                             
+cvs co -r V01-19-68-17   Configuration/PyReleaseValidation                
+cvs co -r V02-02-13      Configuration/Skimming                           
+cvs co -d EGamma/EGammaAnalysisTools UserCode/Matteosan/4_2_X/EGamma/EGammaAnalysisTools
+cvs co -r V05-07-00      RecoEcal/EgammaCoreTools                         
+cvs co -r regression_Dec3d RecoEgamma/EgammaTools                           
+cvs co -r V02-04-17      RecoJets/Configuration                           
+cvs co -r V04-01-00      RecoJets/JetAlgorithms                           
+cvs co -r V05-05-03      RecoJets/JetProducers
 cvs co -r V00-02-05 -d CMGTools/External UserCode/CMG/CMGTools/External
-cvs co -d EGamma/EGammaAnalysisTools UserCode/Matteosan/EGamma/EGammaAnalysisTools
-cp HiggsAnalysis/HiggsTo2photons/scripts/download.url EGamma/EGammaAnalysisTools/data/.
-#addpkg JetMETCorrections/Type1MET V04-06-09
-#addpkg PhysicsTools/PatUtils V03-09-22
-addpkg CommonTools/RecoUtils V00-00-09
-#addpkg RecoMET/METFilters V00-00-10
-cvs co -d EgammaAnalysis/ElectronTools UserCode/Matteosan/EgammaAnalysis/ElectronTools
+#cvs co -r HCP2012_V05-44X EgammaAnalysis/ElectronTools
+
 cd EGamma/EGammaAnalysisTools/data/
 wget -i ../../../HiggsAnalysis/HiggsTo2photons/scripts/download.url
 cd ../../..
-#checkdeps -a
+
