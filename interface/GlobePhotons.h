@@ -383,6 +383,7 @@ class GlobePhotons {
   EcalClusterFunctionBaseClass *CrackCorr;
   EcalClusterFunctionBaseClass *LocalCorr;
 
+  bool applyEnergyCorrection;
   /*
   // PhotonID thresholds
   std::vector<double> cutsubleadisosumoet6c[12];

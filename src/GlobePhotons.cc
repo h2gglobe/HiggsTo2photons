@@ -81,6 +81,8 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
   vtxCollection = iConfig.getParameter<edm::InputTag>("VertexColl_std");
   tkCollection  = iConfig.getParameter<edm::InputTag>("tkColl");
 
+  applyEnergyCorrection = iConfig.getParameter<bool>("applyEnergyCorrection");
+
   //hcalHitColl = iConfig.getParameter<edm::InputTag>("HcalHitsBEColl");
   pfColl = iConfig.getParameter<edm::InputTag>("PFCandidateColl");
 
@@ -599,46 +601,51 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     //PhotonFix ResidCorrector(*localPho);
     pho_residCorrEnergy[pho_n] = 0;//ResidCorrector.fixedEnergy();
     pho_residCorrResn[pho_n] = 0;//ResidCorrector.sigmaEnergy();
-
-    // Regression Correction
-    if (!ecorr_.IsInitialized()) {
-      if (energyCorrectionsFromDB and regressionVersion == "V3") {
-	std::cout << "DB version available only for V2" << std::endl;
-	energyCorrectionsFromDB = false;
-      }
-      
-      if (!energyCorrectionsFromDB) {
-	char filename[500];
-	char* descr = getenv("CMSSW_BASE");
-	sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/%s", descr, energyRegFilename.c_str());
-	if (fexist(filename)) {
-	  sprintf(filename, "http://cern.ch/sani/%s", energyRegFilename.c_str());
-	  ecorr_.Initialize(iSetup, filename);
-	} else {
-	  ecorr_.Initialize(iSetup, filename);
-	} 
-      } else {
-	ecorr_.Initialize(iSetup, "wgbrph", true);
-      }
-    }
-
-    if (!isInitialized) {
-      isInitialized = true;
-      //do the same for PFEcal Cluster corrections:
-      char filename1[200];
-      char filename2[200];
-      sprintf(filename1, "http://cern.ch/sani/TMVARegressionBarrelLC.root");
-      sprintf(filename2, "http://cern.ch/sani/TMVARegressionEndCapLC.root");
-      TFile *fgbr1 = TFile::Open(filename1);
-      TFile *fgbr2 = TFile::Open(filename2);
-      PFLCBarrel = (GBRForest*)fgbr1->Get("PFLCorrEB");
-      PFLCEndcap = (GBRForest*)fgbr2->Get("PFLCorrEE");
-    }
+    pho_regr_energy[pho_n]    = 99999.;
+    pho_regr_energyerr[pho_n] = 99999.;
 
     EcalClusterLazyTools lazyTool(iEvent, iSetup, ecalHitEBColl, ecalHitEEColl);   
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(*localPho, *(hVertex.product()), lazyTool, iSetup);
-    pho_regr_energy[pho_n]    = cor.first;
-    pho_regr_energyerr[pho_n] = cor.second;
+
+    if (!applyEnergyCorrection) {
+      // Regression Correction
+      if (!ecorr_.IsInitialized()) {
+	if (energyCorrectionsFromDB and regressionVersion == "V3") {
+	  std::cout << "DB version available only for V2" << std::endl;
+	  energyCorrectionsFromDB = false;
+	}
+	
+	if (!energyCorrectionsFromDB) {
+	  char filename[500];
+	  char* descr = getenv("CMSSW_BASE");
+	  sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/%s", descr, energyRegFilename.c_str());
+	  if (fexist(filename)) {
+	    sprintf(filename, "http://cern.ch/sani/%s", energyRegFilename.c_str());
+	    ecorr_.Initialize(iSetup, filename);
+	  } else {
+	    ecorr_.Initialize(iSetup, filename);
+	  } 
+	} else {
+	  ecorr_.Initialize(iSetup, "wgbrph", true);
+	}
+      }
+
+      if (!isInitialized) {
+	isInitialized = true;
+	//do the same for PFEcal Cluster corrections:
+	char filename1[200];
+	char filename2[200];
+	sprintf(filename1, "http://cern.ch/sani/TMVARegressionBarrelLC.root");
+	sprintf(filename2, "http://cern.ch/sani/TMVARegressionEndCapLC.root");
+	TFile *fgbr1 = TFile::Open(filename1);
+	TFile *fgbr2 = TFile::Open(filename2);
+	PFLCBarrel = (GBRForest*)fgbr1->Get("PFLCorrEB");
+	PFLCEndcap = (GBRForest*)fgbr2->Get("PFLCorrEE");
+      }
+
+      std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV2(*localPho, *(hVertex.product()), lazyTool, iSetup);
+      pho_regr_energy[pho_n]    = cor.first;
+      pho_regr_energyerr[pho_n] = cor.second;
+    }
     
     //pho_sc_time[pho_n] = lazyTool.SuperClusterTime(*theClus, iEvent);
 	
