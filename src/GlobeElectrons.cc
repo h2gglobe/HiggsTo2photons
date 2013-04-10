@@ -103,6 +103,7 @@ void GlobeElectrons::defineBranch(TTree* tree) {
 
   el_sc = new TClonesArray("TLorentzVector", MAX_ELECTRONS);
   el_p4 = new TClonesArray("TLorentzVector", MAX_ELECTRONS);
+  el_p4_corr = new TClonesArray("TLorentzVector", MAX_ELECTRONS);
   el_momvtx = new TClonesArray("TVector3", MAX_ELECTRONS);  
   el_momvtxconst = new TClonesArray("TVector3", MAX_ELECTRONS);
   el_momcalo = new TClonesArray("TVector3", MAX_ELECTRONS);
@@ -126,6 +127,9 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   sprintf(a1, "el_%s_p4", nome);
   tree->Branch(a1, "TClonesArray", &el_p4, 32000, 0);
 
+  sprintf(a1, "el_%s_p4_corr", nome);
+  tree->Branch(a1, "TClonesArray", &el_p4_corr, 32000, 0);
+  
   sprintf(a1, "el_%s_momvtx", nome);
   tree->Branch(a1, "TClonesArray", &el_momvtx, 32000, 0);
 
@@ -760,37 +764,35 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     //reco::Mustache m;
     //m.MustacheID(*(egsf.superCluster()), el_mustnc[el_n], el_must[el_n]);
 
-    // Regression Correction
-    if (!ecorr_.IsInitialized()) {
-      if (energyCorrectionsFromDB and regressionVersion == "V3") {
-	std::cout << "DB version available only for V2" << std::endl;
-	energyCorrectionsFromDB = false;
+    el_regr_energy[el_n]    = 9999.;
+    el_regr_energyerr[el_n] = 9999.;
+    if (!applyEnergyCorrection) {
+      // Regression Correction
+      if (!ecorr_.IsInitialized()) {
+	if (energyCorrectionsFromDB and regressionVersion == "V3") {
+	  std::cout << "DB version available only for V2" << std::endl;
+	  energyCorrectionsFromDB = false;
+	}
+	
+	if (!energyCorrectionsFromDB) {
+	  char filename[500];
+	  char* descr = getenv("CMSSW_BASE");
+	  sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/%s", descr, energyRegFilename.c_str());
+	  if (fexist(filename)) {
+	    sprintf(filename, "http://cern.ch/sani/%s", energyRegFilename.c_str());
+	    ecorr_.Initialize(iSetup, filename);
+	  } else {
+	    ecorr_.Initialize(iSetup, filename);
+	  } 
+	} else {
+	  ecorr_.Initialize(iSetup, "wgbrph", true); //FIXME no wgbrele in DB
+	}
       }
       
-      if (!energyCorrectionsFromDB) {
-	char filename[500];
-	char* descr = getenv("CMSSW_BASE");
-	sprintf(filename, "%s/src/HiggsAnalysis/HiggsTo2photons/data/%s", descr, energyRegFilename.c_str());
-	if (fexist(filename)) {
-	  sprintf(filename, "http://cern.ch/sani/%s", energyRegFilename.c_str());
-	  ecorr_.Initialize(iSetup, filename);
-	} else {
-	  ecorr_.Initialize(iSetup, filename);
-	} 
-      } else {
-	ecorr_.Initialize(iSetup, "wgbrph", true); //FIXME no wgbrele in DB
-      }
+      std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(egsf, ecalLazyTool);
+      el_regr_energy[el_n]    = cor.first;
+      el_regr_energyerr[el_n] = cor.second;
     }
-
-    //if (regressionVersion == "V3") {
-    //std::pair<double,double> cor = ecorr_.CorrectedEnergyWithErrorV3(egsf, *vtxH, rho, ecalLazyTool, iSetup);
-    //el_regr_energy[el_n]    = cor.first;
-    //el_regr_energyerr[el_n] = cor.second;
-    //} else {
-    std::pair<double,double> cor = ecorr_.CorrectedEnergyWithError(egsf, ecalLazyTool);
-    el_regr_energy[el_n]    = cor.first;
-    el_regr_energyerr[el_n] = cor.second;
-    //}
     
     reco::GsfElectronRef myElectronRef(elH, std::distance(elH->begin(), igsf));
     if (applyEnergyCorrection) {
@@ -799,7 +801,6 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       el_corr_energyerr[el_n]  = (*corrEnergyErr)[myElectronRef];
       el_calib_energy[el_n]    = (*calibEnergy)[calibEleRef];
       el_calib_energyerr[el_n] = (*calibEnergyErr)[calibEleRef];
-      
       new ((*el_p4_corr)[el_n]) TLorentzVector();
       ((TLorentzVector *)el_p4_corr->At(el_n))->SetXYZT(calibEleRef->px(), calibEleRef->py(), calibEleRef->pz(), calibEleRef->energy());
     }
