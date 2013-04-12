@@ -312,7 +312,7 @@ process.h2ganalyzer.Debug_Level = 0
 #process.eleRegressionEnergy.produceValueMaps = cms.bool(True)
 
 ##-------------------- PFIsolation for Electrons -------------------------------------
-from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFPhotonIso
+from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso
 process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
 #process.phoIsoSequence = setupPFPhotonIso(process, 'photons')
 ##-------------------- PFNoPU for PF Isolation Electrons -----------------------------
@@ -530,7 +530,7 @@ process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfNoPi
 if (flagFastSim == 'OFF' or flagAOD == 'OFF'):
   process.p11 *= process.piZeroDiscriminators
     
-process.p11 *= (process.kt6PFJets* process.ak5PFJets* process.kt6PFJetsForRhoCorrection* process.h2ganalyzerPath)
+process.p11 *= (process.kt6PFJets* process.ak5PFJets* process.kt6PFJetsForRhoCorrection*process.eleRegressionEnergy * process.calibratedElectrons* process.h2ganalyzerPath)
 process.p11 *= (process.h2ganalyzerPath)
 
 process.p12 = copy.deepcopy(process.p11)

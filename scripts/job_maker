@@ -19,17 +19,24 @@ def printHeader(file_out):
 usage = """
 job_maker [options]
 
---data/MC                          select data or MC
+--data/MC/particleGun              select data, MC or particleGun
 --fastsim                          works with fastsim eventcontent (actually not the standard one ;-))
 --AOD/RECO                         AOD should be standard
 --caf                              send jobs using CAF (hadoop is std in SD)
+--server                           use server to submit crab jobs
+--AddPdfWeight                     add pdf weight information into the ntuple (warning: very very slow)
+--energyCorrFromDB                 read energy corrections from DB (default is read from ROOT file)
 --skimworz                         skim for T&P
 --diphoskim                        DiPhoton HLT Skim
+--pjetskim                         Do PhotonPlusJet Skim (Works for both Data and MC)
 --vlpresel                         Very Loose Preselection on 2 photons
 --noskim                           no skim performed (typically only for signal)
---skimmmg                          skim for mumugamma 
---storage=\"castor\" or \"hadoop\" use castor/hadoop as storage element
---name=                            name of the job, directory, files
+--skimmm                           skim for DYmumu
+--skimmmg                          skim for mumugamma
+--skim1el                          skim to select only one electron
+--storage=eos/castor/hadoop        use eos/castor/hadoop as storage element
+--name=                            name of the job, directory, files (without a default will be made)
+--append=                          appends the name of the task
 --scheduler=                       glite or glidein
 --datasetpath=                     datasetpath
 --runselection=                    comma separated list of runs
@@ -44,27 +51,39 @@ job_maker [options]
 --blacklist=                       sites to black list (e.g. \"T2_US_UCSD,ultralight.org,hpc.ufl.edu\")
 --whitelist=                       sites to white list (e.g. \"T2_US_UCSD,ultralight.org,hpc.ufl.edu\")
 --useT1                            edits the crab.cfg so that T1 access is possible
---AddPdfWeight                     add PDF weight informations
+
+--enable=                          enable processing of specified objects (comma separated list)
+--disable=                         disable processing of specified objects (comma separated list)
+--published                        to run on local dbs published dataset
 """
 
 
 # default selection
 flagData = False
 flagMC = False
+flagMyPreSelection = False
 flagSkimDiphoton = False
+flagSkimPJet = False
 flagSkimworz = False
 flagSkim1El = False
 flagVLPreSelection = False
 flagNoSkim = False
+flagMuMuSkim = False
 flagMMgSkim = False
+flagSkimHmm = False
+flagSkimHee = False
+flagSkimMu  = False
 flagAOD = False
 flagRECO = False
+flagPG = False
 flagFastSim = False
 flagT1 = False
-AddPdfWeight = False
+flagDB = False
+flagPublished = False
 
-name = "NoNameGiven"
+name = ""
 datasetpath=""
+append=""
 runselection = [""]
 total_number = -1
 events_job = 10000
@@ -81,8 +100,11 @@ lumis_per_job=10
 blackList=""
 whiteList=""
 useServer = False
+toEnable = []
+toDisable = []
+jecFromSqlite = False
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'scheduler=', 'skim1el', 'AddPdfWeight', 'fastsim'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'append=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite', 'published', 'skimhee', 'skimhmm', 'skimmu'])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -96,6 +118,8 @@ for opt,argm in opts:
         flagFastSim = True
     elif (opt == "--AOD"):
         flagAOD = True
+    elif (opt == "--particleGun"):
+        flagPG = True
     elif (opt == "--RECO"):
         flagRECO = True
     elif (opt == "--server"):
@@ -104,8 +128,20 @@ for opt,argm in opts:
         useCAF = True
     elif (opt == "--diphoskim"):
         flagSkimDiphoton = True
+    elif (opt == "--pjetskim"):
+         flagSkimPJet = True
     elif (opt == "--vlpresel"):
         flagVLPreSelection = True
+    elif (opt == "--mypresel"):
+        flagMyPreSelection = True
+    elif (opt == "--skimhmm"):
+        flagSkimHmm = True
+    elif (opt == "--skimmu"):
+        flagSkimMu = True
+    elif (opt == "--skimhee"):
+        flagSkimHee = True        
+    elif (opt == "--skimmm"):
+        flagMuMuSkim = True
     elif (opt == "--skimmmg"):
         flagMMgSkim = True
     elif (opt == "--skimworz"):
@@ -116,10 +152,14 @@ for opt,argm in opts:
         flagNoSkim = True
     elif (opt == "--storage"):
         storage = argm
+    elif (opt == "--energyCorrFromDB"):
+        flagDB = True
     elif (opt == "--name"):
         name = argm
     elif (opt == "--datasetpath"):
         datasetpath = argm
+    elif (opt == "--append"):
+        append = argm
     elif (opt == "--runselection"):
         runselection = argm.split(",")
     elif (opt == "--events"):
@@ -148,22 +188,42 @@ for opt,argm in opts:
         AddPdfWeight = True
     elif (opt == "--scheduler"):
         scheduler = argm
+    elif (opt == "--enable"):
+        toEnable = argm.split(",")
+    elif (opt == "--disable"):
+        toDisable = argm.split(",")
+    elif (opt == "--jecFromSqlite"):
+        jecFromSqlite = True
+    elif (opt == "--published"):
+        flagPublished = True
     else:
         print 'Wrong options: %s' % (opt)
         sys.exit(3)
         
+if (name == ""):
+    parts = datasetpath.split("/")
+    name = parts[1]+"_"+parts[2]
+
+if (append != ""):
+    name=name+'_'+append
+
+
 if (globaltag == ""):
     print "WARNING: you are using default GLOBAL-TAG, it may not be correct."
 
-if (not(flagNoSkim ^ flagSkimDiphoton ^ flagMMgSkim ^ flagVLPreSelection ^ flagSkim1El ^ flagSkimworz)):
+if (not(flagNoSkim ^ flagSkimDiphoton ^ flagSkimPJet ^ flagMMgSkim ^ flagVLPreSelection ^ flagSkim1El ^ flagSkimworz ^ flagMyPreSelection ^ flagSkimHmm ^ flagSkimHee ^ flagSkimMu)):
     print "You must have one and only one of the skims."
     print "Try again when you have chosen one:  --skim2pho or --noskim or --skimmmg or --skimworz."
     sys.exit(1)
 
-if (flagRECO and flagAOD) or (not flagRECO and not flagAOD):
+if (not (flagRECO ^ flagAOD)):
     print "You must have one and only one of these:"
     print "flagRECO is "+str(flagRECO)+"\tflagAOD is "+str(flagAOD)
     print "Try again when you have chosen one:  --RECO or --AOD."
+    sys.exit(1)
+
+if (not (flagData ^ flagMC ^ flagPG)):
+    print "Try again when you have chosen one:  --Data, --MC or --particleGun."
     sys.exit(1)
 
 for run in runselection:
@@ -172,13 +232,14 @@ for run in runselection:
     file = open("template_42X_cfg.py")
     lines = file.readlines()
     file.close()
-    if os.path.exists("../test/crabTasks")==False:
+    if (not os.path.exists("../test")):
+        os.mkdir("../test")
+    if (not os.path.exists("../test/crabTasks")):
         os.mkdir("../test/crabTasks")
-    if os.path.exists("../test/crabTasks/"+job_name)==False:
+    if (not os.path.exists("../test/crabTasks/"+job_name)):
         os.mkdir("../test/crabTasks/"+job_name)
     file_out = open("../test/crabTasks/" + job_name + "/" + job_name + "_cfg.py", "w")
     printHeader(file_out)
-
     for line in lines:
         if ("RootFileName" in line):
             file_out.write("process.h2ganalyzer.RootFileName = \'"+job_name+".root\'\n")
@@ -188,12 +249,14 @@ for run in runselection:
             file_out.write("flagData = \'ON\'\n")
         elif ("flagMC = 'OFF'" in line and flagMC):
             file_out.write("flagMC = \'ON\'\n")
-        elif ("flagFastSim = 'OFF'" in line and flagFastSim):
-            file_out.write("flagFastSim = \'ON\'\n")
         elif ("flagAOD = 'OFF'" in line and flagAOD):
             file_out.write("flagAOD = \'ON\'\n")
+        elif ("flagFastSim = 'OFF'" in line and flagFastSim):
+            file_out.write("flagFastSim = \'ON\'\n")
         elif ("flagAOD = 'ON'" in line and not flagAOD):
             file_out.write("flagAOD = \'OFF\'\n")
+        elif ("flagPG = 'OFF'" in line and flagPG):
+            file_out.write("flagPG = \'ON\'\n")
         elif ("flagNoSkim = 'OFF'" in line and flagNoSkim):
             file_out.write("flagNoSkim = \'ON\'\n")
         elif ("flagSkimworz = 'OFF'" in line and flagSkimworz):
@@ -202,20 +265,40 @@ for run in runselection:
             file_out.write("flagSkim1El = \'ON\'\n")
         elif ("flagSkimDiphoton = 'OFF'" in line and flagSkimDiphoton):
             file_out.write("flagSkimDiphoton = \'ON\'\n")
+        elif ("flagSkimHmm = 'OFF'" in line and flagSkimHmm):
+            file_out.write("flagSkimHmm = \'ON\'\n")
+        elif ("flagSkimHee = 'OFF'" in line and flagSkimHee):
+            file_out.write("flagSkimHee = \'ON\'\n")
+        elif ("flagSkimMu = 'OFF'" in line and flagSkimMu):
+            file_out.write("flagSkimMu = \'ON\'\n")            
+        elif ("flagSkimPJet = 'OFF'" in line and flagSkimPJet):
+            file_out.write("flagSkimPJet = \'ON\'\n")
         elif ("flagVLPreSelection = 'OFF'" in line and flagVLPreSelection):
             file_out.write("flagVLPreSelection = \'ON\'\n")
+        elif ("flagMyPreSelection = 'OFF'" in line and flagMyPreSelection):
+            file_out.write("flagMyPreSelection = \'ON\'\n")            
+        elif ("flagMuMuSkim = 'OFF'" in line and flagMuMuSkim):
+            file_out.write("flagMuMuSkim = \'ON\'\n")
         elif ("flagMMgSkim = 'OFF'" in line and flagMMgSkim):
             file_out.write("flagMMgSkim = \'ON\'\n")
         elif ("hltLabel = \"HLT\"" in line and hlttag != ""):
             file_out.write("hltLabel = \'"+hlttag+"\'\n")
         elif ("GlobalTag.globaltag" in line and globaltag != ""):
             file_out.write("process.GlobalTag.globaltag = \""+globaltag+"\"\n")
-        elif ("flagAddPdfWeight = 'OFF'" in line and AddPdfWeight):
-            file_out.write("flagAddPdfWeight = \'ON\'\n")
         else:
             file_out.write(line)
+    file_out.write("\n")
+    for t in toEnable:
+        file_out.write("process.h2ganalyzer." + t + " = True\n")
+    file_out.write("\n")
+    for t in toDisable:
+        file_out.write("process.h2ganalyzer." + t + " = False\n")
+    if flagDB:
+        file_out.write("process.h2ganalyzer.energyCorrectionsFromDB = True\n")
+    if jecFromSqlite:
+        file_out.write("from CMGTools.External.jec_2012_cff import use2012JecPreview\n")
+        file_out.write("use2012JecPreview(process)\n")
     file_out.close()
-
     
     # setup crab cfg file
     file = open("crab_template.cfg")
@@ -231,11 +314,14 @@ for run in runselection:
         elif ("scheduler" in line and useCAF):
             file_out.write("scheduler = caf\n")
         elif ("scheduler" in line and not useCAF):
-            file_out.write("scheduler = "+scheduler)
+            file_out.write("scheduler = "+scheduler+"\n")
         elif ("use_server" in line and useServer):
             file_out.write("use_server = 1\n")
         elif ("datasetpath" in line):
             file_out.write("datasetpath="+datasetpath+"\n")
+        elif ("dbs_url" in line):
+            if flagPublished:
+                file_out.write("dbs_url = http://cmsdbsprod.cern.ch/cms_dbs_ph_analysis_01/servlet/DBSServlet\n")
         elif ("pset" in line):
             file_out.write("pset = "+job_name+"_cfg.py\n")    
         elif ("output_file" in line):
@@ -248,37 +334,32 @@ for run in runselection:
             file_out.write("storage_element = T2_CH_CAF\n")
         elif ("storage_path" in line and storage == "castor"):
             file_out.write("storage_path = /srm/managerv2?SFN=/castor/cern.ch/user/\n")
-        elif ("user_remote_dir" in line and storage == "castor"):
+        elif ("user_remote_dir" in line and not useCAF):
             file_out.write("user_remote_dir=/"+user_remote_dir+"/"+job_name +"\n")
         elif ("user_remote_dir" in line and useCAF):
             file_out.write("user_remote_dir=/"+job_name +"\n")
         elif ("storage_element" in line and storage == "hadoop"):
-            file_out.write("storage_element = bsrm-1.t2.ucsd.edu\n")
+            file_out.write("storage_element = bsrm-3.t2.ucsd.edu\n")
         elif ("storage_path" in line and storage == "hadoop"):
             file_out.write("storage_path=/srm/v2/server?SFN=/hadoop/cms/store/user/\n")
-        elif ("user_remote_dir" in line and storage == "hadoop"):
-            file_out.write("user_remote_dir=/"+user_remote_dir+"/"+job_name+"\n")
-        #elif ("total_number_of_events" in line and json == ""):
-        elif ("total_number_of_events" in line and not flagData):
+        elif ("storage_element" in line and storage == "eos"):
+            file_out.write("storage_element = srm-eoscms.cern.ch\n")
+        elif ("storage_path" in line and storage == "eos"):
+            file_out.write("storage_path=/srm/v2/server?SFN=/eos/cms/store\n")
+        elif ("total_number_of_events" in line and json == ""):
             file_out.write("total_number_of_events = "+str(total_number)+"\n")
-        #elif ("events_per_job" in line and json == ""):
-        elif ("events_per_job" in line and not flagData):
+        elif ("events_per_job" in line and json == ""):
             file_out.write("events_per_job = "+str(events_job)+"\n")
-        elif ("lumi_mask" in line and flagData):
+        elif ("lumi_mask" in line and json != ""):
             if json.startswith('/'):
                 # absolute path specified
                 file_out.write("lumi_mask = "+str(json)+"\n")
-            elif json.startswith('-'):
-                # no json file applied
-                file_out.write("#lumi_mask = "+str(json)+"\n")
             else:
                 # relative path specified
                 file_out.write("lumi_mask = ../../../scripts/"+str(json)+"\n")
-        #elif ("lumis_per_job" in line and json != ""):
-        elif ("lumis_per_job" in line and flagData):
+        elif ("lumis_per_job" in line and json != ""):
             file_out.write("lumis_per_job = "+str(lumis_per_job)+"\n")
-        #elif ("total_number_of_lumis" in line and json != ""):
-        elif ("total_number_of_lumis" in line and flagData):
+        elif ("total_number_of_lumis" in line and json != ""):
             file_out.write("total_number_of_lumis = "+str(lumis)+"\n")
         elif ("se_white_list" in line and whiteList != ""):
             file_out.write("se_white_list = "+str(whiteList)+"\n")
@@ -301,6 +382,5 @@ for run in runselection:
 
     checker = open("../test/crabTasks/checker", "a+")
     checker.write("crab -c "+job_name+"/"+job_name+" -status\n")
-    checker.write("crab -c "+job_name+"/"+job_name+" -get\n")
-    checker.write("crab -c "+job_name+"/"+job_name+" -status\n")
+    checker.write("crab -c "+job_name+"/"+job_name+" -get &> getting.log &\n")
     checker.close()
