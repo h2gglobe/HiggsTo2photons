@@ -1035,7 +1035,7 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         el_sieiesc[el_n] = sqrt(EcalClusterTools::scLocalCovariances(*(egsf.superCluster()), &(*endcapRecHits), &(*topology))[0]);
       }
     }
-    
+
     std::vector<UInt_t> schits, bchits;    
     for (reco::CaloCluster_iterator clusterIt=egsf.superCluster()->clustersBegin(); clusterIt!=egsf.superCluster()->clustersEnd(); clusterIt++) {
       for (unsigned int j=0; j<(*clusterIt)->hitsAndFractions().size(); j++)
