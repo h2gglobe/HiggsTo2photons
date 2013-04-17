@@ -108,7 +108,7 @@ process.options = cms.untracked.PSet(
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 500
-process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
+process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1001))
 
 process.superClusterMerger =  cms.EDProducer("EgammaSuperClusterMerger",
                                              src = cms.VInputTag(cms.InputTag('correctedHybridSuperClusters'),
