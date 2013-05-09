@@ -229,7 +229,7 @@ if (not (flagData ^ flagMC ^ flagPG)):
 for run in runselection:
     job_name = name
         
-    file = open("template_53X_cfg.py")
+    file = open("template_61X_cfg.py")
     lines = file.readlines()
     file.close()
     if (not os.path.exists("../test")):

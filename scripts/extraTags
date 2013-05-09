@@ -8,4 +8,7 @@ addpkg RecoEgamma/EgammaTools V09-00-00
 cd EGamma/EGammaAnalysisTools/data/
 wget -i ../../../HiggsAnalysis/HiggsTo2photons/scripts/download.url
 cd ../../../
+rm RecoEgamma/EgammaTools/interface/ggPF*
+rm RecoEgamma/EgammaTools/src/ggPF*
+rm RecoEgamma/EgammaTools/plugins/ggPF*
 #checkdeps -a
