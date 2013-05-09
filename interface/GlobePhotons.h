@@ -31,7 +31,7 @@
 #include "TrackingTools/TransientTrack/plugins/TransientTrackBuilderESProducer.h"
 #include "RecoEgamma/EgammaTools/interface/EGEnergyCorrector.h"
 
-#include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
+//#include "RecoEgamma/EgammaTools/interface/ggPFPhotons.h"
 
 #include "TTree.h"
 #include "TClonesArray.h"

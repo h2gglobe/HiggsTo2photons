@@ -102,7 +102,7 @@ GlobeElectrons::GlobeElectrons(const edm::ParameterSet& iConfig, const char* n):
            true, // use manual cat
            myManualCatWeightsTrig);
 
-  inputTagIsoValElectronsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectronPF");   
+  //inputTagIsoValElectronsPFId_   = iConfig.getParameter< std::vector<edm::InputTag> >("IsoValElectronPF");   
 
   energyCorrectionsFromDB = iConfig.getParameter<bool> ("energyCorrectionsFromDB"); 
   energyRegFilename       = iConfig.getParameter<std::string> ("energyCorrectionsFileNameEle");  
@@ -672,10 +672,10 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   transientTrackBuilder = hTransientTrackBuilder.product();
 
   //typedef std::vector< edm::Handle< edm::ValueMap<double> > > IsoDepositVals;
-  IsoDepositVals electronIsoVals(3);
-  for (size_t j = 0; j<inputTagIsoValElectronsPFId_.size(); ++j) {
-    iEvent.getByLabel(inputTagIsoValElectronsPFId_[j], electronIsoVals[j]);
-  }
+  //IsoDepositVals electronIsoVals(3);
+  //for (size_t j = 0; j<inputTagIsoValElectronsPFId_.size(); ++j) {
+  //  iEvent.getByLabel(inputTagIsoValElectronsPFId_[j], electronIsoVals[j]);
+  //}
 
   edm::ESHandle<CaloTopology> theCaloTopo;
   iSetup.get<CaloTopologyRecord>().get(theCaloTopo);
@@ -1101,9 +1101,9 @@ bool GlobeElectrons::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     el_ecaldrv[el_n] = egsf.ecalDrivenSeed();
     el_tkdrv[el_n] = egsf.trackerDrivenSeed();
     
-    el_pfiso_charged[el_n] =  (*(electronIsoVals[0].product()))[myElectronRef]; //egsf.pfIsolationVariables().chargedHadronIso;
-    el_pfiso_photon[el_n] = (*(electronIsoVals[1].product()))[myElectronRef]; //egsf.pfIsolationVariables().photonIso;
-    el_pfiso_neutral[el_n] = (*(electronIsoVals[2].product()))[myElectronRef]; //egsf.pfIsolationVariables().neutralHadronIso;
+    el_pfiso_charged[el_n] = egsf.pfIsolationVariables().chargedHadronIso; //(*(electronIsoVals[0].product()))[myElectronRef]; //egsf.pfIsolationVariables().chargedHadronIso;
+    el_pfiso_photon[el_n]  = egsf.pfIsolationVariables().photonIso; //(*(electronIsoVals[1].product()))[myElectronRef]; //egsf.pfIsolationVariables().photonIso;
+    el_pfiso_neutral[el_n] = egsf.pfIsolationVariables().neutralHadronIso; //(*(electronIsoVals[2].product()))[myElectronRef]; //egsf.pfIsolationVariables().neutralHadronIso;
 
     el_tkiso04[el_n] = egsf.dr04TkSumPt();
     el_ecaliso04[el_n] = egsf.dr04EcalRecHitSumEt();
