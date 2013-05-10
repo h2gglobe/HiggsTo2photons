@@ -96,6 +96,7 @@ class GlobePhotons {
   Float_t pho_sipip[MAX_PHOTONS];
   Float_t pho_sieip[MAX_PHOTONS];
   Float_t pho_e1x5[MAX_PHOTONS];
+  Float_t pho_e1x3[MAX_PHOTONS];
   Float_t pho_e2x2[MAX_PHOTONS];
   Float_t pho_e3x3[MAX_PHOTONS];
   Float_t pho_e5x5[MAX_PHOTONS];

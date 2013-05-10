@@ -1,14 +1,10 @@
-addpkg RecoEgamma/EgammaTools V09-00-00
 cvs co -r V00-02-05 -d CMGTools/External UserCode/CMG/CMGTools/External
 cvs co -d EGamma/EGammaAnalysisTools UserCode/Matteosan/EGamma/EGammaAnalysisTools
 cvs co -d EgammaAnalysis/ElectronTools UserCode/Matteosan/EgammaAnalysis/ElectronTools
 cp HiggsAnalysis/HiggsTo2photons/scripts/download.url EGamma/EGammaAnalysisTools/data/.
-addpkg CommonTools/RecoUtils V00-00-09
-addpkg RecoEgamma/EgammaTools V09-00-00
+#addpkg CommonTools/RecoUtils
+addpkg RecoEgamma/EgammaTools PFSCToolsFix62
 cd EGamma/EGammaAnalysisTools/data/
 wget -i ../../../HiggsAnalysis/HiggsTo2photons/scripts/download.url
 cd ../../../
-rm RecoEgamma/EgammaTools/interface/ggPF*
-rm RecoEgamma/EgammaTools/src/ggPF*
-rm RecoEgamma/EgammaTools/plugins/ggPF*
 #checkdeps -a
