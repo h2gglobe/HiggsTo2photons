@@ -14,6 +14,8 @@
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
+
+#include "DataFormats/Math/interface/deltaR.h"
 #include <iostream>
 
 GlobePFCandidates::GlobePFCandidates(const edm::ParameterSet& iConfig) {
@@ -77,13 +79,7 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   //PF Candidates from PileUp
   edm::Handle<reco::PFCandidateCollection> pfCandidatesPileUpH;
-  bool foundpfpucan = iEvent.getByLabel("pfPileUp", pfCandidatesPileUpH);
-  if (!foundpfpucan) {
-    std::ostringstream err;
-    err << " cannot get PFPileUpCandidates: " << "pfPileUp" << std::endl;
-    edm::LogError("RootTree.cc") << err.str();
-    throw cms::Exception("MissingProduct", err.str());
-  }
+  iEvent.getByLabel("pfPileUp", pfCandidatesPileUpH);
   std::vector<reco::PFCandidate> pucandidates = (*pfCandidatesPileUpH.product());
 
   edm::Handle < reco::GsfElectronCollection > theEGammaCollection;
@@ -92,32 +88,19 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<reco::PhotonCollection> phoH;
   iEvent.getByLabel(photonCollStd, phoH);
 
-  std::vector<reco::PFCandidate>::iterator it;
-  unsigned int nit = 0;
-  for (it = candidates.begin(); it != candidates.end(); ++it, ++nit) {
-    bool save = false;
-
+  for (std::vector<reco::PFCandidate>::iterator it = candidates.begin(); it != candidates.end(); ++it) {
+    bool save = false;  
     bool isCandFromPU = false;
-    // check the product ID
-    edm::ProductID originalID = pfCandidatesH.id();
     unsigned npucandidates = pfCandidatesPileUpH->size();
     for (unsigned npuit = 0; npuit < npucandidates; npuit++) {
       edm::Ptr<reco::PFCandidate> ptr(pfCandidatesPileUpH, npuit);
-      reco::CandidatePtr candPtr(ptr);
-      unsigned nSources = candPtr->numberOfSourceCandidatePtrs();
-      if (nSources > 1)
-	cout << "######################  check nSource: nSources " << nSources << endl;
-      for (unsigned i = 0; i < nSources; i++) {
-	reco::CandidatePtr mother = candPtr->sourceCandidatePtr(i);
-	if (originalID == mother.id()) {
-	  if (mother.key() == nit)
-	    isCandFromPU = true;
-	} else {
-	  cout << "######################  check CandidateProduct ID: nSources " << "originalID " << originalID << " mother.id() " << mother.id() << endl;
-	}
+      float dR = deltaR(ptr->p4(), it->p4());
+      if (dR < 1e-5) {
+	isCandFromPU = true;
+	break;
       }
     }
-
+    
     for (unsigned int iele = 0; iele < theEGammaCollection->size(); iele++) {
       reco::GsfElectronRef electronRef(theEGammaCollection, iele);
       // do not consider the same gsf-pf electron in the iso cone. 

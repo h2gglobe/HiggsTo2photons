@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Matteosan SANI
 //         Created:  Thu Feb  7 10:14:43 CET 2008
-// $Id: GlobeAnalyzer.h,v 1.2 2012/04/23 21:04:36 sani Exp $
+// $Id: GlobeAnalyzer.h,v 1.3 2012/08/23 22:24:37 sani Exp $
 //
 //
 
@@ -131,7 +131,7 @@ private:
   std::string jobmaker;
   std::vector<std::string> globalCountersNames;
   std::vector<int> globalCounters;
-
+  
   int version, type, sel_events, tot_events; 
   int selector_bits;
 
