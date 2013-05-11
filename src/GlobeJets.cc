@@ -259,6 +259,22 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a2, "jet_%s_tcheBtag[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_tcheBtag, a2);
 
+  sprintf(a1, "jet_%s_nSecondaryVertices", nome);
+  sprintf(a2, "jet_%s_nSecondaryVertices[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_nSecondaryVertices, a2);
+
+  sprintf(a1, "jet_%s_secVtxPt", nome);
+  sprintf(a2, "jet_%s_secVtxPt[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_secVtxPt, a2);
+
+  sprintf(a1, "jet_%s_secVtx3dL", nome);
+  sprintf(a2, "jet_%s_secVtx3dL[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_secVtx3dL, a2);
+
+  sprintf(a1, "jet_%s_secVtx3deL", nome);
+  sprintf(a2, "jet_%s_secVtx3deL[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_secVtx3deL, a2);
+
  
   for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
     
@@ -436,6 +452,11 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     else
       iEvent.getByLabel("newPFchsTrackCountingHighEffBJetTags", trackCountingHighEffBJetTags);
 
+		edm::Handle<reco::SecondaryVertexTagInfoCollection> secondaryVertexTagInfo;
+		if( strnome=="algoPF1" )
+			iEvent.getByLabel("newPFSecondaryVertexTagInfos", secondaryVertexTagInfo);
+		else
+			iEvent.getByLabel("newPFchsSecondaryVertexTagInfos", secondaryVertexTagInfo);
     
     jet_p4->Delete();
     jet_tkind->clear();
@@ -542,6 +563,19 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         jet_nCharged[jet_n]=jetIdentifer_vars.nCharged();
         jet_dR2Mean[jet_n]=jetIdentifer_vars.dR2Mean();
         jet_betaStarClassic[jet_n]=jetIdentifer_vars.betaStarClassic();
+				jet_nSecondaryVertices[jet_n]=(*secondaryVertexTagInfo)[jet_n].nVertices();
+				if( jet_nSecondaryVertices[jet_n] > 0 )
+				{
+					const reco::Vertex &sv = (*secondaryVertexTagInfo)[jet_n].secondaryVertex(0);
+					TLorentzVector v(sv.x(), sv.y(), sv.z());
+					jet_secVtxPt[jet_n]		= v.Pt();
+					jet_secVtx3dL[jet_n]	= (*secondaryVertexTagInfo)[jet_n].flightDistance(0).value();
+					jet_secVtx3deL[jet_n]	= (*secondaryVertexTagInfo)[jet_n].flightDistance(0).error();
+				} else {
+					jet_secVtxPt[jet_n]		= -1.;
+					jet_secVtx3dL[jet_n]	= -1.;
+					jet_secVtx3deL[jet_n]	= -1.;
+				}
 
         for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
           PileupJetIdAlgo* ialgo = (algos_[imva]);
