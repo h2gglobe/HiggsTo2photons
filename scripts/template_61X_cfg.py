@@ -318,9 +318,12 @@ process.load("RecoMET.METFilters.ecalLaserCorrFilter_cfi")
 #process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
 #process.phoIsoSequence = setupPFPhotonIso(process, 'photons')
 ##-------------------- PFNoPU for PF Isolation Electrons -----------------------------
+process.load("RecoParticleFlow.PFProducer.particleFlowTmpPtrs_cfi")
+process.particleFlowTmpPtrs.src = cms.InputTag("particleFlow")
 process.load("CommonTools.ParticleFlow.pfPileUp_cfi")
+process.load("CommonTools.ParticleFlow.pfNoPileUp_cff")
 process.pfPileUp.PFCandidates = cms.InputTag("particleFlow")
-##-------------------- Import the JEC services ---------------------------------------
+##-------------------- Import the JEC oservices ---------------------------------------
 process.load('JetMETCorrections.Configuration.DefaultJEC_cff')
 ##-------------------- Import the Jet RECO modules -----------------------------------
 #process.load('RecoJets.Configuration.RecoPFJets_cff')
@@ -357,10 +360,6 @@ process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 from RecoJets.JetProducers.ak5PFJets_cfi import *
 process.ak5PFchsJets = ak5PFJets.clone()
 process.ak5PFchsJets.src = 'pfNoPileUp'
-
-#And the sequence below re-runs the pfNoPu on the fly
-process.load("CommonTools.ParticleFlow.pfNoPileUp_cff")
-process.load("CommonTools.ParticleFlow.pfParticleSelection_cff")
 
 # note pfPileUp modified according to JetMET's recommendations
 process.pfPileUp.checkClosestZVertex = False
@@ -526,9 +525,7 @@ process.newPFchsBtaggingSequence = cms.Sequence(
 #################################################
 # Define path, first for AOD case then for RECO #
 #################################################
-#process.p11 = cms.Path(process.eventCounters*process.hcallLaserEvent2012Filter*process.ecalLaserCorrFilter*process.eventFilter1*process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence*process.eleRegressionEnergy * process.calibratedElectrons)
-process.p11 = cms.Path(process.eventCounters*process.ecalLaserCorrFilter*process.eventFilter1*process.pfNoPileUpSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence*process.eleRegressionEnergy * process.calibratedElectrons)
-#process.p11 = cms.Path(process.eventCounters*process.eventFilter1* process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.pfType1CorrectedMet  )
+process.p11 = cms.Path(process.eventCounters*process.ecalLaserCorrFilter*process.eventFilter1*process.particleFlowTmpPtrs*process.pfNoPileUpSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence*process.eleRegressionEnergy * process.calibratedElectrons)
 
 if (flagFastSim == 'OFF' or flagAOD == 'OFF'):
   process.p11 *= process.piZeroDiscriminators
