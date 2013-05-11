@@ -2,6 +2,7 @@
 #include "DataFormats/Common/interface/MergeableCounter.h"
 
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
+#include "HiggsAnalysis/HiggsTo2photons/interface/Tools.h"
 
 #include <stdio.h>
 #include <time.h>
@@ -753,8 +754,11 @@ void GlobeAnalyzer::defineBranch() {
 
 
 void GlobeAnalyzer::fillTree() {
-
-  version = H2G_VERSION;
+  char cmd[500];
+  char* descr = getenv("CMSSW_BASE");
+  sprintf(cmd, "cat %s/src/HiggsAnalysis/HiggsTo2photons/interface/CVS/Tag", descr);
+  ExecCommand exec(cmd);
+  version = exec.getTag();
   type = 0;
 
   tree2->Fill();
