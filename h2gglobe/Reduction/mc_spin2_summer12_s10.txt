@@ -1,5 +1,0 @@
-Graviton2PMGluGluToHToGG_M-125    -1  
-Graviton2PMGluGluToHToGG_M-126    -1
-Graviton2PMqqbarToHToGG_M-125     -1
-Graviton2PMqqbarToHToGG_M-126     -1
-
