@@ -93,6 +93,11 @@ class GlobeJets {
   Float_t jet_jetProbBtag[MAX_JETS];
   Float_t jet_tcheBtag[MAX_JETS];
 
+	// extra info on secondary vertex
+	Float_t jet_nSecondaryVertices[MAX_JETS];
+	Float_t jet_secVtxPt[MAX_JETS];
+	Float_t jet_secVtx3dL[MAX_JETS];
+	Float_t jet_secVtx3deL[MAX_JETS];
 
   Int_t jet_ntk[MAX_JETS];
   Int_t jet_ncalotw[MAX_JETS];
