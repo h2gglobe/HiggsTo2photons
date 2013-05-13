@@ -88,7 +88,14 @@ bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<reco::PhotonCollection> phoH;
   iEvent.getByLabel(photonCollStd, phoH);
 
+  std::cout << "PFCands " << candidates.size() << std::endl;
   for (std::vector<reco::PFCandidate>::iterator it = candidates.begin(); it != candidates.end(); ++it) {
+
+    if (pfcand_n >= MAX_PFCANDS) {
+      std::cout << "GlobePFCandidates: WARNING TOO MANY PFCandidates: " << pfcand_n << " (allowed " << MAX_PFCANDS << ")" << std::endl;
+      break;
+    }
+
     bool save = false;  
     bool isCandFromPU = false;
     unsigned npucandidates = pfCandidatesPileUpH->size();
