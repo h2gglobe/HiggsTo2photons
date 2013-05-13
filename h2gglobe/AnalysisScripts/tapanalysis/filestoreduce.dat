@@ -1,9 +1,0 @@
-output=my_reduced_tuple_foo.root
-#typ=0 Fil=/hadoop/cms/store/user/matteo/data/2012/run2012D_DE/run2012D_DE_399_1_b96.root
-
-typ=1 Fil=/hadoop/cms/store/user/capalmer/V14_00_05/mc/Summer12_8TeV_S10/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_2MuonSkim/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball_Summer12_DR53X-PU_S10_START53_V7A-v1_2MuonSkim_991_0_zfr.root
-
-inputBranches tapanalysis/reduction_input.dat
-outputBranches tapanalysis/reduction_output.dat
-
-analyzer TapAnalysis tapanalysis/tapanalysis.dat
