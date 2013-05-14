@@ -957,7 +957,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_lambdadivcov_global[pho_n] = lambdaMinus_glo/cov[0];
 
     // Added by Aris - Begin
-
+    /*
     if (!doFastSim) {
       int R_nphot = 0;
       float nn = -1.;
@@ -975,7 +975,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	}
       }
     }
-    
+
     if (!doAodSim) {
       int iTrk=0;
       bool ConvMatch = false;
@@ -1002,6 +1002,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       
       pho_IsConvOutIn[pho_n] = (int)ConvMatch; 
     }
+    */
     // Added by Aris - End
 
     //spike-ID
