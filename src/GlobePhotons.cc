@@ -957,8 +957,8 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     pho_lambdadivcov_global[pho_n] = lambdaMinus_glo/cov[0];
 
     // Added by Aris - Begin
-    /*
-    if (!doFastSim) {
+    
+    if (!doFastSim && !doAodSim) {
       int R_nphot = 0;
       float nn = -1.;
       pho_pi0disc[pho_n] = nn;
@@ -1002,7 +1002,7 @@ bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       
       pho_IsConvOutIn[pho_n] = (int)ConvMatch; 
     }
-    */
+    
     // Added by Aris - End
 
     //spike-ID

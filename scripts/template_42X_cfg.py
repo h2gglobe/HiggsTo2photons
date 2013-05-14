@@ -526,17 +526,13 @@ process.h2ganalyzerPath = cms.Sequence(process.h2ganalyzer)
 #################################################
 
 process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence)
-
-if (flagFastSim == 'OFF' or flagAOD == 'OFF'):
-  process.p11 *= process.piZeroDiscriminators
-    
-process.p11 *= (process.kt6PFJets* process.ak5PFJets* process.kt6PFJetsForRhoCorrection*process.eleRegressionEnergy * process.calibratedElectrons* process.h2ganalyzerPath)
-process.p11 *= (process.h2ganalyzerPath)
+#process.p11 *= (process.kt6PFJets* process.ak5PFJets* process.kt6PFJetsForRhoCorrection*process.eleRegressionEnergy * process.calibratedElectrons* process.h2ganalyzerPath)
+process.p11 *= (process.kt6PFJets * process.ak5PFJets * process.kt6PFJetsForRhoCorrection * process.h2ganalyzerPath)
 
 process.p12 = copy.deepcopy(process.p11)
 process.p12.replace(process.eventFilter1, process.eventFilter2)
 
-if (flagAOD is 'OFF'):
+if (flagAOD is 'OFF' and flagFastSim is 'OFF'):
   process.p11.insert(-1, (process.conversionTrackCandidates*process.ckfOutInTracksFromConversions*process.preshowerClusterShape*process.piZeroDiscriminators))
   process.p12.insert(-1, (process.conversionTrackCandidates*process.ckfOutInTracksFromConversions*process.preshowerClusterShape*process.piZeroDiscriminators))
 
