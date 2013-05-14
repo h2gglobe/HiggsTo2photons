@@ -538,7 +538,6 @@ process.p12.replace(process.eventFilter1, process.eventFilter2)
 
 if (flagAOD is 'OFF'):
   process.p11.insert(-1, (process.conversionTrackCandidates*process.ckfOutInTracksFromConversions*process.preshowerClusterShape*process.piZeroDiscriminators))
-
   process.p12.insert(-1, (process.conversionTrackCandidates*process.ckfOutInTracksFromConversions*process.preshowerClusterShape*process.piZeroDiscriminators))
 
 #################################################
