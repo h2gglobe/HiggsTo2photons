@@ -7,7 +7,7 @@ cvs co -r V01-19-68-17   Configuration/PyReleaseValidation
 cvs co -r V02-02-13      Configuration/Skimming                           
 cvs co -d EGamma/EGammaAnalysisTools UserCode/Matteosan/4_2_X/EGamma/EGammaAnalysisTools
 cvs co -r V05-07-00      RecoEcal/EgammaCoreTools                         
-cvs co -r regression_Dec3d RecoEgamma/EgammaTools                           
+cvs co -d RecoEgamma/EgammaTools UserCode/Matteosan/4_2_X/RecoEgamma/EgammaTools                           
 cvs co -r V02-04-17      RecoJets/Configuration                           
 cvs co -r V04-01-00      RecoJets/JetAlgorithms                           
 cvs co -r V05-05-03      RecoJets/JetProducers
