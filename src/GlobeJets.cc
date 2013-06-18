@@ -75,6 +75,34 @@ void GlobeJets::defineBranch(TTree* tree) {
   sprintf(a2, "jet_%s_area[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_area, a2);
 
+  sprintf(a1, "jet_%s_chargedMultiplicity", nome);
+  sprintf(a2, "jet_%s_chargedMultiplicity[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_chargedMultiplicity, a2);
+
+  sprintf(a1, "jet_%s_neutralMultiplicity", nome);
+  sprintf(a2, "jet_%s_neutralMultiplicity[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_neutralMultiplicity, a2);
+
+  sprintf(a1, "jet_%s_chadfrac", nome);
+  sprintf(a2, "jet_%s_chadfrac[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_chadfrac, a2);
+
+  sprintf(a1, "jet_%s_nhadfrac", nome);
+  sprintf(a2, "jet_%s_nhadfrac[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_nhadfrac, a2);
+
+  sprintf(a1, "jet_%s_phofrac", nome);
+  sprintf(a2, "jet_%s_phofrac[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_phofrac, a2);
+
+  sprintf(a1, "jet_%s_mufrac", nome);
+  sprintf(a2, "jet_%s_mufrac[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_mufrac, a2);
+
+  sprintf(a1, "jet_%s_elefrac", nome);
+  sprintf(a2, "jet_%s_elefrac[jet_%s_n]/F", nome, nome);
+  tree->Branch(a1, &jet_elefrac, a2);
+
   sprintf(a1, "jet_%s_emfrac", nome);
   sprintf(a2, "jet_%s_emfrac[jet_%s_n]/F", nome, nome);
   tree->Branch(a1, &jet_emfrac, a2);
@@ -363,6 +391,13 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       jet_area[jet_n] = j->jetArea();
       jet_emfrac[jet_n] = j->emEnergyFraction();
       jet_hadfrac[jet_n] = j->energyFractionHadronic();
+			jet_chargedMultiplicity[jet_n] = -1.;
+			jet_neutralMultiplicity[jet_n] = -1.;
+			jet_chadfrac[jet_n] = -1.;
+			jet_nhadfrac[jet_n] = -1.;
+			jet_phofrac[jet_n] = -1.;
+			jet_mufrac[jet_n] = -1.;
+			jet_elefrac[jet_n] = -1.;
       
       jet_erescale[jet_n] = 1;
 
@@ -534,7 +569,14 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       jet_area[jet_n] = correctedJet->jetArea();
       jet_emfrac[jet_n] = correctedJet->chargedEmEnergyFraction() + correctedJet->neutralEmEnergyFraction() + correctedJet->chargedMuEnergyFraction();
       jet_hadfrac[jet_n] = correctedJet->chargedHadronEnergyFraction() + correctedJet->neutralHadronEnergyFraction();
-
+			jet_chargedMultiplicity[jet_n] = correctedJet->chargedMultiplicity();
+			jet_neutralMultiplicity[jet_n] = correctedJet->neutralMultiplicity();
+			jet_chadfrac[jet_n] = correctedJet->chargedHadronEnergyFraction();
+			jet_nhadfrac[jet_n] = correctedJet->neutralHadronEnergyFraction();
+			jet_phofrac[jet_n] = correctedJet->photonEnergyFraction();
+			jet_mufrac[jet_n] = correctedJet->muonEnergyFraction();
+			jet_elefrac[jet_n] = correctedJet->electronEnergyFraction();
+  
       if (debug_level > 9 && jet_n<20) std::cout<<"post "<<correctedJet->energy()<<std::endl;
 
       if (debug_level > 9 && jet_n<20) std::cout<<"jet energy JECenergy "<<jet_n<<" "<<correctedJet->energy()<<" "<<jet_erescale[jet_n]<<std::endl;

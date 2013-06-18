@@ -35,6 +35,13 @@ class GlobeJets {
   Float_t jet_area[MAX_JETS];
   Float_t jet_emfrac[MAX_JETS];
   Float_t jet_hadfrac[MAX_JETS];
+  Float_t jet_chargedMultiplicity[MAX_JETS];
+  Float_t jet_neutralMultiplicity[MAX_JETS];
+  Float_t jet_chadfrac[MAX_JETS];
+  Float_t jet_nhadfrac[MAX_JETS];
+  Float_t jet_phofrac[MAX_JETS];
+  Float_t jet_mufrac[MAX_JETS];
+  Float_t jet_elefrac[MAX_JETS];
 
   Float_t jet_pull_dy[MAX_JETS];
   Float_t jet_pull_dphi[MAX_JETS];
