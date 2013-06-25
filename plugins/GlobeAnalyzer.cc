@@ -719,12 +719,13 @@ void GlobeAnalyzer::endJob() {
 
 void GlobeAnalyzer::endLuminosityBlock(const edm::LuminosityBlock & l, const edm::EventSetup & es) {
   common->endLumiBlock(l,es);
-  lumitree->Fill();
   for(size_t ii=0; ii< globalCounters.size(); ++ii ) {
 	  edm::Handle<edm::MergeableCounter> ctrHandle;
 	  l.getByLabel(globalCountersNames[ii], ctrHandle);
 	  globalCounters[ii] += ctrHandle->value;
+	  globalCountersPerLumi[ii] = ctrHandle->value;
   }
+  lumitree->Fill();
 }
 
 
@@ -748,6 +749,12 @@ void GlobeAnalyzer::defineBranch() {
   globalCounters.resize(globalCountersNames.size(),0);
   for(size_t ii=0; ii< globalCounters.size(); ++ii ) {
 	  tree2->Branch( globalCountersNames[ii].c_str(), &globalCounters[ii], (globalCountersNames[ii]+"/I").c_str() );
+  }
+
+  globalCountersPerLumi.clear();
+  globalCountersPerLumi.resize(globalCountersNames.size(),0);
+  for(size_t ii=0; ii< globalCountersPerLumi.size(); ++ii ) {
+	  lumitree->Branch( globalCountersNames[ii].c_str(), &globalCountersPerLumi[ii], (globalCountersNames[ii]+"/I").c_str() );
   }
   
 }
