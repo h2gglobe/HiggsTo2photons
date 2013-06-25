@@ -130,7 +130,7 @@ private:
   std::vector<int>* reduced_index;
   std::string jobmaker;
   std::vector<std::string> globalCountersNames;
-  std::vector<int> globalCounters;
+  std::vector<int> globalCounters, globalCountersPerLumi;
   
   int version, type, sel_events, tot_events; 
   int selector_bits;
