@@ -30,15 +30,15 @@ if (not((flagNoSkim is 'ON') ^ (flagSkimDiphoton is 'ON') ^ (flagMMgSkim is 'ON'
   print "You must skim or not skim... these are your options"
   exit(-1)
 
-process = cms.Process("Globe") 
-process.load("Configuration.StandardSequences.GeometryDB_cff") 
+process = cms.Process("Globe")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("HiggsAnalysis.HiggsTo2photons.h2ganalyzer_53X_cfi")
 #pi0 disc
 process.load("RecoEcal.EgammaClusterProducers.preshowerClusterShape_cfi")
 process.load("EgammaAnalysis.PhotonIDProducers.piZeroDiscriminators_cfi")
 #FIXME
 process.piZeroDiscriminators.preshClusterShapeProducer = cms.string('multi5x5PreshowerClusterShape')
-process.piZeroDiscriminators.preshClusterShapeCollectionX = cms.string('multi5x5PreshowerXClustersShape')    
+process.piZeroDiscriminators.preshClusterShapeCollectionX = cms.string('multi5x5PreshowerXClustersShape')
 process.piZeroDiscriminators.preshClusterShapeCollectionY = cms.string('multi5x5PreshowerYClustersShape')
 
 if flagAOD is 'OFF':
@@ -81,7 +81,7 @@ if flagSkimworz == 'ON':
   process.TPHltFilter.HLTPaths = ["HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass50_*",
                                   "HLT_Ele20_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC4_Mass50_*",
                                   "HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_Mass50_*"]
-  
+
 if flagSkimDiphoton == 'ON':
   process.load('HLTrigger.HLTfilters.hltHighLevel_cfi')
   process.DiPhotonHltFilter = copy.deepcopy(process.hltHighLevel)
@@ -235,7 +235,7 @@ if flagVLPreSelection == 'ON':
   process.eventFilter1 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut+process.photonInvariantMassFilter) # for bkg
   process.eventFilter2 = cms.Sequence(process.superClusterMerger*process.goodPhotonsLowPtCut*process.TwoPhotonsLowPtCut+process.photonInvariantMassFilter) # for bkg
 elif flagMyPreSelection == 'ON':
-  process.eventFilter1 = cms.Sequence(process.cicFilterSequence) 
+  process.eventFilter1 = cms.Sequence(process.cicFilterSequence)
   process.eventFilter2 = cms.Sequence(process.cicFilterSequence)
 elif flagSkimDiphoton == 'ON':
   process.eventFilter1 = cms.Sequence(process.DiPhotonHltFilter) # for some data
@@ -248,7 +248,7 @@ elif flagData == 'ON' and flagSkimPJet == 'ON':
 elif flagMC == 'ON' and flagSkimPJet == 'ON':
   process.eventFilter1 = cms.Sequence(process.PhotonHltFilter*process.superClusterMerger*process.goodPhotonsHighPtCut*process.OnePhotonsHighPtCut) # for bkg
   process.eventFilter2 = cms.Sequence(process.PhotonHltFilter*process.superClusterMerger*process.goodPhotonsHighPtCut+process.OnePhotonsHighPtCut) # for bkg
-elif flagNoSkim == 'ON':    
+elif flagNoSkim == 'ON':
   process.eventFilter1 = cms.Sequence(process.dummySelector)   #for signal MC
   process.eventFilter2 = cms.Sequence(process.dummySelector)   #for signal MC
 elif flagMuMuSkim == 'ON':
@@ -296,12 +296,12 @@ if (flagMC == 'ON'):
 else:
   process.calibratedElectrons.isMC = cms.bool(False)
   process.calibratedElectrons.inputDataset = cms.string("Moriond2013")
-  
+
 process.calibratedElectrons.updateEnergyError = cms.bool(True)
 process.calibratedElectrons.applyCorrections = cms.int32(1)
 process.calibratedElectrons.smearingRatio = cms.double(0.607)
 process.calibratedElectrons.verbose = cms.bool(False)
-#process.calibratedElectrons.synchronization = cms.bool(True) 
+#process.calibratedElectrons.synchronization = cms.bool(True)
 
 process.load('EgammaAnalysis.ElectronTools.electronRegressionEnergyProducer_cfi')
 process.eleRegressionEnergy.inputElectronsTag = cms.InputTag('gsfElectrons')
@@ -343,7 +343,7 @@ if (flagFastSim == 'OFF' and flagMC == 'ON' and flagPG == 'OFF'):
 if (flagAddPdfWeight == 'ON' and flagMC == 'ON'):
   process.eventCounters *= cms.Sequence(process.pdfWeights)
 
-process.h2ganalyzer.globalCounters.extend(['processedEvents']) 
+process.h2ganalyzer.globalCounters.extend(['processedEvents'])
 
 # PFIsolation photons
 #process.load("HiggsAnalysis.HiggsTo2photons.pfIsolation_cff")
@@ -398,7 +398,7 @@ process.ak5PFchsL1FastL2L3Residual = cms.ESProducer(
 # Addition for Type1 pfMET corrections          #
 #################################################
 
-process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff") 
+process.load("JetMETCorrections.Type1MET.pfMETCorrections_cff")
 
 #################################################
 # B-Tagging Modules                             #
@@ -532,7 +532,7 @@ process.p11 = cms.Path(process.eventCounters*process.hcallLaserEvent2012Filter*p
 
 if (flagFastSim == 'OFF' or flagAOD == 'OFF'):
   process.p11 *= process.piZeroDiscriminators
-    
+
 #process.p11 *= (process.kt6PFJets* process.ak5PFJets* process.kt6PFJetsForRhoCorrection* process.h2ganalyzerPath)
 process.p11 *= (process.h2ganalyzerPath)
 
@@ -555,7 +555,7 @@ if (flagAddPdfWeight == 'ON'):
 
 if (flagFastSim is 'ON'):
   process.h2ganalyzer.doFastSim = True
-  
+
 if (flagMC is 'ON' and flagFastSim is 'ON'):
   process.h2ganalyzer.doGenJet_algo1 = False
   process.h2ganalyzer.doGenJet_algo2 = False
@@ -611,8 +611,25 @@ else:
   process.h2ganalyzer.doHLT = False
   process.h2ganalyzer.doJet_algoPF3 = False
   process.h2ganalyzer.doParticleGun = True
-  
+
 process.GlobalTag.globaltag = "START53_V9::All"
+process.GlobalTag.toGet = cms.VPSet(
+  cms.PSet(record = cms.string("JetCorrectionsRecord"),
+           tag = cms.string("JetCorrectorParametersCollection_Summer13_V1_MC_AK5PF"),
+           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+           label = cms.untracked.string('AK5PF')
+          ),
+  cms.PSet(record = cms.string("JetCorrectionsRecord"),
+           tag = cms.string("JetCorrectorParametersCollection_Summer13_V1_MC_AK5PFchs"),
+           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+           label = cms.untracked.string('AK5PFchs')
+          ),
+  cms.PSet(record = cms.string("JetCorrectionsRecord"),
+           tag = cms.string("JetCorrectorParametersCollection_Summer13_V1_MC_AK7PF"),
+           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+           label = cms.untracked.string('AK7PF')
+          ),
+)
 process.h2ganalyzer.HLTParameters.PrimaryTriggerResultsTag = cms.InputTag("TriggerResults","", hltLabel)
 process.h2ganalyzer.HLTParameters.useSecondaryTrigger = cms.bool(False)
 process.h2ganalyzer.HLTParameters.TriggerResultsTag = cms.InputTag("hltTriggerSummaryAOD","", hltLabel)
