@@ -761,12 +761,13 @@ void GlobeAnalyzer::defineBranch() {
 
 
 void GlobeAnalyzer::fillTree() {
-  char cmd[500];
-  char* descr = getenv("CMSSW_BASE");
-  sprintf(cmd, "cat %s/src/HiggsAnalysis/HiggsTo2photons/data/CVS/Tag", descr);
-  ExecCommand exec(cmd);
-  version = exec.getTag();
-  type = 0;
+  //char cmd[500];
+  //char* descr = getenv("CMSSW_BASE");
+  //sprintf(cmd, "cat %s/src/HiggsAnalysis/HiggsTo2photons/data/CVS/Tag", descr);
+  //ExecCommand exec(cmd);
+  //version = exec.getTag();
+  version = H2G_VERSION ;
+  type = 0 ;
 
   tree2->Fill();
 }
