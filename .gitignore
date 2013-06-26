@@ -4,3 +4,5 @@ __init__*
 *.d
 *.so
 *~
+test/crabTasks
+test/crabTasks/*
