@@ -34,7 +34,8 @@ job_maker [options]
 --skimmm                           skim for DYmumu
 --skimmmg                          skim for mumugamma
 --skim1el                          skim to select only one electron
---storage=eos/castor/hadoop        use eos/castor/hadoop as storage element
+--storage=eos/castor/hadoop/T2     use eos/castor/hadoop as storage element
+--T2name=			   T2 to storage to
 --name=                            name of the job, directory, files (without a default will be made)
 --append=                          appends the name of the task
 --scheduler=                       glite or glidein
@@ -88,6 +89,7 @@ runselection = [""]
 total_number = -1
 events_job = 10000
 storage = "hadoop"
+T2NAME=""
 email = ""
 useCAF = False
 user_remote_dir = ""
@@ -104,7 +106,7 @@ toEnable = []
 toDisable = []
 jecFromSqlite = False
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'append=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite', 'published', 'skimhee', 'skimhmm', 'skimmu'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'append=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite', 'published', 'skimhee', 'skimhmm', 'skimmu','T2name='])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -152,6 +154,8 @@ for opt,argm in opts:
         flagNoSkim = True
     elif (opt == "--storage"):
         storage = argm
+    elif (opt == "--T2name"):
+        T2name = argm
     elif (opt == "--energyCorrFromDB"):
         flagDB = True
     elif (opt == "--name"):
@@ -334,9 +338,9 @@ for run in runselection:
             file_out.write("storage_element = T2_CH_CAF\n")
         elif ("storage_path" in line and storage == "castor"):
             file_out.write("storage_path = /srm/managerv2?SFN=/castor/cern.ch/user/\n")
-        elif ("user_remote_dir" in line and not useCAF):
+        elif ("user_remote_dir" in line and not useCAF and not storage=="T2"):
             file_out.write("user_remote_dir=/"+user_remote_dir+"/"+job_name +"\n")
-        elif ("user_remote_dir" in line and useCAF):
+        elif ("user_remote_dir" in line and useCAF and not storage == "T2"):
             file_out.write("user_remote_dir=/"+job_name +"\n")
         elif ("storage_element" in line and storage == "hadoop"):
             file_out.write("storage_element = bsrm-3.t2.ucsd.edu\n")
@@ -346,6 +350,14 @@ for run in runselection:
             file_out.write("storage_element = srm-eoscms.cern.ch\n")
         elif ("storage_path" in line and storage == "eos"):
             file_out.write("storage_path=/srm/v2/server?SFN=/eos/cms/store\n")
+# T2 stage out
+        elif ("storage_element" in line and storage == "T2"):
+            file_out.write("storage_element = " + T2name + "\n")
+        elif ("storage_path" in line and storage == "T2"):
+        	file_out.write("\n")
+        elif ("user_remote_dir" in line and storage =="T2" ):
+            file_out.write("user_remote_dir="+user_remote_dir+"/"+job_name +"\n")
+#
         elif ("total_number_of_events" in line and json == ""):
             file_out.write("total_number_of_events = "+str(total_number)+"\n")
         elif ("events_per_job" in line and json == ""):
