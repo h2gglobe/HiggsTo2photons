@@ -4,7 +4,7 @@
 #
 # Author: Leonardo Sala <leonardo.sala@cern.ch>
 #
-# $Id: data_replica.py,v 1.37 2011/08/25 12:50:56 leo Exp $
+# $Id: data_replica.py,v 1.44 2012/08/23 11:20:11 leo Exp $
 #################################################################
 
 
@@ -13,7 +13,10 @@ import os
 from os import popen, path, environ, getpid
 from sys import argv,exit
 from optparse import OptionParser
-from time import time
+from time import time,sleep
+import threading
+from Queue import *
+
 
 
 PREFERRED_SITES = []
@@ -23,12 +26,17 @@ PROTOCOL = "srmv2"
 ###WARNING: this enables the possibility to fully replicate a SE
 ENABLE_REPLICATION=False
 
-LCG_OPTIONS_COMMON = "  "
-###for lcg-utils>=1.7
+LCG_OPTIONS_COMMON = " -b "
+###for lcg-utils>=1.7 and < 1.11
 LCG_OPTIONS_17 = LCG_OPTIONS_COMMON
 LCG_OPTIONS_17 += "--srm-timeout=6000 "
 LCG_OPTIONS_17+= "-n 1 "
 LCG_OPTIONS_17+= "--connect-timeout=6000 "
+LCG_OPTIONS_17+= "--bdii-timeout=6000 "
+LCG_OPTIONS_17+= "--sendreceive-timeout=6000 "
+
+###for lcg-utils>= 1.11
+#LCG_OPTIONS_1_11
 ###for lcg-utisl <1.7
 LCG_OPTIONS = LCG_OPTIONS_COMMON
 LCG_OPTIONS = "--timeout=6000 "
@@ -41,130 +49,11 @@ SRM_OPTIONS += "-retry_num=1 "
 SRM_OPTIONS += "-request_lifetime=6000 "
 
 
-if __name__ == "__main__":
-    usage = """usage: %prog [options] filelist.txt [dest_dir]
+#### HardCoded sites:
+CERN_EOS_SRM = "srm://srm-eoscms.cern.ch:8443/srm/v2/server?SFN=/eos/cms/"
+CERN_CASTOR_SRM = "srm://srm-cms.cern.ch:8443/srm/managerv2?SFN="
 
-    This program will replicate a list of files from a site to another one using SRM
-
-    filelist.txt is a text file containing a list of LFN you want to replicate to a site, one LFN per line 
-
-    dest_dir must be a complete PFN, eg file:///home/user/, if none it will be retrieved from the lfn
-    information and the destination site
-
-    you must at least declare [dest_dir] or the --to-site option
-
-    Sites must have a standard name, e.g. T2_CH_CSCS
-
-    Five log-files can be produced by this script:
-       * <logfile>.log: contains a PhEDEx-style log
-       * <logfile>_existingList.log: contains LFNs and PFNs of files existing on destination (SRM
-         endpoints only)
-       * <logfile>_failedList.log: a list of all the LFNs which failed
-       * <logfile>_successList.log: a list of all the LFNs successfully copied
-       * <logfile>_noReplica.log: a list of files with no replicas found (check DENIED_SITES list in the
-         script header)
     
-    
-[USE CASES]
-
-* Replicate a file list without specifying a source node (discovery). In this case, a source nodes list is retrieved from PhEDEx data service: 
-
-      data_replica --discovery filelist.txt --to-site YOUR_SITE
-
-  * Replicate a file list using discovery and giving a destination folder:
-
-      data_replica --discovery filelist.txt --to-site YOUR_SITE /store/user/leo
-
-  * Replicate a file list NOT registered in PhEDEx. In this case, you should specify --from-site.
-
-      data_replica filelist.txt --from-site FROM_SITE --to-site YOUR_SITE
-
-  * Replicate a file list NOT registered in PhEDEx, giving a destination folder.Also in this case, you should specify --from-site.
-
-      data_replica filelist.txt --from-site FROM_SITE --to-site YOUR_SITE /store/user/leo
-
-  * Copying data locally: in this case you don't have to give the --to-site option but you need to give
-  a dest_dir in PFN format. Warning: if you intend to use the --recreate-subdirs option, you need to create yourself the local directory structure:
-
-      data_replica filelist.txt --from-site FROM_SITE  file:///`pwd`/
-
-  * Copying data from a local area: the list of files should contain only full paths:
-
-      data_replica.py --from-site LOCAL --to-site T3_CH_PSI filelist.txt /store/user/leo/test1
-
-  * Copying files registered to DBS from CASTOR@CERN:
-
-      data_replica.py --from-site T2_CH_CAF --to-site T3_CH_PSI filelist.txt /store/user/leo/testCastor4 
-
-  * Copying files from user area under CASTOR@CERN (files not registered to DBS). In this case, PFN are not retrievable from PhEDEx data service,
-  so the file list must contain Castor full path (/castor/cern.ch/....) and the source site is CERN_CASTOR_USER:
-  
-      data_replica.py --from-site CERN_CASTOR_USER --to-site T3_CH_PSI filelist.txt /store/user/leo/testCastor3 
-
-  * When copying from a Castor area from lxplus and you want to pre-stage files to a local /tmp directory through rfcp
-  (useful when copying files not accessed since long, avoiding srm timeouts), use --castor-stage.
-
-  
-  Use the -h option for more information
-  
-  """
-
-    parser = OptionParser(usage = usage, version="%prog 1.0")
-    parser.add_option("--logfile",action="store", dest="logfile",default="data_replica.log",
-                      help="file for the phedex-like log, default is data_replica.log")
-    parser.add_option("--discovery",
-                      action="store_true", dest="usePDS", default=False,
-                      help="Retrieve data distribution from PhEDEx Data Service")
-    parser.add_option("--from-site",
-                      action="store", dest="FROM_SITE", default="",
-                      help="Source site, eg: T2_CH_CSCS. If LOCAL is indicated, the file list must be a list of global paths")
-    parser.add_option("--to-site",
-                      action="store", dest="TO_SITE", default="",
-                      help="Destination file, eg: T2_CH_CSCS")
-    parser.add_option("--recreate-subdirs",
-                      action="store_true", dest="RECREATE_SUBDIRS", default=False,
-                      help="Recreate the full subdir tree")
-    
-    parser.add_option("--dryrun",
-                      action="store_true", dest="DRYRUN", default=False,
-                      help="Don not actually copy anything")
-    
-    parser.add_option("--debug",
-                      action="store_true", dest="DEBUG", default=False,
-                      help="Verbose mode")
-    
-    parser.add_option("--copy-tool",
-                      action="store", dest="TOOL", default="lcg-cp",
-                      help="Selects the copy tool to be used (lcg-cp or srmcp). By default lcg-cp is used")
-    
-    parser.add_option("--castor-stage",
-                      action="store_true", dest="CASTORSTAGE", default=False,
-                      help="Enables staging of Castor files in a local tmp dir. Works only on lxplus, and uses $TMPDIR as tmp dir.")
-    
-    parser.add_option("--delete",
-                      action="store_true", dest="DELETE", default=False,
-                      help="If file exists at destination and its size is _smaller_ than the source one, delete it. WARNING: destination files are checked only for SRM endpoints.")
-
-    parser.add_option("--threads",
-                      action="store", dest="THREADS", default="1",
-                      help="Option for multiple threads with lcgcp")
-
-    parser.add_option("--whitelist",
-                      action="store", dest="WHITELIST", default="",
-                      help="Sets up a comma-separated White-list (preferred sites). Transfers will start from thse sites, then data_replica will use the other sites found with the --discovery option (without --discovery this option makes no sense). Sites not included in the whitelist will be not excluded: use --blacklist for this.")
-
-    parser.add_option("--blacklist",
-                      action="store", dest="BLACKLIST", default="",
-                      help="Sets up a comma-separated Black-list (excluded sites). Data_replica won't use these sites (without --discovery this option makes no sense).")
-        
-    (moptions, args) = parser.parse_args()
-    moptions.Replicate = ENABLE_REPLICATION
-    
-    if len(args)<1:
-        print usage
-        exit(-1)
-    
-
 
 
 def writeLog(logname,message):
@@ -175,40 +64,46 @@ def writeLog(logname,message):
     
 def printDebug(string):
     if options.DEBUG:
-        print "[DEBUG]: "+string
+        print "[DEBUG]: "+str(string)
+
+def printError(string, level=0, logfile=''):
+    print "[ERROR]: "+str(string)
 
 
 def printOutput(string, level=0, logfile=''):
     out = ""
     for i in range(level): out +="\t"
-    out += " "+string
+    out += ""+string
     print out
     if logfile!='':
         writeLog(logfile, out+'\n')
 
 
+
 ###given a lfn and an array, retrieves and stores in the array a dictionary like {"node", node_name}
 def retrieve_siteList(lfn,entry):
     if len(lfn)<2:
-        print "[ERROR] NO VALID LFN!!!"
-        return 1
+        printError( lfn+" is not a valid LFN")
+        exit(1)
     command = """wget --no-check-certificate -O- \"https://cmsweb.cern.ch/phedex/datasvc/xml/prod/FileReplicas?lfn="""+lfn+"""\"  2>/dev/null"""
     out = popen(command)
     init = 0
     for x in out:
         old_x = x
         init = x[init:].find(" node='")
+        
         while init!=-1:
             init += len(" node='")
             site = x[init:][:x[init:].find("'")]
+            x = x[init:]
+            init = x.find(" node='")
+                            
             ##this exclude the destination site from the list
             if options.TO_SITE!="" and site.find(options.TO_SITE)!=-1: continue
             
             if site.find("MSS")==-1:
                 entry.append({"node":site} )
                
-            x = x[init:]
-            init = x.find(" node='")
 
         search_string = " bytes='"
         x = old_x[old_x.find("<file "):]
@@ -231,22 +126,49 @@ def retrieve_pfn(lfn,site):
     pfn = ""
     #site = entry["node"]
     if len(lfn)<2:
-        print "[ERROR] NO VALID LFN!!!"
-        return 1
+        printError( lfn+" is not a valid LFN")
+        exit(1)
 
+    #print lfn2pfnTranslTable
     if site=='LOCAL':
         pfn = "file:///"+lfn
+    elif site=='EOS_CERN':
+	pfn = CERN_EOS_SRM+lfn
     else:
-        command = "wget --no-check-certificate -O- \"https://cmsweb.cern.ch/phedex/datasvc/xml/prod/lfn2pfn?node="+site+"&protocol="+PROTOCOL+"&lfn="+lfn+"""\" 2>/dev/null |sed -e \"s/.*pfn='\([^']*\).*/"""+r"\1\n"+"""/\" """
-        out = popen(command)
-        for x in out:
-            pfn = x.strip("\n")
-            
+        tLock.acquire()
+
+        ### cache only for source files
+        doSVCQuery = False
+        if site!= options.TO_SITE:
+            tmpLFN = lfn[:lfn.rfind("/")+1]
+            tmpFName = lfn[lfn.rfind("/")+1:]
+            if tmpLFN not in lfn2pfnTranslTable.keys(): lfn2pfnTranslTable[tmpLFN] = {}
+            if site not in  lfn2pfnTranslTable[tmpLFN].keys(): doSVCQuery = True
+        else:
+            tmpLFN = lfn
+            #doSVCQuery = True
+        if tmpLFN not in lfn2pfnTranslTable.keys(): lfn2pfnTranslTable[tmpLFN] = {}
+        if site not in  lfn2pfnTranslTable[tmpLFN].keys(): doSVCQuery = True
+        
+        if doSVCQuery :
+            printDebug("Calling PhEDEx data-service")
+            command = "wget --no-check-certificate -O- \"https://cmsweb.cern.ch/phedex/datasvc/xml/prod/lfn2pfn?node="+site+"&protocol="+PROTOCOL+"&lfn="+tmpLFN+"""\" 2>/dev/null |sed -e \"s/.*pfn='\([^']*\).*/"""+r"\1\n"+"""/\" """
+            out = popen(command)
+            for x in out: pfn = x.strip("\n")
+         
+            #if site!= options.TO_SITE:
+            lfn2pfnTranslTable[tmpLFN][site] = pfn
+            if site!= options.TO_SITE: pfn += tmpFName
+        else:
+            pfn = lfn2pfnTranslTable[tmpLFN][site]
+            if site!= options.TO_SITE: pfn += tmpFName 
+        tLock.release()
+
+    printDebug(pfn)
     if len(pfn) <1:
-        print "[ERROR] NO VALID PFN!!!"
-        return 1
+        printError( pfn+" is not a valid PFN. Problems with CMSWEB? Wrong site?")
+        exit(1)
                     
-    #printDebug(pfn)
     return pfn
 
 
@@ -257,7 +179,6 @@ def retrieve_siteAndPfn(lfn):
     retrieve_siteList(lfn,entry)
     for x in entry:
         x["pfn"] =  retrieve_pfn(lfn,x["node"])
-    #filelist[lfn]  =entry
     return entry
                             
 
@@ -282,8 +203,7 @@ def arrange_sources(sitelist,PREFERRED_SITES, DENIED_SITES ):
             if dSite in entry["node"]:
                 allowed = False
                 break
-        if not allowed:
-            continue
+        if not allowed:   continue
 
         preferred=False
         for pSite in PREFERRED_SITES:
@@ -299,15 +219,60 @@ def arrange_sources(sitelist,PREFERRED_SITES, DENIED_SITES ):
 
 
 
+def getFilePFNSize(lfn, myLog):
+    isFileAtSource = True
+    sources = []
+    size = -1
+    pfn = ""
+    if ( options.FROM_SITE=='CERN_CASTOR_USER' or options.FROM_SITE=='T2_CH_CAF' ) and options.CASTORSTAGE:
+        pfn, exitStatus = castorStage(lfn,  myLog, DATAREPLICA_LOGFILE,1)
+        if exitStatus !=0 :  isFileAtSource = False
+    elif options.usePDS:
+        filelist = retrieve_siteAndPfn(lfn)
+        sources = arrange_sources(filelist,PREFERRED_SITES,  DENIED_SITES )
+        print sources
+    elif options.FROM_SITE=='CERN_CASTOR_USER':
+        pfn = CERN_CASTOR_SRM+lfn
+    elif options.FROM_SITE=='CERN_EOS':
+        pfn = CERN_EOS_SRM+lfn
+    else:
+        pfn = retrieve_pfn(lfn,options.FROM_SITE)
+        
+    if options.FROM_SITE!='LOCAL' and not options.usePDS:
+        size =  getFileSizeLCG(pfn )#out[0].strip("\n")
+        if size==-1: isFileAtSource=False
+    elif ( options.FROM_SITE=='CERN_CASTOR_USER' or options.FROM_SITE=='T2_CH_CAF' ) and options.CASTORSTAGE:
+        entry["size"] = popen("rfdir "+lfn+" | awk '{print $5}'").readlines()[0].strip("\n")
+    elif  options.FROM_SITE=='LOCAL' :
+        ###Using lfn, as in this case is the full path
+        if not os.path.isfile(lfn):  isFileAtSource=False
+        else: size = str(os.path.getsize(lfn))
+
+    if (pfn=="" and sources==[]) or not isFileAtSource:
+        isFileAtSource = False
+        printError( "No replicas for this file have been found",0,ADMIN_LOGFILE)
+        writeLog(NOREPLICA_LOGFILE,myLog["lfn"]+'\n')
+    
+    if sources != []: return sources,isFileAtSource
+    else:
+        if pfn=="": return sources,isFileAtSource
+        else: return [{"pfn":pfn,"node":options.FROM_SITE, "size":size}],isFileAtSource
+
+
+
+
+
+
+
 def getFileSizeLCG(pfn):
-    #out_pipe = popen("lcg-ls "+LCG_OPTIONS_COMMON+" -T "+PROTOCOL+" -l "+pfn+" 2>/dev/null | awk '{print $5}'")
-    out_pipe = popen("lcg-ls "+LCG_OPTIONS_COMMON+" -l "+pfn+" 2>/dev/null | awk '{print $5}'")
-    #print out_pipe
-    #print "lcg-ls %s -T %s -l %s" %(LCG_OPTIONS_COMMON,PROTOCOL,pfn)
+    command = "lcg-ls "+LCG_OPTIONS_COMMON+" -T "+PROTOCOL+" -l "+pfn+" 2>/dev/null | awk '{print $5}'"
+    printDebug("Check file size with: " + command)
+    out_pipe = popen("lcg-ls "+LCG_OPTIONS_COMMON+" -T "+PROTOCOL+" -l "+pfn+" 2>/dev/null | awk '{print $5}'")
     #print "lcg-ls -l "+pfn+" 2>/dev/null | awk '{print $5}'"
     out = out_pipe.readlines()
     #out_pipe.close()
-
+    for i in out: printDebug("Output: " + i.strip('\n'))
+        
     if len(out) == 0:
         size = -1
     else:
@@ -353,7 +318,10 @@ def createDestFileName(lfn, options, DESTINATION):
             new_DESTINATION = DESTINATION
                 
         if new_DESTINATION != "":
-            pfn_DESTINATION = retrieve_pfn(new_DESTINATION,options.TO_SITE)
+	    if options.TO_SITE=='CERN_EOS':
+		pfn_DESTINATION=CERN_EOS_SRM+new_DESTINATION
+	    else:
+            	pfn_DESTINATION = retrieve_pfn(new_DESTINATION,options.TO_SITE)
             if pfn_DESTINATION[-1] != "/": pfn_DESTINATION+="/"
             pfn_DESTINATION += filename
         else:
@@ -404,7 +372,24 @@ def castorStage(castor_pfn, myLog,logfile, tabLevel=2):
 
 
 
-def copyFile(tool,copyOptions, source,  dest, srm_prot, myLog, logfile, isStage):
+
+
+def multipleSiteCopy(sources_list, pfn_DESTINATION, myLog, counter):
+    printDebug("Calling multipleSiteCopy")
+    SUCCESS = 1
+    error_log=""
+    for entry in sources_list:
+        #logTransferHeader(entry, pfn_DESTINATION, ADMIN_LOGFILE)
+        SUCCESS, error_log = copyFile(options.TOOL,copyOptions, entry, pfn_DESTINATION, srm_prot, myLog,DATAREPLICA_LOGFILE, options.CASTORSTAGE, counter)
+        
+        if SUCCESS == 0:  break
+        elif error_log.lower().find("file exist")!=-1:  break
+    return SUCCESS, error_log
+
+
+
+def copyFile(tool,copyOptions, source,  dest, srm_prot, myLog, logfile, isStage, counter):
+#def copyFile( source,  dest,  myLog):
 
     printDebug("Starting copyFile")
 
@@ -422,16 +407,15 @@ def copyFile(tool,copyOptions, source,  dest, srm_prot, myLog, logfile, isStage)
     if isStage:
         castor_pfn = source["pfn"].split("=")[-1]
         printDebug(castor_pfn)
-        local_pfn, stageExit =  castorStage(castor_pfn, myLog,logfile)
+        local_pfn, stageExit =  castorStage(castor_pfn, myLog,DATAREPLICA_LOGFILE)
         source["pfn"] = "file:///"+local_pfn
     
     error_log = ""
     command = "unset SRM_PATH"
-    if tool=="srmcp":
+    if options.TOOL=="srmcp":
         command += "&& srmcp "+srm_prot+" "+copyOptions+" "+source["pfn"]+" "+dest+ " 2>&1"
     else:
-        #command += "&& lcg-cp -V cms "+copyOptions+" -T "+PROTOCOL+" -U "+PROTOCOL+" "+source["pfn"]+" "+dest+ " 2>&1"
-        command += "&& lcg-cp -V cms "+copyOptions+" "+source["pfn"]+" "+dest+ " 2>&1"
+        command += "&& lcg-cp -V cms "+copyOptions+" -T "+PROTOCOL+" -U "+PROTOCOL+" "+source["pfn"]+" "+dest+ " 2>&1"
     printDebug( command )
 
     if not options.DRYRUN:
@@ -440,9 +424,8 @@ def copyFile(tool,copyOptions, source,  dest, srm_prot, myLog, logfile, isStage)
         if dest.find('srm://')!=-1: destSize = getFileSizeLCG(dest)
         else:
             destSize = -1
-        ### if no file at dest, copy
+        ### if no file at dest, copy 
         if destSize==-1:
-            print command
             pipe = popen(command)
             out = pipe.readlines()
             for l in out:
@@ -505,7 +488,7 @@ def copyFile(tool,copyOptions, source,  dest, srm_prot, myLog, logfile, isStage)
             error_log += 'Size mismatch: source='+str(myLog['size'])+" dest="+str(myLog['dest size'])
             myLog["detail"] = error_log
         
-    if not options.DRYRUN: writePhedexLog(myLog,logfile)
+    if not options.DRYRUN: writePhedexLog(myLog,DATAREPLICA_LOGFILE)
         
     if SUCCESS == 0:
         speed = float(myLog["size"])/((1024*1024)*float(float(myLog["t-done"]) - float(myLog["t-xfer"]) ) )
@@ -513,11 +496,19 @@ def copyFile(tool,copyOptions, source,  dest, srm_prot, myLog, logfile, isStage)
     else:
         speed = 0
 
-    out = "\t\t Elapsed Time: "+str( myLog["t-done"]-myLog["t-assign"] )+ " s\n"    
-    out+= "\t\t Speed: "+str(speed)+" MB/s\n"
-    out+= "\t\t Success: "+str(SUCCESS)+'\n'
-    out+= "\t\t Error: "+parseErrorLog(error_log)
+    out = "\n-------------- REPORT #"+str(counter)+"\n"
+    out += "---\tFrom-PFN: "+source["pfn"]+'\n'
+    out += "---\tTo-PFN: "+dest+'\n'
+    out += "---\tFrom Site: "+source["node"]+"\n"
+    out += "---\tSize: "+source["size"] + " bytes ("+str(float(source['size'])/(1024*1024))+" MB)\n"
+    out += "---\tElapsed Time: "+str( myLog["t-done"]-myLog["t-assign"] )+ " s\n"    
+    out+= "---\tSpeed: "+str(speed)+" MB/s\n"
+    out+= "---\tSuccess: "+str(SUCCESS)+'\n'
+    out+= "---\tError: "+parseErrorLog(error_log)+"\n"
+    out+= "-------------- END REPORT #"+str(counter)+"\n"
 
+    tLock.acquire()
+    #logTransferHeader(source, dest, ADMIN_LOGFILE)
     printOutput(out, 0, ADMIN_LOGFILE)
 
     if isStage:
@@ -525,7 +516,9 @@ def copyFile(tool,copyOptions, source,  dest, srm_prot, myLog, logfile, isStage)
         printDebug("CastorStaging: deleted "+local_pfn)
     printDebug("Full Error: "+error_log)
     printDebug("sleeping")
+    tLock.release()
     os.popen("sleep 2")
+    
     
     return SUCCESS,error_log    
 
@@ -557,68 +550,59 @@ def parseErrorLog(error_log):
         
     return new_error_log
 
+
+
+
 ###
 def writePhedexLog(myLog,logfile):
     f_logfile = open(logfile,"a")
-
-    order = ("task",
-             "file",
-             "from",
-             "to",
-             "priority",
-             "report-code",
-             "xfer-code",
-             "size",
-             "t-expire",
-             "t-assign",
-             "t-export",
-             "t-inxfer",
-             "t-xfer",
-             "t-done",
-             "lfn",
-             "from-pfn",
-             "to-pfn",
-             "detail",
-             "validate",
-             "job-log")
-
+    order = ("task",  "file",  "from",  "to",  "priority",  "report-code",  "xfer-code",  "size",
+             "t-expire",  "t-assign",  "t-export",  "t-inxfer","t-xfer", "t-done",
+             "lfn", "from-pfn", "to-pfn", "detail", "validate", "job-log")
     myLog["detail"] = parseErrorLog(myLog["detail"])
-
-    if myLog["to"] == "":
-        myLog["to"] = "local"
+    if myLog["to"] == "":  myLog["to"] = "local"
         
     date_pipe = popen("date -d @"+str(time())+" +\"%F %T\"")
     date = date_pipe.readlines()[0].strip("\n")
 
     log = date+": FileDownload[24130]: xstats: "
-    for x in order:
-        log += x+"="+str(myLog[x])+" "
+    for x in order: log += x+"="+str(myLog[x])+" "
 
     f_logfile.write(log+"\n")
     f_logfile.close()
 
 
 
+
+
 ###
-def logTransferHeader(entry, pfn_DESTINATION, logfile=''):
-    out = "\n\t Trial from: "+entry["node"]+"--------------\n"
-    out += "\t\t From-PFN: "+entry["pfn"]+'\n'
-    out += "\t\t To-PFN: "+pfn_DESTINATION+'\n'
-    out += "\t\t Size: "+entry["size"] + " bytes ("+str(float(entry['size'])/(1024*1024))+" MB)"
-    print out
-    if logfile!='':
-        writeLog(logfile, out+'\n')
+#def logTransferHeader(entry, pfn_DESTINATION, logfile=''):
+#    out = "\n-------------- REPORT #\n"
+#    out += "---\tFrom-PFN: "+entry["pfn"]+'\n'
+#    out += "---\tTo-PFN: "+pfn_DESTINATION+'\n'
+#    out += "---\tFrom Site: "+entry["node"]+"\n"
+#    out += "---\tSize: "+entry["size"] + " bytes ("+str(float(entry['size'])/(1024*1024))+" MB)"
+#    print out
+#    if logfile!='':
+#        writeLog(logfile, out+'\n')
 
 
 
 
 
 
-################### BEGIN of MAIN
-
+################### BEGIN of MAIN FUNCTION
 def data_replica(args, moptions):
     global options
     global DATAREPLICA_LOGFILE,EXISTING_LOGFILE, FAILED_LOGFILE, SUCCESS_LOGFILE, NOREPLICA_LOGFILE, ADMIN_LOGFILE
+    global copyOptions 
+    global srm_prot
+    global lfn2pfnTranslTable
+    global tLock
+    
+    ### Cache; [SITE]=PFN_root
+    lfn2pfnTranslTable = {} 
+
     options= moptions
 
     if len(args) == 2: DESTINATION = args[1]
@@ -634,8 +618,8 @@ def data_replica(args, moptions):
         
     if options.TO_SITE == "":
         print "WARNING: no dest site given, assuming PFN destination"
-        if DESTINATION.find("///")==-1:
-            print "ERROR: PFN destination incorrect, please check"
+        if DESTINATION.find("srm://")==-1 and DESTINATION.find("file://")==-1 :
+            printError("PFN destination incorrect, please check. ")
             exit(-1)
                     
         
@@ -665,10 +649,27 @@ def data_replica(args, moptions):
         print "Black/white lists make sense only if --discovery is activated, exiting."
         exit(-1)
 
+    if options.MAXSTREAMS!=1 and ( options.TOOL!="lcg-cp" or options.CASTORSTAGE):
+        print "Multistream transfers are possible only using lcg-cp"
+        exit(-1)
+
     ###fill black/white lists
     setBlackWhiteSiteList(options,PREFERRED_SITES, DENIED_SITES)
+
+    ### Check local dest
+    if DESTINATION.find("file:/")!=-1:
+        if not os.path.isdir(DESTINATION[ len("file:///"):]):
+            printError("Local destination directory "+DESTINATION[ len("file:///"):]+" does not exist, please create it")
+            exit(1)
+        if DESTINATION.find("file:////")==-1:
+            printError( "Error in local destination, must be e.g. in this form: file:////tmp/",1,ADMIN_LOGFILE)
+            exit(1)
+
+    ### SRM option
+    srm_prot = ""
+    if PROTOCOL == "srmv2": srm_prot = "-2"
     
-### Log files definition
+    ### Log files definition
     myPid = os.getpid() # want to use???
     ### Log files definition
     USER = os.getenv('LOGNAME')
@@ -682,6 +683,7 @@ def data_replica(args, moptions):
     SUCCESS_LOGFILE = splittedLogfile[-2]+"_successList"+additionalLogName+".log"
     NOREPLICA_LOGFILE =splittedLogfile[-2]+"_noReplica"+additionalLogName+".log"
     ADMIN_LOGFILE = "/tmp/data_replica-admin-"+USER+"-"+DATE+'.log'
+    
 
     print """\n##########################################
     Welcome to the DataReplica service
@@ -690,6 +692,13 @@ def data_replica(args, moptions):
 
     print "Preferred Sites: ",PREFERRED_SITES
     print "Denied Sites: ", DENIED_SITES
+    print "Parallel Streams: : "+str(options.MAXSTREAMS)
+    printOutput("Using PhEDEx Data Service for Discovery: "+str(options.usePDS),0, ADMIN_LOGFILE )
+    if str(options.TO_SITE)=="":
+        printOutput("To site: LOCAL",0, ADMIN_LOGFILE)
+    else:
+        printOutput("To site: "+str(options.TO_SITE),0, ADMIN_LOGFILE)
+
 
     ### checks existance of proxy
     pipe = os.popen("voms-proxy-info")
@@ -699,10 +708,10 @@ def data_replica(args, moptions):
 
     proxy_timeleft = os.popen("voms-proxy-info -timeleft").readlines()
     if int(proxy_timeleft[0]) < 3600:
-        print "Your proxy will last for less than an hour, please renew it with: voms-proxy-init -voms cms"
+        printError("\n[INFO]Your proxy will last for less than an hour, please renew it with: voms-proxy-init -voms cms")
         exit(-1)
     else:
-        print "Your proxy will last "+str( round( float(proxy_timeleft[0])/3600,1) )+" hours, if you think you'll need more time please renew it."
+        printOutput("\n[INFO] Your proxy will last "+str( round( float(proxy_timeleft[0])/3600,1) )+" hours, if you think you'll need more time please renew it\n.")
 
     printDebug("phedex-like logfile: "+ DATAREPLICA_LOGFILE)
 
@@ -721,6 +730,7 @@ def data_replica(args, moptions):
     list = open(args[0])
     total_files=0
     for x in list.readlines():
+        if x[0]=="#": continue #forget about lines starting with #
         if x!='\n':
             total_files += 1
             writeLog(ADMIN_LOGFILE,x)
@@ -735,13 +745,14 @@ def data_replica(args, moptions):
         pipe.close()
         splitOut = out.split('-')
         if len(splitOut)>1:
-            ##version = splitOut[1].split('.')[0]+'.'+splitOut[1].split('.')[1]+splitOut[1].split('.')[2]
-            version = splitOut[1].split('.')[1]
+            version = splitOut[1].split('.')[0]+'.'+splitOut[1].split('.')[1]#+splitOut[1].split('.')[2]
+            ### valid only for 1.X versions
+            version = version.split('.')[1]
             version = float(version)
-        ##if version >= 1.7:    1.11 is not greater than 1.7 but it should be
-        if version >= 7:
-            copyOptions = LCG_OPTIONS_17
-            copyOptions = copyOptions.replace("-n 1 ","-n "+options.THREADS+" ")
+            
+        printDebug("LCG-UTILS version: "+ str(version))
+        if version >= 7: copyOptions = LCG_OPTIONS_17
+        #elif version >= 1.11: copyOptions = LCG_OPTIONS_1_11
         else:  copyOptions = LCG_OPTIONS
     elif options.TOOL=='srmcp':
         copyOptions = SRM_OPTIONS
@@ -749,125 +760,244 @@ def data_replica(args, moptions):
     failedTransfers = 0
     SUCCESS = 1
     list.seek(0)
+
+    ##### Multiple threads
+    tLock = threading.Lock()
+    maxThreads=int(options.MAXSTREAMS)
+    threads = []
+    tQueue = Queue()
+    
     for lfn in list.readlines():
+
+        ### check the number of active threads
+        printDebug("#Threads: "+ str(threading.activeCount()))
+
+        while threading.activeCount()-1 >= maxThreads:
+            printDebug("#Threads: "+ str(threading.activeCount()))
+            sleep(10)
+            
+            ## Queues
+            while tQueue.qsize() !=0:
+                SUCCESS, error_log = tQueue.get()
+                print SUCCESS, error_log
+                if SUCCESS != 0:
+                    if myLog['detail'].lower().find('file exist')!=-1:
+                        writeLog(EXISTING_LOGFILE,lfn+" "+myLog['to-pfn']+"\n")
+                    elif myLog['detail'].find('file does not exist')==-1 and myLog['detail'].find('no replicas')==-1:
+                ### does not consider existing file as error...
+                        writeLog(FAILED_LOGFILE,lfn+"\n")
+                        failedTransfers+=1
+                    else:
+                        failedTransfers+=1   
+
+
+        if lfn[0]=="#": continue #forget about lines starting with #
         lfn = lfn.strip("\n").strip(" ").strip("\t")
+        if lfn== "": continue
 
         printDebug("LFN: "+lfn)
         SUCCESS = 1
+        
+        counter +=1
+        printOutput("### Started copy process of file "+str(counter)+"/"+str(total_files)+": "+ lfn, 0, ADMIN_LOGFILE )
 
-        if lfn!= "":
-            counter +=1
-            printOutput("\n### Copy process of file "+str(counter)+"/"+str(total_files)+": "+ lfn, 0, ADMIN_LOGFILE )
-
-            printOutput( "Using PhEDEx Data Service for Discovery: "+str(options.usePDS),1, ADMIN_LOGFILE )
-            if str(options.TO_SITE)=="":
-                printOutput("To site: LOCAL",1, ADMIN_LOGFILE)
-            else:
-                printOutput("To site: "+str(options.TO_SITE),1, ADMIN_LOGFILE)
+        #printOutput( "Using PhEDEx Data Service for Discovery: "+str(options.usePDS),1, ADMIN_LOGFILE )
+        #if str(options.TO_SITE)=="":
+        #    printOutput("To site: LOCAL",1, ADMIN_LOGFILE)
+        #else:
+        #    printOutput("To site: "+str(options.TO_SITE),1, ADMIN_LOGFILE)
 
 
-            myLog = {"task":"1","file":"1","from":"","to":"",
-                     "priority":"3", "report-code":"","xfer-code":"", "size":0,
-                     "t-expire":9999999999, "t-assign":"","t-export":"","t-inxfer":"",
-                     "t-xfer":"","t-done":"","lfn":"","from-pfn":"","to-pfn":"",
-                     "detail":"","validate":"()","job-log":"none"}
+        myLog = {"task":"1","file":"1","from":"","to":"",
+                 "priority":"3", "report-code":"","xfer-code":"", "size":0,
+                 "t-expire":9999999999, "t-assign":"","t-export":"","t-inxfer":"",
+                 "t-xfer":"","t-done":"","lfn":"","from-pfn":"","to-pfn":"",
+                 "detail":"","validate":"()","job-log":"none"}
+        
+        myLog["lfn"] = lfn
 
-            myLog["lfn"] = lfn
+        #if options.usePDS: filelist = retrieve_siteAndPfn(lfn)
+        if DESTINATION != "":
+            if DESTINATION[-1] != "/": DESTINATION+="/"
+        else: printOutput( "Recreating the whole tree to "+options.TO_SITE,1,ADMIN_LOGFILE)
 
-            if options.usePDS:
-                filelist = retrieve_siteAndPfn(lfn)
-
-            if DESTINATION != "":
-                if DESTINATION[-1] != "/": DESTINATION+="/"
-            else:
-                printOutput( "Recreating the whole tree to "+options.TO_SITE,1,ADMIN_LOGFILE)
-
-            ### creating the destination PFN
-            filename, pfn_DESTINATION = createDestFileName(lfn, options, DESTINATION)
-            ### local dest check
-            if pfn_DESTINATION.find("file:/")!=-1 and  pfn_DESTINATION.find("file:////")==-1:
-                 printOutput( "Error in local destination, must be e.g. in this form: file:////tmp/",1,ADMIN_LOGFILE)
-                 exit(1)
-            srm_prot = ""
-            if PROTOCOL == "srmv2": srm_prot = "-2"
-
-            isFileAtSource = True  ## keeps track if the file exist at source
-
-            ###Special case for user dir on castor
-            ### file list is supposed to be in the form /castor/ (PFN)
-            if ( options.FROM_SITE=='CERN_CASTOR_USER' or options.FROM_SITE=='T2_CH_CAF' ) and options.CASTORSTAGE:
-                    local_pfn, exitStatus = castorStage(lfn,  myLog, DATAREPLICA_LOGFILE,1)
-                    if exitStatus !=0 :  continue
-                    entry = {"pfn":"file:///"+local_pfn,"node":options.FROM_SITE}
-                    entry["size"] = popen("rfdir "+lfn+" | awk '{print $5}'").readlines()[0].strip("\n")
-                
-                    logTransferHeader(entry, pfn_DESTINATION, ADMIN_LOGFILE)                        
-                    SUCCESS, error_log = copyFile(options.TOOL,copyOptions, entry, pfn_DESTINATION, srm_prot, myLog,DATAREPLICA_LOGFILE, False)
-                    pipe = os.popen("rm "+local_pfn)
-                    printDebug("CastorStaging: deleted "+local_pfn)
-
-            elif options.usePDS:
-                sources_list = arrange_sources(filelist,PREFERRED_SITES,  DENIED_SITES )
-                if sources_list == []:
-                    printOutput( "ERROR: no replicas found",0,ADMIN_LOGFILE)
-                    isFileAtSource=False
-                    writeLog(NOREPLICA_LOGFILE,lfn+"\n")
-                    #continue
-    
-                for entry in sources_list:
-                    logTransferHeader(entry, pfn_DESTINATION, ADMIN_LOGFILE)
-                    SUCCESS, error_log = copyFile(options.TOOL,copyOptions, entry, pfn_DESTINATION, srm_prot, myLog,DATAREPLICA_LOGFILE, options.CASTORSTAGE)
-                    if SUCCESS == 0:  break
-                    elif error_log.lower().find("file exist")!=-1:  break
+        ### creating the destination PFN
+        filename, pfn_DESTINATION = createDestFileName(lfn, options, DESTINATION)
+            
+        ### check if the source file exists
+        sources,isFileAtSource = getFilePFNSize(lfn, myLog)
+        if not isFileAtSource:
+            failedTransfers+=1 
+            continue
+        
+        ###Special case for user dir on castor
+        ### file list is supposed to be in the form /castor/ (PFN)
+        if ( options.FROM_SITE=='CERN_CASTOR_USER' or options.FROM_SITE=='T2_CH_CAF' ) and options.CASTORSTAGE:
+                ### TO BE MODIFIED
+                source = sources[0]
+                #logTransferHeader(source, pfn_DESTINATION, ADMIN_LOGFILE)                        
+                #SUCCESS, error_log = copyFile(options.TOOL,copyOptions, source, pfn_DESTINATION, srm_prot, myLog,DATAREPLICA_LOGFILE, False)
+                multipleSiteCopy(sources, pfn_DESTINATION, myLog, counter)
+                pipe = os.popen("rm "+local_pfn)
+                printDebug("CastorStaging: deleted "+local_pfn)
+                    
+        #elif options.usePDS:
+        #    mythread = threading.Thread( target=multipleSiteCopy, args=(sources, pfn_DESTINATION, myLog))
+        #    mythread.start()
+            #SUCCESS, error_log = multipleSiteCopy(sources_list, pfn_DESTINATION, myLog)
+            #for entry in sources_list:
+            #    logTransferHeader(entry, pfn_DESTINATION, ADMIN_LOGFILE)
+            #    SUCCESS, error_log = copyFile(options.TOOL,copyOptions, entry, pfn_DESTINATION, srm_prot, myLog,DATAREPLICA_LOGFILE, options.CASTORSTAGE)
+            #    if SUCCESS == 0:  break
+            #    elif error_log.lower().find("file exist")!=-1:  break
                 
 
-            else:
-                if options.FROM_SITE=='CERN_CASTOR_USER':
-                    pfn = "srm://srm-cms.cern.ch/srm/managerv2?SFN="+lfn
-                else:
-                    pfn = retrieve_pfn(lfn,options.FROM_SITE)
-                printDebug("PFN:"+ pfn)
-                source = {"pfn":pfn,"node":options.FROM_SITE}
+        else:
+            mythread = threading.Thread( target=multipleSiteCopy, args=(sources, pfn_DESTINATION, myLog, counter))
+            mythread.start()
 
-                if options.FROM_SITE!='LOCAL':
-                    source["size"] =  getFileSizeLCG(pfn )#out[0].strip("\n")
-                    #print source["size"]
-                    if source["size"]==-1:
-                        printOutput( "[ERROR] file does not exist on source", 0, ADMIN_LOGFILE)
-                        isFileAtSource=False
-                        writeLog(NOREPLICA_LOGFILE,myLog["lfn"]+'\n')
-                        #continue
-                else:
-                    ###Using lfn, as in this case is the full path
-                    if not os.path.isfile(lfn):
-                        printOutput( "[ERROR] file does not exist on source",0,ADMIN_LOGFILE)
-                        writeLog(NOREPLICA_LOGFILE,myLog["lfn"]+'\n')
-                        isFileAtSource=False
-                        #continue
-                    source["size"] = str(os.path.getsize(lfn))
-                
-                if isFileAtSource:    
-                    logTransferHeader(source,pfn_DESTINATION, ADMIN_LOGFILE)
-                    SUCCESS, error_log = copyFile(options.TOOL, copyOptions, source, pfn_DESTINATION, srm_prot, myLog, DATAREPLICA_LOGFILE, options.CASTORSTAGE)
-                else:
-                    SUCCESS=1
 
+    ### wait for unfinished threads....
+    while threading.activeCount() > 1:
+        while tQueue.qsize() !=0:
+            SUCCESS, error_log = tQueue.get()
+            print SUCCESS, error_log
             if SUCCESS != 0:
                 if myLog['detail'].lower().find('file exist')!=-1:
                     writeLog(EXISTING_LOGFILE,lfn+" "+myLog['to-pfn']+"\n")
                 elif myLog['detail'].find('file does not exist')==-1 and myLog['detail'].find('no replicas')==-1:
-                ### does not consider existing file as error...
+                    ### does not consider existing file as error...
                     writeLog(FAILED_LOGFILE,lfn+"\n")
                     failedTransfers+=1
                 else:
-                    failedTransfers+=1   
+                    failedTransfers+=1 
 
-                        
     print "Returned code "+str(failedTransfers)
     return failedTransfers
 
 
+
+
+
+########## the Main Routine
 if __name__ == "__main__":
+    usage = """usage: %prog [options] filelist.txt [dest_dir]
+
+    This program will replicate a list of files from a site to another one using SRM
+
+    filelist.txt is a text file containing a list of LFN you want to replicate to a site, one LFN per line 
+
+    dest_dir must be a complete PFN, eg file:///home/user/, if none it will be retrieved from the lfn
+    information and the destination site
+
+    you must at least declare [dest_dir] or the --to-site option
+
+    Sites must have a standard name, e.g. T2_CH_CSCS
+
+    Five log-files can be produced by this script:
+       * <logfile>.log: contains a PhEDEx-style log
+       * <logfile>_existingList.log: contains LFNs and PFNs of files existing on destination (SRM
+         endpoints only)
+       * <logfile>_failedList.log: a list of all the LFNs which failed
+       * <logfile>_successList.log: a list of all the LFNs successfully copied
+       * <logfile>_noReplica.log: a list of files with no replicas found (check DENIED_SITES list in the
+         script header)
+    
+    
+[USE CASES]
+
+* Replicate a file list without specifying a source node (discovery). In this case, a source nodes list is retrieved from PhEDEx data service: 
+      data_replica --discovery --to-site YOUR_SITE filelist.txt
+
+  * Replicate a file list using discovery and giving a destination folder:
+      data_replica --discovery --to-site YOUR_SITE filelist.txt /store/user/leo
+
+  * Replicate a file list NOT registered in PhEDEx. In this case, you should specify --from-site.
+      data_replica  --from-site FROM_SITE --to-site YOUR_SITE filelist.txt
+
+  * Replicate a file list NOT registered in PhEDEx, giving a destination folder.Also in this case, you should specify --from-site.
+      data_replica  --from-site FROM_SITE --to-site YOUR_SITE filelist.txt /store/user/leo
+
+  * Copying data locally: in this case you don't have to give the --to-site option but you need to give
+  a dest_dir in PFN format. Warning: if you intend to use the --recreate-subdirs option, you need to create yourself the local directory structure:
+      data_replica --from-site FROM_SITE filelist.txt  file:///`pwd`/
+
+  * Copying data from a local area: the list of files should contain only full paths:
+      data_replica.py --from-site LOCAL --to-site T3_CH_PSI filelist.txt /store/user/leo/test1
+
+  * Copying files from CAF:
+      data_replica.py --from-site T2_CH_CAF --to-site T3_CH_PSI filelist.txt /store/user/leo/testCastor4 
+
+  * Copying files from user area under CASTOR@CERN (files not registered to DBS). In this case, PFN are not retrievable from PhEDEx data service,
+  so the file list must contain Castor full path (/castor/cern.ch/....) and the source site is CERN_CASTOR_USER:
+      data_replica.py --from-site CERN_CASTOR_USER --to-site T3_CH_PSI filelist.txt /store/user/leo/testCastor3 
+
+  * When copying from a Castor area from lxplus and you want to pre-stage files to a local /tmp directory through rfcp
+  (useful when copying files not accessed since long, avoiding srm timeouts), use --castor-stage.
+
+  * Copying data from EOS@CERN, you have to specify --from-site CERN_EOS (this is automatically done for T2_CH_CAF, at the time of writing). Filenames in filelist.txt are still LFN (/store/...):
+      data_replica.py --from-site CERN_EOS --to-site T3_CH_PSI filelist.txt /store/user/leo/testEos
+  
+  Use the -h option for more information
+  
+  """
+
+    parser = OptionParser(usage = usage, version="%prog 1.0")
+    parser.add_option("--logfile",action="store", dest="logfile",default="data_replica.log",
+                      help="file for the phedex-like log, default is data_replica.log")
+    parser.add_option("--discovery",
+                      action="store_true", dest="usePDS", default=False,
+                      help="Retrieve data distribution from PhEDEx Data Service")
+    parser.add_option("--from-site",
+                      action="store", dest="FROM_SITE", default="",
+                      help="Source site, eg: T2_CH_CSCS. If LOCAL is indicated, the file list must be a list of global paths")
+    parser.add_option("--to-site",
+                      action="store", dest="TO_SITE", default="",
+                      help="Destination file, eg: T2_CH_CSCS")
+    parser.add_option("--recreate-subdirs",
+                      action="store_true", dest="RECREATE_SUBDIRS", default=False,
+                      help="Recreate the full subdir tree")
+    
+    parser.add_option("--dryrun",
+                      action="store_true", dest="DRYRUN", default=False,
+                      help="Don not actually copy anything")
+    
+    parser.add_option("--debug",
+                      action="store_true", dest="DEBUG", default=False,
+                      help="Verbose mode")
+    
+    parser.add_option("--copy-tool",
+                      action="store", dest="TOOL", default="lcg-cp",
+                      help="Selects the copy tool to be used (lcg-cp or srmcp). By default lcg-cp is used")
+    
+    parser.add_option("--castor-stage",
+                      action="store_true", dest="CASTORSTAGE", default=False,
+                      help="Enables staging of Castor files in a local tmp dir. Works only on lxplus, and uses $TMPDIR as tmp dir.")
+    
+    parser.add_option("--delete",
+                      action="store_true", dest="DELETE", default=False,
+                      help="If file exists at destination and its size is _smaller_ than the source one, delete it. WARNING: destination files are checked only for SRM endpoints.")
+
+    parser.add_option("--whitelist",
+                      action="store", dest="WHITELIST", default="",
+                      help="Sets up a comma-separated White-list (preferred sites). Transfers will start from thse sites, then data_replica will use the other sites found with the --discovery option (without --discovery this option makes no sense). Sites not included in the whitelist will be not excluded: use --blacklist for this.")
+
+    parser.add_option("--blacklist",
+                      action="store", dest="BLACKLIST", default="",
+                      help="Sets up a comma-separated Black-list (excluded sites). Data_replica won't use these sites (without --discovery this option makes no sense).")
+
+    parser.add_option("--streams",
+                      action="store", dest="MAXSTREAMS", default=1,
+                      help="Number of parallel transfers (default:1. Maximum:4 ). It works only with lcg-cp")
+        
+    (moptions, args) = parser.parse_args()
+    moptions.Replicate = ENABLE_REPLICATION
+    
+    if len(args)<1:
+        parser.print_help()
+        exit(-1)
+
+    #tLock = threading.Lock()
     data_replica(args, moptions)
 
 
