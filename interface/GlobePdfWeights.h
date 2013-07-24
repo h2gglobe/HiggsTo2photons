@@ -6,8 +6,9 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
 
-
 #include "TTree.h"
+
+class GlobeAnalyzer;
 
 class GlobePdfWeights {
  public:
@@ -15,7 +16,7 @@ class GlobePdfWeights {
   GlobePdfWeights(const edm::ParameterSet&);
   virtual ~GlobePdfWeights() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
 
   Int_t weight_n;

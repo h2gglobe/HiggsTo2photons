@@ -14,6 +14,8 @@
 
 #include <iostream>
 
+class GlobeAnalyzer;
+
 class GlobeMET {
  public:
   
@@ -22,7 +24,7 @@ class GlobeMET {
   GlobeMET(const edm::ParameterSet&, const char* );
   virtual ~GlobeMET() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
   void correctMETmuons(const edm::Event&, float&, float&, CorrectionType);
   void correctedJetMET(const edm::Event&, float&, float&, const float);

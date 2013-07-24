@@ -2,6 +2,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 #include "RecoParticleFlow/PFClusterTools/interface/ClusterClusterMapping.h"
@@ -28,38 +29,38 @@ GlobePFCandidates::GlobePFCandidates(const edm::ParameterSet& iConfig) {
   gCUT = new GlobeCuts(iConfig);
 }
 
-void GlobePFCandidates::defineBranch(TTree* tree) {
+void GlobePFCandidates::defineBranch(GlobeAnalyzer* ana) {
   
   pfcand_p4 = new TClonesArray("TLorentzVector", MAX_PFCANDS);
   pfcand_poscalo = new TClonesArray("TVector3", MAX_PFCANDS);
   pfcand_posvtx = new TClonesArray("TVector3", MAX_PFCANDS);
   
-  tree->Branch("pfcand_p4", "TClonesArray", &pfcand_p4, 32000, 0);
-  tree->Branch("pfcand_poscalo", "TClonesArray", &pfcand_poscalo, 32000, 0);
-  tree->Branch("pfcand_posvtx", "TClonesArray", &pfcand_posvtx, 32000, 0);
+  ana->Branch("pfcand_p4", "TClonesArray", &pfcand_p4, 32000, 0);
+  ana->Branch("pfcand_poscalo", "TClonesArray", &pfcand_poscalo, 32000, 0);
+  ana->Branch("pfcand_posvtx", "TClonesArray", &pfcand_posvtx, 32000, 0);
 
-  tree->Branch("pfcand_n", &pfcand_n, "pfcand_n/I");
-  tree->Branch("pfcand_pdgid",&pfcand_pdgid,"pfcand_pdgid[pfcand_n]/I");
-  //tree->Branch("pfcand_tkind", &pfcand_tkind, "pfcand_tkind[pfcand_n]/I");
-  //tree->Branch("pfcand_gsfind", &pfcand_gsfind, "pfcand_gsfind[pfcand_n]/I");
-  //tree->Branch("pfcand_muind", &pfcand_muind, "pfcand_muind[pfcand_n]/I");
-  tree->Branch("pfcand_ecalenergy", &pfcand_ecalEnergy, "pfcand_ecalenergy[pfcand_n]/F");
-  tree->Branch("pfcand_hcalenergy", &pfcand_hcalEnergy, "pfcand_hcalenergy[pfcand_n]/F");
-  tree->Branch("pfcand_rawecalenergy", &pfcand_rawEcalEnergy, "pfcand_rawecalenergy[pfcand_n]/F");
-  tree->Branch("pfcand_rawhcalenergy", &pfcand_rawHcalEnergy, "pfcand_rawhcalenergy[pfcand_n]/F");
-  tree->Branch("pfcand_ps1energy", &pfcand_ps1Energy, "pfcand_ps1energy[pfcand_n]/F");
-  tree->Branch("pfcand_ps2energy", &pfcand_ps2Energy, "pfcand_ps2energy[pfcand_n]/F");
-  tree->Branch("pfcand_momerr", &pfcand_momErr, "pfcand_momerr[pfcand_n]/F");
-  tree->Branch("pfcand_mva_e_pi", &pfcand_mva_e_pi, "pfcand_mva_e_pi[pfcand_n]/F");
-  tree->Branch("pfcand_mva_e_mu", &pfcand_mva_e_mu, "pfcand_mva_e_mu[pfcand_n]/F");
-  tree->Branch("pfcand_mva_pi_mu", &pfcand_mva_pi_mu, "pfcand_mva_pi_mu[pfcand_n]/F");
-  tree->Branch("pfcand_mva_nothing_gamma", &pfcand_mva_nothing_gamma, "pfcand_mva_nothing_gamma[pfcand_n]/F");
-  tree->Branch("pfcand_mva_nothing_nh", &pfcand_mva_nothing_nh, "pfcand_mva_nothing_nh[pfcand_n]/F");
-  tree->Branch("pfcand_mva_gamma_nh", &pfcand_mva_gamma_nh, "pfcand_mva_gamma_nh[pfcand_n]/F");
-  tree->Branch("pfcand_vz",&pfcand_vz,"pfcand_vz[pfcand_n]/F");
-  tree->Branch("pfcand_overlappho",&pfcand_overlappho,"pfcand_overlappho[pfcand_n]/i");
-  tree->Branch("pfcand_ispu",&pfcand_ispu,"pfcand_ispu[pfcand_n]/i");
-  //tree->Branch("pfcand_overlappho",&pfcand_overlappho,"pfcand_overlappho[pfcand_n][pho_n]/I");
+  ana->Branch("pfcand_n", &pfcand_n, "pfcand_n/I");
+  ana->Branch("pfcand_pdgid",&pfcand_pdgid,"pfcand_pdgid[pfcand_n]/I");
+  //ana->Branch("pfcand_tkind", &pfcand_tkind, "pfcand_tkind[pfcand_n]/I");
+  //ana->Branch("pfcand_gsfind", &pfcand_gsfind, "pfcand_gsfind[pfcand_n]/I");
+  //ana->Branch("pfcand_muind", &pfcand_muind, "pfcand_muind[pfcand_n]/I");
+  ana->Branch("pfcand_ecalenergy", &pfcand_ecalEnergy, "pfcand_ecalenergy[pfcand_n]/F");
+  ana->Branch("pfcand_hcalenergy", &pfcand_hcalEnergy, "pfcand_hcalenergy[pfcand_n]/F");
+  ana->Branch("pfcand_rawecalenergy", &pfcand_rawEcalEnergy, "pfcand_rawecalenergy[pfcand_n]/F");
+  ana->Branch("pfcand_rawhcalenergy", &pfcand_rawHcalEnergy, "pfcand_rawhcalenergy[pfcand_n]/F");
+  ana->Branch("pfcand_ps1energy", &pfcand_ps1Energy, "pfcand_ps1energy[pfcand_n]/F");
+  ana->Branch("pfcand_ps2energy", &pfcand_ps2Energy, "pfcand_ps2energy[pfcand_n]/F");
+  ana->Branch("pfcand_momerr", &pfcand_momErr, "pfcand_momerr[pfcand_n]/F");
+  ana->Branch("pfcand_mva_e_pi", &pfcand_mva_e_pi, "pfcand_mva_e_pi[pfcand_n]/F");
+  ana->Branch("pfcand_mva_e_mu", &pfcand_mva_e_mu, "pfcand_mva_e_mu[pfcand_n]/F");
+  ana->Branch("pfcand_mva_pi_mu", &pfcand_mva_pi_mu, "pfcand_mva_pi_mu[pfcand_n]/F");
+  ana->Branch("pfcand_mva_nothing_gamma", &pfcand_mva_nothing_gamma, "pfcand_mva_nothing_gamma[pfcand_n]/F");
+  ana->Branch("pfcand_mva_nothing_nh", &pfcand_mva_nothing_nh, "pfcand_mva_nothing_nh[pfcand_n]/F");
+  ana->Branch("pfcand_mva_gamma_nh", &pfcand_mva_gamma_nh, "pfcand_mva_gamma_nh[pfcand_n]/F");
+  ana->Branch("pfcand_vz",&pfcand_vz,"pfcand_vz[pfcand_n]/F");
+  ana->Branch("pfcand_overlappho",&pfcand_overlappho,"pfcand_overlappho[pfcand_n]/i");
+  ana->Branch("pfcand_ispu",&pfcand_ispu,"pfcand_ispu[pfcand_n]/i");
+  //ana->Branch("pfcand_overlappho",&pfcand_overlappho,"pfcand_overlappho[pfcand_n][pho_n]/I");
 }
 
 bool GlobePFCandidates::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, GlobeTracks* tks, GlobeMuons* mus, GlobePhotons* phos) {

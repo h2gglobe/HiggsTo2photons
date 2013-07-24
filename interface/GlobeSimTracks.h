@@ -20,13 +20,15 @@
 
 #include <iostream>
 
+class GlobeAnalyzer;
+
 class GlobeSimTracks {
  public:
   
   GlobeSimTracks(const edm::ParameterSet&, const char* n="unused");
   virtual ~GlobeSimTracks() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
 
   // variables

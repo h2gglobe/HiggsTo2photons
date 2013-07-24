@@ -1,5 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeEcalHits.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -32,21 +32,21 @@ GlobeEcalHits::GlobeEcalHits(const edm::ParameterSet& iConfig, const char* n): n
   gCUT = new GlobeCuts(iConfig);
 }
 
-void GlobeEcalHits::defineBranch(TTree* tree) {
+void GlobeEcalHits::defineBranch(GlobeAnalyzer* ana) {
   
-  tree->Branch("ecalhit_n", &ecalhit_n, "ecalhit_n/I");
-  tree->Branch("ecalhit_type", &ecalhit_type, "ecalhit_type[ecalhit_n]/S");
-  tree->Branch("ecalhit_flag", &ecalhit_flag, "ecalhit_flag[ecalhit_n]/S");
-  tree->Branch("ecalhit_time", &ecalhit_time, "ecalhit_time[ecalhit_n]/F");
-  tree->Branch("ecalhit_detid", &ecalhit_detid, "ecalhit_detid[ecalhit_n]/I");
-  tree->Branch("ecalhit_ieta", &ecalhit_ieta, "ecalhit_ieta[ecalhit_n]/S");
-  tree->Branch("ecalhit_iphi", &ecalhit_iphi, "ecalhit_iphi[ecalhit_n]/S");
-  tree->Branch("ecalhit_ix", &ecalhit_ix, "ecalhit_ix[ecalhit_n]/S");
-  tree->Branch("ecalhit_iy", &ecalhit_iy, "ecalhit_iy[ecalhit_n]/S");
-  tree->Branch("ecalhit_zside", &ecalhit_zside, "ecalhit_zside[ecalhit_n]/S");
+  ana->Branch("ecalhit_n", &ecalhit_n, "ecalhit_n/I");
+  ana->Branch("ecalhit_type", &ecalhit_type, "ecalhit_type[ecalhit_n]/S");
+  ana->Branch("ecalhit_flag", &ecalhit_flag, "ecalhit_flag[ecalhit_n]/S");
+  ana->Branch("ecalhit_time", &ecalhit_time, "ecalhit_time[ecalhit_n]/F");
+  ana->Branch("ecalhit_detid", &ecalhit_detid, "ecalhit_detid[ecalhit_n]/I");
+  ana->Branch("ecalhit_ieta", &ecalhit_ieta, "ecalhit_ieta[ecalhit_n]/S");
+  ana->Branch("ecalhit_iphi", &ecalhit_iphi, "ecalhit_iphi[ecalhit_n]/S");
+  ana->Branch("ecalhit_ix", &ecalhit_ix, "ecalhit_ix[ecalhit_n]/S");
+  ana->Branch("ecalhit_iy", &ecalhit_iy, "ecalhit_iy[ecalhit_n]/S");
+  ana->Branch("ecalhit_zside", &ecalhit_zside, "ecalhit_zside[ecalhit_n]/S");
 
   ecalhit_p4 = new TClonesArray("TLorentzVector", MAX_ECALRECHITS);
-  tree->Branch("ecalhit_p4", "TClonesArray", &ecalhit_p4, 32000, 0);
+  ana->Branch("ecalhit_p4", "TClonesArray", &ecalhit_p4, 32000, 0);
 }
 
 //bool GlobeEcalHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,

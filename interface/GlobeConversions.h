@@ -44,13 +44,15 @@
 #include "Math/VectorUtil.h"
 #include <iostream>
 
+class GlobeAnalyzer;
+
 class GlobeConversions {
  public:
   
   GlobeConversions(const edm::ParameterSet&, const char* n = "unused");
   virtual ~GlobeConversions() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
 
   // variables

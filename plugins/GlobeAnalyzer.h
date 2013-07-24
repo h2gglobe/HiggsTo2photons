@@ -79,6 +79,30 @@ public:
   void readConfiguration(const edm::ParameterSet& iConfig);
   void defineBranch();
   void fillTree();
+
+  template <class T> void Branch(const char* name, T* address, const char* leaflist, Int_t bufsize = 32000) {
+    for (unsigned int i=0; i<branchesToSkim.size(); i++) {
+      if (strcmp(name, branchesToSkim[i].c_str()) == 0) {
+	std::cout << "Switching off " << branchesToSkim[i] << " branch." << std::endl;
+	return;
+      }
+    }
+    
+    tree->Branch(name, address, leaflist, bufsize);
+  }
+
+  template <class T> void Branch(const char* name, const char* classname, T** obj, Int_t bufsize = 32000, Int_t splitlevel = 99) {
+  
+     for (unsigned int i=0; i<branchesToSkim.size(); i++) {
+       if (strcmp(name, branchesToSkim[i].c_str()) == 0) {
+	 std::cout << "Switching off " << branchesToSkim[i] << " branch." << std::endl;
+	 return;
+       }
+     }
+     tree->Branch(name, classname, obj, bufsize, splitlevel);
+  }
+
+
   GlobeCommon* common;
   GlobePhotons* photons;
   GlobeConversions* allConversions;
@@ -130,6 +154,7 @@ private:
   std::vector<int>* reduced_index;
   std::string jobmaker;
   std::vector<std::string> globalCountersNames;
+  std::vector<std::string> branchesToSkim;
 
   std::vector<int> globalCounters, globalCountersPerLumi;
   

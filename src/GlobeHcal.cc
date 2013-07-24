@@ -1,5 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeHcal.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 GlobeHcal::GlobeHcal(const edm::ParameterSet& iConfig, const char* n): nome(n) {
 
@@ -17,13 +17,13 @@ GlobeHcal::GlobeHcal(const edm::ParameterSet& iConfig, const char* n): nome(n) {
   gCUT = new GlobeCuts(iConfig);
 }
 
-void GlobeHcal::defineBranch(TTree* tree) {
+void GlobeHcal::defineBranch(GlobeAnalyzer* ana) {
 
   // think about changing branch names for duplicate collections
   hc_p4 = new TClonesArray("TLorentzVector", MAX_HCALHITS);
-  tree->Branch("hc_p4", "TClonesArray", &hc_p4, 32000, 0);
-  tree->Branch("hc_n", &hc_n, "hc_n/I");
-  tree->Branch("hc_type", &hc_type, "hc_type[hc_n]/I");
+  ana->Branch("hc_p4", "TClonesArray", &hc_p4, 32000, 0);
+  ana->Branch("hc_n", &hc_n, "hc_n/I");
+  ana->Branch("hc_type", &hc_type, "hc_type[hc_n]/I");
 }
 
 bool GlobeHcal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup,
