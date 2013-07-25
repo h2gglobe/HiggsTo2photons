@@ -12,13 +12,15 @@
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
 
+class GlobeAnalyzer;
+
 class GlobeGenerator {
  public:
   
   GlobeGenerator(const edm::ParameterSet&);
   virtual ~GlobeGenerator() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
   int mother(const HepMC::GenEvent* g, HepMC::GenParticle *p);
 

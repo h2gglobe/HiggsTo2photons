@@ -17,13 +17,15 @@
 
 #include <iostream>
 
+class GlobeAnalyzer;
+
 class GlobeVertex {
  public:
   
   GlobeVertex(const edm::ParameterSet&, const char*);
   virtual ~GlobeVertex() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
 
   // variables

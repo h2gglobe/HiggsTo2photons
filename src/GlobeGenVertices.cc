@@ -1,5 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeGenVertices.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include <iostream>
 
 using namespace edm;
@@ -10,21 +10,21 @@ GlobeGenVertices::GlobeGenVertices(const edm::ParameterSet& iConfig) {
   debug_level = iConfig.getParameter<int>("Debug_Level");
 }
 
-void GlobeGenVertices::defineBranch(TTree* tree) {
+void GlobeGenVertices::defineBranch(GlobeAnalyzer* ana) {
 
   // think about changing branch names for duplicate collections
   gv_pos = new TClonesArray("TVector3", MAX_VERTICES);
   gv_p3 = new TClonesArray("TVector3", MAX_VERTICES);
   
-  tree->Branch("gv_n", &gv_n, "gv_n/I");
+  ana->Branch("gv_n", &gv_n, "gv_n/I");
   
-  tree->Branch("gv_pos", "TClonesArray", &gv_pos, 32000, 0);
-  tree->Branch("gv_p3", "TClonesArray", &gv_p3, 32000, 0);
+  ana->Branch("gv_pos", "TClonesArray", &gv_pos, 32000, 0);
+  ana->Branch("gv_p3", "TClonesArray", &gv_p3, 32000, 0);
   
-  tree->Branch("gv_sumPtHi", gv_sumPtHi, "gv_sumPtHi[gv_n]/F");
-  tree->Branch("gv_sumPtLo", gv_sumPtLo, "gv_sumPtLo[gv_n]/F");
-  tree->Branch("gv_nTkHi", gv_nTkHi, "gv_nTkHi[gv_n]/S");
-  tree->Branch("gv_nTkLo", gv_nTkLo, "gv_nTkLo[gv_n]/S");
+  ana->Branch("gv_sumPtHi", gv_sumPtHi, "gv_sumPtHi[gv_n]/F");
+  ana->Branch("gv_sumPtLo", gv_sumPtLo, "gv_sumPtLo[gv_n]/F");
+  ana->Branch("gv_nTkHi", gv_nTkHi, "gv_nTkHi[gv_n]/S");
+  ana->Branch("gv_nTkLo", gv_nTkLo, "gv_nTkLo[gv_n]/S");
 }
 
 bool GlobeGenVertices::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

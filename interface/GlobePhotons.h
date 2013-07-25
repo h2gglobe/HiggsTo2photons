@@ -39,6 +39,8 @@
 
 typedef math::XYZTLorentzVector LorentzVector;
 
+class GlobeAnalyzer;
+
 class GlobePhotons {
  public:
 
@@ -46,7 +48,7 @@ class GlobePhotons {
   ~GlobePhotons();
 
   void checkSetup(const edm::EventSetup&);
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
 
   int PhotonID(reco::PhotonRef, int, reco::VertexRef, bool, int a = -1);

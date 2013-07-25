@@ -1,6 +1,6 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeVertex.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/Common/interface/RefToBase.h" 
 
@@ -20,58 +20,58 @@ GlobeVertex::GlobeVertex(const edm::ParameterSet& iConfig, const char* n): nome(
 
 }
 
-void GlobeVertex::defineBranch(TTree* tree) {
+void GlobeVertex::defineBranch(GlobeAnalyzer* ana) {
 
   bs_xyz = new TClonesArray("TVector3",1);
   vtx_xyz = new TClonesArray("TVector3", MAX_TRACKS);
   vtx_dxdydz = new TClonesArray("TVector3", MAX_TRACKS);
   vtx_vectorp3 = new TClonesArray("TVector3", MAX_TRACKS);
   
-  tree->Branch("bs_xyz", "TClonesArray", &bs_xyz, 32000, 0);
-  tree->Branch("bs_sigmaZ", &bs_sigmaZ, "bs_sigmaZ/F");
-  tree->Branch("bs_x0Error", &bs_x0Error, "bs_x0Error/F");
-  tree->Branch("bs_y0Error", &bs_y0Error, "bs_y0Error/F");
-  tree->Branch("bs_z0Error", &bs_z0Error, "bs_z0Error/F");
-  tree->Branch("bs_sigmaZ0Error", &bs_sigmaZ0Error, "bs_sigmaZ0Error/F");
+  ana->Branch("bs_xyz", "TClonesArray", &bs_xyz, 32000, 0);
+  ana->Branch("bs_sigmaZ", &bs_sigmaZ, "bs_sigmaZ/F");
+  ana->Branch("bs_x0Error", &bs_x0Error, "bs_x0Error/F");
+  ana->Branch("bs_y0Error", &bs_y0Error, "bs_y0Error/F");
+  ana->Branch("bs_z0Error", &bs_z0Error, "bs_z0Error/F");
+  ana->Branch("bs_sigmaZ0Error", &bs_sigmaZ0Error, "bs_sigmaZ0Error/F");
 
   char a1[50], a2[50];
   
   sprintf(a1, "vtx_%s_n", nome);
   sprintf(a2, "vtx_%s_n/I", nome);
-  tree->Branch(a1, &vtx_n, a2);
+  ana->Branch(a1, &vtx_n, a2);
   
   //CHECK add pttot, abspttot
   
   sprintf(a1, "vtx_%s_xyz", nome);
-  tree->Branch(a1, "TClonesArray", &vtx_xyz, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &vtx_xyz, 32000, 0);
   
   sprintf(a1, "vtx_%s_dxdydz", nome);
-  tree->Branch(a1, "TClonesArray", &vtx_dxdydz, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &vtx_dxdydz, 32000, 0);
   
   sprintf(a1, "vtx_%s_vectorp3", nome);
-  tree->Branch(a1, "TClonesArray", &vtx_vectorp3, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &vtx_vectorp3, 32000, 0);
   
   sprintf(a1, "vtx_%s_x2dof", nome); 
   sprintf(a2, "vtx_%s_x2dof[vtx_%s_n]/F",nome,nome);
-  tree->Branch(a1, &vtx_x2dof, a2);
+  ana->Branch(a1, &vtx_x2dof, a2);
   
   sprintf(a1, "vtx_%s_ndof", nome); 
   sprintf(a2, "vtx_%s_ndof[vtx_%s_n]/F",nome,nome);
-  tree->Branch(a1, &vtx_ndof, a2);
+  ana->Branch(a1, &vtx_ndof, a2);
   
   sprintf(a1, "vtx_%s_scalarpt", nome); 
   sprintf(a2, "vtx_%s_scalarpt[vtx_%s_n]/F",nome,nome);
-  tree->Branch(a1, &vtx_scalarpt, a2);
+  ana->Branch(a1, &vtx_scalarpt, a2);
   
   sprintf(a1, "vtx_%s_ntks", nome); 
   sprintf(a2, "vtx_%s_ntks[vtx_%s_n]/I",nome,nome);
-  tree->Branch(a1, &vtx_ntks, a2);
+  ana->Branch(a1, &vtx_ntks, a2);
 
   sprintf(a1, "vtx_%s_tkind", nome); 
-  tree->Branch(a1, "std::vector<std::vector<short> >", &vtx_tkind);
+  ana->Branch(a1, "std::vector<std::vector<short> >", &vtx_tkind);
   
   sprintf(a1, "vtx_%s_tkweight", nome); 
-  tree->Branch(a1, "std::vector<std::vector<float> >", &vtx_tkweight);
+  ana->Branch(a1, "std::vector<std::vector<float> >", &vtx_tkweight);
 }
 
 bool GlobeVertex::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

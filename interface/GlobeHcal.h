@@ -41,13 +41,15 @@
 
 #include <iostream>
 
+class GlobeAnalyzer;
+
 class GlobeHcal {
  public:
   
   GlobeHcal(const edm::ParameterSet&, const char* n="unused");
   virtual ~GlobeHcal() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   //bool analyze(const edm::Event&, const edm::EventSetup&,GlobeLeptons*,GlobeElectrons*,GlobeMuons*,GlobePhotons*,GlobeTracks*);
   bool analyze(const edm::Event&, const edm::EventSetup&, GlobeElectrons*, GlobeMuons*, GlobePhotons*);
 

@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeRho.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 GlobeRho::GlobeRho(const edm::ParameterSet& iConfig, const char* n):nome(n) {
   
@@ -8,12 +9,12 @@ GlobeRho::GlobeRho(const edm::ParameterSet& iConfig, const char* n):nome(n) {
   debug_level = iConfig.getParameter<int>("Debug_Level");
 }
 
-void GlobeRho::defineBranch(TTree* tree) {
+void GlobeRho::defineBranch(GlobeAnalyzer* ana) {
   
   char a1[100], a2[100];
   sprintf(a1, "rho_%s", nome);
   sprintf(a2, "rho_%s/F", nome);
-  tree->Branch(a1, &rho, a2);
+  ana->Branch(a1, &rho, a2);
 }
 
 bool GlobeRho::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

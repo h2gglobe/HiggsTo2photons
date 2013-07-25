@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeHT.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 const double HIGH_ETA = 5.0;
 const double MID_ETA = 3.5;
@@ -10,30 +11,30 @@ GlobeHT::GlobeHT(const edm::ParameterSet& iConfig) {
 
 }
 
-void GlobeHT::defineBranch(TTree* tree) {
+void GlobeHT::defineBranch(GlobeAnalyzer* ana) {
 
   ht_trkvec = new TVector3(0.0,0.0,0.0);
 
-  tree->Branch("ht_25", &ht_25, "ht_25/F");
-  tree->Branch("ht_35", &ht_35, "ht_35/F");
-  tree->Branch("ht_50", &ht_50, "ht_50/F");
-  tree->Branch("ht_nomet25", &ht_nomet25, "ht_nomet25/F");
-  tree->Branch("ht_nomet35", &ht_nomet35, "ht_nomet35/F");
-  tree->Branch("ht_nomet50", &ht_nomet50, "ht_nomet50/F");
-  tree->Branch("ht_trk", &ht_trk, "ht_trk/F");
-  tree->Branch("ht_trkvec", "TVector3", &ht_trkvec, 32000, 0);
+  ana->Branch("ht_25", &ht_25, "ht_25/F");
+  ana->Branch("ht_35", &ht_35, "ht_35/F");
+  ana->Branch("ht_50", &ht_50, "ht_50/F");
+  ana->Branch("ht_nomet25", &ht_nomet25, "ht_nomet25/F");
+  ana->Branch("ht_nomet35", &ht_nomet35, "ht_nomet35/F");
+  ana->Branch("ht_nomet50", &ht_nomet50, "ht_nomet50/F");
+  ana->Branch("ht_trk", &ht_trk, "ht_trk/F");
+  ana->Branch("ht_trkvec", "TVector3", &ht_trkvec, 32000, 0);
 
-  tree->Branch("ht_2lpt_n", &ht_2lpt_n, "ht_2lpt_n/I");
-  tree->Branch("ht_2lpt_inds", &ht_2lpt_inds, "ht_2lpt_inds[ht_2lpt_n][2]/I");
-  tree->Branch("ht_4lpt_n", &ht_4lpt_n, "ht_4lpt_n/I");
-  tree->Branch("ht_4lpt_inds", &ht_4lpt_inds, "ht_4lpt_inds[ht_4lpt_n][4]/I");
+  ana->Branch("ht_2lpt_n", &ht_2lpt_n, "ht_2lpt_n/I");
+  ana->Branch("ht_2lpt_inds", &ht_2lpt_inds, "ht_2lpt_inds[ht_2lpt_n][2]/I");
+  ana->Branch("ht_4lpt_n", &ht_4lpt_n, "ht_4lpt_n/I");
+  ana->Branch("ht_4lpt_inds", &ht_4lpt_inds, "ht_4lpt_inds[ht_4lpt_n][4]/I");
 
-  tree->Branch("ht_2lpt25", &ht_2lpt25, "ht_2lpt25[ht_2lpt_n]/F");
-  tree->Branch("ht_2lpt35", &ht_2lpt35, "ht_2lpt35[ht_2lpt_n]/F"); 
-  tree->Branch("ht_2lpt50", &ht_2lpt50, "ht_2lpt50[ht_2lpt_n]/F");
-  tree->Branch("ht_4lpt25", &ht_4lpt25, "ht_4lpt25[ht_4lpt_n]/F");
-  tree->Branch("ht_4lpt35", &ht_4lpt35, "ht_4lpt35[ht_4lpt_n]/F");
-  tree->Branch("ht_4lpt50", &ht_4lpt50, "ht_4lpt50[ht_4lpt_n]/F");
+  ana->Branch("ht_2lpt25", &ht_2lpt25, "ht_2lpt25[ht_2lpt_n]/F");
+  ana->Branch("ht_2lpt35", &ht_2lpt35, "ht_2lpt35[ht_2lpt_n]/F"); 
+  ana->Branch("ht_2lpt50", &ht_2lpt50, "ht_2lpt50[ht_2lpt_n]/F");
+  ana->Branch("ht_4lpt25", &ht_4lpt25, "ht_4lpt25[ht_4lpt_n]/F");
+  ana->Branch("ht_4lpt35", &ht_4lpt35, "ht_4lpt35[ht_4lpt_n]/F");
+  ana->Branch("ht_4lpt50", &ht_4lpt50, "ht_4lpt50[ht_4lpt_n]/F");
 }
 
 void GlobeHT::fillTrackHT(const edm::Event& iEvent) {

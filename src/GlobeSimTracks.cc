@@ -1,5 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeSimTracks.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 GlobeSimTracks::GlobeSimTracks(const edm::ParameterSet& iConfig, const char* n): nome(n) {
 
@@ -13,23 +13,23 @@ GlobeSimTracks::GlobeSimTracks(const edm::ParameterSet& iConfig, const char* n):
   gCUT = new GlobeCuts(iConfig); 
 }
 
-void GlobeSimTracks::defineBranch(TTree* tree) {
+void GlobeSimTracks::defineBranch(GlobeAnalyzer* ana) {
 
   // think about changing branch names for duplicate collections
   if (track_and_vertex) {
     simtrk_vtx= new TClonesArray("TVector3", MAX_SIMTRACKS);
     simtrk_p4= new TClonesArray("TLorentzVector", MAX_SIMTRACKS);
     
-    tree->Branch("simtrk_n", &simtrk_n, "simtrk_n/I");
-    tree->Branch("simtrk_p4", "TClonesArray", &simtrk_p4, 32000, 0);
-    tree->Branch("simtrk_vtx", "TClonesArray", &simtrk_vtx, 32000, 0);
-    tree->Branch("simtrk_pdgid", &simtrk_pdgid, "simtrk_pdgid[simtrk_n]/I");
-    tree->Branch("simtrk_trkid", &simtrk_trkid, "simtrk_trkid[simtrk_n]/I");
-    tree->Branch("simtrk_mothertrkid", &simtrk_mothertrkid, "simtrk_mothertrkid[simtrk_n]/I");
+    ana->Branch("simtrk_n", &simtrk_n, "simtrk_n/I");
+    ana->Branch("simtrk_p4", "TClonesArray", &simtrk_p4, 32000, 0);
+    ana->Branch("simtrk_vtx", "TClonesArray", &simtrk_vtx, 32000, 0);
+    ana->Branch("simtrk_pdgid", &simtrk_pdgid, "simtrk_pdgid[simtrk_n]/I");
+    ana->Branch("simtrk_trkid", &simtrk_trkid, "simtrk_trkid[simtrk_n]/I");
+    ana->Branch("simtrk_mothertrkid", &simtrk_mothertrkid, "simtrk_mothertrkid[simtrk_n]/I");
   }
   
   simvtx= new TClonesArray("TVector3", MAX_SIMTRACKS);
-  tree->Branch("simvtx","TClonesArray", &simvtx, 32000, 0);
+  ana->Branch("simvtx","TClonesArray", &simvtx, 32000, 0);
 }
 
 bool GlobeSimTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

@@ -13,13 +13,15 @@
 #include <iostream>
 #include <vector>
 
+class GlobeAnalyzer;
+
 class GlobePileup {
  public:
   
   GlobePileup(const edm::ParameterSet&);
   virtual ~GlobePileup() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
   TH1D* getHisto() { return h1; };
   TH1D* getHistoTrue() { return h2; };

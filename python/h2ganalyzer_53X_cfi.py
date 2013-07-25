@@ -1,4 +1,3 @@
-
 import FWCore.ParameterSet.Config as cms
 
 
@@ -25,10 +24,14 @@ h2ganalyzer = cms.EDAnalyzer(
     energyCorrectionsFileNameEle = cms.string("gbrv3ele_52x.root"),
     energyCorrectionsVersion = cms.string("V3"),
 
+    h2gAnalyzerVersion = cms.string("V15_00_08"),
+
     eleRegressionFileName = cms.string("eleEnergyRegWeights"),
     eleRegressionType = cms.int32(0),
     
     globalCounters = cms.vstring(),
+
+    branchesToSkim = cms.vstring(),
 
     #PhotonFIX parameters
     #PFParameters = PhotonFixParameters,
@@ -321,7 +324,7 @@ h2ganalyzer = cms.EDAnalyzer(
     doHcal = cms.bool(True),
     doHFHcal = cms.bool(True),
     
-    doCaloTower = cms.bool(True),
+    doCaloTower = cms.bool(False),
     
     doL1 = cms.bool(True),
     doHLT = cms.bool(True),

@@ -1,5 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeMET.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -33,40 +33,40 @@ GlobeMET::GlobeMET(const edm::ParameterSet& iConfig, const char* n): nome(n) {
   debug_level = iConfig.getParameter<int>("Debug_Level");
 }
 
-void GlobeMET::defineBranch(TTree* tree) {
+void GlobeMET::defineBranch(GlobeAnalyzer* ana) {
    
   if(strcmp(nome, "tcmet") != 0 && strcmp(nome, "pfmet") != 0){
-    tree->Branch("met_met", &met_met, "met_met/F");
-    tree->Branch("met_phi", &met_phi, "met_phi/F");
-    tree->Branch("met_met_nocalo", &met_met_nocalo, "met_met_nocalo/F");
-    tree->Branch("met_phi_nocalo", &met_phi_nocalo, "met_phi_nocalo/F");
-    tree->Branch("met_met_crossed", &met_met_crossed, "met_met_crossed/F");
-    tree->Branch("met_phi_crossed", &met_phi_crossed, "met_phi_crossed/F");
-    tree->Branch("met_met_s9", &met_met_s9, "met_met_s9/F");
-    tree->Branch("met_phi_s9", &met_phi_s9, "met_phi_s9/F");
-    tree->Branch("met_met_mip", &met_met_mip, "met_met_mip/F");
-    tree->Branch("met_phi_mip", &met_phi_mip, "met_phi_mip/F");
-    tree->Branch("met_met_jet", &met_met_jet, "met_met_jet/F");
-    tree->Branch("met_phi_jet", &met_phi_jet, "met_phi_jet/F");
+    ana->Branch("met_met", &met_met, "met_met/F");
+    ana->Branch("met_phi", &met_phi, "met_phi/F");
+    ana->Branch("met_met_nocalo", &met_met_nocalo, "met_met_nocalo/F");
+    ana->Branch("met_phi_nocalo", &met_phi_nocalo, "met_phi_nocalo/F");
+    ana->Branch("met_met_crossed", &met_met_crossed, "met_met_crossed/F");
+    ana->Branch("met_phi_crossed", &met_phi_crossed, "met_phi_crossed/F");
+    ana->Branch("met_met_s9", &met_met_s9, "met_met_s9/F");
+    ana->Branch("met_phi_s9", &met_phi_s9, "met_phi_s9/F");
+    ana->Branch("met_met_mip", &met_met_mip, "met_met_mip/F");
+    ana->Branch("met_phi_mip", &met_phi_mip, "met_phi_mip/F");
+    ana->Branch("met_met_jet", &met_met_jet, "met_met_jet/F");
+    ana->Branch("met_phi_jet", &met_phi_jet, "met_phi_jet/F");
   }
 
   if(strcmp(nome, "tcmet") == 0) {
-    tree->Branch("met_tcmet", &met_tcmet, "met_tcmet/F");
-    tree->Branch("met_phi_tcmet", &met_phi_tcmet, "met_phi_tcmet/F");
+    ana->Branch("met_tcmet", &met_tcmet, "met_tcmet/F");
+    ana->Branch("met_phi_tcmet", &met_phi_tcmet, "met_phi_tcmet/F");
   }
 
   if(strcmp(nome, "pfmet") == 0) {
-    tree->Branch("met_pfmet", &met_pfmet, "met_pfmet/F");
-    tree->Branch("met_phi_pfmet", &met_phi_pfmet, "met_phi_pfmet/F");
-    tree->Branch("met_sumet_pfmet", &met_sumet_pfmet, "met_sumet_pfmet/F");
-    tree->Branch("met_mEtSig_pfmet", &met_mEtSig_pfmet, "met_mEtSig_pfmet/F");
-    tree->Branch("met_significance_pfmet", &met_significance_pfmet, "met_significance_pfmet/F");
+    ana->Branch("met_pfmet", &met_pfmet, "met_pfmet/F");
+    ana->Branch("met_phi_pfmet", &met_phi_pfmet, "met_phi_pfmet/F");
+    ana->Branch("met_sumet_pfmet", &met_sumet_pfmet, "met_sumet_pfmet/F");
+    ana->Branch("met_mEtSig_pfmet", &met_mEtSig_pfmet, "met_mEtSig_pfmet/F");
+    ana->Branch("met_significance_pfmet", &met_significance_pfmet, "met_significance_pfmet/F");
     
-    tree->Branch("met_pfmetType1", &met_pfmetType1, "met_pfmetType1/F");
-    tree->Branch("met_phi_pfmetType1", &met_phi_pfmetType1, "met_phi_pfmetType1/F");
-    tree->Branch("met_sumet_pfmetType1", &met_sumet_pfmetType1, "met_sumet_pfmetType1/F");
-    tree->Branch("met_mEtSig_pfmetType1", &met_mEtSig_pfmetType1, "met_mEtSig_pfmetType1/F");
-    tree->Branch("met_significance_pfmetType1", &met_significance_pfmetType1, "met_significance_pfmetType1/F");
+    ana->Branch("met_pfmetType1", &met_pfmetType1, "met_pfmetType1/F");
+    ana->Branch("met_phi_pfmetType1", &met_phi_pfmetType1, "met_phi_pfmetType1/F");
+    ana->Branch("met_sumet_pfmetType1", &met_sumet_pfmetType1, "met_sumet_pfmetType1/F");
+    ana->Branch("met_mEtSig_pfmetType1", &met_mEtSig_pfmetType1, "met_mEtSig_pfmetType1/F");
+    ana->Branch("met_significance_pfmetType1", &met_significance_pfmetType1, "met_significance_pfmetType1/F");
   }
 }
 

@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeTracks.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 //----------------------------------------------------------------------
 
@@ -17,36 +18,36 @@ GlobeTracks::GlobeTracks(const edm::ParameterSet& iConfig, const char* n): nome(
 
 //----------------------------------------------------------------------
 
-void GlobeTracks::defineBranch(TTree* tree) {
+void GlobeTracks::defineBranch(GlobeAnalyzer* ana) {
   
   tk_p4 = new TClonesArray("TLorentzVector", MAX_TRACKS);
   tk_vtx_pos = new TClonesArray("TVector3", MAX_TRACKS);
   
-  tree->Branch("tk_n", &tk_n, "tk_n/I");
-  tree->Branch("tk_p4", "TClonesArray", &tk_p4, 32000, 0);
-  tree->Branch("tk_vtx_pos", "TClonesArray", &tk_vtx_pos, 32000, 0);
-  tree->Branch("tk_nhits", &tk_nhits, "tk_nhits[tk_n]/I");
-  tree->Branch("tk_charge", &tk_charge, "tk_charge[tk_n]/I");
-  tree->Branch("tk_nlosthit", &tk_nlosthit,"tk_nlosthit[tk_n]/I" );
-  tree->Branch("tk_tpind", &tk_tpind,"tk_tpind[tk_n]/I" );
-  tree->Branch("tk_chi2", &tk_chi2,"tk_chi2[tk_n]/F" );
-  tree->Branch("tk_dof", &tk_dof, "tk_dof[tk_n]/F");
-  tree->Branch("tk_d0", &tk_d0, "tk_d0[tk_n]/F");
-  tree->Branch("tk_dz", &tk_dz, "tk_dz[tk_n]/F");
-  tree->Branch("tk_qoverperr", &tk_qoverperr,"tk_qoverperr[tk_n]/F" );
-  tree->Branch("tk_pterr", &tk_pterr,"tk_pterr[tk_n]/F" );
-  tree->Branch("tk_etaerr", &tk_etaerr,"tk_etaerr[tk_n]/F" );
-  tree->Branch("tk_phierr", &tk_phierr,"tk_phierr[tk_n]/F" );
-  tree->Branch("tk_d0err", &tk_d0err,"tk_d0err[tk_n]/F" );
-  tree->Branch("tk_dzerr", &tk_dzerr, "tk_dzerr[tk_n]/F");  
-  tree->Branch("tk_hp_nvalid", &tk_hp_nvalid, "tk_hp_nvalid[tk_n]/I");  
-  tree->Branch("tk_hp_nlost", &tk_hp_nlost, "tk_hp_nlost[tk_n]/I");  
-  tree->Branch("tk_hp_nvalidpix", &tk_hp_nvalidpix, "tk_hp_nvalidpix[tk_n]/I");  
-  tree->Branch("tk_hp_expin", &tk_hp_expin, "tk_hp_expin[tk_n]/I");  
-  tree->Branch("tk_hp_expout", &tk_hp_expout, "tk_hp_expout[tk_n]/I"); 
+  ana->Branch("tk_n", &tk_n, "tk_n/I");
+  ana->Branch("tk_p4", "TClonesArray", &tk_p4, 32000, 0);
+  ana->Branch("tk_vtx_pos", "TClonesArray", &tk_vtx_pos, 32000, 0);
+  ana->Branch("tk_nhits", &tk_nhits, "tk_nhits[tk_n]/I");
+  ana->Branch("tk_charge", &tk_charge, "tk_charge[tk_n]/I");
+  ana->Branch("tk_nlosthit", &tk_nlosthit,"tk_nlosthit[tk_n]/I" );
+  ana->Branch("tk_tpind", &tk_tpind,"tk_tpind[tk_n]/I" );
+  ana->Branch("tk_chi2", &tk_chi2,"tk_chi2[tk_n]/F" );
+  ana->Branch("tk_dof", &tk_dof, "tk_dof[tk_n]/F");
+  ana->Branch("tk_d0", &tk_d0, "tk_d0[tk_n]/F");
+  ana->Branch("tk_dz", &tk_dz, "tk_dz[tk_n]/F");
+  ana->Branch("tk_qoverperr", &tk_qoverperr,"tk_qoverperr[tk_n]/F" );
+  ana->Branch("tk_pterr", &tk_pterr,"tk_pterr[tk_n]/F" );
+  ana->Branch("tk_etaerr", &tk_etaerr,"tk_etaerr[tk_n]/F" );
+  ana->Branch("tk_phierr", &tk_phierr,"tk_phierr[tk_n]/F" );
+  ana->Branch("tk_d0err", &tk_d0err,"tk_d0err[tk_n]/F" );
+  ana->Branch("tk_dzerr", &tk_dzerr, "tk_dzerr[tk_n]/F");  
+  ana->Branch("tk_hp_nvalid", &tk_hp_nvalid, "tk_hp_nvalid[tk_n]/I");  
+  ana->Branch("tk_hp_nlost", &tk_hp_nlost, "tk_hp_nlost[tk_n]/I");  
+  ana->Branch("tk_hp_nvalidpix", &tk_hp_nvalidpix, "tk_hp_nvalidpix[tk_n]/I");  
+  ana->Branch("tk_hp_expin", &tk_hp_expin, "tk_hp_expin[tk_n]/I");  
+  ana->Branch("tk_hp_expout", &tk_hp_expout, "tk_hp_expout[tk_n]/I"); 
 
-  tree->Branch("tk_quality", &tk_quality, "tk_quality[tk_n]/I");
-  tree->Branch("tk_algo", &tk_algo, "tk_algo[tk_n]/I");
+  ana->Branch("tk_quality", &tk_quality, "tk_quality[tk_n]/I");
+  ana->Branch("tk_algo", &tk_algo, "tk_algo[tk_n]/I");
 }
 
 //----------------------------------------------------------------------

@@ -6,6 +6,7 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeGenParticles.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeReducedGen.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeLeptons.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 GlobeSelector::GlobeSelector(const edm::ParameterSet& iConfig) {
 

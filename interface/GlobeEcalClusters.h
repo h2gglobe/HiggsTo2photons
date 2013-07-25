@@ -37,6 +37,7 @@
 #include <iostream>
 
 class CaloSubdetectorTopology;
+class GlobeAnalyzer;
 
 class GlobeEcalClusters {
  public:
@@ -44,7 +45,7 @@ class GlobeEcalClusters {
   GlobeEcalClusters(const edm::ParameterSet&, const char* n="unused");
   virtual ~GlobeEcalClusters() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
 
 protected:
