@@ -33,6 +33,11 @@ GlobeAnalyzer::GlobeAnalyzer(const edm::ParameterSet& iConfig) {
 
   fileName = iConfig.getParameter<std::string>("RootFileName");
   jobmaker = iConfig.getParameter<std::string>("JobMaker");
+  branchesToSkim = iConfig.getParameter<std::vector<std::string> >("branchesToSkim");
+
+  ExecCommand ex("");
+  ex.setResults(iConfig.getParameter<std::string>("h2gAnalyzerVersion"));
+  version = ex.getTag();
 
   globalCountersNames = iConfig.getParameter<std::vector<std::string> >("globalCounters");
 
@@ -575,121 +580,121 @@ void GlobeAnalyzer::beginJob() {
   tree2 = new TTree("global_variables", "Global Parameters"); // need a different tree to fill once per job
   lumitree = new TTree("lumi", "Processed lumi sections");
 
-  common->defineBranch(tree);
+  //common->defineBranch(this);
   common->defineLumiBranch(lumitree);
   
   if (doPhoton)
-    photons->defineBranch(tree);
+    photons->defineBranch(this);
 
   if (doAllConversions)
-    allConversions->defineBranch(tree);  
+    allConversions->defineBranch(this);  
 
   if (doEcalRecHits)
-    ecalrechits->defineBranch(tree);
+    ecalrechits->defineBranch(this);
 
   if (doEcal)
-    ecalclusters->defineBranch(tree);
+    ecalclusters->defineBranch(this);
 
   if (doCaloTower)
-    calotowers->defineBranch(tree);
+    calotowers->defineBranch(this);
 
   if (doHcal)
-    hcalhits->defineBranch(tree);
+    hcalhits->defineBranch(this);
 
   if (doL1)
-    level1->defineBranch(tree);
+    level1->defineBranch(this);
 
   if (doHLT)
-    hlt->defineBranch(tree);
+    hlt->defineBranch(this);
 
   if (doVertices_std)
-    vertex_std->defineBranch(tree);
+    vertex_std->defineBranch(this);
 
   if (doVertices_nobs)
-    vertex_nobs->defineBranch(tree);
+    vertex_nobs->defineBranch(this);
 
   if (doMet)
-    met->defineBranch(tree);
+    met->defineBranch(this);
 
   if(dotcMet)
-    tcmet->defineBranch(tree);
+    tcmet->defineBranch(this);
 
   if(doPFMet)
-    pfmet->defineBranch(tree);
+    pfmet->defineBranch(this);
 
   if (doSimHits)
-    simhits->defineBranch(tree);
+    simhits->defineBranch(this);
 
   if (doSimTracks)
-    simtracks->defineBranch(tree);
+    simtracks->defineBranch(this);
 
   if (doTracks)
-    tracks->defineBranch(tree);
+    tracks->defineBranch(this);
 
   if (doGsfTracks)
-    gsfTracks->defineBranch(tree);
+    gsfTracks->defineBranch(this);
 
   if (doTrackingParticles)
-    trackingParticles->defineBranch(tree);
+    trackingParticles->defineBranch(this);
  
   if (doElectronStd)
-    std_electrons->defineBranch(tree);
+    std_electrons->defineBranch(this);
  
   if (doMuon)
-    muons->defineBranch(tree);
+    muons->defineBranch(this);
 
   if (doJetAlgo1)
-    algo1_jets->defineBranch(tree);
+    algo1_jets->defineBranch(this);
   if (doJetAlgo2)
-    algo2_jets->defineBranch(tree);
+    algo2_jets->defineBranch(this);
   if (doJetAlgo3)
-    algo3_jets->defineBranch(tree);
+    algo3_jets->defineBranch(this);
   if (doJetAlgoPF1)
-    algoPF1_jets->defineBranch(tree);
+    algoPF1_jets->defineBranch(this);
   if (doJetAlgoPF2)
-    algoPF2_jets->defineBranch(tree);
+    algoPF2_jets->defineBranch(this);
   if (doJetAlgoPF3)
-    algoPF3_jets->defineBranch(tree);
+    algoPF3_jets->defineBranch(this);
 
   if (doGenerator)
-    gen->defineBranch(tree);
+    gen->defineBranch(this);
 
   if (doGenParticles)
-    genP->defineBranch(tree);
+    genP->defineBranch(this);
 
   if (doGenVertices)
-    genV->defineBranch(tree);
+    genV->defineBranch(this);
 
   if (doGenJetAlgo1)
-    algo1_genJets->defineBranch(tree);
+    algo1_genJets->defineBranch(this);
   if (doGenJetAlgo2)
-    algo2_genJets->defineBranch(tree);
+    algo2_genJets->defineBranch(this);
   if (doGenJetAlgo3)
-    algo3_genJets->defineBranch(tree);
+    algo3_genJets->defineBranch(this);
 
   if (doLeptons)
-    leptons->defineBranch(tree);
+    leptons->defineBranch(this);
   
   if (doReducedGen) 
-    reducedgen->defineBranch(tree);
+    reducedgen->defineBranch(this);
 
   if (doPFCandidates)
-     pfCandidates->defineBranch(tree);
+     pfCandidates->defineBranch(this);
 
   if (doRho) {
-    rho1->defineBranch(tree);
-    rho2->defineBranch(tree);
-    rho3->defineBranch(tree);
+    rho1->defineBranch(this);
+    rho2->defineBranch(this);
+    rho3->defineBranch(this);
   }
 
   if (doPileup)
-     pileup->defineBranch(tree);
+     pileup->defineBranch(this);
   
   if (doPdfWeight)
-    pdfweights->defineBranch(tree);
+    pdfweights->defineBranch(this);
 
   defineBranch();
-  
+
   tot_events = 0;
   sel_events = 0;
 }
@@ -759,14 +764,10 @@ void GlobeAnalyzer::defineBranch() {
   
 }
 
-
 void GlobeAnalyzer::fillTree() {
-  //char cmd[500];
-  //char* descr = getenv("CMSSW_BASE");
-  //sprintf(cmd, "cat %s/src/HiggsAnalysis/HiggsTo2photons/data/CVS/Tag", descr);
-  //ExecCommand exec(cmd);
-  //version = exec.getTag();
-  version = H2G_VERSION ;
+  
+  //version = H2G_VERSION ;
+  // version now set when reading the parameters.
   type = 0 ;
 
   tree2->Fill();

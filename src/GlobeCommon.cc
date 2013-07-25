@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCommon.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include <iostream>
 
@@ -7,21 +8,21 @@ GlobeCommon::GlobeCommon(const edm::ParameterSet& iConfig) {
   doParticleGun =iConfig.getParameter<bool>("doParticleGun");
 }
 
-void GlobeCommon::defineBranch(TTree* tree) {
+void GlobeCommon::defineBranch(GlobeAnalyzer* ana) {
 
-  tree->Branch("event", &event, "event/I");
-  tree->Branch("run", &run, "run/I");
-  tree->Branch("process_id", &process_id, "process_id/I");
-  tree->Branch("lumis", &lumis, "lumis/I");
-  tree->Branch("bx", &bx, "bx/I");
-  tree->Branch("pthat", &pthat, "pthat/F");
-  tree->Branch("weight", &weight, "weight/F");
+  ana->Branch("event", &event, "event/I");
+  ana->Branch("run", &run, "run/I");
+  ana->Branch("process_id", &process_id, "process_id/I");
+  ana->Branch("lumis", &lumis, "lumis/I");
+  ana->Branch("bx", &bx, "bx/I");
+  ana->Branch("pthat", &pthat, "pthat/F");
+  ana->Branch("weight", &weight, "weight/F");
 }
 
-void GlobeCommon::defineLumiBranch(TTree* tree) {
+void GlobeCommon::defineLumiBranch(TTree* ana) {
 
-  tree->Branch("run", &run, "run/I");
-  tree->Branch("lumis", &lumis, "lumis/I");
+  ana->Branch("run", &run, "run/I");
+  ana->Branch("lumis", &lumis, "lumis/I");
 }
 
 bool GlobeCommon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

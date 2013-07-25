@@ -21,13 +21,15 @@
 
 #include <iostream>
 
+class GlobeAnalyzer;
+
 class GlobeEcalHits {
  public:
   
   GlobeEcalHits(const edm::ParameterSet&, const char* n="unused");
   virtual ~GlobeEcalHits() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   //bool analyze(const edm::Event&, const edm::EventSetup&, GlobeLeptons*, GlobeElectrons*, GlobeMuons*, GlobePhotons*);
   bool analyze(const edm::Event&, const edm::EventSetup&, GlobeElectrons*, GlobeMuons*, GlobePhotons*);
 

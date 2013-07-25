@@ -1,6 +1,6 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeElectrons.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/Tools.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
@@ -121,7 +121,7 @@ GlobeElectrons::~GlobeElectrons() {
   delete gES;
 }
 
-void GlobeElectrons::defineBranch(TTree* tree) {
+void GlobeElectrons::defineBranch(GlobeAnalyzer* ana) {
 
   el_sc = new TClonesArray("TLorentzVector", MAX_ELECTRONS);
   el_p4 = new TClonesArray("TLorentzVector", MAX_ELECTRONS);
@@ -141,463 +141,463 @@ void GlobeElectrons::defineBranch(TTree* tree) {
   
   sprintf(a1, "el_%s_n", nome);
   sprintf(a2, "el_%s_n/I", nome);
-  tree->Branch(a1, &el_n, a2);
+  ana->Branch(a1, &el_n, a2);
   
   sprintf(a1, "el_%s_sc", nome);
-  tree->Branch(a1, "TClonesArray", &el_sc, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &el_sc, 32000, 0);
   
   sprintf(a1, "el_%s_p4", nome);
-  tree->Branch(a1, "TClonesArray", &el_p4, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &el_p4, 32000, 0);
 
   sprintf(a1, "el_%s_p4_corr", nome);
-  tree->Branch(a1, "TClonesArray", &el_p4_corr, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &el_p4_corr, 32000, 0);
 
   sprintf(a1, "el_%s_momvtx", nome);
-  tree->Branch(a1, "TClonesArray", &el_momvtx, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &el_momvtx, 32000, 0);
 
   sprintf(a1, "el_%s_momvtxconst", nome);
-  tree->Branch(a1, "TClonesArray", &el_momvtxconst, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &el_momvtxconst, 32000, 0);
 
   sprintf(a1, "el_%s_momcalo", nome);
-  tree->Branch(a1, "TClonesArray", &el_momcalo, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &el_momcalo, 32000, 0);
 
   sprintf(a1, "el_%s_momout", nome);
-  tree->Branch(a1, "TClonesArray", &el_momout, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &el_momout, 32000, 0);
   
   sprintf(a1, "el_%s_posvtx", nome);
-  tree->Branch(a1, "TClonesArray", &el_posvtx, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &el_posvtx, 32000, 0);
 
   sprintf(a1, "el_%s_poscalo", nome);
-  tree->Branch(a1, "TClonesArray", &el_poscalo, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &el_poscalo, 32000, 0);
   
   sprintf(a1, "el_%s_eopin", nome);
   sprintf(a2, "el_%s_eopin[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_eopin, a2);
+  ana->Branch(a1, &el_eopin, a2);
   
   sprintf(a1, "el_%s_eseedopout", nome);
   sprintf(a2, "el_%s_eseedopout[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_eseedopout, a2);
+  ana->Branch(a1, &el_eseedopout, a2);
   
   sprintf(a1, "el_%s_pout", nome);
   sprintf(a2, "el_%s_pout[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_pout, a2);
+  ana->Branch(a1, &el_pout, a2);
   
   sprintf(a1, "el_%s_pin", nome);
   sprintf(a2, "el_%s_pin[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_pin, a2);
+  ana->Branch(a1, &el_pin, a2);
   
   sprintf(a1, "el_%s_e1x5", nome);
   sprintf(a2, "el_%s_e1x5[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_e1x5, a2);
+  ana->Branch(a1, &el_e1x5, a2);
   
   sprintf(a1, "el_%s_e5x5", nome);
   sprintf(a2, "el_%s_e5x5[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_e5x5, a2);
+  ana->Branch(a1, &el_e5x5, a2);
 
   sprintf(a1, "el_%s_e2x5", nome);
   sprintf(a2, "el_%s_e2x5[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_e2x5, a2);
+  ana->Branch(a1, &el_e2x5, a2);
  
   sprintf(a1, "el_%s_sipip", nome);
   sprintf(a2, "el_%s_sipip[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_sipip, a2);
+  ana->Branch(a1, &el_sipip, a2);
   
   sprintf(a1, "el_%s_sieie", nome);
   sprintf(a2, "el_%s_sieie[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_sieie, a2);
+  ana->Branch(a1, &el_sieie, a2);
 
   sprintf(a1, "el_%s_sieiesc", nome);
   sprintf(a2, "el_%s_sieiesc[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_sieiesc, a2);
+  ana->Branch(a1, &el_sieiesc, a2);
 
   sprintf(a1, "el_%s_eseffsixix", nome);
   sprintf(a2, "el_%s_eseffsixix[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_eseffsixix, a2);
+  ana->Branch(a1, &el_eseffsixix, a2);
 
   sprintf(a1, "el_%s_eseffsiyiy", nome);
   sprintf(a2, "el_%s_eseffsiyiy[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_eseffsiyiy, a2);
+  ana->Branch(a1, &el_eseffsiyiy, a2);
 
   sprintf(a1, "el_%s_eseedopin", nome);
   sprintf(a2, "el_%s_eseedopin[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_eseedopin, a2);
+  ana->Branch(a1, &el_eseedopin, a2);
   
   sprintf(a1, "el_%s_fbrem", nome);
   sprintf(a2, "el_%s_fbrem[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_fbrem, a2);
+  ana->Branch(a1, &el_fbrem, a2);
 
   sprintf(a1, "el_%s_nbrem", nome);
   sprintf(a2, "el_%s_nbrem[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_nbrem, a2);
+  ana->Branch(a1, &el_nbrem, a2);
 
   sprintf(a1, "el_%s_hoe", nome);
   sprintf(a2, "el_%s_hoe[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hoe, a2);
+  ana->Branch(a1, &el_hoe, a2);
 
   sprintf(a1, "el_%s_hoed1", nome);
   sprintf(a2, "el_%s_hoed1[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hoed1, a2);
+  ana->Branch(a1, &el_hoed1, a2);
 
   sprintf(a1, "el_%s_hoed2", nome);
   sprintf(a2, "el_%s_hoed2[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hoed2, a2);
+  ana->Branch(a1, &el_hoed2, a2);
 
   sprintf(a1, "el_%s_hoebc", nome);
   sprintf(a2, "el_%s_hoebc[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hoebc, a2);
+  ana->Branch(a1, &el_hoebc, a2);
 
   sprintf(a1, "el_%s_hoebcd1", nome);
   sprintf(a2, "el_%s_hoebcd1[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hoebcd1, a2);
+  ana->Branch(a1, &el_hoebcd1, a2);
 
   sprintf(a1, "el_%s_hoebcd2", nome);
   sprintf(a2, "el_%s_hoebcd2[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hoebcd2, a2);
+  ana->Branch(a1, &el_hoebcd2, a2);
   
   sprintf(a1, "el_%s_detain", nome);
   sprintf(a2, "el_%s_detain[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_detain, a2);
+  ana->Branch(a1, &el_detain, a2);
   
   sprintf(a1, "el_%s_dphiin", nome);
   sprintf(a2, "el_%s_dphiin[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_dphiin, a2);
+  ana->Branch(a1, &el_dphiin, a2);
   
   sprintf(a1, "el_%s_detaout", nome);
   sprintf(a2, "el_%s_detaout[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_detaout, a2);
+  ana->Branch(a1, &el_detaout, a2);
   
   sprintf(a1, "el_%s_dphiout", nome);
   sprintf(a2, "el_%s_dphiout[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_dphiout, a2);
+  ana->Branch(a1, &el_dphiout, a2);
    
   sprintf(a1, "el_%s_class", nome);
   sprintf(a2, "el_%s_class[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_class, a2);
+  ana->Branch(a1, &el_class, a2);
  
   sprintf(a1, "el_%s_crack", nome);
   sprintf(a2, "el_%s_crack[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_crack, a2);
+  ana->Branch(a1, &el_crack, a2);
    
   sprintf(a1, "el_%s_nambtk", nome);
   sprintf(a2, "el_%s_nambtk[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_nambtk, a2);
+  ana->Branch(a1, &el_nambtk, a2);
 
   sprintf(a1, "el_%s_scind", nome);
   sprintf(a2, "el_%s_scind[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_scind, a2);
+  ana->Branch(a1, &el_scind, a2);
   
   sprintf(a1, "el_%s_z0", nome);
   sprintf(a2, "el_%s_z0[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_z0, a2);
+  ana->Branch(a1, &el_z0, a2);
   
   sprintf(a1, "el_%s_d0", nome);
   sprintf(a2, "el_%s_d0[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_d0, a2);
+  ana->Branch(a1, &el_d0, a2);
 
   sprintf(a1, "el_%s_chi2", nome);
   sprintf(a2, "el_%s_chi2[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_chi2, a2);
+  ana->Branch(a1, &el_chi2, a2);
   
   /*
   sprintf(a1, "el_%s_mva_noiso", nome);
   sprintf(a2, "el_%s_mva_noiso[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_mva_noiso, a2);
+  ana->Branch(a1, &el_mva_noiso, a2);
 
   sprintf(a1, "el_%s_mva", nome);
   sprintf(a2, "el_%s_mva[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_mva, a2);
+  ana->Branch(a1, &el_mva, a2);
   */
 
   sprintf(a1, "el_%s_mva_nontrig", nome);
   sprintf(a2, "el_%s_mva_nontrig[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_mva_nontrig, a2);
+  ana->Branch(a1, &el_mva_nontrig, a2);
   
   sprintf(a1, "el_%s_mva_trig", nome);
   sprintf(a2, "el_%s_mva_trig[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_mva_trig, a2);
+  ana->Branch(a1, &el_mva_trig, a2);
   
   sprintf(a1, "el_%s_ch_gsf", nome);
   sprintf(a2, "el_%s_ch_gsf[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_ch_gsf, a2);
+  ana->Branch(a1, &el_ch_gsf, a2);
 
   sprintf(a1, "el_%s_ch_scpix", nome);
   sprintf(a2, "el_%s_ch_scpix[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_ch_scpix, a2);
+  ana->Branch(a1, &el_ch_scpix, a2);
 
   sprintf(a1, "el_%s_charge", nome);
   sprintf(a2, "el_%s_charge[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_charge, a2);
+  ana->Branch(a1, &el_charge, a2);
   
   sprintf(a1, "el_%s_losthits", nome);
   sprintf(a2, "el_%s_losthits[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_losthits, a2);
+  ana->Branch(a1, &el_losthits, a2);
   
   sprintf(a1, "el_%s_validhits", nome);
   sprintf(a2, "el_%s_validhits[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_validhits, a2);
+  ana->Branch(a1, &el_validhits, a2);
 
   sprintf(a1, "el_%s_hp_expin", nome);
   sprintf(a2, "el_%s_hp_expin[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_hp_expin, a2);
+  ana->Branch(a1, &el_hp_expin, a2);
 
   sprintf(a1, "el_%s_hp_expout", nome);
   sprintf(a2, "el_%s_hp_expout[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_hp_expout, a2);
+  ana->Branch(a1, &el_hp_expout, a2);
 
   sprintf(a1, "el_%s_catbased", nome);
-  tree->Branch(a1, "std::vector<std::vector<int> >", &el_catbased);
+  ana->Branch(a1, "std::vector<std::vector<int> >", &el_catbased);
 
   sprintf(a1, "el_%s_schits", nome);
-  tree->Branch(a1, "std::vector<std::vector<UInt_t> >", &el_schits);
+  ana->Branch(a1, "std::vector<std::vector<UInt_t> >", &el_schits);
 
   sprintf(a1, "el_%s_bchits", nome);
-  tree->Branch(a1, "std::vector<std::vector<UInt_t> >", &el_bchits);
+  ana->Branch(a1, "std::vector<std::vector<UInt_t> >", &el_bchits);
 
   sprintf(a1, "el_%s_tkind", nome);
   sprintf(a2, "el_%s_tkind[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_tkind, a2); 
+  ana->Branch(a1, &el_tkind, a2); 
 
   /*
   sprintf(a1, "el_%s_pfiso_myneutral03", nome);
   sprintf(a2, "el_%s_pfiso_myneutral03[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_pfiso_myneutral03, a2);
+  ana->Branch(a1, &el_pfiso_myneutral03, a2);
 
   sprintf(a1, "el_%s_pfiso_mycharged03", nome);
   sprintf(a2, "el_%s_pfiso_mycharged03[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_pfiso_mycharged03, a2);
+  ana->Branch(a1, &el_pfiso_mycharged03, a2);
   
   sprintf(a1, "el_%s_pfiso_myphoton03", nome);
   sprintf(a2, "el_%s_pfiso_myphoton03[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_pfiso_myphoton03, a2);
+  ana->Branch(a1, &el_pfiso_myphoton03, a2);
 
   sprintf(a1, "el_%s_pfiso_myneutral04", nome);
   sprintf(a2, "el_%s_pfiso_myneutral04[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_pfiso_myneutral04, a2);
+  ana->Branch(a1, &el_pfiso_myneutral04, a2);
 
   sprintf(a1, "el_%s_pfiso_mycharged04", nome);
   sprintf(a2, "el_%s_pfiso_mycharged04[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_pfiso_mycharged04, a2);
+  ana->Branch(a1, &el_pfiso_mycharged04, a2);
   
   sprintf(a1, "el_%s_pfiso_myphoton04", nome);
   sprintf(a2, "el_%s_pfiso_myphoton04[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_pfiso_myphoton04, a2);
+  ana->Branch(a1, &el_pfiso_myphoton04, a2);
   */
 
   sprintf(a1, "el_%s_pfiso_neutral", nome);
   sprintf(a2, "el_%s_pfiso_neutral[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_pfiso_neutral, a2);
+  ana->Branch(a1, &el_pfiso_neutral, a2);
 
   sprintf(a1, "el_%s_pfiso_charged", nome);
   sprintf(a2, "el_%s_pfiso_charged[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_pfiso_charged, a2);
+  ana->Branch(a1, &el_pfiso_charged, a2);
   
   sprintf(a1, "el_%s_pfiso_photon", nome);
   sprintf(a2, "el_%s_pfiso_photon[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_pfiso_photon, a2);
+  ana->Branch(a1, &el_pfiso_photon, a2);
 
   sprintf(a1, "el_%s_hcaliso03", nome);
   sprintf(a2, "el_%s_hcaliso03[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hcaliso03, a2);
+  ana->Branch(a1, &el_hcaliso03, a2);
 
   sprintf(a1, "el_%s_hcalsolidiso03", nome);
   sprintf(a2, "el_%s_hcalsolidiso03[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hcalsolidiso03, a2);
+  ana->Branch(a1, &el_hcalsolidiso03, a2);
 
   sprintf(a1, "el_%s_ecaliso03", nome);
   sprintf(a2, "el_%s_ecaliso03[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_ecaliso03, a2);
+  ana->Branch(a1, &el_ecaliso03, a2);
   
   sprintf(a1, "el_%s_tkiso03", nome);
   sprintf(a2, "el_%s_tkiso03[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_tkiso03, a2);
+  ana->Branch(a1, &el_tkiso03, a2);
 
   sprintf(a1, "el_%s_hcaliso04", nome);
   sprintf(a2, "el_%s_hcaliso04[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hcaliso04, a2);
+  ana->Branch(a1, &el_hcaliso04, a2);
 
   sprintf(a1, "el_%s_hcalsolidiso04", nome);
   sprintf(a2, "el_%s_hcalsolidiso04[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hcalsolidiso04, a2);
+  ana->Branch(a1, &el_hcalsolidiso04, a2);
 
   sprintf(a1, "el_%s_hcalbciso03", nome);
   sprintf(a2, "el_%s_hcalbciso03[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hcalbciso03, a2);
+  ana->Branch(a1, &el_hcalbciso03, a2);
 
   sprintf(a1, "el_%s_hcalbciso04", nome);
   sprintf(a2, "el_%s_hcalbciso04[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_hcalbciso04, a2);
+  ana->Branch(a1, &el_hcalbciso04, a2);
 
   sprintf(a1, "el_%s_ecaliso04", nome);
   sprintf(a2, "el_%s_ecaliso04[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_ecaliso04, a2);
+  ana->Branch(a1, &el_ecaliso04, a2);
   
   sprintf(a1, "el_%s_tkiso04", nome);
   sprintf(a2, "el_%s_tkiso04[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_tkiso04, a2);
+  ana->Branch(a1, &el_tkiso04, a2);
   
   sprintf(a1, "el_%s_tkdrv", nome);
   sprintf(a2, "el_%s_tkdrv[el_%s_n]/O", nome, nome);
-  tree->Branch(a1, &el_tkdrv, a2);
+  ana->Branch(a1, &el_tkdrv, a2);
  
   sprintf(a1, "el_%s_ecaldrv", nome);
   sprintf(a2, "el_%s_ecaldrv[el_%s_n]/O", nome, nome);
-  tree->Branch(a1, &el_ecaldrv, a2);
+  ana->Branch(a1, &el_ecaldrv, a2);
 
   sprintf(a1, "el_%s_ip_ctf", nome);
   sprintf(a2, "el_%s_ip_ctf[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_ip_ctf, a2);
+  ana->Branch(a1, &el_ip_ctf, a2);
 
   sprintf(a1, "el_%s_ip_gsf", nome);
   sprintf(a2, "el_%s_ip_gsf[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_ip_gsf, a2);
+  ana->Branch(a1, &el_ip_gsf, a2);
 
   sprintf(a1, "el_%s_dist", nome);
   sprintf(a2, "el_%s_dist[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_dist, a2);
+  ana->Branch(a1, &el_dist, a2);
 
   sprintf(a1, "el_%s_dcot", nome);
   sprintf(a2, "el_%s_dcot[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_dcot, a2);
+  ana->Branch(a1, &el_dcot, a2);
 
   sprintf(a1, "el_%s_hp_1pxb", nome);
   sprintf(a2, "el_%s_hp_1pxb[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_1pxb, a2);
+  ana->Branch(a1, &el_1pxb, a2);
 
   sprintf(a1, "el_%s_hp_1pxf", nome);
   sprintf(a2, "el_%s_hp_1pxf[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_1pxf, a2);
+  ana->Branch(a1, &el_1pxf, a2);
 
   sprintf(a1, "el_%s_conv", nome);
   sprintf(a2, "el_%s_conv[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_conv, a2);
+  ana->Branch(a1, &el_conv, a2);
 
   sprintf(a1, "el_%s_corr_energy", nome);
   sprintf(a2, "el_%s_corr_energy[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_corr_energy, a2);
+  ana->Branch(a1, &el_corr_energy, a2);
 
   sprintf(a1, "el_%s_corr_energyerr", nome);
   sprintf(a2, "el_%s_corr_energyerr[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_corr_energyerr, a2);
+  ana->Branch(a1, &el_corr_energyerr, a2);
 
   sprintf(a1, "el_%s_calib_energy", nome);
   sprintf(a2, "el_%s_calib_energy[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_calib_energy, a2);
+  ana->Branch(a1, &el_calib_energy, a2);
 
   sprintf(a1, "el_%s_calib_energyerr", nome);
   sprintf(a2, "el_%s_calib_energyerr[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_calib_energyerr, a2);
+  ana->Branch(a1, &el_calib_energyerr, a2);
 
   sprintf(a1, "el_%s_regr_energy", nome);
   sprintf(a2, "el_%s_regr_energy[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_regr_energy, a2);
+  ana->Branch(a1, &el_regr_energy, a2);
 
   sprintf(a1, "el_%s_regr_energyerr", nome);
   sprintf(a2, "el_%s_regr_energyerr[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_regr_energyerr, a2);
+  ana->Branch(a1, &el_regr_energyerr, a2);
 
   sprintf(a1, "el_%s_eleopout", nome);
   sprintf(a2, "el_%s_eleopout[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_eleopout, a2);
+  ana->Branch(a1, &el_eleopout, a2);
 
   sprintf(a1, "el_%s_detaeleout", nome);
   sprintf(a2, "el_%s_detaeleout[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_detaeleout, a2);
+  ana->Branch(a1, &el_detaeleout, a2);
 
   sprintf(a1, "el_%s_kfhits", nome);
   sprintf(a2, "el_%s_kfhits[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_kfhits, a2);
+  ana->Branch(a1, &el_kfhits, a2);
 
   sprintf(a1, "el_%s_kfchi2", nome);
   sprintf(a2, "el_%s_kfchi2[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_kfchi2, a2);
+  ana->Branch(a1, &el_kfchi2, a2);
 
   sprintf(a1, "el_%s_psenergy", nome);
   sprintf(a2, "el_%s_psenergy[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_psenergy, a2);  
+  ana->Branch(a1, &el_psenergy, a2);  
 
   sprintf(a1, "el_%s_passmvapresel", nome);
   sprintf(a2, "el_%s_passmvapresel[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_passmvapresel, a2);
+  ana->Branch(a1, &el_passmvapresel, a2);
 
   sprintf(a1, "el_%s_passcutpresel", nome);
   sprintf(a2, "el_%s_passcutpresel[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_passcutpresel, a2);
+  ana->Branch(a1, &el_passcutpresel, a2);
 
   sprintf(a1, "el_%s_psenergypf", nome);
   sprintf(a2, "el_%s_psenergypf[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_psenergypf, a2);  
+  ana->Branch(a1, &el_psenergypf, a2);  
   
   sprintf(a1, "el_%s_nbrempf", nome);
   sprintf(a2, "el_%s_nbrempf[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_nbrempf, a2);
+  ana->Branch(a1, &el_nbrempf, a2);
 
   sprintf(a1, "el_%s_eseedpf", nome);
   sprintf(a2, "el_%s_eseedpf[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_eseedpf, a2);
+  ana->Branch(a1, &el_eseedpf, a2);
 
   sprintf(a1, "el_%s_epf", nome);
   sprintf(a2, "el_%s_epf[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_epf, a2);
+  ana->Branch(a1, &el_epf, a2);
 
   sprintf(a1, "el_%s_psly1", nome);
   sprintf(a2, "el_%s_psly1[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_psly1, a2);
+  ana->Branch(a1, &el_psly1, a2);
 
   sprintf(a1, "el_%s_psly2", nome);
   sprintf(a2, "el_%s_psly2[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_psly2, a2);
+  ana->Branch(a1, &el_psly2, a2);
 
   sprintf(a1, "el_%s_psnstriply1", nome);
   sprintf(a2, "el_%s_psnstriply1[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_psnstriply1, a2);
+  ana->Branch(a1, &el_psnstriply1, a2);
 
   sprintf(a1, "el_%s_psnstriply2", nome);
   sprintf(a2, "el_%s_psnstriply2[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_psnstriply2, a2);
+  ana->Branch(a1, &el_psnstriply2, a2);
 
   sprintf(a1, "el_%s_D0Vtx", nome);
   sprintf(a2, "el_%s_D0Vtx[el_%s_n][100]/F", nome, nome);
-  tree->Branch(a1, &el_D0Vtx, a2);
+  ana->Branch(a1, &el_D0Vtx, a2);
 
   sprintf(a1, "el_%s_DZVtx", nome);
   sprintf(a2, "el_%s_DZVtx[el_%s_n][100]/F", nome, nome);
-  tree->Branch(a1, &el_DZVtx, a2);
+  ana->Branch(a1, &el_DZVtx, a2);
 
   sprintf(a1, "el_%s_must", nome);
   sprintf(a2, "el_%s_must[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_must, a2);
+  ana->Branch(a1, &el_must, a2);
 
   sprintf(a1, "el_%s_mustnc", nome);
   sprintf(a2, "el_%s_mustnc[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_mustnc, a2);
+  ana->Branch(a1, &el_mustnc, a2);
 
   sprintf(a1, "el_%s_r9", nome);
   sprintf(a2, "el_%s_r9[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_r9, a2);
+  ana->Branch(a1, &el_r9, a2);
 
   sprintf(a1, "el_%s_gsfchi2", nome);
   sprintf(a2, "el_%s_gsfchi2[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_gsfchi2, a2);
+  ana->Branch(a1, &el_gsfchi2, a2);
   
   sprintf(a1, "el_%s_ip3d", nome);
   sprintf(a2, "el_%s_ip3d[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_ip3d, a2);
+  ana->Branch(a1, &el_ip3d, a2);
 
   sprintf(a1, "el_%s_ip3d_err", nome);
   sprintf(a2, "el_%s_ip3d_err[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_ip3d_err, a2);
+  ana->Branch(a1, &el_ip3d_err, a2);
 
   sprintf(a1, "el_%s_ip3d_sig", nome);
   sprintf(a2, "el_%s_ip3d_sig[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_ip3d_sig, a2);
+  ana->Branch(a1, &el_ip3d_sig, a2);
 
   sprintf(a1, "el_%s_sc_time", nome);
   sprintf(a2, "el_%s_sc_time[el_%s_n]/I", nome, nome);
-  tree->Branch(a1, &el_sc_time, a2);
+  ana->Branch(a1, &el_sc_time, a2);
 
   sprintf(a1, "el_%s_conv_vtxProb", nome);
   sprintf(a2, "el_%s_conv_vtxProb[el_%s_n]/F", nome, nome);
-  tree->Branch(a1, &el_conv_vtxProb, a2);
+  ana->Branch(a1, &el_conv_vtxProb, a2);
 }
 
 

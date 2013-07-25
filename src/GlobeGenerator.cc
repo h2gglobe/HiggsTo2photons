@@ -1,5 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeGenerator.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include <iostream>
 
 GlobeGenerator::GlobeGenerator(const edm::ParameterSet& iConfig) {
@@ -13,18 +13,18 @@ GlobeGenerator::GlobeGenerator(const edm::ParameterSet& iConfig) {
   etCut_ =  psetGenerator.getParameter<double>("EtCut");
 }
 
-void GlobeGenerator::defineBranch(TTree* tree) {
+void GlobeGenerator::defineBranch(GlobeAnalyzer* ana) {
 
   // think about changing branch names for duplicate collections
   gen_p4 = new TClonesArray("TLorentzVector", MAX_GENERATOR);
   
-  tree->Branch("gen_n", &gen_n, "gen_n/I");
+  ana->Branch("gen_n", &gen_n, "gen_n/I");
   
-  tree->Branch("gen_p4", "TClonesArray", &gen_p4, 32000, 0);
+  ana->Branch("gen_p4", "TClonesArray", &gen_p4, 32000, 0);
   
-  tree->Branch("gen_status", gen_status, "gen_status[gen_n]/I");
-  tree->Branch("gen_pdgid", gen_pdgid, "gen_pdgid[gen_n]/I");
-  tree->Branch("gen_mother", gen_mother, "gen_mother[gen_n]/I");
+  ana->Branch("gen_status", gen_status, "gen_status[gen_n]/I");
+  ana->Branch("gen_pdgid", gen_pdgid, "gen_pdgid[gen_n]/I");
+  ana->Branch("gen_mother", gen_mother, "gen_mother[gen_n]/I");
 }
 
 bool GlobeGenerator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

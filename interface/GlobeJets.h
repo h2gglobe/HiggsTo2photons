@@ -18,6 +18,7 @@
 #include "TLorentzVector.h"
 
 class PFJetIDSelectionFunctor;
+class GlobeAnalyzer;
 
 class GlobeJets {
  public:
@@ -25,7 +26,7 @@ class GlobeJets {
   GlobeJets(const edm::ParameterSet&, const char*);
   virtual ~GlobeJets() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
  
   // variables
@@ -60,9 +61,9 @@ class GlobeJets {
   Int_t jet_nCharged_ptCut[MAX_JETS];
   Float_t jet_dR2Mean[MAX_JETS];
   Float_t jet_betaStarClassic[MAX_JETS];
-  std::vector<std::vector<float> > jet_beta_ext;
-  std::vector<std::vector<float> > jet_betaStar_ext;
-  std::vector<std::vector<float> > jet_betaStarClassic_ext;
+  std::vector<std::vector<float> >* jet_beta_ext;
+  std::vector<std::vector<float> >* jet_betaStar_ext;
+  std::vector<std::vector<float> >* jet_betaStarClassic_ext;
   
   Bool_t jet_pfloose[MAX_JETS];
 

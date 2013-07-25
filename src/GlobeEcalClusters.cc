@@ -1,6 +1,6 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeEcalClusters.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeEcalHits.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
@@ -48,7 +48,7 @@ GlobeEcalClusters::GlobeEcalClusters(const edm::ParameterSet& iConfig, const cha
 
 //----------------------------------------------------------------------
 
-void GlobeEcalClusters::defineBranch(TTree* tree) {
+void GlobeEcalClusters::defineBranch(GlobeAnalyzer* ana) {
   char a2[100];
   sc_p4 = new TClonesArray("TLorentzVector", MAX_SUPERCLUSTERS);
   sc_xyz = new TClonesArray("TVector3", MAX_SUPERCLUSTERS);
@@ -57,67 +57,67 @@ void GlobeEcalClusters::defineBranch(TTree* tree) {
   bc_p4 = new TClonesArray("TLorentzVector", MAX_BASICCLUSTERS);
   bc_xyz = new TClonesArray("TVector3", MAX_SUPERCLUSTERS);
   
-  tree->Branch("sc_islbar_n", &sc_islbar_n, "sc_islbar_n/I");
-  tree->Branch("sc_islbar_p4", "TClonesArray", &sc_islbar_p4, 32000, 0);
-  tree->Branch("sc_islbar_xyz", "TClonesArray", &sc_islbar_xyz, 32000, 0);
-  tree->Branch("sc_islbar_raw", &sc_islbar_raw, "sc_islbar_raw[sc_islbar_n]/F");
-  tree->Branch("sc_islbar_nbc", &sc_islbar_nbc, "sc_islbar_nbc[sc_islbar_n]/I");
-  tree->Branch("sc_islbar_seedenergy", &sc_islbar_seedenergy,"sc_islbar_seedenergy[sc_islbar_n]/F" );
-  tree->Branch("sc_islbar_bcseedind", &sc_islbar_bcseedind, "sc_islbar_bcseedind[sc_islbar_n]/I");
+  ana->Branch("sc_islbar_n", &sc_islbar_n, "sc_islbar_n/I");
+  ana->Branch("sc_islbar_p4", "TClonesArray", &sc_islbar_p4, 32000, 0);
+  ana->Branch("sc_islbar_xyz", "TClonesArray", &sc_islbar_xyz, 32000, 0);
+  ana->Branch("sc_islbar_raw", &sc_islbar_raw, "sc_islbar_raw[sc_islbar_n]/F");
+  ana->Branch("sc_islbar_nbc", &sc_islbar_nbc, "sc_islbar_nbc[sc_islbar_n]/I");
+  ana->Branch("sc_islbar_seedenergy", &sc_islbar_seedenergy,"sc_islbar_seedenergy[sc_islbar_n]/F" );
+  ana->Branch("sc_islbar_bcseedind", &sc_islbar_bcseedind, "sc_islbar_bcseedind[sc_islbar_n]/I");
   sprintf (a2, "sc_islbar_bcind[sc_islbar_n][%d]/I", MAX_SUPERCLUSTER_BASICCLUSTERS);
-  tree->Branch("sc_islbar_bcind", &sc_islbar_bcind, a2);
+  ana->Branch("sc_islbar_bcind", &sc_islbar_bcind, a2);
   
   //SC hybrid in barrel and island in endcap
-  tree->Branch("sc_n", &sc_n, "sc_n/I");
-  tree->Branch("sc_islend_n", &sc_islend_n, "sc_islend_n/I");
-  tree->Branch("sc_hybrid_n", &sc_hybrid_n, "sc_hybrid_n/I");
-  tree->Branch("sc_p4", "TClonesArray", &sc_p4, 32000, 0);
-  tree->Branch("sc_xyz", "TClonesArray", &sc_xyz, 32000, 0);
-  tree->Branch("sc_pre", &sc_pre, "sc_pre[sc_n]/F");
-  tree->Branch("sc_raw", &sc_raw, "sc_raw[sc_n]/F");
-  tree->Branch("sc_barrel", &sc_barrel, "sc_barrel[sc_n]/I");
-  tree->Branch("sc_2xN", &sc_2xN, "sc_2xN[sc_n]/F");
-  tree->Branch("sc_5xN", &sc_5xN, "sc_5xN[sc_n]/F");
-  tree->Branch("sc_sieie", &sc_sieie, "sc_sieie[sc_n]/F");
-  tree->Branch("sc_sphi", &sc_sphi, "sc_sphi[sc_n]/F");
-  tree->Branch("sc_seta", &sc_seta, "sc_seta[sc_n]/F");
-  tree->Branch("sc_brem", &sc_brem, "sc_brem[sc_n]/F");
-  tree->Branch("sc_r9", &sc_r9, "sc_r9[sc_n]/F");
-  tree->Branch("sc_nbc", &sc_nbc, "sc_nbc[sc_n]/I");
-  tree->Branch("sc_bcseedind", &sc_bcseedind, "sc_bcseedind[sc_n]/I");
+  ana->Branch("sc_n", &sc_n, "sc_n/I");
+  ana->Branch("sc_islend_n", &sc_islend_n, "sc_islend_n/I");
+  ana->Branch("sc_hybrid_n", &sc_hybrid_n, "sc_hybrid_n/I");
+  ana->Branch("sc_p4", "TClonesArray", &sc_p4, 32000, 0);
+  ana->Branch("sc_xyz", "TClonesArray", &sc_xyz, 32000, 0);
+  ana->Branch("sc_pre", &sc_pre, "sc_pre[sc_n]/F");
+  ana->Branch("sc_raw", &sc_raw, "sc_raw[sc_n]/F");
+  ana->Branch("sc_barrel", &sc_barrel, "sc_barrel[sc_n]/I");
+  ana->Branch("sc_2xN", &sc_2xN, "sc_2xN[sc_n]/F");
+  ana->Branch("sc_5xN", &sc_5xN, "sc_5xN[sc_n]/F");
+  ana->Branch("sc_sieie", &sc_sieie, "sc_sieie[sc_n]/F");
+  ana->Branch("sc_sphi", &sc_sphi, "sc_sphi[sc_n]/F");
+  ana->Branch("sc_seta", &sc_seta, "sc_seta[sc_n]/F");
+  ana->Branch("sc_brem", &sc_brem, "sc_brem[sc_n]/F");
+  ana->Branch("sc_r9", &sc_r9, "sc_r9[sc_n]/F");
+  ana->Branch("sc_nbc", &sc_nbc, "sc_nbc[sc_n]/I");
+  ana->Branch("sc_bcseedind", &sc_bcseedind, "sc_bcseedind[sc_n]/I");
   sprintf (a2, "sc_bcind[sc_n][%d]/I", MAX_SUPERCLUSTER_BASICCLUSTERS);
-  tree->Branch("sc_bcind", &sc_bcind, a2);
+  ana->Branch("sc_bcind", &sc_bcind, a2);
   sprintf (a2, "sc_bccrackcorr[sc_n][%d]/F", MAX_SUPERCLUSTER_BASICCLUSTERS);
-  tree->Branch("sc_bccrackcorr",&sc_bccrackcorr, a2);
+  ana->Branch("sc_bccrackcorr",&sc_bccrackcorr, a2);
   sprintf (a2, "sc_bclocalcorr[sc_n][%d]/F", MAX_SUPERCLUSTER_BASICCLUSTERS);
-  tree->Branch("sc_bclocalcorr",&sc_bclocalcorr, a2);
+  ana->Branch("sc_bclocalcorr",&sc_bclocalcorr, a2);
 
   //basic clusters
-  tree->Branch("bc_n", &bc_n, "bc_n/I");
-  tree->Branch("bc_islbar_n", &bc_islbar_n, "bc_islbar_n/I");
-  tree->Branch("bc_islend_n", &bc_islend_n, "bc_islend_n/I");
-  tree->Branch("bc_hybrid_n", &bc_hybrid_n, "bc_hybrid_n/I");
-  tree->Branch("bc_p4", "TClonesArray", &bc_p4, 32000, 0);
-  tree->Branch("bc_xyz", "TClonesArray", &bc_xyz, 32000, 0);
-  tree->Branch("bc_nhits", &bc_nhits,"bc_nhits[bc_n]/I");
+  ana->Branch("bc_n", &bc_n, "bc_n/I");
+  ana->Branch("bc_islbar_n", &bc_islbar_n, "bc_islbar_n/I");
+  ana->Branch("bc_islend_n", &bc_islend_n, "bc_islend_n/I");
+  ana->Branch("bc_hybrid_n", &bc_hybrid_n, "bc_hybrid_n/I");
+  ana->Branch("bc_p4", "TClonesArray", &bc_p4, 32000, 0);
+  ana->Branch("bc_xyz", "TClonesArray", &bc_xyz, 32000, 0);
+  ana->Branch("bc_nhits", &bc_nhits,"bc_nhits[bc_n]/I");
 
   // detids of the rechits
   // sprintf (a2, "bc_hitdetid[bc_n][%d]/I", MAX_ECALRECHITS);
-  // tree->Branch("bc_hitdetid", &bc_hitdetid,a2);
+  // ana->Branch("bc_hitdetid", &bc_hitdetid,a2);
 
   // see http://root.cern.ch/phpBB3/viewtopic.php?t=8185
-  tree->Branch("bc_hitdetid","vector<vector<Int_t> >",&bc_hitdetid);
+  ana->Branch("bc_hitdetid","vector<vector<Int_t> >",&bc_hitdetid);
 
-  tree->Branch("bc_s1", &bc_s1, "bc_s1[bc_n]/F");
-  tree->Branch("bc_chx", &bc_chx, "bc_chx[bc_n]/F");
-  tree->Branch("bc_s4", &bc_s4, "bc_s4[bc_n]/F");
-  tree->Branch("bc_s9", &bc_s9, "bc_s9[bc_n]/F");
-  tree->Branch("bc_s25", &bc_s25, "bc_s25[bc_n]/F");
-  tree->Branch("bc_sipip", &bc_sipip, "bc_sipip[bc_n]/F");
-  tree->Branch("bc_sieie", &bc_sieie, "bc_sieie[bc_n]/F");
-  tree->Branch("bc_sieip", &bc_sieip, "bc_sieip[bc_n]/F");
-  tree->Branch("bc_type", &bc_type, "bc_type[bc_n]/I");//type 1 = hybrid, 2 = island endcap, 3 = island barrel.
-  //tree->Branch("bc_seed", &bc_seed, "bc_seed[bc_n]/I");
+  ana->Branch("bc_s1", &bc_s1, "bc_s1[bc_n]/F");
+  ana->Branch("bc_chx", &bc_chx, "bc_chx[bc_n]/F");
+  ana->Branch("bc_s4", &bc_s4, "bc_s4[bc_n]/F");
+  ana->Branch("bc_s9", &bc_s9, "bc_s9[bc_n]/F");
+  ana->Branch("bc_s25", &bc_s25, "bc_s25[bc_n]/F");
+  ana->Branch("bc_sipip", &bc_sipip, "bc_sipip[bc_n]/F");
+  ana->Branch("bc_sieie", &bc_sieie, "bc_sieie[bc_n]/F");
+  ana->Branch("bc_sieip", &bc_sieip, "bc_sieip[bc_n]/F");
+  ana->Branch("bc_type", &bc_type, "bc_type[bc_n]/I");//type 1 = hybrid, 2 = island endcap, 3 = island barrel.
+  //ana->Branch("bc_seed", &bc_seed, "bc_seed[bc_n]/I");
 }
 
 //----------------------------------------------------------------------

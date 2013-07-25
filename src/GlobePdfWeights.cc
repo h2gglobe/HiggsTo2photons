@@ -1,5 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePdfWeights.h"
-
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include <iostream>
 
 GlobePdfWeights::GlobePdfWeights(const edm::ParameterSet& iConfig) {
@@ -8,11 +8,11 @@ GlobePdfWeights::GlobePdfWeights(const edm::ParameterSet& iConfig) {
   debug_level = iConfig.getParameter<int>("Debug_Level");
 }
 
-void GlobePdfWeights::defineBranch(TTree* tree) {
+void GlobePdfWeights::defineBranch(GlobeAnalyzer* ana) {
 
  
-  tree->Branch("weight_n", &weight_n, "weight_n/I");
-  tree->Branch("pdf_weights", pdf_weights, "pdf_weights[weight_n]/F");
+  ana->Branch("weight_n", &weight_n, "weight_n/I");
+  ana->Branch("pdf_weights", pdf_weights, "pdf_weights[weight_n]/F");
 
 }
 
