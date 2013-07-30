@@ -613,23 +613,23 @@ else:
   process.h2ganalyzer.doParticleGun = True
 
 process.GlobalTag.globaltag = "START53_V9::All"
-process.GlobalTag.toGet = cms.VPSet(
-  cms.PSet(record = cms.string("JetCorrectionsRecord"),
-           tag = cms.string("JetCorrectorParametersCollection_Summer13_V1_MC_AK5PF"),
-           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
-           label = cms.untracked.string('AK5PF')
-          ),
-  cms.PSet(record = cms.string("JetCorrectionsRecord"),
-           tag = cms.string("JetCorrectorParametersCollection_Summer13_V1_MC_AK5PFchs"),
-           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
-           label = cms.untracked.string('AK5PFchs')
-          ),
-  cms.PSet(record = cms.string("JetCorrectionsRecord"),
-           tag = cms.string("JetCorrectorParametersCollection_Summer13_V1_MC_AK7PF"),
-           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
-           label = cms.untracked.string('AK7PF')
-          ),
-)
+#process.GlobalTag.toGet = cms.VPSet(
+#  cms.PSet(record = cms.string("JetCorrectionsRecord"),
+#           tag = cms.string("JetCorrectorParametersCollection_Summer13_V1_MC_AK5PF"),
+#           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+#           label = cms.untracked.string('AK5PF')
+#          ),
+#  cms.PSet(record = cms.string("JetCorrectionsRecord"),
+#           tag = cms.string("JetCorrectorParametersCollection_Summer13_V1_MC_AK5PFchs"),
+#           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+#           label = cms.untracked.string('AK5PFchs')
+#          ),
+#  cms.PSet(record = cms.string("JetCorrectionsRecord"),
+#           tag = cms.string("JetCorrectorParametersCollection_Summer13_V1_MC_AK7PF"),
+#           connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS"),
+#           label = cms.untracked.string('AK7PF')
+#          ),
+#)
 process.h2ganalyzer.HLTParameters.PrimaryTriggerResultsTag = cms.InputTag("TriggerResults","", hltLabel)
 process.h2ganalyzer.HLTParameters.useSecondaryTrigger = cms.bool(False)
 process.h2ganalyzer.HLTParameters.TriggerResultsTag = cms.InputTag("hltTriggerSummaryAOD","", hltLabel)
