@@ -1,18 +1,36 @@
-#cvs co -r V00-03-37 RecoEgamma/ElectronIdentification
-#cvs co -r regressionMay18b RecoEgamma/EgammaTools
-#addpkg CommonTools/ParticleFlow  V00-03-13
-#addpkg RecoEcal/EgammaCoreTools V05-08-21
-#addpkg RecoParticleFlow/PFProducer  V15-01-11
-cvs co -r V00-02-05 -d CMGTools/External UserCode/CMG/CMGTools/External
-cvs co -d EGamma/EGammaAnalysisTools UserCode/Matteosan/EGamma/EGammaAnalysisTools
-cvs co -d EgammaAnalysis/ElectronTools UserCode/Matteosan/EgammaAnalysis/ElectronTools
-cp HiggsAnalysis/HiggsTo2photons/scripts/download.url EGamma/EGammaAnalysisTools/data/.
-#addpkg JetMETCorrections/Type1MET V04-06-09
-#addpkg PhysicsTools/PatUtils V03-09-22
-addpkg CommonTools/RecoUtils V00-00-09
-addpkg RecoEgamma/EgammaTools V09-00-00
-#addpkg RecoMET/METFilters V00-00-10
-cd EGamma/EGammaAnalysisTools/data/
-wget -i ../../../HiggsAnalysis/HiggsTo2photons/scripts/download.url
-cd ../../../
-#checkdeps -a
+#!/bin/bash
+
+## all commands you should give are reported 
+## this should help at least the firsts times to set up a working environment 
+## in case we will comment some of them later
+
+#define the scram environment
+export SCRAM_ARCH=slc5_amd64_gcc462
+#set up a CMSSW work directory
+cmsrel CMSSW_5_3_10_patch1
+cd CMSSW_5_3_10_patch1/src
+cmsenv
+
+#make the work directory a git repository
+git init .
+#get the cmssw - all :(
+git fetch cmssw-main
+
+#add the packages in cmssw history
+git cms-cvs-history import V00-00-09 CommonTools/RecoUtil
+git cms-cvs-history import V09-00-00 RecoEgamma/EgammaTools
+
+#add the UserCode code
+cd $CMSSW_BASE/src ; mkdir CMGTools ;cd CMGTools/ ; git clone git@github.com:h2gglobe/External ; cd External ;git checkout V00-02-05 
+cd $CMSSW_BASE/src ; mkdir EGamma ; cd EGamma; git clone git@github.com:h2gglobe/EGammaAnalysisTools; cd EGammaAnalysisTools; git checkout master;
+cd $CMSSW_BASE/src ; mkdir EgammaAnalysis ; cd EgammaAnalysis; git clone git@github.com:h2gglobe/ElectronTools; cd ElectronTools; git checkout master;
+
+#add this analyzer
+cd $CMSSW_BASE/src ; mkdir HiggsAnalysis; cd HiggsAnalysis; git clone git@github.com:h2gglobe/HiggsTo2photons; cd HiggsTo2photons ; git checkout branch_for_53X
+
+#download extra informations
+cd $CMSSW_BASE/src ; cd EGamma/EGammaAnalysisTools/data/ ; wget -i ../../../HiggsAnalysis/HiggsTo2photons/scripts/download.url
+
+#go back to the BASE directory
+cd $CMSSW_BASE/src
+
