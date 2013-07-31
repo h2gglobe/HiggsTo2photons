@@ -310,9 +310,9 @@ process.eleRegressionEnergy.useRecHitCollections = cms.bool(True)
 process.eleRegressionEnergy.produceValueMaps = cms.bool(True)
 
 ##-------------------- ANOMALOUS HCAL LASER CORRECTION FILTER ------------------------
-process.load("EventFilter.HcalRawToDigi.hcallasereventfilter2012_cff")
+#process.load("EventFilter.HcalRawToDigi.hcallasereventfilter2012_cff")
 ##-------------------- ANOMALOUS ECAL LASER CORRECTION FILTER ------------------------
-process.load("RecoMET.METFilters.ecalLaserCorrFilter_cfi")
+#process.load("RecoMET.METFilters.ecalLaserCorrFilter_cfi")
 ##-------------------- PFIsolation for Electrons -------------------------------------
 from CommonTools.ParticleFlow.Tools.pfIsolation import setupPFElectronIso, setupPFPhotonIso
 process.eleIsoSequence = setupPFElectronIso(process, 'gsfElectrons')
@@ -527,7 +527,8 @@ process.newPFchsBtaggingSequence = cms.Sequence(
 # Define path, first for AOD case then for RECO #
 #################################################
 
-process.p11 = cms.Path(process.eventCounters*process.hcallLaserEvent2012Filter*process.ecalLaserCorrFilter*process.eventFilter1*process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence*process.eleRegressionEnergy * process.calibratedElectrons)
+#process.p11 = cms.Path(process.eventCounters*process.hcallLaserEvent2012Filter*process.ecalLaserCorrFilter*process.eventFilter1*process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence*process.eleRegressionEnergy * process.calibratedElectrons)
+process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence*process.eleRegressionEnergy * process.calibratedElectrons)
 #process.p11 = cms.Path(process.eventCounters*process.eventFilter1* process.pfNoPileUpSequence * process.pfParticleSelectionSequence * process.eleIsoSequence*process.ak5PFchsJets*process.pfType1CorrectedMet  )
 
 if (flagFastSim == 'OFF' or flagAOD == 'OFF'):
