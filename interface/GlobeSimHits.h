@@ -24,13 +24,15 @@
 
 #include <iostream>
 
+class GlobeAnalyzer;
+
 class GlobeSimHits {
  public:
   
   GlobeSimHits(const edm::ParameterSet&, const char* n="unused");
   virtual ~GlobeSimHits() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
 
   // variables

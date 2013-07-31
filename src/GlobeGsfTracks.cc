@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeGsfTracks.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
 
 #include "TrackingTools/GsfTools/interface/MultiTrajectoryStateTransform.h"
@@ -22,7 +23,7 @@ GlobeGsfTracks::GlobeGsfTracks(const edm::ParameterSet& iConfig, const char* n):
   gCUT = new GlobeCuts(iConfig);
 }
 
-void GlobeGsfTracks::defineBranch(TTree* tree) {
+void GlobeGsfTracks::defineBranch(GlobeAnalyzer* ana) {
 
   
   gsf_tk_p4 = new TClonesArray("TLorentzVector", MAX_TRACKS);
@@ -30,37 +31,37 @@ void GlobeGsfTracks::defineBranch(TTree* tree) {
   gsf_tk_pinmode = new TClonesArray("TLorentzVector", MAX_TRACKS);
   gsf_tk_poutmode = new TClonesArray("TLorentzVector", MAX_TRACKS);
 
-  tree->Branch("gsf_tk_n", &gsf_tk_n, "gsf_tk_n/I");
-  tree->Branch("gsf_tk_p4", "TClonesArray", &gsf_tk_p4, 32000, 0);
-  tree->Branch("gsf_tk_vtx_pos", "TClonesArray", &gsf_tk_vtx_pos, 32000, 0);
-  tree->Branch("gsf_tk_nhits", &gsf_tk_nhits, "gsf_tk_nhits[gsf_tk_n]/I");
-  tree->Branch("gsf_tk_charge", &gsf_tk_charge, "gsf_tk_charge[gsf_tk_n]/I");
-  tree->Branch("gsf_tk_nlosthit", &gsf_tk_nlosthit,"gsf_tk_nlosthit[gsf_tk_n]/I" );
-  tree->Branch("gsf_tk_tpind", &gsf_tk_tpind,"gsf_tk_tpind[gsf_tk_n]/I" );
-  tree->Branch("gsf_tk_chi2", &gsf_tk_chi2,"gsf_tk_chi2[gsf_tk_n]/F" );
-  tree->Branch("gsf_tk_dof", &gsf_tk_dof, "gsf_tk_dof[gsf_tk_n]/F");
-  tree->Branch("gsf_tk_d0", &gsf_tk_d0, "gsf_tk_d0[gsf_tk_n]/F");
-  tree->Branch("gsf_tk_dz", &gsf_tk_dz, "gsf_tk_dz[gsf_tk_n]/F");
-  tree->Branch("gsf_tk_qoverpinerr", &gsf_tk_qoverpinerr,"gsf_tk_qoverpinerr[gsf_tk_n]/F" );
-  tree->Branch("gsf_tk_qoverpouterr", &gsf_tk_qoverpouterr,"gsf_tk_qoverpouterr[gsf_tk_n]/F" );
-  tree->Branch("gsf_tk_pterr", &gsf_tk_pterr,"gsf_tk_pterr[gsf_tk_n]/F" );
-  tree->Branch("gsf_tk_etaerr", &gsf_tk_etaerr,"gsf_tk_etaerr[gsf_tk_n]/F" );
-  tree->Branch("gsf_tk_phierr", &gsf_tk_phierr,"gsf_tk_phierr[gsf_tk_n]/F" );
-  tree->Branch("gsf_tk_d0err", &gsf_tk_d0err,"gsf_tk_d0err[gsf_tk_n]/F" );
-  tree->Branch("gsf_tk_dzerr", &gsf_tk_dzerr, "gsf_tk_dzerr[gsf_tk_n]/F");  
-  tree->Branch("gsf_tk_hp_nvalid", &gsf_tk_hp_nvalid, "gsf_tk_hp_nvalid[gsf_tk_n]/I");  
-  tree->Branch("gsf_tk_hp_nlost", &gsf_tk_hp_nlost, "gsf_tk_hp_nlost[gsf_tk_n]/I");  
-  tree->Branch("gsf_tk_hp_nvalidpix", &gsf_tk_hp_nvalidpix, "gsf_tk_hp_nvalidpix[gsf_tk_n]/I");  
-  tree->Branch("gsf_tk_hp_expin", &gsf_tk_hp_expin, "gsf_tk_hp_expin[gsf_tk_n]/I");  
-  tree->Branch("gsf_tk_hp_expout", &gsf_tk_hp_expout, "gsf_tk_hp_expout[gsf_tk_n]/I");  
-  tree->Branch("gsf_tk_pin", &gsf_tk_pin, "gsf_tk_pin[gsf_tk_n]/F");    
-  tree->Branch("gsf_tk_pout", &gsf_tk_pout, "gsf_tk_pout[gsf_tk_n]/F");    
-  tree->Branch("gsf_tk_fbrem", &gsf_tk_fbrem, "gsf_tk_fbrem[gsf_tk_n]/F");  
-  tree->Branch("gsf_tk_pinmode", "TClonesArray", &gsf_tk_pinmode, 32000, 0);
-  tree->Branch("gsf_tk_poutmode", "TClonesArray", &gsf_tk_poutmode, 32000, 0);
+  ana->Branch("gsf_tk_n", &gsf_tk_n, "gsf_tk_n/I");
+  ana->Branch("gsf_tk_p4", "TClonesArray", &gsf_tk_p4, 32000, 0);
+  ana->Branch("gsf_tk_vtx_pos", "TClonesArray", &gsf_tk_vtx_pos, 32000, 0);
+  ana->Branch("gsf_tk_nhits", &gsf_tk_nhits, "gsf_tk_nhits[gsf_tk_n]/I");
+  ana->Branch("gsf_tk_charge", &gsf_tk_charge, "gsf_tk_charge[gsf_tk_n]/I");
+  ana->Branch("gsf_tk_nlosthit", &gsf_tk_nlosthit,"gsf_tk_nlosthit[gsf_tk_n]/I" );
+  ana->Branch("gsf_tk_tpind", &gsf_tk_tpind,"gsf_tk_tpind[gsf_tk_n]/I" );
+  ana->Branch("gsf_tk_chi2", &gsf_tk_chi2,"gsf_tk_chi2[gsf_tk_n]/F" );
+  ana->Branch("gsf_tk_dof", &gsf_tk_dof, "gsf_tk_dof[gsf_tk_n]/F");
+  ana->Branch("gsf_tk_d0", &gsf_tk_d0, "gsf_tk_d0[gsf_tk_n]/F");
+  ana->Branch("gsf_tk_dz", &gsf_tk_dz, "gsf_tk_dz[gsf_tk_n]/F");
+  ana->Branch("gsf_tk_qoverpinerr", &gsf_tk_qoverpinerr,"gsf_tk_qoverpinerr[gsf_tk_n]/F" );
+  ana->Branch("gsf_tk_qoverpouterr", &gsf_tk_qoverpouterr,"gsf_tk_qoverpouterr[gsf_tk_n]/F" );
+  ana->Branch("gsf_tk_pterr", &gsf_tk_pterr,"gsf_tk_pterr[gsf_tk_n]/F" );
+  ana->Branch("gsf_tk_etaerr", &gsf_tk_etaerr,"gsf_tk_etaerr[gsf_tk_n]/F" );
+  ana->Branch("gsf_tk_phierr", &gsf_tk_phierr,"gsf_tk_phierr[gsf_tk_n]/F" );
+  ana->Branch("gsf_tk_d0err", &gsf_tk_d0err,"gsf_tk_d0err[gsf_tk_n]/F" );
+  ana->Branch("gsf_tk_dzerr", &gsf_tk_dzerr, "gsf_tk_dzerr[gsf_tk_n]/F");  
+  ana->Branch("gsf_tk_hp_nvalid", &gsf_tk_hp_nvalid, "gsf_tk_hp_nvalid[gsf_tk_n]/I");  
+  ana->Branch("gsf_tk_hp_nlost", &gsf_tk_hp_nlost, "gsf_tk_hp_nlost[gsf_tk_n]/I");  
+  ana->Branch("gsf_tk_hp_nvalidpix", &gsf_tk_hp_nvalidpix, "gsf_tk_hp_nvalidpix[gsf_tk_n]/I");  
+  ana->Branch("gsf_tk_hp_expin", &gsf_tk_hp_expin, "gsf_tk_hp_expin[gsf_tk_n]/I");  
+  ana->Branch("gsf_tk_hp_expout", &gsf_tk_hp_expout, "gsf_tk_hp_expout[gsf_tk_n]/I");  
+  ana->Branch("gsf_tk_pin", &gsf_tk_pin, "gsf_tk_pin[gsf_tk_n]/F");    
+  ana->Branch("gsf_tk_pout", &gsf_tk_pout, "gsf_tk_pout[gsf_tk_n]/F");    
+  ana->Branch("gsf_tk_fbrem", &gsf_tk_fbrem, "gsf_tk_fbrem[gsf_tk_n]/F");  
+  ana->Branch("gsf_tk_pinmode", "TClonesArray", &gsf_tk_pinmode, 32000, 0);
+  ana->Branch("gsf_tk_poutmode", "TClonesArray", &gsf_tk_poutmode, 32000, 0);
 
-  tree->Branch("gsf_tk_tkind", &gsf_tk_tkind, "gsf_tk_tkind[gsf_tk_n]/I");
-  tree->Branch("gsf_tk_shared", &gsf_tk_shared, "gsf_tk_shared[gsf_tk_n]/F");
+  ana->Branch("gsf_tk_tkind", &gsf_tk_tkind, "gsf_tk_tkind[gsf_tk_n]/I");
+  ana->Branch("gsf_tk_shared", &gsf_tk_shared, "gsf_tk_shared[gsf_tk_n]/F");
 }
 
 bool GlobeGsfTracks::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) { 

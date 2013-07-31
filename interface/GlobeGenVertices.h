@@ -13,13 +13,15 @@
 #include "TVector3.h"
 #include "TLorentzVector.h"
 
+class GlobeAnalyzer;
+
 class GlobeGenVertices {
  public:
   
   GlobeGenVertices(const edm::ParameterSet&);
   virtual ~GlobeGenVertices() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
 
   // variables

@@ -47,6 +47,7 @@ using namespace HepMC;
 using namespace std;
 
 class GlobeTracks;
+class GlobeAnalyzer;
 
 class GlobeTrackingParticles {
  public:
@@ -57,7 +58,7 @@ class GlobeTrackingParticles {
   GlobeTrackingParticles(const edm::ParameterSet&, const char* n="unused");
   virtual ~GlobeTrackingParticles() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&, GlobeTracks *);
 
   // variables

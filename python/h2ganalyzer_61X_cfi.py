@@ -20,6 +20,8 @@ h2ganalyzer = cms.EDAnalyzer(
     "GlobeAnalyzer",
     RootFileName = cms.string('prova.root'),
     JobMaker = cms.string('jobmaker unknown'),
+    h2gAnalyzerVersion = cms.string("V15_00_08"),
+    
     energyCorrectionsFromDB = cms.bool(False),
     energyCorrectionsFileNamePho = cms.string("gbrv3ph_52x.root"),
     energyCorrectionsFileNameEle = cms.string("gbrv3ele_52x.root"),
@@ -30,6 +32,7 @@ h2ganalyzer = cms.EDAnalyzer(
     
     globalCounters = cms.vstring(),
 
+    branchesToSkim = cms.vstring(),
     #PhotonFIX parameters
     #PFParameters = PhotonFixParameters,
 
@@ -321,7 +324,7 @@ h2ganalyzer = cms.EDAnalyzer(
     doHcal = cms.bool(True),
     doHFHcal = cms.bool(True),
     
-    doCaloTower = cms.bool(True),
+    doCaloTower = cms.bool(False),
     
     doL1 = cms.bool(True),
     doHLT = cms.bool(True),

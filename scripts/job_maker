@@ -55,6 +55,7 @@ job_maker [options]
 --enable=                          enable processing of specified objects (comma separated list)
 --disable=                         disable processing of specified objects (comma separated list)
 --published                        to run on local dbs published dataset
+--skimBranches=(default full)      select particular branches to skim (smallest, full...) 
 """
 
 
@@ -103,8 +104,9 @@ useServer = False
 toEnable = []
 toDisable = []
 jecFromSqlite = False
+skimBranches = "full"
 
-(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'append=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite', 'published', 'skimhee', 'skimhmm', 'skimmu'])
+(opts, args) = getopt.getopt(sys.argv[1:], '', ['data', 'MC', 'AOD', 'RECO', 'diphoskim', 'pjetskim', 'vlpresel', 'storage=',  'name=', 'datasetpath=', 'append=', 'outputdir=','runselection=', 'events=', 'events_per_job=', 'help', 'globaltag=', 'noskim', 'json=', 'lumis=', 'lumis_per_job=', 'caf','hlttag=', 'whitelist=', 'blacklist=', 'skimmmg', 'skimworz', 'useT1', 'server', 'skim1el', 'AddPdfWeight', 'scheduler=', 'fastsim', 'enable=', 'disable=', 'mypresel', 'particleGun', 'energyCorrFromDB', 'jecFromSqlite', 'published', 'skimhee', 'skimhmm', 'skimmu', 'skimBranches='])
 
 for opt,argm in opts:
     if (opt == "--help"):
@@ -188,6 +190,8 @@ for opt,argm in opts:
         AddPdfWeight = True
     elif (opt == "--scheduler"):
         scheduler = argm
+    elif (opt == "--skimBranches"):
+        skimBranches = argm
     elif (opt == "--enable"):
         toEnable = argm.split(",")
     elif (opt == "--disable"):
@@ -288,6 +292,9 @@ for run in runselection:
         else:
             file_out.write(line)
     file_out.write("\n")
+    if (skimBranches != "full"):
+        file_out.write("from HiggsAnalysis.HiggsTo2photons.h2ganalyzer_SkimBranch_"+skimBranches+"_cfi import *\n")
+        file_out.write("process.h2ganalyzer.branchesToSkim = branchesToSkim\n")
     for t in toEnable:
         file_out.write("process.h2ganalyzer." + t + " = True\n")
     file_out.write("\n")
@@ -298,6 +305,11 @@ for run in runselection:
     if jecFromSqlite:
         file_out.write("from CMGTools.External.jec_2012_cff import use2012JecPreview\n")
         file_out.write("use2012JecPreview(process)\n")
+    l = os.popen("git describe --tags")
+    h2gVersion = l.readlines()[0].split("\n")[0]
+    if ("version" in h2gVersion):
+        h2gVersion = "V99_99_99"
+    file_out.write("process.h2ganalyzer.h2gAnalyzerVersion = " + h2gVersion)
     file_out.close()
     
     # setup crab cfg file

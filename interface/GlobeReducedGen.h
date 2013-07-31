@@ -15,6 +15,7 @@
 
 class GlobeGenerator;
 class GlobeGenParticles;
+class GlobeAnalyzer;
 
 class GlobeReducedGen {
  public:
@@ -22,7 +23,7 @@ class GlobeReducedGen {
   GlobeReducedGen(const edm::ParameterSet&);
   virtual ~GlobeReducedGen() {};
  
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   void fillRedGenList(GlobeGenerator * gen, GlobeLeptons * lep);
   int  LeptonsGenInfo(GlobeGenerator * gen, int j, int * gen_keep, int & nhistory, int * history, int & nrad_photons, int * rad_photons);
   int GlobeMatchWithGen(GlobeGenerator * gen, TLorentzVector* p4, Float_t & deltaR, int pdgid, int gencoll, float cutgenrecdrmatch);

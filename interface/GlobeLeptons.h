@@ -13,13 +13,15 @@
 
 #include <iostream>
 
+class GlobeAnalyzer;
+
 class GlobeLeptons {
   public:
 
     GlobeLeptons();
     virtual ~GlobeLeptons() {};
 
-    void defineBranch(TTree* tree);
+    void defineBranch(GlobeAnalyzer* ana);
     void fillList(GlobeElectrons * theElectrons, GlobeMuons * theMuons, GlobePhotons * thePhotons);
     void Zero();
     void addMuons(GlobeMuons * theMuons);
