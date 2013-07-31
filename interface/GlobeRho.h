@@ -10,13 +10,15 @@
 
 #include <iostream>
 
+class GlobeAnalyzer;
+
 class GlobeRho {
  public:
   
   GlobeRho(const edm::ParameterSet&, const char*);
   virtual ~GlobeRho() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
 
   float rho; 

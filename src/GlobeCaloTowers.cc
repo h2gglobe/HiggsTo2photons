@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeCaloTowers.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 
 GlobeCaloTowers::GlobeCaloTowers(const edm::ParameterSet& iConfig, const char* n): nome(n) {
@@ -10,19 +11,19 @@ GlobeCaloTowers::GlobeCaloTowers(const edm::ParameterSet& iConfig, const char* n
   gCUT = new GlobeCuts(iConfig);
 }
 
-void GlobeCaloTowers::defineBranch(TTree* tree) {
+void GlobeCaloTowers::defineBranch(GlobeAnalyzer* ana) {
     
-  tree->Branch("ct_n", &ct_n, "ct_n/I");
+  ana->Branch("ct_n", &ct_n, "ct_n/I");
   
   ct_p4 = new TClonesArray("TLorentzVector", MAX_CALOTOWERS);
-  tree->Branch("ct_p4", "TClonesArray", &ct_p4, 32000, 0);
+  ana->Branch("ct_p4", "TClonesArray", &ct_p4, 32000, 0);
 
-  tree->Branch("ct_emEnergy", &ct_emEnergy, "ct_emEnergy[ct_n]/F");
-  tree->Branch("ct_hadEnergy", &ct_hadEnergy, "ct_hadEnergy[ct_n]/F");
-  tree->Branch("ct_outerEnergy", &ct_outerEnergy, "ct_outerEnergy[ct_n]/F");
-  tree->Branch("ct_emL1", &ct_emL1, "ct_emL1[ct_n]/I");
-  tree->Branch("ct_hadL1", &ct_hadL1, "ct_hadL1[ct_n]/I");
-  tree->Branch("ct_size", &ct_size, "ct_size[ct_n]/I");
+  ana->Branch("ct_emEnergy", &ct_emEnergy, "ct_emEnergy[ct_n]/F");
+  ana->Branch("ct_hadEnergy", &ct_hadEnergy, "ct_hadEnergy[ct_n]/F");
+  ana->Branch("ct_outerEnergy", &ct_outerEnergy, "ct_outerEnergy[ct_n]/F");
+  ana->Branch("ct_emL1", &ct_emL1, "ct_emL1[ct_n]/I");
+  ana->Branch("ct_hadL1", &ct_hadL1, "ct_hadL1[ct_n]/I");
+  ana->Branch("ct_size", &ct_size, "ct_size[ct_n]/I");
 }
 
 bool GlobeCaloTowers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

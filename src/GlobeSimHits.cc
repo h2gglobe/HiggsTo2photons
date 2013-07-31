@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeSimHits.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 
 GlobeSimHits::GlobeSimHits(const edm::ParameterSet& iConfig, const char* n): nome(n) {
@@ -18,17 +19,17 @@ GlobeSimHits::GlobeSimHits(const edm::ParameterSet& iConfig, const char* n): nom
   gCUT = new GlobeCuts(iConfig); 
 }
 
-void GlobeSimHits::defineBranch(TTree* tree) {
+void GlobeSimHits::defineBranch(GlobeAnalyzer* ana) {
 
   simhit_xyz= new TClonesArray("TVector3", MAX_SIMHITS);
-  tree->Branch("simhit_n", &simhit_n, "simhit_n/I");
-  tree->Branch("simhit_xyz", "TClonesArray", &simhit_xyz, 32000, 0);
-  tree->Branch("simhit_pabs", &simhit_pabs, "simhit_pabs[simhit_n]/F");
-  tree->Branch("simhit_eloss", &simhit_eloss, "simhit_eloss[simhit_n]/F");
-  tree->Branch("simhit_subdet", &simhit_subdet, "simhit_subdet[simhit_n]/I");
-  tree->Branch("simhit_pdgid", &simhit_pdgid, "simhit_pdgid[simhit_n]/I");
-  tree->Branch("simhit_trkid", &simhit_trkid, "simhit_trkid[simhit_n]/I");
-  tree->Branch("simhit_simtrkind", &simhit_simtrkind, "simhit_simtrkind[simhit_n]/I");
+  ana->Branch("simhit_n", &simhit_n, "simhit_n/I");
+  ana->Branch("simhit_xyz", "TClonesArray", &simhit_xyz, 32000, 0);
+  ana->Branch("simhit_pabs", &simhit_pabs, "simhit_pabs[simhit_n]/F");
+  ana->Branch("simhit_eloss", &simhit_eloss, "simhit_eloss[simhit_n]/F");
+  ana->Branch("simhit_subdet", &simhit_subdet, "simhit_subdet[simhit_n]/I");
+  ana->Branch("simhit_pdgid", &simhit_pdgid, "simhit_pdgid[simhit_n]/I");
+  ana->Branch("simhit_trkid", &simhit_trkid, "simhit_trkid[simhit_n]/I");
+  ana->Branch("simhit_simtrkind", &simhit_simtrkind, "simhit_simtrkind[simhit_n]/I");
 }
 
 bool GlobeSimHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

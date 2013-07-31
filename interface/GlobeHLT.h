@@ -12,7 +12,8 @@
 #include <stdint.h>
 
 #include "TClonesArray.h"
-#include "TTree.h"
+
+class GlobeAnalyzer;
 
 class GlobeHLT {
  public:
@@ -20,7 +21,7 @@ class GlobeHLT {
    GlobeHLT(const edm::ParameterSet&, const char* n="unused");
    virtual ~GlobeHLT() {};
 
-   void defineBranch(TTree* tree);
+   void defineBranch(GlobeAnalyzer* ana);
    bool analyze(const edm::Event&, const edm::EventSetup&);
 
    std::vector<unsigned short>* hlt_bit;

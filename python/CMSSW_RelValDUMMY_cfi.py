@@ -7,21 +7,8 @@ readFiles = cms.untracked.vstring()
 secFiles = cms.untracked.vstring() 
 source = cms.Source ("PoolSource",fileNames = readFiles)
 readFiles.extend( (
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_2_1_jbQ.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_3_1_iEo.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_1_1_F8z.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_6_1_uGh.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_9_1_UU7.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_8_1_Y4V.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_13_1_Flq.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_7_1_mQA.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_12_1_H7d.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_11_1_GzS.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_14_2_52K.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_4_2_rRl.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_5_2_C6m.root',
-    'file:/afs/cern.ch/work/c/capalmer/private/h2g/2012analysis/524p4_pickeventsv2/src/PhysicsTools/Utilities/crab_0_120702_173500/res/pickevents_10_3_NhM.root',
-    #'/store/mc/Summer12/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S7_START52_V5-v1/0000/DA10D9B6-BD75-E111-BB07-003048673F12.root',
+    '/store/mc/Summer13/GluGluToHToGG_M-125_14TeV-powheg-pythia6/GEN-SIM-RECO/UpgradePhase1Age0DES_DR61SLHCx_PU140Bx25_DES17_61_V5-v1/110000/0C960FFE-1DEE-E211-9644-00248C0BE013.root',
+     #'/store/mc/Summer12/DYJetsToLL_M-50_TuneZ2Star_8TeV-madgraph-tarball/AODSIM/PU_S7_START52_V5-v1/0000/DA10D9B6-BD75-E111-BB07-003048673F12.root',
     # GLUGLU
     #'file:/tmp/sani/dy_52X.root',
     # SinglePhoton

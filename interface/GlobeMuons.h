@@ -20,13 +20,15 @@
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
 
+class GlobeAnalyzer;
+
 class GlobeMuons {
  public:
   
   GlobeMuons(const edm::ParameterSet&, const char* n = "unused");
   virtual ~GlobeMuons();
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
 
   // variables

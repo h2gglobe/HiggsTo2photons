@@ -18,13 +18,15 @@
 
 #include <iostream>
 
+class GlobeAnalyzer;
+
 class GlobeHT {
  public:
   
   GlobeHT(const edm::ParameterSet&);
   virtual ~GlobeHT() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   void fillCaloTowerHT(GlobeMET * theMET, GlobeCaloTowers * theCaloTowers);
   void fillTrackHT(const edm::Event&);
   void fillLeptonHT(GlobeJets * theJets, GlobeMET * theMET, GlobeLeptons * theLeptons);

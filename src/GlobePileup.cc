@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePileup.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 GlobePileup::GlobePileup(const edm::ParameterSet& iConfig) {
   
@@ -15,16 +16,16 @@ GlobePileup::GlobePileup(const edm::ParameterSet& iConfig) {
   h2 = new TH1D("pileup_true", "pileup_true", 1000, 0, 100);
 }
 
-void GlobePileup::defineBranch(TTree* tree) {
+void GlobePileup::defineBranch(GlobeAnalyzer* ana) {
   
-  tree->Branch("pu_n", &pu_n, "pu_n/I");
-  tree->Branch("pu_n_true", &pu_n_true, "pu_n_true/F");
-  tree->Branch("pu_bunchcrossing", &pu_bunchcrossing, "pu_bunchcrossing/I");
-  tree->Branch("pu_zpos", "std::vector<float>", &pu_zpos);
-  tree->Branch("pu_sumpt_lowpt", "std::vector<float>", &pu_sumpt_lowpt);
-  tree->Branch("pu_sumpt_highpt", "std::vector<float>", &pu_sumpt_highpt);
-  tree->Branch("pu_ntrks_lowpt", "std::vector<int>", &pu_ntrks_lowpt);
-  tree->Branch("pu_ntrks_highpt", "std::vector<int>", &pu_ntrks_highpt);
+  ana->Branch("pu_n", &pu_n, "pu_n/I");
+  ana->Branch("pu_n_true", &pu_n_true, "pu_n_true/F");
+  ana->Branch("pu_bunchcrossing", &pu_bunchcrossing, "pu_bunchcrossing/I");
+  ana->Branch("pu_zpos", "std::vector<float>", &pu_zpos);
+  ana->Branch("pu_sumpt_lowpt", "std::vector<float>", &pu_sumpt_lowpt);
+  ana->Branch("pu_sumpt_highpt", "std::vector<float>", &pu_sumpt_highpt);
+  ana->Branch("pu_ntrks_lowpt", "std::vector<int>", &pu_ntrks_lowpt);
+  ana->Branch("pu_ntrks_highpt", "std::vector<int>", &pu_ntrks_highpt);
 }
 
 bool GlobePileup::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

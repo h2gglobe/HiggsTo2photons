@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePhotons.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/Tools.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
@@ -139,250 +140,250 @@ GlobePhotons::GlobePhotons(const edm::ParameterSet& iConfig, const char* n): nom
 }
 
 
-void GlobePhotons::defineBranch(TTree* tree) {
+void GlobePhotons::defineBranch(GlobeAnalyzer* ana) {
 
   pho_p4 = new TClonesArray("TLorentzVector", MAX_PHOTONS);
   pho_calopos = new TClonesArray("TVector3", MAX_PHOTONS);
 
-  tree->Branch("pho_n", &pho_n, "pho_n/I");
+  ana->Branch("pho_n", &pho_n, "pho_n/I");
 
   //Correction Schemes
-  tree->Branch("pho_feta",&pho_feta,"pho_feta[pho_n][5]/F");
-  tree->Branch("pho_crackcorr",&pho_crackcorr,"pho_crackcorr[pho_n]/F");
-  tree->Branch("pho_localcorr",&pho_localcorr,"pho_localcorr[pho_n]/F");
+  ana->Branch("pho_feta",&pho_feta,"pho_feta[pho_n][5]/F");
+  ana->Branch("pho_crackcorr",&pho_crackcorr,"pho_crackcorr[pho_n]/F");
+  ana->Branch("pho_localcorr",&pho_localcorr,"pho_localcorr[pho_n]/F");
 
   //pf
-  tree->Branch("pho_isPFPhoton", &pho_isPFPhoton,"pho_isPFPhoton[pho_n]/I");
-  tree->Branch("pho_isPFElectron", &pho_isPFElectron,"pho_isPFElectron[pho_n]/I");
+  ana->Branch("pho_isPFPhoton", &pho_isPFPhoton,"pho_isPFPhoton[pho_n]/I");
+  ana->Branch("pho_isPFElectron", &pho_isPFElectron,"pho_isPFElectron[pho_n]/I");
 
   //fiducial flags
-  tree->Branch("pho_isEB",&pho_isEB,"pho_isEB[pho_n]/I");
-  tree->Branch("pho_isEE",&pho_isEE,"pho_isEE[pho_n]/I");
-  tree->Branch("pho_isEBGap",&pho_isEBGap,"pho_isEBGap[pho_n]/I");
-  tree->Branch("pho_isEEGap",&pho_isEEGap,"pho_isEEGap[pho_n]/I");
-  tree->Branch("pho_isEBEEGap",&pho_isEBEEGap,"pho_isEBEEGap[pho_n]/I");
-  tree->Branch("pho_isEBEtaGap",&pho_isEBEtaGap,"pho_isEBEtaGap[pho_n]/I");    
-  tree->Branch("pho_isEBPhiGap",&pho_isEBPhiGap,"pho_isEBPhiGap[pho_n]/I");    
-  tree->Branch("pho_isEEDeeGap",&pho_isEEDeeGap,"pho_isEEDeeGap[pho_n]/I");    
-  tree->Branch("pho_isEERingGap",&pho_isEERingGap,"pho_isEERingGap[pho_n]/I");   
+  ana->Branch("pho_isEB",&pho_isEB,"pho_isEB[pho_n]/I");
+  ana->Branch("pho_isEE",&pho_isEE,"pho_isEE[pho_n]/I");
+  ana->Branch("pho_isEBGap",&pho_isEBGap,"pho_isEBGap[pho_n]/I");
+  ana->Branch("pho_isEEGap",&pho_isEEGap,"pho_isEEGap[pho_n]/I");
+  ana->Branch("pho_isEBEEGap",&pho_isEBEEGap,"pho_isEBEEGap[pho_n]/I");
+  ana->Branch("pho_isEBEtaGap",&pho_isEBEtaGap,"pho_isEBEtaGap[pho_n]/I");    
+  ana->Branch("pho_isEBPhiGap",&pho_isEBPhiGap,"pho_isEBPhiGap[pho_n]/I");    
+  ana->Branch("pho_isEEDeeGap",&pho_isEEDeeGap,"pho_isEEDeeGap[pho_n]/I");    
+  ana->Branch("pho_isEERingGap",&pho_isEERingGap,"pho_isEERingGap[pho_n]/I");   
 
   //shower shape variables
-  tree->Branch("pho_see",&pho_see,"pho_see[pho_n]/F");
-  tree->Branch("pho_sieie",&pho_sieie,"pho_sieie[pho_n]/F");
-  tree->Branch("pho_e1x5",&pho_e1x5,"pho_e1x5[pho_n]/F");
-  tree->Branch("pho_e1x3",&pho_e1x3,"pho_e1x3[pho_n]/F");
-  tree->Branch("pho_e2x2",&pho_e2x2,"pho_e2x2[pho_n]/F");
-  tree->Branch("pho_e3x3",&pho_e3x3,"pho_e3x3[pho_n]/F");
-  tree->Branch("pho_e5x5",&pho_e5x5,"pho_e5x5[pho_n]/F");
-  tree->Branch("pho_emaxxtal",&pho_emaxxtal,"pho_emaxxtal[pho_n]/F");
-  tree->Branch("pho_hoe",&pho_hoe,"pho_hoe[pho_n]/F");
-  tree->Branch("pho_h1oe",&pho_h1oe,"pho_h1oe[pho_n]/F");
-  tree->Branch("pho_h2oe",&pho_h2oe,"pho_h2oe[pho_n]/F");
-  tree->Branch("pho_hoe_bc",&pho_hoe_bc,"pho_hoe_bc[pho_n]/F");
-  tree->Branch("pho_h1oe_bc",&pho_h1oe_bc,"pho_h1oe_bc[pho_n]/F");
-  tree->Branch("pho_h2oe_bc",&pho_h2oe_bc,"pho_h2oe_bc[pho_n]/F");
-  tree->Branch("pho_r1x5", &pho_r1x5, "pho_r1x5[pho_n]/F");
-  tree->Branch("pho_r2x5", &pho_r2x5, "pho_r2x5[pho_n]/F");
-  tree->Branch("pho_r9", &pho_r9,"pho_r9[pho_n]/F");
+  ana->Branch("pho_see",&pho_see,"pho_see[pho_n]/F");
+  ana->Branch("pho_sieie",&pho_sieie,"pho_sieie[pho_n]/F");
+  ana->Branch("pho_e1x5",&pho_e1x5,"pho_e1x5[pho_n]/F");
+  ana->Branch("pho_e1x3",&pho_e1x3,"pho_e1x3[pho_n]/F");
+  ana->Branch("pho_e2x2",&pho_e2x2,"pho_e2x2[pho_n]/F");
+  ana->Branch("pho_e3x3",&pho_e3x3,"pho_e3x3[pho_n]/F");
+  ana->Branch("pho_e5x5",&pho_e5x5,"pho_e5x5[pho_n]/F");
+  ana->Branch("pho_emaxxtal",&pho_emaxxtal,"pho_emaxxtal[pho_n]/F");
+  ana->Branch("pho_hoe",&pho_hoe,"pho_hoe[pho_n]/F");
+  ana->Branch("pho_h1oe",&pho_h1oe,"pho_h1oe[pho_n]/F");
+  ana->Branch("pho_h2oe",&pho_h2oe,"pho_h2oe[pho_n]/F");
+  ana->Branch("pho_hoe_bc",&pho_hoe_bc,"pho_hoe_bc[pho_n]/F");
+  ana->Branch("pho_h1oe_bc",&pho_h1oe_bc,"pho_h1oe_bc[pho_n]/F");
+  ana->Branch("pho_h2oe_bc",&pho_h2oe_bc,"pho_h2oe_bc[pho_n]/F");
+  ana->Branch("pho_r1x5", &pho_r1x5, "pho_r1x5[pho_n]/F");
+  ana->Branch("pho_r2x5", &pho_r2x5, "pho_r2x5[pho_n]/F");
+  ana->Branch("pho_r9", &pho_r9,"pho_r9[pho_n]/F");
 
-  tree->Branch("pho_eseffsixix",&pho_eseffsixix,"pho_eseffsixix[pho_n]/F");
-  tree->Branch("pho_eseffsiyiy",&pho_eseffsiyiy,"pho_eseffsiyiy[pho_n]/F");
+  ana->Branch("pho_eseffsixix",&pho_eseffsixix,"pho_eseffsixix[pho_n]/F");
+  ana->Branch("pho_eseffsiyiy",&pho_eseffsiyiy,"pho_eseffsiyiy[pho_n]/F");
 
   // NN variable
-  tree->Branch("pho_r19", &pho_r19, "pho_r19[pho_n]/F");
-  tree->Branch("pho_maxoraw", &pho_maxoraw, "pho_maxoraw[pho_n]/F");
-  tree->Branch("pho_cep", &pho_cep, "pho_cep[pho_n]/F");
-  tree->Branch("pho_lambdaratio", &pho_lambdaratio, "pho_lambdaratio[pho_n]/F");
-  tree->Branch("pho_lambdadivcov", &pho_lambdadivcov, "pho_lambdadivcov[pho_n]/F");
-  tree->Branch("pho_cep_global", &pho_cep_global, "pho_cep_global[pho_n]/F");
-  tree->Branch("pho_lambdaratio_global", &pho_lambdaratio_global, "pho_lambdaratio_global[pho_n]/F");
-  tree->Branch("pho_lambdadivcov_global", &pho_lambdadivcov_global, "pho_lambdadivcov_global[pho_n]/F");
-  tree->Branch("pho_etawidth", &pho_etawidth, "pho_etawidth[pho_n]/F");
-  tree->Branch("pho_brem", &pho_brem, "pho_brem[pho_n]/F");
-  tree->Branch("pho_smaj", &pho_smaj, "pho_smaj[pho_n]/F");
+  ana->Branch("pho_r19", &pho_r19, "pho_r19[pho_n]/F");
+  ana->Branch("pho_maxoraw", &pho_maxoraw, "pho_maxoraw[pho_n]/F");
+  ana->Branch("pho_cep", &pho_cep, "pho_cep[pho_n]/F");
+  ana->Branch("pho_lambdaratio", &pho_lambdaratio, "pho_lambdaratio[pho_n]/F");
+  ana->Branch("pho_lambdadivcov", &pho_lambdadivcov, "pho_lambdadivcov[pho_n]/F");
+  ana->Branch("pho_cep_global", &pho_cep_global, "pho_cep_global[pho_n]/F");
+  ana->Branch("pho_lambdaratio_global", &pho_lambdaratio_global, "pho_lambdaratio_global[pho_n]/F");
+  ana->Branch("pho_lambdadivcov_global", &pho_lambdadivcov_global, "pho_lambdadivcov_global[pho_n]/F");
+  ana->Branch("pho_etawidth", &pho_etawidth, "pho_etawidth[pho_n]/F");
+  ana->Branch("pho_brem", &pho_brem, "pho_brem[pho_n]/F");
+  ana->Branch("pho_smaj", &pho_smaj, "pho_smaj[pho_n]/F");
 
   // added by Aris
   // pi0 disc
-  tree->Branch("pho_pi0disc",&pho_pi0disc,"pho_pi0disc[pho_n]/F");
+  ana->Branch("pho_pi0disc",&pho_pi0disc,"pho_pi0disc[pho_n]/F");
   // OutIn Conv trks
-  tree->Branch("pho_IsConvOutIn",&pho_IsConvOutIn,"pho_IsConvOutIn[pho_n]/I");
+  ana->Branch("pho_IsConvOutIn",&pho_IsConvOutIn,"pho_IsConvOutIn[pho_n]/I");
   ////////
 
   //isolation variables
 
-  tree->Branch("pho_pfiso_myneutral01", &pho_pfiso_myneutral01, "pho_pfiso_myneutral01[pho_n]/F");
-  tree->Branch("pho_pfiso_myphoton01", &pho_pfiso_myphoton01, "pho_pfiso_myphoton01[pho_n]/F");  
-  tree->Branch("pho_pfiso_mycharged01", "std::vector<std::vector<float> >", &pho_pfiso_mycharged01);
+  ana->Branch("pho_pfiso_myneutral01", &pho_pfiso_myneutral01, "pho_pfiso_myneutral01[pho_n]/F");
+  ana->Branch("pho_pfiso_myphoton01", &pho_pfiso_myphoton01, "pho_pfiso_myphoton01[pho_n]/F");  
+  ana->Branch("pho_pfiso_mycharged01", "std::vector<std::vector<float> >", &pho_pfiso_mycharged01);
 
-  tree->Branch("pho_pfiso_myneutral02", &pho_pfiso_myneutral02, "pho_pfiso_myneutral02[pho_n]/F");
-  tree->Branch("pho_pfiso_myphoton02", &pho_pfiso_myphoton02, "pho_pfiso_myphoton02[pho_n]/F");  
-  tree->Branch("pho_pfiso_mycharged02", "std::vector<std::vector<float> >", &pho_pfiso_mycharged02);
+  ana->Branch("pho_pfiso_myneutral02", &pho_pfiso_myneutral02, "pho_pfiso_myneutral02[pho_n]/F");
+  ana->Branch("pho_pfiso_myphoton02", &pho_pfiso_myphoton02, "pho_pfiso_myphoton02[pho_n]/F");  
+  ana->Branch("pho_pfiso_mycharged02", "std::vector<std::vector<float> >", &pho_pfiso_mycharged02);
 
-  tree->Branch("pho_pfiso_myneutral03", &pho_pfiso_myneutral03, "pho_pfiso_myneutral03[pho_n]/F");
-  tree->Branch("pho_pfiso_myphoton03", &pho_pfiso_myphoton03, "pho_pfiso_myphoton03[pho_n]/F");  
-  tree->Branch("pho_pfiso_mycharged03", "std::vector<std::vector<float> >", &pho_pfiso_mycharged03);
+  ana->Branch("pho_pfiso_myneutral03", &pho_pfiso_myneutral03, "pho_pfiso_myneutral03[pho_n]/F");
+  ana->Branch("pho_pfiso_myphoton03", &pho_pfiso_myphoton03, "pho_pfiso_myphoton03[pho_n]/F");  
+  ana->Branch("pho_pfiso_mycharged03", "std::vector<std::vector<float> >", &pho_pfiso_mycharged03);
 
-  tree->Branch("pho_pfiso_myneutral04", &pho_pfiso_myneutral04, "pho_pfiso_myneutral04[pho_n]/F");
-  tree->Branch("pho_pfiso_myphoton04", &pho_pfiso_myphoton04, "pho_pfiso_myphoton04[pho_n]/F");
-  tree->Branch("pho_pfiso_mycharged04", "std::vector<std::vector<float> >", &pho_pfiso_mycharged04);
+  ana->Branch("pho_pfiso_myneutral04", &pho_pfiso_myneutral04, "pho_pfiso_myneutral04[pho_n]/F");
+  ana->Branch("pho_pfiso_myphoton04", &pho_pfiso_myphoton04, "pho_pfiso_myphoton04[pho_n]/F");
+  ana->Branch("pho_pfiso_mycharged04", "std::vector<std::vector<float> >", &pho_pfiso_mycharged04);
 
-  tree->Branch("pho_pfiso_myneutral05", &pho_pfiso_myneutral05, "pho_pfiso_myneutral05[pho_n]/F");
-  tree->Branch("pho_pfiso_myphoton05", &pho_pfiso_myphoton05, "pho_pfiso_myphoton05[pho_n]/F");
-  tree->Branch("pho_pfiso_mycharged05", "std::vector<std::vector<float> >", &pho_pfiso_mycharged05);
+  ana->Branch("pho_pfiso_myneutral05", &pho_pfiso_myneutral05, "pho_pfiso_myneutral05[pho_n]/F");
+  ana->Branch("pho_pfiso_myphoton05", &pho_pfiso_myphoton05, "pho_pfiso_myphoton05[pho_n]/F");
+  ana->Branch("pho_pfiso_mycharged05", "std::vector<std::vector<float> >", &pho_pfiso_mycharged05);
 
-  tree->Branch("pho_pfiso_myneutral06", &pho_pfiso_myneutral06, "pho_pfiso_myneutral06[pho_n]/F");
-  tree->Branch("pho_pfiso_myphoton06", &pho_pfiso_myphoton06, "pho_pfiso_myphoton06[pho_n]/F");
-  tree->Branch("pho_pfiso_mycharged06", "std::vector<std::vector<float> >", &pho_pfiso_mycharged06);
+  ana->Branch("pho_pfiso_myneutral06", &pho_pfiso_myneutral06, "pho_pfiso_myneutral06[pho_n]/F");
+  ana->Branch("pho_pfiso_myphoton06", &pho_pfiso_myphoton06, "pho_pfiso_myphoton06[pho_n]/F");
+  ana->Branch("pho_pfiso_mycharged06", "std::vector<std::vector<float> >", &pho_pfiso_mycharged06);
 
-  tree->Branch("pho_schits", "std::vector<std::vector<UInt_t> >", &pho_schits);
-  tree->Branch("pho_bchits", "std::vector<std::vector<UInt_t> >", &pho_bchits);
+  ana->Branch("pho_schits", "std::vector<std::vector<UInt_t> >", &pho_schits);
+  ana->Branch("pho_bchits", "std::vector<std::vector<UInt_t> >", &pho_bchits);
 
-  //tree->Branch("pho_frixiso", "std::vector<std::vector<float> >", &pho_frixiso);  
+  //ana->Branch("pho_frixiso", "std::vector<std::vector<float> >", &pho_frixiso);  
 
-  tree->Branch("pho_pfconvVtxZ", &pho_pfconvVtxZ, "pho_pfconvVtxZ[pho_n]/F");
-  tree->Branch("pho_pfconvVtxZErr", &pho_pfconvVtxZErr, "pho_pfconvVtxZErr[pho_n]/F");
-  tree->Branch("pho_hasConvPf", &pho_hasConvPf, "pho_hasConvPf[pho_n]/I");
-  tree->Branch("pho_hasSLConvPf", &pho_hasSLConvPf, "pho_hasSLConvPf[pho_n]/I");
+  ana->Branch("pho_pfconvVtxZ", &pho_pfconvVtxZ, "pho_pfconvVtxZ[pho_n]/F");
+  ana->Branch("pho_pfconvVtxZErr", &pho_pfconvVtxZErr, "pho_pfconvVtxZErr[pho_n]/F");
+  ana->Branch("pho_hasConvPf", &pho_hasConvPf, "pho_hasConvPf[pho_n]/I");
+  ana->Branch("pho_hasSLConvPf", &pho_hasSLConvPf, "pho_hasSLConvPf[pho_n]/I");
 
-  tree->Branch("pho_must", &pho_must, "pho_must[pho_n]/F");
-  tree->Branch("pho_mustnc", &pho_mustnc, "pho_mustnc[pho_n]/I");
-  tree->Branch("pho_pfpresh1", &pho_pfpresh1, "pho_pfpresh1[pho_n]/F");
-  tree->Branch("pho_pfpresh2", &pho_pfpresh2, "pho_pfpresh2[pho_n]/F");
-  tree->Branch("pho_mustenergy", &pho_mustenergy, "pho_mustenergy[pho_n]/F");
-  tree->Branch("pho_mustenergyout", &pho_mustenergyout, "pho_mustenergyout[pho_n]/F");
+  ana->Branch("pho_must", &pho_must, "pho_must[pho_n]/F");
+  ana->Branch("pho_mustnc", &pho_mustnc, "pho_mustnc[pho_n]/I");
+  ana->Branch("pho_pfpresh1", &pho_pfpresh1, "pho_pfpresh1[pho_n]/F");
+  ana->Branch("pho_pfpresh2", &pho_pfpresh2, "pho_pfpresh2[pho_n]/F");
+  ana->Branch("pho_mustenergy", &pho_mustenergy, "pho_mustenergy[pho_n]/F");
+  ana->Branch("pho_mustenergyout", &pho_mustenergyout, "pho_mustenergyout[pho_n]/F");
   
-  tree->Branch("pho_mustEtout", &pho_mustEtout, "pho_mustEtout[pho_n]/F");
-  tree->Branch("pho_pflowE", &pho_pflowE, "pho_pflowE[pho_n]/F");
-  tree->Branch("pho_pfdeta", &pho_pfdeta, "pho_pfdeta[pho_n]/F");
-  tree->Branch("pho_pfdphi", &pho_pfdphi, "pho_pfdphi[pho_n]/F");
-  tree->Branch("pho_pfclusrms", &pho_pfclusrms, "pho_pfclusrms[pho_n]/F");
-  tree->Branch("pho_pfclusrmsmust", &pho_pfclusrmsmust, "pho_pfclusrmsmust[pho_n]/F");
-  tree->Branch("pho_pfClusECorr", &pho_pfClusECorr, "pho_pfClusECorr[pho_n]/F");  
-  tree->Branch("pho_pfMatch", &pho_pfMatch, "pho_pfMatch[pho_n]/I");
-  tree->Branch("pho_PfEleVeto", &pho_PfEleVeto, "pho_PfEleVeto[pho_n]/I");
+  ana->Branch("pho_mustEtout", &pho_mustEtout, "pho_mustEtout[pho_n]/F");
+  ana->Branch("pho_pflowE", &pho_pflowE, "pho_pflowE[pho_n]/F");
+  ana->Branch("pho_pfdeta", &pho_pfdeta, "pho_pfdeta[pho_n]/F");
+  ana->Branch("pho_pfdphi", &pho_pfdphi, "pho_pfdphi[pho_n]/F");
+  ana->Branch("pho_pfclusrms", &pho_pfclusrms, "pho_pfclusrms[pho_n]/F");
+  ana->Branch("pho_pfclusrmsmust", &pho_pfclusrmsmust, "pho_pfclusrmsmust[pho_n]/F");
+  ana->Branch("pho_pfClusECorr", &pho_pfClusECorr, "pho_pfClusECorr[pho_n]/F");  
+  ana->Branch("pho_pfMatch", &pho_pfMatch, "pho_pfMatch[pho_n]/I");
+  ana->Branch("pho_PfEleVeto", &pho_PfEleVeto, "pho_PfEleVeto[pho_n]/I");
 
-  tree->Branch("pho_pfRawEnergy", &pho_pfRawEnergy, "pho_pfRawEnergy[pho_n]/F");
-  tree->Branch("pho_pfe2x2", &pho_pfe2x2, "pho_pfe2x2[pho_n]/F");
-  tree->Branch("pho_pfe3x3", &pho_pfe3x3, "pho_pfe3x3[pho_n]/F");
-  tree->Branch("pho_pfe5x5", &pho_pfe5x5, "pho_pfe5x5[pho_n]/F");
-  tree->Branch("pho_pfsieie", &pho_pfsieie, "pho_pfsieie[pho_n]/F");
-  tree->Branch("pho_pfsieip", &pho_pfsieip, "pho_pfsieip[pho_n]/F");
-  tree->Branch("pho_pfsipip", &pho_pfsipip, "pho_pfsipip[pho_n]/F");
-  tree->Branch("pho_pfemaxxtal", &pho_pfemaxxtal, "pho_pfemaxxtal[pho_n]/F");
-  tree->Branch("pho_pfe2nd", &pho_pfe2nd, "pho_pfe2nd[pho_n]/F");
+  ana->Branch("pho_pfRawEnergy", &pho_pfRawEnergy, "pho_pfRawEnergy[pho_n]/F");
+  ana->Branch("pho_pfe2x2", &pho_pfe2x2, "pho_pfe2x2[pho_n]/F");
+  ana->Branch("pho_pfe3x3", &pho_pfe3x3, "pho_pfe3x3[pho_n]/F");
+  ana->Branch("pho_pfe5x5", &pho_pfe5x5, "pho_pfe5x5[pho_n]/F");
+  ana->Branch("pho_pfsieie", &pho_pfsieie, "pho_pfsieie[pho_n]/F");
+  ana->Branch("pho_pfsieip", &pho_pfsieip, "pho_pfsieip[pho_n]/F");
+  ana->Branch("pho_pfsipip", &pho_pfsipip, "pho_pfsipip[pho_n]/F");
+  ana->Branch("pho_pfemaxxtal", &pho_pfemaxxtal, "pho_pfemaxxtal[pho_n]/F");
+  ana->Branch("pho_pfe2nd", &pho_pfe2nd, "pho_pfe2nd[pho_n]/F");
 
-  tree->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
-  tree->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
-  tree->Branch("pho_hcal1sumetconedr04",&pho_hcal1sumetconedr04,"pho_hcal1sumetconedr04[pho_n]/F");
-  tree->Branch("pho_hcal2sumetconedr04",&pho_hcal2sumetconedr04,"pho_hcal2sumetconedr04[pho_n]/F");
-  tree->Branch("pho_trksumptsolidconedr04",&pho_trksumptsolidconedr04,"pho_trksumptsolidconedr04[pho_n]/F");
-  tree->Branch("pho_trksumpthollowconedr04",&pho_trksumpthollowconedr04,"pho_trksumpthollowconedr04[pho_n]/F");
-  tree->Branch("pho_ntrksolidconedr04",&pho_ntrksolidconedr04,"pho_ntrksolidconedr04[pho_n]/F");
-  tree->Branch("pho_ntrkhollowconedr04",&pho_ntrkhollowconedr04,"pho_ntrkhollowconedr04[pho_n]/F");
-  tree->Branch("pho_ecalsumetconedr03",&pho_ecalsumetconedr03,"pho_ecalsumetconedr03[pho_n]/F");
-  tree->Branch("pho_hcalsumetconedr03",&pho_hcalsumetconedr03,"pho_hcalsumetconedr03[pho_n]/F");
-  tree->Branch("pho_hcal1sumetconedr03",&pho_hcal1sumetconedr03,"pho_hcal1sumetconedr03[pho_n]/F");
-  tree->Branch("pho_hcal2sumetconedr03",&pho_hcal2sumetconedr03,"pho_hcal2sumetconedr03[pho_n]/F");
-  tree->Branch("pho_trksumptsolidconedr03",&pho_trksumptsolidconedr03,"pho_trksumptsolidconedr03[pho_n]/F");
-  tree->Branch("pho_trksumpthollowconedr03",&pho_trksumpthollowconedr03,"pho_trksumpthollowconedr03[pho_n]/F");
-  tree->Branch("pho_ntrksolidconedr03",&pho_ntrksolidconedr03,"pho_ntrksolidconedr03[pho_n]/F");
-  tree->Branch("pho_ntrkhollowconedr03",&pho_ntrkhollowconedr03,"pho_ntrkhollowconedr03[pho_n]/F");
+  ana->Branch("pho_ecalsumetconedr04",&pho_ecalsumetconedr04,"pho_ecalsumetconedr04[pho_n]/F");
+  ana->Branch("pho_hcalsumetconedr04",&pho_hcalsumetconedr04,"pho_hcalsumetconedr04[pho_n]/F");
+  ana->Branch("pho_hcal1sumetconedr04",&pho_hcal1sumetconedr04,"pho_hcal1sumetconedr04[pho_n]/F");
+  ana->Branch("pho_hcal2sumetconedr04",&pho_hcal2sumetconedr04,"pho_hcal2sumetconedr04[pho_n]/F");
+  ana->Branch("pho_trksumptsolidconedr04",&pho_trksumptsolidconedr04,"pho_trksumptsolidconedr04[pho_n]/F");
+  ana->Branch("pho_trksumpthollowconedr04",&pho_trksumpthollowconedr04,"pho_trksumpthollowconedr04[pho_n]/F");
+  ana->Branch("pho_ntrksolidconedr04",&pho_ntrksolidconedr04,"pho_ntrksolidconedr04[pho_n]/F");
+  ana->Branch("pho_ntrkhollowconedr04",&pho_ntrkhollowconedr04,"pho_ntrkhollowconedr04[pho_n]/F");
+  ana->Branch("pho_ecalsumetconedr03",&pho_ecalsumetconedr03,"pho_ecalsumetconedr03[pho_n]/F");
+  ana->Branch("pho_hcalsumetconedr03",&pho_hcalsumetconedr03,"pho_hcalsumetconedr03[pho_n]/F");
+  ana->Branch("pho_hcal1sumetconedr03",&pho_hcal1sumetconedr03,"pho_hcal1sumetconedr03[pho_n]/F");
+  ana->Branch("pho_hcal2sumetconedr03",&pho_hcal2sumetconedr03,"pho_hcal2sumetconedr03[pho_n]/F");
+  ana->Branch("pho_trksumptsolidconedr03",&pho_trksumptsolidconedr03,"pho_trksumptsolidconedr03[pho_n]/F");
+  ana->Branch("pho_trksumpthollowconedr03",&pho_trksumpthollowconedr03,"pho_trksumpthollowconedr03[pho_n]/F");
+  ana->Branch("pho_ntrksolidconedr03",&pho_ntrksolidconedr03,"pho_ntrksolidconedr03[pho_n]/F");
+  ana->Branch("pho_ntrkhollowconedr03",&pho_ntrkhollowconedr03,"pho_ntrkhollowconedr03[pho_n]/F");
 
-  tree->Branch("pho_hcalbcsumetconedr03", &pho_hcalbcsumetconedr03, "pho_hcalbcsumetconedr03[pho_n]/F");
-  tree->Branch("pho_hcalbc1sumetconedr03",&pho_hcalbc1sumetconedr03,"pho_hcalbc1sumetconedr03[pho_n]/F");
-  tree->Branch("pho_hcalbc2sumetconedr03",&pho_hcalbc2sumetconedr03,"pho_hcalbc2sumetconedr03[pho_n]/F");
-  tree->Branch("pho_hcalbcsumetconedr04", &pho_hcalbcsumetconedr04, "pho_hcalbcsumetconedr04[pho_n]/F");
-  tree->Branch("pho_hcalbc1sumetconedr04",&pho_hcalbc1sumetconedr04,"pho_hcalbc1sumetconedr04[pho_n]/F");
-  tree->Branch("pho_hcalbc2sumetconedr04",&pho_hcalbc2sumetconedr04,"pho_hcalbc2sumetconedr04[pho_n]/F");
+  ana->Branch("pho_hcalbcsumetconedr03", &pho_hcalbcsumetconedr03, "pho_hcalbcsumetconedr03[pho_n]/F");
+  ana->Branch("pho_hcalbc1sumetconedr03",&pho_hcalbc1sumetconedr03,"pho_hcalbc1sumetconedr03[pho_n]/F");
+  ana->Branch("pho_hcalbc2sumetconedr03",&pho_hcalbc2sumetconedr03,"pho_hcalbc2sumetconedr03[pho_n]/F");
+  ana->Branch("pho_hcalbcsumetconedr04", &pho_hcalbcsumetconedr04, "pho_hcalbcsumetconedr04[pho_n]/F");
+  ana->Branch("pho_hcalbc1sumetconedr04",&pho_hcalbc1sumetconedr04,"pho_hcalbc1sumetconedr04[pho_n]/F");
+  ana->Branch("pho_hcalbc2sumetconedr04",&pho_hcalbc2sumetconedr04,"pho_hcalbc2sumetconedr04[pho_n]/F");
 
-  tree->Branch("pho_p4", "TClonesArray", &pho_p4, 32000, 0);
-  tree->Branch("pho_calopos", "TClonesArray", &pho_calopos, 32000, 0);
-  tree->Branch("pho_barrel", &pho_barrel, "pho_barrel[pho_n]/I");
-  tree->Branch("pho_scind", &pho_scind, "pho_scind[pho_n]/I");
+  ana->Branch("pho_p4", "TClonesArray", &pho_p4, 32000, 0);
+  ana->Branch("pho_calopos", "TClonesArray", &pho_calopos, 32000, 0);
+  ana->Branch("pho_barrel", &pho_barrel, "pho_barrel[pho_n]/I");
+  ana->Branch("pho_scind", &pho_scind, "pho_scind[pho_n]/I");
   
-  tree->Branch("pho_haspixseed",&pho_haspixseed,"pho_haspixseed[pho_n]/I");
+  ana->Branch("pho_haspixseed",&pho_haspixseed,"pho_haspixseed[pho_n]/I");
   
-  tree->Branch("pho_hasconvtks",&pho_hasconvtks,"pho_hasconvtks[pho_n]/I");
-  tree->Branch("pho_nconv",&pho_nconv,"pho_nconv[pho_n]/I");
-  tree->Branch("pho_conv_ntracks",&pho_conv_ntracks,"pho_conv_ntracks[pho_n]/I");
-  tree->Branch("pho_conv_pairinvmass",&pho_conv_pairinvmass,"pho_conv_pairinvmass[pho_n]/F");
-  tree->Branch("pho_conv_paircotthetasep",&pho_conv_paircotthetasep,"pho_conv_paircotthetasep[pho_n]/F");
-  tree->Branch("pho_conv_eoverp",&pho_conv_eoverp,"pho_conv_eoverp[pho_n]/F");
-  tree->Branch("pho_conv_zofprimvtxfromtrks",&pho_conv_zofprimvtxfromtrks,"pho_conv_zofprimvtxfromtrks[pho_n]/F");
-  tree->Branch("pho_conv_distofminapproach",&pho_conv_distofminapproach,"pho_conv_distofminapproach[pho_n]/F");
-  tree->Branch("pho_conv_dphitrksatvtx",&pho_conv_dphitrksatvtx,"pho_conv_dphitrksatvtx[pho_n]/F");
-  tree->Branch("pho_conv_dphitrksatecal",&pho_conv_dphitrksatecal,"pho_conv_dphitrksatecal[pho_n]/F");
-  tree->Branch("pho_conv_detatrksatecal",&pho_conv_detatrksatecal,"pho_conv_detatrksatecal[pho_n]/F");
-  tree->Branch("pho_conv_tk1_d0",&pho_conv_tk1_d0,"pho_conv_tk1_d0[pho_n]/F");
-  tree->Branch("pho_conv_tk1_pout",&pho_conv_tk1_pout,"pho_conv_tk1_pout[pho_n]/F");
-  tree->Branch("pho_conv_tk1_pin",&pho_conv_tk1_pin,"pho_conv_tk1_pin[pho_n]/F");
-  tree->Branch("pho_conv_tk2_d0",&pho_conv_tk2_d0,"pho_conv_tk2_d0[pho_n]/F");
-  tree->Branch("pho_conv_tk2_pout",&pho_conv_tk2_pout,"pho_conv_tk2_pout[pho_n]/F");
-  tree->Branch("pho_conv_tk2_pin",&pho_conv_tk2_pin,"pho_conv_tk2_pin[pho_n]/F");
+  ana->Branch("pho_hasconvtks",&pho_hasconvtks,"pho_hasconvtks[pho_n]/I");
+  ana->Branch("pho_nconv",&pho_nconv,"pho_nconv[pho_n]/I");
+  ana->Branch("pho_conv_ntracks",&pho_conv_ntracks,"pho_conv_ntracks[pho_n]/I");
+  ana->Branch("pho_conv_pairinvmass",&pho_conv_pairinvmass,"pho_conv_pairinvmass[pho_n]/F");
+  ana->Branch("pho_conv_paircotthetasep",&pho_conv_paircotthetasep,"pho_conv_paircotthetasep[pho_n]/F");
+  ana->Branch("pho_conv_eoverp",&pho_conv_eoverp,"pho_conv_eoverp[pho_n]/F");
+  ana->Branch("pho_conv_zofprimvtxfromtrks",&pho_conv_zofprimvtxfromtrks,"pho_conv_zofprimvtxfromtrks[pho_n]/F");
+  ana->Branch("pho_conv_distofminapproach",&pho_conv_distofminapproach,"pho_conv_distofminapproach[pho_n]/F");
+  ana->Branch("pho_conv_dphitrksatvtx",&pho_conv_dphitrksatvtx,"pho_conv_dphitrksatvtx[pho_n]/F");
+  ana->Branch("pho_conv_dphitrksatecal",&pho_conv_dphitrksatecal,"pho_conv_dphitrksatecal[pho_n]/F");
+  ana->Branch("pho_conv_detatrksatecal",&pho_conv_detatrksatecal,"pho_conv_detatrksatecal[pho_n]/F");
+  ana->Branch("pho_conv_tk1_d0",&pho_conv_tk1_d0,"pho_conv_tk1_d0[pho_n]/F");
+  ana->Branch("pho_conv_tk1_pout",&pho_conv_tk1_pout,"pho_conv_tk1_pout[pho_n]/F");
+  ana->Branch("pho_conv_tk1_pin",&pho_conv_tk1_pin,"pho_conv_tk1_pin[pho_n]/F");
+  ana->Branch("pho_conv_tk2_d0",&pho_conv_tk2_d0,"pho_conv_tk2_d0[pho_n]/F");
+  ana->Branch("pho_conv_tk2_pout",&pho_conv_tk2_pout,"pho_conv_tk2_pout[pho_n]/F");
+  ana->Branch("pho_conv_tk2_pin",&pho_conv_tk2_pin,"pho_conv_tk2_pin[pho_n]/F");
   
   //added by marco
-  tree->Branch("pho_conv_tk1_dz",&pho_conv_tk1_dz,"pho_conv_tk1_dz[pho_n]/F");
-  tree->Branch("pho_conv_tk2_dz",&pho_conv_tk2_dz,"pho_conv_tk2_dz[pho_n]/F");
-  tree->Branch("pho_conv_tk1_dzerr",&pho_conv_tk1_dzerr,"pho_conv_tk1_dzerr[pho_n]/F");
-  tree->Branch("pho_conv_tk2_dzerr",&pho_conv_tk2_dzerr,"pho_conv_tk2_dzerr[pho_n]/F");
-  tree->Branch("pho_conv_tk1_nh",&pho_conv_tk1_nh,"pho_conv_tk1_nh[pho_n]/I");
-  tree->Branch("pho_conv_tk2_nh",&pho_conv_tk2_nh,"pho_conv_tk2_nh[pho_n]/I");
-  tree->Branch("pho_conv_chi2",&pho_conv_chi2,"pho_conv_chi2[pho_n]/F");
-  tree->Branch("pho_conv_chi2_probability",&pho_conv_chi2_probability,"pho_conv_chi2_probability[pho_n]/F");
-  tree->Branch("pho_conv_ch1ch2",&pho_conv_ch1ch2,"pho_conv_ch1ch2[pho_n]/I");
-  tree->Branch("pho_conv_validvtx",&pho_conv_validvtx,"pho_conv_validvtx[pho_n]/I");
-  tree->Branch("pho_conv_MVALikelihood",&pho_conv_MVALikelihood,"pho_conv_MVALikelihood[pho_n]/I");
+  ana->Branch("pho_conv_tk1_dz",&pho_conv_tk1_dz,"pho_conv_tk1_dz[pho_n]/F");
+  ana->Branch("pho_conv_tk2_dz",&pho_conv_tk2_dz,"pho_conv_tk2_dz[pho_n]/F");
+  ana->Branch("pho_conv_tk1_dzerr",&pho_conv_tk1_dzerr,"pho_conv_tk1_dzerr[pho_n]/F");
+  ana->Branch("pho_conv_tk2_dzerr",&pho_conv_tk2_dzerr,"pho_conv_tk2_dzerr[pho_n]/F");
+  ana->Branch("pho_conv_tk1_nh",&pho_conv_tk1_nh,"pho_conv_tk1_nh[pho_n]/I");
+  ana->Branch("pho_conv_tk2_nh",&pho_conv_tk2_nh,"pho_conv_tk2_nh[pho_n]/I");
+  ana->Branch("pho_conv_chi2",&pho_conv_chi2,"pho_conv_chi2[pho_n]/F");
+  ana->Branch("pho_conv_chi2_probability",&pho_conv_chi2_probability,"pho_conv_chi2_probability[pho_n]/F");
+  ana->Branch("pho_conv_ch1ch2",&pho_conv_ch1ch2,"pho_conv_ch1ch2[pho_n]/I");
+  ana->Branch("pho_conv_validvtx",&pho_conv_validvtx,"pho_conv_validvtx[pho_n]/I");
+  ana->Branch("pho_conv_MVALikelihood",&pho_conv_MVALikelihood,"pho_conv_MVALikelihood[pho_n]/I");
 
   // added by pasquale
-  tree->Branch("pho_sipip",&pho_sipip,"pho_sipip[pho_n]/F");
-  tree->Branch("pho_sieip",&pho_sieip,"pho_sieip[pho_n]/F");
-  tree->Branch("pho_zernike20",&pho_zernike20,"pho_zernike20[pho_n]/F");
-  tree->Branch("pho_zernike42",&pho_zernike42,"pho_zernike42[pho_n]/F");
-  tree->Branch("pho_e2nd",&pho_e2nd,"pho_e2nd[pho_n]/F");
-  tree->Branch("pho_e5x5",&pho_e5x5,"pho_e5x5[pho_n]/F");
-  tree->Branch("pho_e2x5right",&pho_e2x5right,"pho_e2x5right[pho_n]/F");
-  tree->Branch("pho_e2x5left",&pho_e2x5left,"pho_e2x5left[pho_n]/F");
-  tree->Branch("pho_e2x5top",&pho_e2x5top,"pho_e2x5top[pho_n]/F");
-  tree->Branch("pho_e2x5bottom",&pho_e2x5bottom,"pho_e2x5bottom[pho_n]/F");
-  tree->Branch("pho_e2x5max",&pho_e2x5max,"pho_e2x5max[pho_n]/F");
-  tree->Branch("pho_eright",&pho_eright,"pho_eright[pho_n]/F");
-  tree->Branch("pho_eleft",&pho_eleft,"pho_eleft[pho_n]/F");
-  tree->Branch("pho_etop",&pho_etop,"pho_etop[pho_n]/F");
-  tree->Branch("pho_ebottom",&pho_ebottom,"pho_ebottom[pho_n]/F");
+  ana->Branch("pho_sipip",&pho_sipip,"pho_sipip[pho_n]/F");
+  ana->Branch("pho_sieip",&pho_sieip,"pho_sieip[pho_n]/F");
+  ana->Branch("pho_zernike20",&pho_zernike20,"pho_zernike20[pho_n]/F");
+  ana->Branch("pho_zernike42",&pho_zernike42,"pho_zernike42[pho_n]/F");
+  ana->Branch("pho_e2nd",&pho_e2nd,"pho_e2nd[pho_n]/F");
+  ana->Branch("pho_e5x5",&pho_e5x5,"pho_e5x5[pho_n]/F");
+  ana->Branch("pho_e2x5right",&pho_e2x5right,"pho_e2x5right[pho_n]/F");
+  ana->Branch("pho_e2x5left",&pho_e2x5left,"pho_e2x5left[pho_n]/F");
+  ana->Branch("pho_e2x5top",&pho_e2x5top,"pho_e2x5top[pho_n]/F");
+  ana->Branch("pho_e2x5bottom",&pho_e2x5bottom,"pho_e2x5bottom[pho_n]/F");
+  ana->Branch("pho_e2x5max",&pho_e2x5max,"pho_e2x5max[pho_n]/F");
+  ana->Branch("pho_eright",&pho_eright,"pho_eright[pho_n]/F");
+  ana->Branch("pho_eleft",&pho_eleft,"pho_eleft[pho_n]/F");
+  ana->Branch("pho_etop",&pho_etop,"pho_etop[pho_n]/F");
+  ana->Branch("pho_ebottom",&pho_ebottom,"pho_ebottom[pho_n]/F");
 
-  tree->Branch("pho_biphi",&pho_biphi,"pho_biphi[pho_n]/I");
-  tree->Branch("pho_bieta",&pho_bieta,"pho_bieta[pho_n]/I");
-  tree->Branch("pho_betacry",&pho_betacry,"pho_betacry[pho_n]/F");
-  tree->Branch("pho_phicry",&pho_bphicry,"pho_bphicry[pho_n]/F");
-  //tree->Branch("pho_bthetatilt",&pho_bthetatilt,"pho_bthetatilt[pho_n]/F");
-  //tree->Branch("pho_bphitilt",&pho_bphitilt,"pho_bphitilt[pho_n]/F");
+  ana->Branch("pho_biphi",&pho_biphi,"pho_biphi[pho_n]/I");
+  ana->Branch("pho_bieta",&pho_bieta,"pho_bieta[pho_n]/I");
+  ana->Branch("pho_betacry",&pho_betacry,"pho_betacry[pho_n]/F");
+  ana->Branch("pho_phicry",&pho_bphicry,"pho_bphicry[pho_n]/F");
+  //ana->Branch("pho_bthetatilt",&pho_bthetatilt,"pho_bthetatilt[pho_n]/F");
+  //ana->Branch("pho_bphitilt",&pho_bphitilt,"pho_bphitilt[pho_n]/F");
 
-  //tree->Branch("pho_e2overe9",&pho_e2overe9,"pho_e2overe9[pho_n]/F");
-  tree->Branch("pho_seed_severity",&pho_seed_severity,"pho_seed_severity[pho_n]/F");
-  tree->Branch("pho_seed_time",&pho_seed_time,"pho_seed_time[pho_n]/F");
-  tree->Branch("pho_seed_outoftimechi2",&pho_seed_outoftimechi2,"pho_seed_outoftimechi2[pho_n]/F");
-  tree->Branch("pho_seed_chi2",&pho_seed_chi2,"pho_seed_chi2[pho_n]/F");
-  tree->Branch("pho_seed_recoflag",&pho_seed_recoflag,"pho_seed_recoflag[pho_n]/F");
+  //ana->Branch("pho_e2overe9",&pho_e2overe9,"pho_e2overe9[pho_n]/F");
+  ana->Branch("pho_seed_severity",&pho_seed_severity,"pho_seed_severity[pho_n]/F");
+  ana->Branch("pho_seed_time",&pho_seed_time,"pho_seed_time[pho_n]/F");
+  ana->Branch("pho_seed_outoftimechi2",&pho_seed_outoftimechi2,"pho_seed_outoftimechi2[pho_n]/F");
+  ana->Branch("pho_seed_chi2",&pho_seed_chi2,"pho_seed_chi2[pho_n]/F");
+  ana->Branch("pho_seed_recoflag",&pho_seed_recoflag,"pho_seed_recoflag[pho_n]/F");
 
-  tree->Branch("pho_isconv", &pho_isconv, "pho_isconv[pho_n]/I");
-  tree->Branch("pho_residCorrEnergy", &pho_residCorrEnergy, "pho_residCorrEnergy[pho_n]/F");
-  tree->Branch("pho_residCorrResn", &pho_residCorrResn, "pho_residCorrResn[pho_n]/F");
+  ana->Branch("pho_isconv", &pho_isconv, "pho_isconv[pho_n]/I");
+  ana->Branch("pho_residCorrEnergy", &pho_residCorrEnergy, "pho_residCorrEnergy[pho_n]/F");
+  ana->Branch("pho_residCorrResn", &pho_residCorrResn, "pho_residCorrResn[pho_n]/F");
 
-  tree->Branch("pho_regr_energy", &pho_regr_energy, "pho_regr_energy[pho_n]/F");
-  tree->Branch("pho_regr_energyerr", &pho_regr_energyerr, "pho_regr_energyerr[pho_n]/F");
+  ana->Branch("pho_regr_energy", &pho_regr_energy, "pho_regr_energy[pho_n]/F");
+  ana->Branch("pho_regr_energyerr", &pho_regr_energyerr, "pho_regr_energyerr[pho_n]/F");
 
-  //tree->Branch("pho_id_4cat", &pho_id_4cat, "pho_id_4cat[pho_n][100]/I");
-  //tree->Branch("pho_id_6cat", &pho_id_6cat, "pho_id_6cat[pho_n][100]/I");  
-  //tree->Branch("pho_id_6catpf", &pho_id_6catpf, "pho_id_6catpf[pho_n][100]/I");
+  //ana->Branch("pho_id_4cat", &pho_id_4cat, "pho_id_4cat[pho_n][100]/I");
+  //ana->Branch("pho_id_6cat", &pho_id_6cat, "pho_id_6cat[pho_n][100]/I");  
+  //ana->Branch("pho_id_6catpf", &pho_id_6catpf, "pho_id_6catpf[pho_n][100]/I");
    
   pho_conv_vtx = new TClonesArray("TVector3", MAX_PHOTONS);
-  tree->Branch("pho_conv_vtx", "TClonesArray", &pho_conv_vtx, 32000, 0);
+  ana->Branch("pho_conv_vtx", "TClonesArray", &pho_conv_vtx, 32000, 0);
   pho_conv_pair_momentum = new TClonesArray("TVector3", MAX_PHOTONS);
-  tree->Branch("pho_conv_pair_momentum", "TClonesArray", &pho_conv_pair_momentum, 32000, 0);
+  ana->Branch("pho_conv_pair_momentum", "TClonesArray", &pho_conv_pair_momentum, 32000, 0);
   pho_conv_refitted_momentum = new TClonesArray("TVector3", MAX_PHOTONS);
-  tree->Branch("pho_conv_refitted_momentum", "TClonesArray", &pho_conv_refitted_momentum, 32000, 0);
+  ana->Branch("pho_conv_refitted_momentum", "TClonesArray", &pho_conv_refitted_momentum, 32000, 0);
   pho_conv_vertexcorrected_p4 = new TClonesArray("TLorentzVector", MAX_PHOTONS);
-  tree->Branch("pho_conv_vertexcorrected_p4", "TClonesArray", &pho_conv_vertexcorrected_p4, 32000, 0);
+  ana->Branch("pho_conv_vertexcorrected_p4", "TClonesArray", &pho_conv_vertexcorrected_p4, 32000, 0);
 }
 
 bool GlobePhotons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

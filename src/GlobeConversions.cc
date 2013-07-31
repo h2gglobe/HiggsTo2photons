@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeConversions.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
@@ -36,79 +37,79 @@ GlobeConversions::GlobeConversions(const edm::ParameterSet& iConfig, const char*
 
 }
 
-void GlobeConversions::defineBranch(TTree* tree) {
+void GlobeConversions::defineBranch(GlobeAnalyzer* ana) {
 
   conv_p4 = new TClonesArray("TLorentzVector",MAX_CONVERTEDPHOTONS);
-  tree->Branch("conv_n", &conv_n, "conv_n/I");
+  ana->Branch("conv_n", &conv_n, "conv_n/I");
   //// conversion quantities 
-  tree->Branch("conv_p4", "TClonesArray", &conv_p4, 32000, 0);
-  tree->Branch("conv_ntracks",&conv_ntracks,"conv_ntracks[conv_n]/I");
-  tree->Branch("conv_pairinvmass",&conv_pairinvmass,"conv_pairinvmass[conv_n]/F");
-  tree->Branch("conv_paircotthetasep",&conv_paircotthetasep,"conv_paircotthetasep[conv_n]/F");
-  tree->Branch("conv_eoverp",&conv_eoverp,"conv_eoverp[conv_n]/F");
-  tree->Branch("conv_distofminapproach",&conv_distofminapproach,"conv_distofminapproach[conv_n]/F");
-  tree->Branch("conv_dphitrksatvtx",&conv_dphitrksatvtx,"conv_dphitrksatvtx[conv_n]/F");
-  tree->Branch("conv_dphitrksatecal",&conv_dphitrksatecal,"conv_dphitrksatecal[conv_n]/F");
-  tree->Branch("conv_detatrksatecal",&conv_detatrksatecal,"conv_detatrksatecal[conv_n]/F");
-  tree->Branch("conv_quality","std::vector<std::vector<int> >",&conv_quality);
-  tree->Branch("conv_type",&conv_type,"conv_type[conv_n]/I");
-  tree->Branch("conv_dxy",&conv_dxy,"conv_dxy[conv_n]/F"); // will not be filled because this will only be available from 420
-  tree->Branch("conv_dz",&conv_dz,"conv_dz[conv_n]/F");    // will not be filled because this will only be available from 420
-  tree->Branch("conv_lxy",&conv_lxy,"conv_lxy[conv_n]/F"); // will not be filled because this will only be available from 420
-  tree->Branch("conv_lz",&conv_lz,"conv_lz[conv_n]/F");    // will not be filled because this will only be available from 420
-  tree->Branch("conv_zofprimvtxfromtrks",&conv_zofprimvtxfromtrks,"conv_zofprimvtxfromtrks[conv_n]/F");
-  tree->Branch("conv_nHitsBeforeVtx", "std::vector<std::vector<unsigned short> >", &conv_nHitsBeforeVtx);
-  tree->Branch("conv_nSharedHits",&conv_nSharedHits,"conv_nSharedHits[conv_n]/I");
+  ana->Branch("conv_p4", "TClonesArray", &conv_p4, 32000, 0);
+  ana->Branch("conv_ntracks",&conv_ntracks,"conv_ntracks[conv_n]/I");
+  ana->Branch("conv_pairinvmass",&conv_pairinvmass,"conv_pairinvmass[conv_n]/F");
+  ana->Branch("conv_paircotthetasep",&conv_paircotthetasep,"conv_paircotthetasep[conv_n]/F");
+  ana->Branch("conv_eoverp",&conv_eoverp,"conv_eoverp[conv_n]/F");
+  ana->Branch("conv_distofminapproach",&conv_distofminapproach,"conv_distofminapproach[conv_n]/F");
+  ana->Branch("conv_dphitrksatvtx",&conv_dphitrksatvtx,"conv_dphitrksatvtx[conv_n]/F");
+  ana->Branch("conv_dphitrksatecal",&conv_dphitrksatecal,"conv_dphitrksatecal[conv_n]/F");
+  ana->Branch("conv_detatrksatecal",&conv_detatrksatecal,"conv_detatrksatecal[conv_n]/F");
+  ana->Branch("conv_quality","std::vector<std::vector<int> >",&conv_quality);
+  ana->Branch("conv_type",&conv_type,"conv_type[conv_n]/I");
+  ana->Branch("conv_dxy",&conv_dxy,"conv_dxy[conv_n]/F"); // will not be filled because this will only be available from 420
+  ana->Branch("conv_dz",&conv_dz,"conv_dz[conv_n]/F");    // will not be filled because this will only be available from 420
+  ana->Branch("conv_lxy",&conv_lxy,"conv_lxy[conv_n]/F"); // will not be filled because this will only be available from 420
+  ana->Branch("conv_lz",&conv_lz,"conv_lz[conv_n]/F");    // will not be filled because this will only be available from 420
+  ana->Branch("conv_zofprimvtxfromtrks",&conv_zofprimvtxfromtrks,"conv_zofprimvtxfromtrks[conv_n]/F");
+  ana->Branch("conv_nHitsBeforeVtx", "std::vector<std::vector<unsigned short> >", &conv_nHitsBeforeVtx);
+  ana->Branch("conv_nSharedHits",&conv_nSharedHits,"conv_nSharedHits[conv_n]/I");
 
-  tree->Branch("conv_validvtx",&conv_validvtx,"conv_validvtx[conv_n]/I");
-  tree->Branch("conv_MVALikelihood",&conv_MVALikelihood,"conv_MVALikelihood[conv_n]/F");
+  ana->Branch("conv_validvtx",&conv_validvtx,"conv_validvtx[conv_n]/I");
+  ana->Branch("conv_MVALikelihood",&conv_MVALikelihood,"conv_MVALikelihood[conv_n]/F");
   /// vertex quantities 
-  tree->Branch("conv_chi2",&conv_chi2,"conv_chi2[conv_n]/F");
-  tree->Branch("conv_chi2_probability",&conv_chi2_probability,"conv_chi2_probability[conv_n]/F");
-  tree->Branch("conv_vtx_xErr",&conv_vtx_xErr,"conv_vtx_xErr[conv_n]/F");
-  tree->Branch("conv_vtx_yErr",&conv_vtx_yErr,"conv_vtx_yErr[conv_n]/F");
-  tree->Branch("conv_vtx_zErr",&conv_vtx_zErr,"conv_vtx_zErr[conv_n]/F");
+  ana->Branch("conv_chi2",&conv_chi2,"conv_chi2[conv_n]/F");
+  ana->Branch("conv_chi2_probability",&conv_chi2_probability,"conv_chi2_probability[conv_n]/F");
+  ana->Branch("conv_vtx_xErr",&conv_vtx_xErr,"conv_vtx_xErr[conv_n]/F");
+  ana->Branch("conv_vtx_yErr",&conv_vtx_yErr,"conv_vtx_yErr[conv_n]/F");
+  ana->Branch("conv_vtx_zErr",&conv_vtx_zErr,"conv_vtx_zErr[conv_n]/F");
 
   /// per track quantities
-  tree->Branch("conv_tk1_dz",&conv_tk1_dz,"conv_tk1_dz[conv_n]/F");
-  tree->Branch("conv_tk2_dz",&conv_tk2_dz,"conv_tk2_dz[conv_n]/F");
-  tree->Branch("conv_tk1_dzerr",&conv_tk1_dzerr,"conv_tk1_dzerr[conv_n]/F");
-  tree->Branch("conv_tk2_dzerr",&conv_tk2_dzerr,"conv_tk2_dzerr[conv_n]/F");
-  tree->Branch("conv_tk1_nh",&conv_tk1_nh,"conv_tk1_nh[conv_n]/S");
-  tree->Branch("conv_tk2_nh",&conv_tk2_nh,"conv_tk2_nh[conv_n]/S");
-  tree->Branch("conv_ch1ch2",&conv_ch1ch2,"conv_ch1ch2[conv_n]/I");
-  tree->Branch("conv_tk1_d0",&conv_tk1_d0,"conv_tk1_d0[conv_n]/F");
-  tree->Branch("conv_tk1_pout",&conv_tk1_pout,"conv_tk1_pout[conv_n]/F");
-  tree->Branch("conv_tk1_pin",&conv_tk1_pin,"conv_tk1_pin[conv_n]/F");
-  tree->Branch("conv_tk2_d0",&conv_tk2_d0,"conv_tk2_d0[conv_n]/F");
-  tree->Branch("conv_tk2_pout",&conv_tk2_pout,"conv_tk2_pout[conv_n]/F");
-  tree->Branch("conv_tk2_pin",&conv_tk2_pin,"conv_tk2_pin[conv_n]/F");
+  ana->Branch("conv_tk1_dz",&conv_tk1_dz,"conv_tk1_dz[conv_n]/F");
+  ana->Branch("conv_tk2_dz",&conv_tk2_dz,"conv_tk2_dz[conv_n]/F");
+  ana->Branch("conv_tk1_dzerr",&conv_tk1_dzerr,"conv_tk1_dzerr[conv_n]/F");
+  ana->Branch("conv_tk2_dzerr",&conv_tk2_dzerr,"conv_tk2_dzerr[conv_n]/F");
+  ana->Branch("conv_tk1_nh",&conv_tk1_nh,"conv_tk1_nh[conv_n]/S");
+  ana->Branch("conv_tk2_nh",&conv_tk2_nh,"conv_tk2_nh[conv_n]/S");
+  ana->Branch("conv_ch1ch2",&conv_ch1ch2,"conv_ch1ch2[conv_n]/I");
+  ana->Branch("conv_tk1_d0",&conv_tk1_d0,"conv_tk1_d0[conv_n]/F");
+  ana->Branch("conv_tk1_pout",&conv_tk1_pout,"conv_tk1_pout[conv_n]/F");
+  ana->Branch("conv_tk1_pin",&conv_tk1_pin,"conv_tk1_pin[conv_n]/F");
+  ana->Branch("conv_tk2_d0",&conv_tk2_d0,"conv_tk2_d0[conv_n]/F");
+  ana->Branch("conv_tk2_pout",&conv_tk2_pout,"conv_tk2_pout[conv_n]/F");
+  ana->Branch("conv_tk2_pin",&conv_tk2_pin,"conv_tk2_pin[conv_n]/F");
 
-  tree->Branch("conv_vtxProb", &conv_vtxProb,"conv_vtxProb[conv_n]/F");
-  tree->Branch("conv_lxy", &conv_lxy,"conv_lxy[conv_n]/F");
-  tree->Branch("conv_nHitsMax", &conv_nHitsMax,"conv_nHitsMax[conv_n]/I");
-  tree->Branch("conv_eleind", &conv_eleind,"conv_eleind[conv_n]/I");
+  ana->Branch("conv_vtxProb", &conv_vtxProb,"conv_vtxProb[conv_n]/F");
+  ana->Branch("conv_lxy", &conv_lxy,"conv_lxy[conv_n]/F");
+  ana->Branch("conv_nHitsMax", &conv_nHitsMax,"conv_nHitsMax[conv_n]/I");
+  ana->Branch("conv_eleind", &conv_eleind,"conv_eleind[conv_n]/I");
 
-  tree->Branch("conv_tk1_pterr", &conv_tk1_pterr,"conv_tk1_pterr[conv_n]/F");
-  tree->Branch("conv_tk2_pterr", &conv_tk2_pterr,"conv_tk2_pterr[conv_n]/F");
-  tree->Branch("conv_tk1_etaerr", &conv_tk1_etaerr,"conv_tk1_etaerr[conv_n]/F");
-  tree->Branch("conv_tk2_etaerr", &conv_tk2_etaerr,"conv_tk2_etaerr[conv_n]/F");
-  tree->Branch("conv_tk1_thetaerr", &conv_tk1_thetaerr,"conv_tk1_thetaerr[conv_n]/F");
-  tree->Branch("conv_tk2_thetaerr", &conv_tk2_thetaerr,"conv_tk2_thetaerr[conv_n]/F");
-  tree->Branch("conv_tk1_phierr", &conv_tk1_phierr,"conv_tk1_phierr[conv_n]/F");
-  tree->Branch("conv_tk2_phierr", &conv_tk2_phierr,"conv_tk2_phierr[conv_n]/F");
-  tree->Branch("conv_tk1_lambdaerr", &conv_tk1_lambdaerr,"conv_tk1_lambdaerr[conv_n]/F");
-  tree->Branch("conv_tk2_lambdaerr", &conv_tk2_lambdaerr,"conv_tk2_lambdaerr[conv_n]/F");
+  ana->Branch("conv_tk1_pterr", &conv_tk1_pterr,"conv_tk1_pterr[conv_n]/F");
+  ana->Branch("conv_tk2_pterr", &conv_tk2_pterr,"conv_tk2_pterr[conv_n]/F");
+  ana->Branch("conv_tk1_etaerr", &conv_tk1_etaerr,"conv_tk1_etaerr[conv_n]/F");
+  ana->Branch("conv_tk2_etaerr", &conv_tk2_etaerr,"conv_tk2_etaerr[conv_n]/F");
+  ana->Branch("conv_tk1_thetaerr", &conv_tk1_thetaerr,"conv_tk1_thetaerr[conv_n]/F");
+  ana->Branch("conv_tk2_thetaerr", &conv_tk2_thetaerr,"conv_tk2_thetaerr[conv_n]/F");
+  ana->Branch("conv_tk1_phierr", &conv_tk1_phierr,"conv_tk1_phierr[conv_n]/F");
+  ana->Branch("conv_tk2_phierr", &conv_tk2_phierr,"conv_tk2_phierr[conv_n]/F");
+  ana->Branch("conv_tk1_lambdaerr", &conv_tk1_lambdaerr,"conv_tk1_lambdaerr[conv_n]/F");
+  ana->Branch("conv_tk2_lambdaerr", &conv_tk2_lambdaerr,"conv_tk2_lambdaerr[conv_n]/F");
 
   
   conv_vtx = new TClonesArray("TVector3", MAX_CONVERTEDPHOTONS);
-  tree->Branch("conv_vtx", "TClonesArray", &conv_vtx, 32000, 0);
+  ana->Branch("conv_vtx", "TClonesArray", &conv_vtx, 32000, 0);
   conv_pair_momentum = new TClonesArray("TVector3", MAX_CONVERTEDPHOTONS);
-  tree->Branch("conv_pair_momentum", "TClonesArray", &conv_pair_momentum, 32000, 0);
+  ana->Branch("conv_pair_momentum", "TClonesArray", &conv_pair_momentum, 32000, 0);
   conv_refitted_momentum = new TClonesArray("TVector3", MAX_CONVERTEDPHOTONS);
-  tree->Branch("conv_refitted_momentum", "TClonesArray", &conv_refitted_momentum, 32000, 0);
+  ana->Branch("conv_refitted_momentum", "TClonesArray", &conv_refitted_momentum, 32000, 0);
   conv_singleleg_momentum = new TClonesArray("TVector3", MAX_CONVERTEDPHOTONS);
-  tree->Branch("conv_singleleg_momentum", "TClonesArray", &conv_singleleg_momentum, 32000, 0);
+  ana->Branch("conv_singleleg_momentum", "TClonesArray", &conv_singleleg_momentum, 32000, 0);
 
 }
 

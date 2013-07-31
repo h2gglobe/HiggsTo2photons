@@ -15,20 +15,26 @@ int fexist(char*);
 class ExecCommand { 
 public: 
   ExecCommand( const std::string &cmd ) { 
-    FILE *pfd = popen( cmd.c_str(), "r" ); 
-    if ( pfd == 0 ) { 
-      throw std::runtime_error( "Command or process could not be executed." ); 
-    } 
-    while (!feof(pfd)) { 
-      char buf[ 1024 ] = {0}; 
-      if (fgets(buf, sizeof(buf), pfd) > 0) { 
-	m_results.push_back( std::string(buf) ); 
+
+    if (cmd != "") {
+      FILE *pfd = popen( cmd.c_str(), "r" ); 
+      if ( pfd == 0 ) { 
+	throw std::runtime_error( "Command or process could not be executed." ); 
       } 
+      while (!feof(pfd)) { 
+	char buf[ 1024 ] = {0}; 
+	if (fgets(buf, sizeof(buf), pfd) > 0) { 
+	  m_results.push_back( std::string(buf) ); 
+	} 
+      } 
+      pclose( pfd ); 
     } 
-    pclose( pfd ); 
-  } 
+  }
+
+  void setResults(std::string st) { m_results.push_back(st); }
 
   const std::vector<std::string>& getResults() const { return m_results; } 
+
   int getTag() {
     int result = 0;
     std::string tag = "None";

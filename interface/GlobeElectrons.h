@@ -37,6 +37,7 @@
 #include "TLorentzVector.h"
 
 class ElectronMVAEstimator;
+class GlobeAnalyzer;
 
 class GlobeElectrons {
  public:
@@ -45,7 +46,7 @@ class GlobeElectrons {
   GlobeElectrons(const edm::ParameterSet&, const char* n = "std");
   virtual ~GlobeElectrons();
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
   bool analyze_pf(const edm::Event&, const edm::EventSetup&);
   void initialize_branches(int electron_number);
