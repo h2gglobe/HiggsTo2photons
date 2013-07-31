@@ -12,13 +12,15 @@
 #include "TClonesArray.h"
 #include "TLorentzVector.h"
 
+class GlobeAnalyzer;
+
 class GlobeCommon {
  public:
   
   GlobeCommon(const edm::ParameterSet&);
   virtual ~GlobeCommon() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   void defineLumiBranch(TTree* tree);
   bool analyze(const edm::Event&, const edm::EventSetup&);
   void endLumiBlock(const edm::LuminosityBlock &, const edm::EventSetup &);

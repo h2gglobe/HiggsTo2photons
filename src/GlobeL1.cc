@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeL1.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
@@ -25,52 +26,52 @@ GlobeL1::GlobeL1(const edm::ParameterSet& iConfig, const char* n): nome(n) {
   l1_labels = new std::map<std::string, int>;
 }
 
-void GlobeL1::defineBranch(TTree* tree) {
+void GlobeL1::defineBranch(GlobeAnalyzer* ana) {
   
-  tree->Branch("l1emiso_n", &l1emiso_n,"l1emiso_n/I");
-  tree->Branch("l1emiso_eta", &l1emiso_eta,"l1emiso_eta[l1emiso_n]/F");
-  tree->Branch("l1emiso_et", &l1emiso_et,"l1emiso_et[l1emiso_n]/F");
-  tree->Branch("l1emiso_phi", &l1emiso_phi,"l1emiso_phi[l1emiso_n]/F");
-  //tree->Branch("l1emiso_rank", &l1emiso_rank,"l1emiso_rank[l1emiso_n]/I");
+  ana->Branch("l1emiso_n", &l1emiso_n,"l1emiso_n/I");
+  ana->Branch("l1emiso_eta", &l1emiso_eta,"l1emiso_eta[l1emiso_n]/F");
+  ana->Branch("l1emiso_et", &l1emiso_et,"l1emiso_et[l1emiso_n]/F");
+  ana->Branch("l1emiso_phi", &l1emiso_phi,"l1emiso_phi[l1emiso_n]/F");
+  //ana->Branch("l1emiso_rank", &l1emiso_rank,"l1emiso_rank[l1emiso_n]/I");
 
-  tree->Branch("l1emnoniso_n", &l1emnoniso_n,"l1emnoniso_n/I");
-  tree->Branch("l1emnoniso_et", &l1emnoniso_et,"l1emnoniso_et[l1emnoniso_n]/F");
-  tree->Branch("l1emnoniso_eta", &l1emnoniso_eta,"l1emnoniso_eta[l1emnoniso_n]/F");
-  tree->Branch("l1emnoniso_phi", &l1emnoniso_phi,"l1emnoniso_phi[l1emnoniso_n]/F");
-  //tree->Branch("l1emnoniso_rank", &l1emnoniso_rank,"l1emnoniso_rank[l1emnoniso_n]/I");
+  ana->Branch("l1emnoniso_n", &l1emnoniso_n,"l1emnoniso_n/I");
+  ana->Branch("l1emnoniso_et", &l1emnoniso_et,"l1emnoniso_et[l1emnoniso_n]/F");
+  ana->Branch("l1emnoniso_eta", &l1emnoniso_eta,"l1emnoniso_eta[l1emnoniso_n]/F");
+  ana->Branch("l1emnoniso_phi", &l1emnoniso_phi,"l1emnoniso_phi[l1emnoniso_n]/F");
+  //ana->Branch("l1emnoniso_rank", &l1emnoniso_rank,"l1emnoniso_rank[l1emnoniso_n]/I");
 
-  tree->Branch("l1cenjet_n", &l1cenjet_n,"l1cenjet_n/I");
-  tree->Branch("l1cenjet_et", &l1cenjet_et,"l1cenjet_et[l1cenjet_n]/F");
-  tree->Branch("l1cenjet_eta", &l1cenjet_eta,"l1cenjet_eta[l1cenjet_n]/F");
-  tree->Branch("l1cenjet_phi", &l1cenjet_phi,"l1cenjet_phi[l1cenjet_n]/F");
-  //tree->Branch("l1cenjet_rank", &l1cenjet_rank,"l1cenjet_rank[l1cenjet_n]/I");
+  ana->Branch("l1cenjet_n", &l1cenjet_n,"l1cenjet_n/I");
+  ana->Branch("l1cenjet_et", &l1cenjet_et,"l1cenjet_et[l1cenjet_n]/F");
+  ana->Branch("l1cenjet_eta", &l1cenjet_eta,"l1cenjet_eta[l1cenjet_n]/F");
+  ana->Branch("l1cenjet_phi", &l1cenjet_phi,"l1cenjet_phi[l1cenjet_n]/F");
+  //ana->Branch("l1cenjet_rank", &l1cenjet_rank,"l1cenjet_rank[l1cenjet_n]/I");
 
-  tree->Branch("l1forjet_n", &l1forjet_n,"l1forjet_n/I");
-  tree->Branch("l1forjet_et", &l1forjet_et,"l1forjet_et[l1forjet_n]/F");
-  tree->Branch("l1forjet_eta", &l1forjet_eta,"l1forjet_eta[l1forjet_n]/F");
-  tree->Branch("l1forjet_phi", &l1forjet_phi,"l1forjet_phi[l1forjet_n]/F");
-  //tree->Branch("l1forjet_rank", &l1forjet_rank,"l1forjet_rank[l1forjet_n]/I");
+  ana->Branch("l1forjet_n", &l1forjet_n,"l1forjet_n/I");
+  ana->Branch("l1forjet_et", &l1forjet_et,"l1forjet_et[l1forjet_n]/F");
+  ana->Branch("l1forjet_eta", &l1forjet_eta,"l1forjet_eta[l1forjet_n]/F");
+  ana->Branch("l1forjet_phi", &l1forjet_phi,"l1forjet_phi[l1forjet_n]/F");
+  //ana->Branch("l1forjet_rank", &l1forjet_rank,"l1forjet_rank[l1forjet_n]/I");
 
-  tree->Branch("l1taujet_n", &l1taujet_n,"l1taujet_n/I");
-  tree->Branch("l1taujet_et", &l1taujet_et,"l1taujet_et[l1taujet_n]/F");
-  tree->Branch("l1taujet_eta", &l1taujet_eta,"l1taujet_eta[l1taujet_n]/F");
-  tree->Branch("l1taujet_phi", &l1taujet_phi,"l1taujet_phi[l1taujet_n]/F");
-  //tree->Branch("l1taujet_rank", &l1taujet_rank,"l1taujet_rank[l1taujet_n]/I");
+  ana->Branch("l1taujet_n", &l1taujet_n,"l1taujet_n/I");
+  ana->Branch("l1taujet_et", &l1taujet_et,"l1taujet_et[l1taujet_n]/F");
+  ana->Branch("l1taujet_eta", &l1taujet_eta,"l1taujet_eta[l1taujet_n]/F");
+  ana->Branch("l1taujet_phi", &l1taujet_phi,"l1taujet_phi[l1taujet_n]/F");
+  //ana->Branch("l1taujet_rank", &l1taujet_rank,"l1taujet_rank[l1taujet_n]/I");
 
-  //tree->Branch("l1met_n", &l1met_n,"l1met_n/I");
-  tree->Branch("l1met_et", &l1met_et,"l1met_et/F");
-  tree->Branch("l1met_phi", &l1met_phi,"l1met_phi/F");
-  //tree->Branch("l1met_rank", &l1met_rank,"l1met_rank/I");
+  //ana->Branch("l1met_n", &l1met_n,"l1met_n/I");
+  ana->Branch("l1met_et", &l1met_et,"l1met_et/F");
+  ana->Branch("l1met_phi", &l1met_phi,"l1met_phi/F");
+  //ana->Branch("l1met_rank", &l1met_rank,"l1met_rank/I");
 
-  tree->Branch("l1mu_n", &l1mu_n,"l1mu_n/I"); //CHECK, why sometimes there are 5? is it normal?
-  tree->Branch("l1mu_et", &l1mu_et,"l1mu_et[l1mu_n]/F");
-  tree->Branch("l1mu_eta", &l1mu_eta,"l1mu_eta[l1mu_n]/F");
-  tree->Branch("l1mu_phi", &l1mu_phi,"l1mu_phi[l1mu_n]/F");
-  //tree->Branch("l1mu_rank", &l1mu_rank,"l1mu_rank[l1mu_n]/I");
+  ana->Branch("l1mu_n", &l1mu_n,"l1mu_n/I"); //CHECK, why sometimes there are 5? is it normal?
+  ana->Branch("l1mu_et", &l1mu_et,"l1mu_et[l1mu_n]/F");
+  ana->Branch("l1mu_eta", &l1mu_eta,"l1mu_eta[l1mu_n]/F");
+  ana->Branch("l1mu_phi", &l1mu_phi,"l1mu_phi[l1mu_n]/F");
+  //ana->Branch("l1mu_rank", &l1mu_rank,"l1mu_rank[l1mu_n]/I");
   
-  tree->Branch("l1_labels", "std::map<std::string, int>", &l1_labels);
-  tree->Branch("l1bits_phy", "std::vector<int>", &l1bits_phy);
-  tree->Branch("l1bits_tec", "std::vector<int>", &l1bits_tec);
+  ana->Branch("l1_labels", "std::map<std::string, int>", &l1_labels);
+  ana->Branch("l1bits_phy", "std::vector<int>", &l1bits_phy);
+  ana->Branch("l1bits_tec", "std::vector<int>", &l1bits_tec);
 }
 
 bool GlobeL1::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

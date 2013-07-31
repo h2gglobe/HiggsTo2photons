@@ -47,6 +47,8 @@
 
 #include <iostream>
 
+class GlobeAnalyzer;
+
 class GlobeCuts {
  public:
   

@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeGenJets.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
@@ -16,7 +17,7 @@ GlobeGenJets::GlobeGenJets(const edm::ParameterSet& iConfig, const char* n = "al
   gCUT = new GlobeCuts(iConfig);
 }
 
-void GlobeGenJets::defineBranch(TTree* tree) {
+void GlobeGenJets::defineBranch(GlobeAnalyzer* ana) {
 
   genjet_p4 = new TClonesArray("TLorentzVector", MAX_GENJETS);
   
@@ -24,26 +25,26 @@ void GlobeGenJets::defineBranch(TTree* tree) {
   
   sprintf(a1, "genjet_%s_n", nome);
   sprintf(a2, "genjet_%s_n/I", nome);
-  tree->Branch(a1, &genjet_n, a2);
+  ana->Branch(a1, &genjet_n, a2);
   
   sprintf(a1, "genjet_%s_p4", nome);
-  tree->Branch(a1, "TClonesArray", &genjet_p4, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &genjet_p4, 32000, 0);
   
   sprintf(a1, "genjet_%s_em", nome);
   sprintf(a2, "genjet_%s_em[genjet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &genjet_em, a2);
+  ana->Branch(a1, &genjet_em, a2);
 
   sprintf(a1, "genjet_%s_had", nome);
   sprintf(a2, "genjet_%s_had[genjet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &genjet_had, a2);
+  ana->Branch(a1, &genjet_had, a2);
 
   sprintf(a1, "genjet_%s_inv", nome);
   sprintf(a2, "genjet_%s_inv[genjet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &genjet_inv, a2);
+  ana->Branch(a1, &genjet_inv, a2);
 
   sprintf(a1, "genjet_%s_aux", nome);
   sprintf(a2, "genjet_%s_aux[genjet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &genjet_aux, a2);
+  ana->Branch(a1, &genjet_aux, a2);
 }
 
 bool GlobeGenJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/Limits.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeMuons.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
@@ -33,7 +34,7 @@ GlobeMuons::~GlobeMuons() {
 	if (theAssociator) delete theAssociator;
 }
 
-void GlobeMuons::defineBranch(TTree* tree) {
+void GlobeMuons::defineBranch(GlobeAnalyzer* ana) {
 
   mu_p4 = new TClonesArray("TLorentzVector", MAX_MUONS);
   mu_momvtx = new TClonesArray("TVector3", MAX_MUONS);
@@ -41,50 +42,50 @@ void GlobeMuons::defineBranch(TTree* tree) {
   mu_posecal = new TClonesArray("TVector3", MAX_MUONS);
   mu_poshcal = new TClonesArray("TVector3", MAX_MUONS);
 
-  tree->Branch("mu_glo_n", &mu_n, "mu_glo_n/I");
-  tree->Branch("mu_glo_p4", "TClonesArray", &mu_p4, 32000, 0);
-  tree->Branch("mu_glo_momvtx", "TClonesArray", &mu_momvtx, 32000, 0);
-  tree->Branch("mu_glo_posvtx", "TClonesArray", &mu_posvtx, 32000, 0);
-  tree->Branch("mu_glo_posecal", "TClonesArray", &mu_posecal, 32000, 0);
-  tree->Branch("mu_glo_poshcal", "TClonesArray", &mu_poshcal, 32000, 0);
+  ana->Branch("mu_glo_n", &mu_n, "mu_glo_n/I");
+  ana->Branch("mu_glo_p4", "TClonesArray", &mu_p4, 32000, 0);
+  ana->Branch("mu_glo_momvtx", "TClonesArray", &mu_momvtx, 32000, 0);
+  ana->Branch("mu_glo_posvtx", "TClonesArray", &mu_posvtx, 32000, 0);
+  ana->Branch("mu_glo_posecal", "TClonesArray", &mu_posecal, 32000, 0);
+  ana->Branch("mu_glo_poshcal", "TClonesArray", &mu_poshcal, 32000, 0);
 
-  tree->Branch("mu_glo_losthits", &mu_losthits, "mu_glo_losthits[mu_glo_n]/I");
-  tree->Branch("mu_glo_validhits", &mu_validhits, "mu_glo_validhits[mu_glo_n]/I");
-  tree->Branch("mu_glo_innerhits", &mu_innerhits, "mu_glo_innerhits[mu_glo_n]/I");
-  tree->Branch("mu_glo_pixelhits", &mu_pixelhits, "mu_glo_pixelhits[mu_glo_n]/I");
-  tree->Branch("mu_glo_validChmbhits", &mu_validChmbhits, "mu_glo_validChmbhits[mu_glo_n]/I");
-  tree->Branch("mu_tkLayers",&mu_tkLayers,"mu_tkLayers[mu_glo_n]/I");
-  tree->Branch("mu_glo_tkpterr", &mu_tkpterr, "mu_glo_tkpterr[mu_glo_n]/F");
-  tree->Branch("mu_glo_ecaliso03", &mu_ecaliso03, "mu_glo_ecaliso03[mu_glo_n]/F");
-  tree->Branch("mu_glo_hcaliso03", &mu_hcaliso03, "mu_glo_hcaliso03[mu_glo_n]/F");
-  tree->Branch("mu_glo_tkiso03", &mu_tkiso03, "mu_glo_tkiso03[mu_glo_n]/F");
+  ana->Branch("mu_glo_losthits", &mu_losthits, "mu_glo_losthits[mu_glo_n]/I");
+  ana->Branch("mu_glo_validhits", &mu_validhits, "mu_glo_validhits[mu_glo_n]/I");
+  ana->Branch("mu_glo_innerhits", &mu_innerhits, "mu_glo_innerhits[mu_glo_n]/I");
+  ana->Branch("mu_glo_pixelhits", &mu_pixelhits, "mu_glo_pixelhits[mu_glo_n]/I");
+  ana->Branch("mu_glo_validChmbhits", &mu_validChmbhits, "mu_glo_validChmbhits[mu_glo_n]/I");
+  ana->Branch("mu_tkLayers",&mu_tkLayers,"mu_tkLayers[mu_glo_n]/I");
+  ana->Branch("mu_glo_tkpterr", &mu_tkpterr, "mu_glo_tkpterr[mu_glo_n]/F");
+  ana->Branch("mu_glo_ecaliso03", &mu_ecaliso03, "mu_glo_ecaliso03[mu_glo_n]/F");
+  ana->Branch("mu_glo_hcaliso03", &mu_hcaliso03, "mu_glo_hcaliso03[mu_glo_n]/F");
+  ana->Branch("mu_glo_tkiso03", &mu_tkiso03, "mu_glo_tkiso03[mu_glo_n]/F");
 
-  tree->Branch("mu_glo_nmatches", &mu_nmatches, "mu_glo_nmatches[mu_glo_n]/I");
-  tree->Branch("mu_glo_em", &mu_em, "mu_glo_em[mu_glo_n]/F");
-  tree->Branch("mu_glo_had", &mu_had, "mu_glo_had[mu_glo_n]/F");
-  tree->Branch("mu_glo_ho", &mu_ho, "mu_glo_ho[mu_glo_n]/F");
-  tree->Branch("mu_glo_emS9", &mu_emS9, "mu_glo_emS9[mu_glo_n]/F");
-  tree->Branch("mu_glo_hadS9", &mu_hadS9, "mu_glo_hadS9[mu_glo_n]/F");
-  tree->Branch("mu_glo_hoS9", &mu_hoS9, "mu_glo_hoS9[mu_glo_n]/F");
-  tree->Branch("mu_glo_chi2", &mu_chi2, "mu_glo_chi2[mu_glo_n]/F");
-  tree->Branch("mu_glo_dof", &mu_dof, "mu_glo_dof[mu_glo_n]/F");
-  tree->Branch("mu_glo_tkind", &mu_tkind,"mu_glo_tkind[mu_glo_n]/I");
-  tree->Branch("mu_glo_staind", &mu_staind,"mu_glo_staind[mu_glo_n]/I");
-  tree->Branch("mu_glo_dz", &mu_dz, "mu_glo_dz[mu_glo_n]/F");
-  tree->Branch("mu_glo_d0", &mu_d0, "mu_glo_d0[mu_glo_n]/F");
-  tree->Branch("mu_glo_dzerr", &mu_dzerr, "mu_glo__dzerr[mu_glo_n]/F");
-  tree->Branch("mu_glo_d0err", &mu_d0err, "mu_glo_d0err[mu_glo_n]/F");
-  tree->Branch("mu_glo_charge", &mu_charge, "mu_glo_charge[mu_glo_n]/I");
-  tree->Branch("mu_glo_type", &mu_type, "mu_glo_type[mu_glo_n]/I"); 
+  ana->Branch("mu_glo_nmatches", &mu_nmatches, "mu_glo_nmatches[mu_glo_n]/I");
+  ana->Branch("mu_glo_em", &mu_em, "mu_glo_em[mu_glo_n]/F");
+  ana->Branch("mu_glo_had", &mu_had, "mu_glo_had[mu_glo_n]/F");
+  ana->Branch("mu_glo_ho", &mu_ho, "mu_glo_ho[mu_glo_n]/F");
+  ana->Branch("mu_glo_emS9", &mu_emS9, "mu_glo_emS9[mu_glo_n]/F");
+  ana->Branch("mu_glo_hadS9", &mu_hadS9, "mu_glo_hadS9[mu_glo_n]/F");
+  ana->Branch("mu_glo_hoS9", &mu_hoS9, "mu_glo_hoS9[mu_glo_n]/F");
+  ana->Branch("mu_glo_chi2", &mu_chi2, "mu_glo_chi2[mu_glo_n]/F");
+  ana->Branch("mu_glo_dof", &mu_dof, "mu_glo_dof[mu_glo_n]/F");
+  ana->Branch("mu_glo_tkind", &mu_tkind,"mu_glo_tkind[mu_glo_n]/I");
+  ana->Branch("mu_glo_staind", &mu_staind,"mu_glo_staind[mu_glo_n]/I");
+  ana->Branch("mu_glo_dz", &mu_dz, "mu_glo_dz[mu_glo_n]/F");
+  ana->Branch("mu_glo_d0", &mu_d0, "mu_glo_d0[mu_glo_n]/F");
+  ana->Branch("mu_glo_dzerr", &mu_dzerr, "mu_glo__dzerr[mu_glo_n]/F");
+  ana->Branch("mu_glo_d0err", &mu_d0err, "mu_glo_d0err[mu_glo_n]/F");
+  ana->Branch("mu_glo_charge", &mu_charge, "mu_glo_charge[mu_glo_n]/I");
+  ana->Branch("mu_glo_type", &mu_type, "mu_glo_type[mu_glo_n]/I"); 
 
-  tree->Branch("mu_glo_D0Vtx", &mu_D0Vtx, "mu_glo_D0Vtx[mu_glo_n][100]/F");
-  tree->Branch("mu_glo_DZVtx", &mu_DZVtx, "mu_glo_DZVtx[mu_glo_n][100]/F");
+  ana->Branch("mu_glo_D0Vtx", &mu_D0Vtx, "mu_glo_D0Vtx[mu_glo_n][100]/F");
+  ana->Branch("mu_glo_DZVtx", &mu_DZVtx, "mu_glo_DZVtx[mu_glo_n][100]/F");
   //PF Isolation variables added by MP
-  tree->Branch("mu_glo_chhadiso04", &mu_chhadiso04, "mu_glo_chhadiso04[mu_glo_n]/F");
-  tree->Branch("mu_glo_nehadiso04", &mu_nehadiso04, "mu_glo_nehadiso04[mu_glo_n]/F");
-  tree->Branch("mu_glo_photiso04", &mu_photiso04, "mu_glo_photiso04[mu_glo_n]/F");
-  tree->Branch("mu_dbCorr", &mu_dbCorr, "mu_dbCorr[mu_glo_n]/F");
-  tree->Branch("mu_rhoCorr", &mu_rhoCorr, "mu_rhoCorr[mu_glo_n]/F");
+  ana->Branch("mu_glo_chhadiso04", &mu_chhadiso04, "mu_glo_chhadiso04[mu_glo_n]/F");
+  ana->Branch("mu_glo_nehadiso04", &mu_nehadiso04, "mu_glo_nehadiso04[mu_glo_n]/F");
+  ana->Branch("mu_glo_photiso04", &mu_photiso04, "mu_glo_photiso04[mu_glo_n]/F");
+  ana->Branch("mu_dbCorr", &mu_dbCorr, "mu_dbCorr[mu_glo_n]/F");
+  ana->Branch("mu_rhoCorr", &mu_rhoCorr, "mu_rhoCorr[mu_glo_n]/F");
 }
 
 bool GlobeMuons::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {

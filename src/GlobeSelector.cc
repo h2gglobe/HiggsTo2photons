@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeSelector.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeElectrons.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeMuons.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobePhotons.h"

@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeTrackingParticles.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 GlobeTrackingParticles::GlobeTrackingParticles(const edm::ParameterSet& iConfig, const char* n): nome(n)
 {
@@ -15,24 +16,24 @@ GlobeTrackingParticles::GlobeTrackingParticles(const edm::ParameterSet& iConfig,
     gCUT = new GlobeCuts(iConfig); 
 }
 
-void GlobeTrackingParticles::defineBranch(TTree* tree) {
+void GlobeTrackingParticles::defineBranch(GlobeAnalyzer* ana) {
 
     // think about changing branch names for duplicate collections
     tp_p4 = new TClonesArray("TLorentzVector", MAX_TRACKINGPARTICLES);
     tp_vtx= new TClonesArray("TVector3", MAX_TRACKINGPARTICLES);
     tv_xyz= new TClonesArray("TVector3", MAX_TRACKINGPARTICLES);
 
-    tree->Branch("tp_n", &tp_n, "tp_n/I");
-    tree->Branch("tp_p4", "TClonesArray", &tp_p4, 32000, 0);
-    tree->Branch("tp_vtx", "TClonesArray", &tp_vtx, 32000, 0);
-    tree->Branch("tv_xyz", "TClonesArray", &tv_xyz, 32000, 0);
-    tree->Branch("tp_pdgid", &tp_pdgid, "tp_pdgid[tp_n]/I");
-    tree->Branch("tp_motherid", &tp_motherid, "tp_motherid[tp_n]/I");
-    tree->Branch("tp_charge", &tp_charge, "tp_charge[tp_n]/I");
-    tree->Branch("tp_tkind", &tp_tkind, "tp_tkind[tp_n]/I");
-    tree->Branch("tp_genind", &tp_genind, "tp_genind[tp_n]/I");
-    tree->Branch("tp_d0", &tp_d0, "tp_d0[tp_n]/D");
-    tree->Branch("tp_dz", &tp_dz, "tp_dz[tp_n]/D");
+    ana->Branch("tp_n", &tp_n, "tp_n/I");
+    ana->Branch("tp_p4", "TClonesArray", &tp_p4, 32000, 0);
+    ana->Branch("tp_vtx", "TClonesArray", &tp_vtx, 32000, 0);
+    ana->Branch("tv_xyz", "TClonesArray", &tv_xyz, 32000, 0);
+    ana->Branch("tp_pdgid", &tp_pdgid, "tp_pdgid[tp_n]/I");
+    ana->Branch("tp_motherid", &tp_motherid, "tp_motherid[tp_n]/I");
+    ana->Branch("tp_charge", &tp_charge, "tp_charge[tp_n]/I");
+    ana->Branch("tp_tkind", &tp_tkind, "tp_tkind[tp_n]/I");
+    ana->Branch("tp_genind", &tp_genind, "tp_genind[tp_n]/I");
+    ana->Branch("tp_d0", &tp_d0, "tp_d0[tp_n]/D");
+    ana->Branch("tp_dz", &tp_dz, "tp_dz[tp_n]/D");
 }
 
 

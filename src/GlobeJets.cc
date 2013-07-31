@@ -1,4 +1,5 @@
 #include <string>
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeJets.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -56,9 +57,13 @@ GlobeJets::GlobeJets(const edm::ParameterSet& iConfig, const char* n = "algo1"):
   gCUT = new GlobeCuts(iConfig);
   jet_tkind =  new std::vector<std::vector<unsigned short> >;
   jet_calotwind =  new std::vector<std::vector<unsigned short> >;
+
+  jet_beta_ext            = new std::vector<std::vector<float> >();
+  jet_betaStar_ext        = new std::vector<std::vector<float> >();
+  jet_betaStarClassic_ext = new std::vector<std::vector<float> >();
 }
 
-void GlobeJets::defineBranch(TTree* tree) {
+void GlobeJets::defineBranch(GlobeAnalyzer* ana) {
 
   jet_p4 = new TClonesArray("TLorentzVector", MAX_JETS);
   
@@ -66,242 +71,242 @@ void GlobeJets::defineBranch(TTree* tree) {
   
   sprintf(a1, "jet_%s_n", nome);
   sprintf(a2, "jet_%s_n/I", nome);
-  tree->Branch(a1, &jet_n, a2);
+  ana->Branch(a1, &jet_n, a2);
   
   sprintf(a1, "jet_%s_p4", nome);
-  tree->Branch(a1, "TClonesArray", &jet_p4, 32000, 0);
+  ana->Branch(a1, "TClonesArray", &jet_p4, 32000, 0);
   
   sprintf(a1, "jet_%s_area", nome);
   sprintf(a2, "jet_%s_area[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_area, a2);
+  ana->Branch(a1, &jet_area, a2);
 
   sprintf(a1, "jet_%s_chargedMultiplicity", nome);
   sprintf(a2, "jet_%s_chargedMultiplicity[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_chargedMultiplicity, a2);
+  ana->Branch(a1, &jet_chargedMultiplicity, a2);
 
   sprintf(a1, "jet_%s_neutralMultiplicity", nome);
   sprintf(a2, "jet_%s_neutralMultiplicity[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_neutralMultiplicity, a2);
+  ana->Branch(a1, &jet_neutralMultiplicity, a2);
 
   sprintf(a1, "jet_%s_chadfrac", nome);
   sprintf(a2, "jet_%s_chadfrac[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_chadfrac, a2);
+  ana->Branch(a1, &jet_chadfrac, a2);
 
   sprintf(a1, "jet_%s_nhadfrac", nome);
   sprintf(a2, "jet_%s_nhadfrac[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_nhadfrac, a2);
+  ana->Branch(a1, &jet_nhadfrac, a2);
 
   sprintf(a1, "jet_%s_phofrac", nome);
   sprintf(a2, "jet_%s_phofrac[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_phofrac, a2);
+  ana->Branch(a1, &jet_phofrac, a2);
 
   sprintf(a1, "jet_%s_mufrac", nome);
   sprintf(a2, "jet_%s_mufrac[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_mufrac, a2);
+  ana->Branch(a1, &jet_mufrac, a2);
 
   sprintf(a1, "jet_%s_elefrac", nome);
   sprintf(a2, "jet_%s_elefrac[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_elefrac, a2);
+  ana->Branch(a1, &jet_elefrac, a2);
 
   sprintf(a1, "jet_%s_emfrac", nome);
   sprintf(a2, "jet_%s_emfrac[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_emfrac, a2);
+  ana->Branch(a1, &jet_emfrac, a2);
 
   sprintf(a1, "jet_%s_hadfrac", nome);
   sprintf(a2, "jet_%s_hadfrac[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_hadfrac, a2);
+  ana->Branch(a1, &jet_hadfrac, a2);
 
   sprintf(a1, "jet_%s_ntk", nome);
   sprintf(a2, "jet_%s_ntk[jet_%s_n]/I", nome, nome);
-  tree->Branch(a1, &jet_ntk, a2);
+  ana->Branch(a1, &jet_ntk, a2);
 
   sprintf(a1, "jet_%s_erescale", nome);
   sprintf(a2, "jet_%s_erescale[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_erescale, a2);
+  ana->Branch(a1, &jet_erescale, a2);
 
   sprintf(a1, "jet_%s_dRMean", nome);
   sprintf(a2, "jet_%s_dRMean[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_dRMean, a2);
+  ana->Branch(a1, &jet_dRMean, a2);
 
   sprintf(a1, "jet_%s_frac01", nome);
   sprintf(a2, "jet_%s_frac01[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_frac01, a2);
+  ana->Branch(a1, &jet_frac01, a2);
 
   sprintf(a1, "jet_%s_frac02", nome);
   sprintf(a2, "jet_%s_frac02[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_frac02, a2);
+  ana->Branch(a1, &jet_frac02, a2);
 
   sprintf(a1, "jet_%s_frac03", nome);
   sprintf(a2, "jet_%s_frac03[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_frac03, a2);
+  ana->Branch(a1, &jet_frac03, a2);
 
   sprintf(a1, "jet_%s_frac04", nome);
   sprintf(a2, "jet_%s_frac04[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_frac04, a2);
+  ana->Branch(a1, &jet_frac04, a2);
 
   sprintf(a1, "jet_%s_frac05", nome);
   sprintf(a2, "jet_%s_frac05[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_frac05, a2);
+  ana->Branch(a1, &jet_frac05, a2);
 
   sprintf(a1, "jet_%s_frac06", nome);
   sprintf(a2, "jet_%s_frac06[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_frac06, a2);
+  ana->Branch(a1, &jet_frac06, a2);
 
   sprintf(a1, "jet_%s_frac07", nome);
   sprintf(a2, "jet_%s_frac07[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_frac07, a2);
+  ana->Branch(a1, &jet_frac07, a2);
 
   sprintf(a1, "jet_%s_nNeutrals", nome);
   sprintf(a2, "jet_%s_nNeutrals[jet_%s_n]/I", nome, nome);
-  tree->Branch(a1, &jet_nNeutrals, a2);
+  ana->Branch(a1, &jet_nNeutrals, a2);
 
   sprintf(a1, "jet_%s_nNeutrals_ptCut", nome);
   sprintf(a2, "jet_%s_nNeutrals_ptCut[jet_%s_n]/I", nome, nome);
-  tree->Branch(a1, &jet_nNeutrals, a2);
+  ana->Branch(a1, &jet_nNeutrals, a2);
 
   sprintf(a1, "jet_%s_beta", nome);
   sprintf(a2, "jet_%s_beta[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_beta, a2);
+  ana->Branch(a1, &jet_beta, a2);
 
   sprintf(a1, "jet_%s_betaStar", nome);
   sprintf(a2, "jet_%s_betaStar[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_betaStar, a2);
+  ana->Branch(a1, &jet_betaStar, a2);
 
   sprintf(a1, "jet_%s_dZ", nome);
   sprintf(a2, "jet_%s_dZ[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_dZ, a2);
+  ana->Branch(a1, &jet_dZ, a2);
 
   sprintf(a1, "jet_%s_nCharged", nome);
   sprintf(a2, "jet_%s_nCharged[jet_%s_n]/I", nome, nome);
-  tree->Branch(a1, &jet_nCharged, a2);
+  ana->Branch(a1, &jet_nCharged, a2);
 
   sprintf(a1, "jet_%s_nCharged_QC", nome);
   sprintf(a2, "jet_%s_nCharged_QC[jet_%s_n]/I", nome, nome);
-  tree->Branch(a1, &jet_nCharged_QC, a2);
+  ana->Branch(a1, &jet_nCharged_QC, a2);
 
   sprintf(a1, "jet_%s_nCharged_ptCut_QC", nome);
   sprintf(a2, "jet_%s_nCharged_ptCut_QC[jet_%s_n]/I", nome, nome);
-  tree->Branch(a1, &jet_nCharged_ptCut_QC, a2);
+  ana->Branch(a1, &jet_nCharged_ptCut_QC, a2);
 
   sprintf(a1, "jet_%s_rmsCand", nome);
   sprintf(a2, "jet_%s_rmsCand[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_rmsCand, a2);
+  ana->Branch(a1, &jet_rmsCand, a2);
 
   sprintf(a1, "jet_%s_ptD", nome);
   sprintf(a2, "jet_%s_ptD[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_ptD, a2);
+  ana->Branch(a1, &jet_ptD, a2);
 
   sprintf(a1, "jet_%s_axis1", nome);
   sprintf(a2, "jet_%s_axis1[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_axis1, a2);
+  ana->Branch(a1, &jet_axis1, a2);
 
   sprintf(a1, "jet_%s_axis2", nome);
   sprintf(a2, "jet_%s_axis2[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_axis2, a2);
+  ana->Branch(a1, &jet_axis2, a2);
 
   sprintf(a1, "jet_%s_pull", nome);
   sprintf(a2, "jet_%s_pull[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_pull, a2);
+  ana->Branch(a1, &jet_pull, a2);
 
   sprintf(a1, "jet_%s_tana", nome);
   sprintf(a2, "jet_%s_tana[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_tana, a2);
+  ana->Branch(a1, &jet_tana, a2);
 
   sprintf(a1, "jet_%s_rmsCand_QC", nome);
   sprintf(a2, "jet_%s_rmsCand_QC[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_rmsCand_QC, a2);
+  ana->Branch(a1, &jet_rmsCand_QC, a2);
 
   sprintf(a1, "jet_%s_ptD_QC", nome);
   sprintf(a2, "jet_%s_ptD_QC[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_ptD_QC, a2);
+  ana->Branch(a1, &jet_ptD_QC, a2);
 
   sprintf(a1, "jet_%s_axis1_QC", nome);
   sprintf(a2, "jet_%s_axis1_QC[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_axis1_QC, a2);
+  ana->Branch(a1, &jet_axis1_QC, a2);
 
   sprintf(a1, "jet_%s_axis2_QC", nome);
   sprintf(a2, "jet_%s_axis2_QC[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_axis2_QC, a2);
+  ana->Branch(a1, &jet_axis2_QC, a2);
 
   sprintf(a1, "jet_%s_pull_QC", nome);
   sprintf(a2, "jet_%s_pull_QC[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_pull_QC, a2);
+  ana->Branch(a1, &jet_pull_QC, a2);
 
   sprintf(a1, "jet_%s_tana_QC", nome);
   sprintf(a2, "jet_%s_tana_QC[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_tana_QC, a2);
+  ana->Branch(a1, &jet_tana_QC, a2);
 
   sprintf(a1, "jet_%s_Rchg", nome);
   sprintf(a2, "jet_%s_Rchg[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_Rchg, a2);
+  ana->Branch(a1, &jet_Rchg, a2);
 
   sprintf(a1, "jet_%s_Rneutral", nome);
   sprintf(a2, "jet_%s_Rneutral[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_Rneutral, a2);
+  ana->Branch(a1, &jet_Rneutral, a2);
 
   sprintf(a1, "jet_%s_R", nome);
   sprintf(a2, "jet_%s_R[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_R, a2);
+  ana->Branch(a1, &jet_R, a2);
 
   sprintf(a1, "jet_%s_Rchg_QC", nome);
   sprintf(a2, "jet_%s_Rchg_QC[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_Rchg_QC, a2);
+  ana->Branch(a1, &jet_Rchg_QC, a2);
 
 
   sprintf(a1, "jet_%s_dR2Mean", nome);
   sprintf(a2, "jet_%s_dR2Mean[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_dR2Mean, a2);
+  ana->Branch(a1, &jet_dR2Mean, a2);
 
   sprintf(a1, "jet_%s_betaStarClassic", nome);
   sprintf(a2, "jet_%s_betaStarClassic[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_betaStarClassic, a2);
+  ana->Branch(a1, &jet_betaStarClassic, a2);
 
   sprintf(a1, "jet_%s_beta_ext", nome);
-  tree->Branch(a1, "std::vector<std::vector<float> >", &jet_beta_ext);
+  ana->Branch(a1, "std::vector<std::vector<float> >", &jet_beta_ext);
   sprintf(a1, "jet_%s_betaStar_ext", nome);
-  tree->Branch(a1, "std::vector<std::vector<float> >", &jet_betaStar_ext);
+  ana->Branch(a1, "std::vector<std::vector<float> >", &jet_betaStar_ext);
   sprintf(a1, "jet_%s_betaStarClassic_ext", nome);
-  tree->Branch(a1, "std::vector<std::vector<float> >", &jet_betaStarClassic_ext);
+  ana->Branch(a1, "std::vector<std::vector<float> >", &jet_betaStarClassic_ext);
 
   sprintf(a1, "jet_%s_nvtx", nome);
   sprintf(a2, "jet_%s_nvtx/i", nome);
-  tree->Branch(a1, &jet_nvtx, a2);
+  ana->Branch(a1, &jet_nvtx, a2);
   
   sprintf(a1, "jet_%s_pfloose", nome);
   sprintf(a2, "jet_%s_pfloose[jet_%s_n]/O", nome, nome);
-  tree->Branch(a1, &jet_pfloose, a2);
+  ana->Branch(a1, &jet_pfloose, a2);
 
   sprintf(a1, "jet_%s_csvBtag", nome);
   sprintf(a2, "jet_%s_csvBtag[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_csvBtag, a2);
+  ana->Branch(a1, &jet_csvBtag, a2);
 
   sprintf(a1, "jet_%s_csvMvaBtag", nome);
   sprintf(a2, "jet_%s_csvMvaBtag[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_csvMvaBtag, a2);
+  ana->Branch(a1, &jet_csvMvaBtag, a2);
 
   sprintf(a1, "jet_%s_jetProbBtag", nome);
   sprintf(a2, "jet_%s_jetProbBtag[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_jetProbBtag, a2);
+  ana->Branch(a1, &jet_jetProbBtag, a2);
 
   sprintf(a1, "jet_%s_tcheBtag", nome);
   sprintf(a2, "jet_%s_tcheBtag[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_tcheBtag, a2);
+  ana->Branch(a1, &jet_tcheBtag, a2);
 
   sprintf(a1, "jet_%s_nSecondaryVertices", nome);
   sprintf(a2, "jet_%s_nSecondaryVertices[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_nSecondaryVertices, a2);
+  ana->Branch(a1, &jet_nSecondaryVertices, a2);
 
   sprintf(a1, "jet_%s_secVtxPt", nome);
   sprintf(a2, "jet_%s_secVtxPt[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_secVtxPt, a2);
+  ana->Branch(a1, &jet_secVtxPt, a2);
 
   sprintf(a1, "jet_%s_secVtx3dL", nome);
   sprintf(a2, "jet_%s_secVtx3dL[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_secVtx3dL, a2);
+  ana->Branch(a1, &jet_secVtx3dL, a2);
 
   sprintf(a1, "jet_%s_secVtx3deL", nome);
   sprintf(a2, "jet_%s_secVtx3deL[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_secVtx3deL, a2);
+  ana->Branch(a1, &jet_secVtx3deL, a2);
 
  
   for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
@@ -313,36 +318,36 @@ void GlobeJets::defineBranch(TTree* tree) {
 
       sprintf(a1, "jet_%s_%s_mva", nome, mvalabel.c_str());
       sprintf(a2, "jet_%s_%s_mva[jet_%s_n]/F", nome, mvalabel.c_str(), nome);
-      tree->Branch(a1, &mvas_[imva][0], a2);
+      ana->Branch(a1, &mvas_[imva][0], a2);
 
       sprintf(a1, "jet_%s_%s_wp_level", nome, mvalabel.c_str());
       sprintf(a2, "jet_%s_%s_wp_level[jet_%s_n]/I", nome, mvalabel.c_str(), nome);
-      tree->Branch(a1, &wp_levels_[imva][0], a2);
+      ana->Branch(a1, &wp_levels_[imva][0], a2);
 
       mvas_ext_[imva] = new std::vector<std::vector<float> >();
       wp_levels_ext_[imva] = new std::vector<std::vector<int> >();
 
       sprintf(a1, "jet_%s_%s_mva_ext", nome, mvalabel.c_str());
-      tree->Branch(a1, "std::vector<std::vector<float> >", &mvas_ext_[imva]);
+      ana->Branch(a1, "std::vector<std::vector<float> >", &mvas_ext_[imva]);
 
       sprintf(a1, "jet_%s_%s_wp_level_ext", nome, mvalabel.c_str());
-      tree->Branch(a1, "std::vector<std::vector<int> >", &wp_levels_ext_[imva]);
+      ana->Branch(a1, "std::vector<std::vector<int> >", &wp_levels_ext_[imva]);
   }
 
 
   sprintf(a1, "jet_%s_pull_dy", nome);
   sprintf(a2, "jet_%s_pull_dy[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_pull_dy, a2);
+  ana->Branch(a1, &jet_pull_dy, a2);
   
   sprintf(a1, "jet_%s_pull_dphi", nome);
   sprintf(a2, "jet_%s_pull_dphi[jet_%s_n]/F", nome, nome);
-  tree->Branch(a1, &jet_pull_dphi, a2);
+  ana->Branch(a1, &jet_pull_dphi, a2);
   
   sprintf(a1, "jet_%s_tkind", nome); 
-  tree->Branch(a1, "std::vector<std::vector<unsigned short> >", &jet_tkind);
+  ana->Branch(a1, "std::vector<std::vector<unsigned short> >", &jet_tkind);
 
   sprintf(a1, "jet_%s_calotwind", nome);
-  tree->Branch(a1, "std::vector<std::vector<unsigned short> >", &jet_calotwind);
+  ana->Branch(a1, "std::vector<std::vector<unsigned short> >", &jet_calotwind);
 }
 
 bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -518,12 +523,12 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       mvas_ext_[imva]->resize(n_jets, std::vector<float>(n_vtx,-999.));
       wp_levels_ext_[imva]->clear();
       wp_levels_ext_[imva]->resize(n_jets, std::vector<int>(n_vtx,-999.));
-      jet_beta_ext.clear();
-      jet_beta_ext.resize(n_jets,std::vector<float>(n_vtx,-999.));
-      jet_betaStar_ext.clear();
-      jet_betaStar_ext.resize(n_jets,std::vector<float>(n_vtx,-999.));
-      jet_betaStarClassic_ext.clear();
-      jet_betaStarClassic_ext.resize(n_jets,std::vector<float>(n_vtx,-999.));
+      jet_beta_ext->clear();
+      jet_beta_ext->resize(n_jets,std::vector<float>(n_vtx,-999.));
+      jet_betaStar_ext->clear();
+      jet_betaStar_ext->resize(n_jets,std::vector<float>(n_vtx,-999.));
+      jet_betaStarClassic_ext->clear();
+      jet_betaStarClassic_ext->resize(n_jets,std::vector<float>(n_vtx,-999.));
       
     }
 
@@ -631,9 +636,9 @@ bool GlobeJets::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//for(size_t vtx=0; vtx<vertexCollection.size(); ++vtx) {
 	for(size_t vtx=0; vtx<n_vtx; ++vtx) {
 	  PileupJetIdentifier ext_vars = jetMVACalculator->computeIdVariables( thisjet, jet_erescale[jet_n], &vertexCollection[vtx], vertexCollection);
-	  jet_beta_ext[jet_n][vtx]=ext_vars.beta();
-	  jet_betaStar_ext[jet_n][vtx]=ext_vars.betaStar();
-	  jet_betaStarClassic_ext[jet_n][vtx]=ext_vars.betaStarClassic();
+	  (*jet_beta_ext)[jet_n][vtx]=ext_vars.beta();
+	  (*jet_betaStar_ext)[jet_n][vtx]=ext_vars.betaStar();
+	  (*jet_betaStarClassic_ext)[jet_n][vtx]=ext_vars.betaStarClassic();
 	  
 	  for(unsigned int imva=0; imva<jetMVAAlgos.size(); imva++){
 	    PileupJetIdAlgo* ialgo = (algos_[imva]);

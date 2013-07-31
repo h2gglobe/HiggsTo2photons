@@ -525,7 +525,7 @@ process.newPFchsBtaggingSequence = cms.Sequence(
 #################################################
 # Define path, first for AOD case then for RECO #
 #################################################
-process.p11 = cms.Path(process.eventCounters*process.ecalLaserCorrFilter*process.eventFilter1*process.particleFlowTmpPtrs*process.pfNoPileUpSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence*process.eleRegressionEnergy * process.calibratedElectrons)
+process.p11 = cms.Path(process.eventCounters*process.eventFilter1*process.particleFlowTmpPtrs*process.pfNoPileUpSequence*process.ak5PFchsJets*process.producePFMETCorrections*process.newPFBtaggingSequence*process.newPFchsBtaggingSequence*process.eleRegressionEnergy * process.calibratedElectrons)
 
 if (flagFastSim == 'OFF' or flagAOD == 'OFF'):
   process.p11 *= process.piZeroDiscriminators

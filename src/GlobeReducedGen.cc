@@ -1,44 +1,45 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeReducedGen.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 GlobeReducedGen::GlobeReducedGen(const edm::ParameterSet& iConfig) {
 
   dR_min_for_matching = iConfig.getParameter<double>("GlobeReducedGendRMin");
 }
 
-void GlobeReducedGen::defineBranch(TTree* tree) {
+void GlobeReducedGen::defineBranch(GlobeAnalyzer* ana) {
 
   lptgeninfo_p4 = new TClonesArray("TLorentzVector", MAX_GENERATOR);
   lptgen_p4 = new TClonesArray("TLorentzVector", MAX_GENERATOR);
   lptgen_befrad_p4 = new TClonesArray("TLorentzVector", MAX_GENERATOR);
    
-  tree->Branch("lptgeninfo_n", &lptgeninfo_n, "lptgeninfo_n/I");
-  tree->Branch("lptgen_n", &lptgen_n, "lptgen_n/I");
+  ana->Branch("lptgeninfo_n", &lptgeninfo_n, "lptgeninfo_n/I");
+  ana->Branch("lptgen_n", &lptgen_n, "lptgen_n/I");
   
-  tree->Branch("lptgeninfo_p4", "TClonesArray", &lptgeninfo_p4, 32000, 0);
-  tree->Branch("lptgen_p4", "TClonesArray", &lptgen_p4, 32000, 0);
-  tree->Branch("lptgen_befrad_p4", "TClonesArray", &lptgen_befrad_p4, 32000, 0);
+  ana->Branch("lptgeninfo_p4", "TClonesArray", &lptgeninfo_p4, 32000, 0);
+  ana->Branch("lptgen_p4", "TClonesArray", &lptgen_p4, 32000, 0);
+  ana->Branch("lptgen_befrad_p4", "TClonesArray", &lptgen_befrad_p4, 32000, 0);
   
-  tree->Branch("lptgeninfo_status", lptgeninfo_status, "lptgeninfo_status[lptgeninfo_n]/I");
-  tree->Branch("lptgeninfo_pdgid", lptgeninfo_pdgid, "lptgeninfo_pdgid[lptgeninfo_n]/I");
-  tree->Branch("lptgeninfo_mother", lptgeninfo_mother, "lptgeninfo_mother[lptgeninfo_n]/I");
+  ana->Branch("lptgeninfo_status", lptgeninfo_status, "lptgeninfo_status[lptgeninfo_n]/I");
+  ana->Branch("lptgeninfo_pdgid", lptgeninfo_pdgid, "lptgeninfo_pdgid[lptgeninfo_n]/I");
+  ana->Branch("lptgeninfo_mother", lptgeninfo_mother, "lptgeninfo_mother[lptgeninfo_n]/I");
 
-  tree->Branch("lptgen_status", lptgen_status,           "lptgen_status[lptgen_n]/I"     );
-  tree->Branch("lptgen_pdgid", lptgen_pdgid,             "lptgen_pdgid[lptgen_n]/I"      );
-  tree->Branch("lptgen_mother", lptgen_mother,           "lptgen_mother[lptgen_n]/I"     );
-  tree->Branch("lptgen_motherpdgid", lptgen_motherpdgid, "lptgen_motherpdgid[lptgen_n]/I");
+  ana->Branch("lptgen_status", lptgen_status,           "lptgen_status[lptgen_n]/I"     );
+  ana->Branch("lptgen_pdgid", lptgen_pdgid,             "lptgen_pdgid[lptgen_n]/I"      );
+  ana->Branch("lptgen_mother", lptgen_mother,           "lptgen_mother[lptgen_n]/I"     );
+  ana->Branch("lptgen_motherpdgid", lptgen_motherpdgid, "lptgen_motherpdgid[lptgen_n]/I");
 
-  tree->Branch("lptgen_indrec", lptgen_indrec,           "lptgen_indrec[lptgen_n]/I");
-  tree->Branch("lptgen_indrecel", lptgen_indrecel,       "lptgen_indrecel[lptgen_n]/I");
-  tree->Branch("lptgen_indrecph", lptgen_indrecph,       "lptgen_indrecph[lptgen_n]/I");
-  tree->Branch("lptgen_indrecmu", lptgen_indrecmu,       "lptgen_indrecmu[lptgen_n]/I");
+  ana->Branch("lptgen_indrec", lptgen_indrec,           "lptgen_indrec[lptgen_n]/I");
+  ana->Branch("lptgen_indrecel", lptgen_indrecel,       "lptgen_indrecel[lptgen_n]/I");
+  ana->Branch("lptgen_indrecph", lptgen_indrecph,       "lptgen_indrecph[lptgen_n]/I");
+  ana->Branch("lptgen_indrecmu", lptgen_indrecmu,       "lptgen_indrecmu[lptgen_n]/I");
 
-  tree->Branch("lptgen_drmatch", lptgen_drmatch,         "lptgen_drmatch[lptgen_n]/F");
-  tree->Branch("lptgen_drmatchel", lptgen_drmatchel,     "lptgen_drmatchel[lptgen_n]/F");
-  tree->Branch("lptgen_drmatchmu", lptgen_drmatchmu,     "lptgen_drmatchmu[lptgen_n]/F");
-  tree->Branch("lptgen_drmatchph", lptgen_drmatchph,     "lptgen_drmatchph[lptgen_n]/F");
+  ana->Branch("lptgen_drmatch", lptgen_drmatch,         "lptgen_drmatch[lptgen_n]/F");
+  ana->Branch("lptgen_drmatchel", lptgen_drmatchel,     "lptgen_drmatchel[lptgen_n]/F");
+  ana->Branch("lptgen_drmatchmu", lptgen_drmatchmu,     "lptgen_drmatchmu[lptgen_n]/F");
+  ana->Branch("lptgen_drmatchph", lptgen_drmatchph,     "lptgen_drmatchph[lptgen_n]/F");
 
-  tree->Branch("lptgen_indinfo", lptgen_indinfo,         "lptgen_indinfo[lptgen_n]/I"    );
-  tree->Branch("lptgen_historycode", lptgen_historycode, "lptgen_historycode[lptgen_n]/I");
+  ana->Branch("lptgen_indinfo", lptgen_indinfo,         "lptgen_indinfo[lptgen_n]/I"    );
+  ana->Branch("lptgen_historycode", lptgen_historycode, "lptgen_historycode[lptgen_n]/I");
 }
 
 void GlobeReducedGen::fillRedGenList(GlobeGenerator * gen, GlobeLeptons * lep){

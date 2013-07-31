@@ -1,4 +1,5 @@
 #include "HiggsAnalysis/HiggsTo2photons/interface/GlobeLeptons.h"
+#include "HiggsAnalysis/HiggsTo2photons/plugins/GlobeAnalyzer.h"
 
 
 GlobeLeptons::GlobeLeptons() {
@@ -6,20 +7,20 @@ GlobeLeptons::GlobeLeptons() {
   leptons_cut_et_rec=0.;
 }
 
-void GlobeLeptons::defineBranch(TTree* tree) {
+void GlobeLeptons::defineBranch(GlobeAnalyzer* ana) {
   lpt_p4 = new TClonesArray("TLorentzVector", MAX_LEPTONS);
 
-  tree->Branch("lpt_n", &lpt_n, "lpt_n/I");
-  tree->Branch("lpt_emu_n", &lpt_emu_n, "lpt_emu_n/I");
-  tree->Branch("lpt_mu_n", &lpt_mu_n, "lpt_mu_n/I");
-  tree->Branch("lpt_el_n", &lpt_el_n, "lpt_el_n/I");
-  tree->Branch("lpt_pho_n", &lpt_pho_n, "lpt_pho_n/I");
-  tree->Branch("lpt_pdgid", &lpt_pdgid, "lpt_pdgid[lpt_n]/I");
-  tree->Branch("lpt_ind", &lpt_ind, "lpt_ind[lpt_n]/I");
-  tree->Branch("lpt_duplicate", &lpt_duplicate, "lpt_duplicate[lpt_n]/I");
-  tree->Branch("lpt_p4", "TClonesArray", &lpt_p4, 32000, 0);
-  tree->Branch("lpt_indgen", &lpt_indgen, "lpt_indgen[lpt_n]/I");// filled in GlobeReducedGen
-  tree->Branch("lpt_drmatch", &lpt_drmatch, "lpt_drmatch[lpt_n]/F");// filled in GlobeReducedGen
+  ana->Branch("lpt_n", &lpt_n, "lpt_n/I");
+  ana->Branch("lpt_emu_n", &lpt_emu_n, "lpt_emu_n/I");
+  ana->Branch("lpt_mu_n", &lpt_mu_n, "lpt_mu_n/I");
+  ana->Branch("lpt_el_n", &lpt_el_n, "lpt_el_n/I");
+  ana->Branch("lpt_pho_n", &lpt_pho_n, "lpt_pho_n/I");
+  ana->Branch("lpt_pdgid", &lpt_pdgid, "lpt_pdgid[lpt_n]/I");
+  ana->Branch("lpt_ind", &lpt_ind, "lpt_ind[lpt_n]/I");
+  ana->Branch("lpt_duplicate", &lpt_duplicate, "lpt_duplicate[lpt_n]/I");
+  ana->Branch("lpt_p4", "TClonesArray", &lpt_p4, 32000, 0);
+  ana->Branch("lpt_indgen", &lpt_indgen, "lpt_indgen[lpt_n]/I");// filled in GlobeReducedGen
+  ana->Branch("lpt_drmatch", &lpt_drmatch, "lpt_drmatch[lpt_n]/F");// filled in GlobeReducedGen
 }
 
 void GlobeLeptons::Zero() {

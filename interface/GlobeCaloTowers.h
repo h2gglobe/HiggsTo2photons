@@ -28,13 +28,15 @@
 
 #include <iostream>
 
+class GlobeAnalyzer;
+
 class GlobeCaloTowers {
  public:
   
   GlobeCaloTowers(const edm::ParameterSet&, const char* n="unused");
   virtual ~GlobeCaloTowers() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
 
   // variables

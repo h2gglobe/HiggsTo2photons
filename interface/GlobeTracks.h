@@ -27,6 +27,7 @@
 #include <iostream>
 
 class GlobeTrackingParticles;
+class GlobeAnalyzer;
 
 class GlobeTracks {
  public:
@@ -34,7 +35,7 @@ class GlobeTracks {
   GlobeTracks(const edm::ParameterSet&, const char* n="unused");
   virtual ~GlobeTracks() {};
 
-  void defineBranch(TTree* tree);
+  void defineBranch(GlobeAnalyzer* ana);
   bool analyze(const edm::Event&, const edm::EventSetup&);
   void GetAssociatedTrackingParticleIndex(const edm::Event&, const edm::EventSetup&, GlobeTrackingParticles*);
 
