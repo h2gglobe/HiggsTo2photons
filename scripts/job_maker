@@ -307,6 +307,8 @@ for run in runselection:
         file_out.write("use2012JecPreview(process)\n")
     l = os.popen("git describe --tags")
     h2gVersion = l.readlines()[0].split("\n")[0]
+    if ("version" in h2gVersion):
+        h2gVersion = "V99_99_99"
     file_out.write("process.h2ganalyzer.h2gAnalyzerVersion = " + h2gVersion)
     file_out.close()
     
