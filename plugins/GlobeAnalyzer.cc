@@ -580,7 +580,7 @@ void GlobeAnalyzer::beginJob() {
   tree2 = new TTree("global_variables", "Global Parameters"); // need a different tree to fill once per job
   lumitree = new TTree("lumi", "Processed lumi sections");
 
-  //common->defineBranch(this);
+  common->defineBranch(this);
   common->defineLumiBranch(lumitree);
   
   if (doPhoton)
