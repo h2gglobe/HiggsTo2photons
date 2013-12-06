@@ -305,7 +305,7 @@ for run in runselection:
     if jecFromSqlite:
         file_out.write("from CMGTools.External.jec_2012_cff import use2012JecPreview\n")
         file_out.write("use2012JecPreview(process)\n")
-    l = os.popen("git describe --tags")
+    l = os.popen("git describe --tags --abbrev=0")
     h2gVersion = l.readlines()[0].split("\n")[0]
     if ("version" in h2gVersion):
         h2gVersion = "V99_99_99"
