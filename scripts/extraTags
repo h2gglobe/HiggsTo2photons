@@ -1,6 +1,16 @@
-cvs co -r V00-02-05 -d CMGTools/External UserCode/CMG/CMGTools/External
-cvs co -d EGamma/EGammaAnalysisTools UserCode/Matteosan/EGamma/EGammaAnalysisTools
-cvs co -d EgammaAnalysis/ElectronTools UserCode/Matteosan/EgammaAnalysis/ElectronTools
+
+# see http://cms-sw.github.io/cmssw/faq.html#how_do_i_access_the_old_cvs_repository_to_check_what_was_really_there
+
+# this assumes that your login name from the machine you run this
+# is the same as you have on lxplus
+export CVSROOT=":ext:lxplus5.cern.ch:/afs/cern.ch/user/c/cvscmssw/public/CMSSW"
+
+# cvs -d with a subdirectory x/y seems somehow not to work...
+
+mkdir CMGTools       ; cd CMGTools       ; cvs co -r V00-02-05 -d External UserCode/CMG/CMGTools/External              ; cd ..
+mkdir EGamma         ; cd EGamma         ; cvs co -d EGammaAnalysisTools UserCode/Matteosan/EGamma/EGammaAnalysisTools ; cd ..
+mkdir EgammaAnalysis ; cd EgammaAnalysis ; cvs co -d ElectronTools UserCode/Matteosan/EgammaAnalysis/ElectronTools     ; cd ..
+
 cp HiggsAnalysis/HiggsTo2photons/scripts/download.url EGamma/EGammaAnalysisTools/data/.
 #addpkg CommonTools/RecoUtils
 addpkg RecoEgamma/EgammaTools PFSCToolsFix62
