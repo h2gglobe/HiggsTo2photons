@@ -1,4 +1,27 @@
 #!/bin/bash
+get_git()
+{
+            tag=$1 && shift
+        src=$1 && shift
+        dst=$1 && shift
+        wd=$(pwd)
+
+        echo
+        echo "Checking out $tag $src into $dst"
+
+        if [[ ! -d $dst ]]; then
+         git clone $src $dst
+        fi
+        cd $dst
+        git fetch origin
+        git checkout $tag
+        
+        cd $wd
+        echo "done"
+        echo
+        
+        packs="$packs $dst"
+}
 
 ## all commands you should give are reported 
 ## this should help at least the firsts times to set up a working environment 
@@ -13,17 +36,23 @@
 
 #make the work directory a git repository
 #-# git init .
-#-# get the cmssw - all or single branch in future 
+# get the cmssw - all or single branch in future 
 #-# git fetch cmssw-main
 
 #add the packages in cmssw history
-git cms-cvs-history import V00-00-09 CommonTools/RecoUtil
+#git cms-cvs-history import V00-00-09 CommonTools/RecoUtil ## doesn't exist anymore
 git cms-cvs-history import V09-00-00 RecoEgamma/EgammaTools
 
 #add the UserCode code
-cd $CMSSW_BASE/src ; mkdir CMGTools ;cd CMGTools/ ; git clone git@github.com:h2gglobe/External ; cd External ;git checkout V00-02-05 
-cd $CMSSW_BASE/src ; mkdir EGamma ; cd EGamma; git clone git@github.com:h2gglobe/EGammaAnalysisTools; cd EGammaAnalysisTools; git checkout master;
-cd $CMSSW_BASE/src ; mkdir EgammaAnalysis ; cd EgammaAnalysis; git clone git@github.com:h2gglobe/ElectronTools; cd ElectronTools; git checkout master;
+#cd $CMSSW_BASE/src ; mkdir  CommonTools ; cd CommonTools ; git clone git@github.com:h2gglobe/CommonTools_RecoUtils RecoUtils -b V00-00-09
+#cd $CMSSW_BASE/src ; mkdir CMGTools ;cd CMGTools/ ; git clone git@github.com:h2gglobe/External ; cd External ;git checkout V00-02-05 
+#cd $CMSSW_BASE/src ; mkdir EGamma ; cd EGamma; git clone git@github.com:h2gglobe/EGammaAnalysisTools; cd EGammaAnalysisTools; git checkout master;
+#cd $CMSSW_BASE/src ; mkdir EgammaAnalysis ; cd EgammaAnalysis; git clone git@github.com:h2gglobe/ElectronTools; cd ElectronTools; git checkout master;
+
+get_git V00-00-09 https://github.com/h2gglobe/CommonTools_RecoUtils.git CommonTools/RecoUtils
+get_git V00-02-05 https://github.com/h2gglobe/External.git CMGTools/External
+get_git master https://github.com/h2gglobe/EGammaAnalysisTools.git EGamma/EGammaAnalysisTools
+get_git master https://github.com/h2gglobe/ElectronTools.git EgammaAnalysis/ElectronTools
 
 #add this analyzer
 #cd $CMSSW_BASE/src ; mkdir HiggsAnalysis; cd HiggsAnalysis; git clone git@github.com:h2gglobe/HiggsTo2photons; cd HiggsTo2photons ; git checkout branch_for_53X
