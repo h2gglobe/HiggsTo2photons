@@ -1,10 +1,39 @@
-cvs co -r V00-02-05 -d CMGTools/External UserCode/CMG/CMGTools/External
-cvs co -d EGamma/EGammaAnalysisTools UserCode/Matteosan/EGamma/EGammaAnalysisTools
-cvs co -d EgammaAnalysis/ElectronTools UserCode/Matteosan/EgammaAnalysis/ElectronTools
+#!/bin/bash
+get_git()
+{
+            tag=$1 && shift
+        src=$1 && shift
+        dst=$1 && shift
+        wd=$(pwd)
+
+        echo
+        echo "Checking out $tag $src into $dst"
+
+        if [[ ! -d $dst ]]; then
+         git clone $src $dst
+        fi
+        cd $dst
+        git fetch origin
+        git checkout $tag
+        
+        cd $wd
+        echo "done"
+        echo
+        
+        packs="$packs $dst"
+}
+
+cd $CMSSW_BASE/src
+
+git cms-cvs-history import PFSCToolsFix62 RecoEgamma/EgammaTools
+
+get_git V00-02-05 https://github.com/h2gglobe/External.git CMGTools/External
+get_git master https://github.com/h2gglobe/EGammaAnalysisTools.git EGamma/EGammaAnalysisTools
+get_git master https://github.com/h2gglobe/ElectronTools.git EgammaAnalysis/ElectronTools
+
+
 cp HiggsAnalysis/HiggsTo2photons/scripts/download.url EGamma/EGammaAnalysisTools/data/.
-#addpkg CommonTools/RecoUtils
-addpkg RecoEgamma/EgammaTools PFSCToolsFix62
-cd EGamma/EGammaAnalysisTools/data/
+cd ${CMSSW_BASE}/src/EGamma/EGammaAnalysisTools/data/
 wget -i ../../../HiggsAnalysis/HiggsTo2photons/scripts/download.url
-cd ../../../
-#checkdeps -a
+
+cd ${CMSSW_BASE}/src/HiggsAnalysis/HiggsTo2photons
